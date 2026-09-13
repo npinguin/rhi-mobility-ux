@@ -2,6 +2,8 @@
 
 Public HACS Dashboard/plugin repository for Robotix Home Intelligence Mobility UX.
 
+![Robotix Home Intelligence Mobility UX](dist/assets/vehicles/vehicle_bmw_ix1_phev.png)
+
 - License: GPL-3.0-only
 - HACS category: Dashboard
 - Runtime artifact: `rhi-mobility-ux.js`
