@@ -8,9 +8,9 @@ Prepared migration baseline:
 - legacy source: `R22.12.11.30`
 - public contract: `MOBILITY_PUBLIC_RUNTIME_V1`
 - deployed backend baseline: `R43.2.60`
-- repository package SHA-256: `6fc28cffe47f23483fff11f954205ad8d3c046c492f9c5ecc01a3ee0ca42e449`
-- generated runtime JS SHA-256: `37e73d4b110f89127a51f25b99a9615e4139207d158fba3c1bc572a59b189c14`
+- Robotix workspace import package SHA-256: `2e71382afd54a9c6e9ea4577c7d29187933e5148be601bb901800ed8b027f683`
 - local validation: PASS
+- release mechanics aligned to Energy UX: PASS
 - runtime/HACS parity proof: PENDING
 
-The complete repository import has been built and validated outside GitHub. Do not merge this branch until the complete generated tree (including `dist/rhi-mobility-ux.js` and runtime assets) has been imported and GitHub CI/HACS validation is green.
+Next action is deliberately the same as Energy UX: import the complete prepared repository tree from the Robotix workspace into this branch, run GitHub CI/HACS validation, merge to `main`, and then run the Release workflow for `1.0.0-rc.1`. Do not merge a partial tree and do not retire the legacy `/local/homebrain/...` deployment until HACS install/update/rollback is proven.
