@@ -1,0 +1,46 @@
+title: Home Intelligence Mobility R22.12.11.30
+views:
+  - title: Vehicles
+    path: dashboard
+    icon: mdi:car-electric
+    panel: true
+    cards:
+      - type: custom:homebrain-mobility-dashboard-card
+        dashboard_path: /mobility-supervisor/dashboard
+        resource_version: 'R22.12.11.30'
+        contract_mode: external_only
+        outcome_renderer: shared_asset_outcome
+        command_source: mobility_command_index
+        relationship_source: mobility_relationship_index
+        release_info_position: bottom
+
+  - title: Vehicle & Charger Detail
+    path: asset-detail
+    icon: mdi:shape-outline
+    subview: true
+    panel: true
+    cards:
+      - type: custom:homebrain-mobility-asset-detail-card
+        dashboard_path: /mobility-supervisor/dashboard
+        resource_version: 'R22.12.11.30'
+        contract_mode: external_only
+        show_contract_inspector: true
+        show_widget_contract_trace: true
+        outcome_renderer: shared_asset_outcome
+        command_source: mobility_command_index
+        relationship_source: mobility_relationship_index
+        release_info_position: bottom
+
+  - title: Chargers
+    path: charger-maintenance
+    icon: mdi:ev-station
+    panel: true
+    cards:
+      - type: custom:homebrain-mobility-charger-maintenance-card
+        dashboard_path: /mobility-supervisor/dashboard
+        resource_version: 'R22.12.11.30'
+        contract_mode: external_only
+        show_contract_inspector: true
+        outcome_renderer: shared_asset_outcome
+        command_source: mobility_command_index
+        release_info_position: bottom

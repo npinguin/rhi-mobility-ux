@@ -1,0 +1,30 @@
+# Example only. HACS manages the JS resource; no resource_version query is required.
+title: Home Intelligence Mobility
+views:
+  - title: Vehicles
+    path: dashboard
+    icon: mdi:car-electric
+    panel: true
+    cards:
+      - type: custom:homebrain-mobility-dashboard-card
+        dashboard_path: /mobility-supervisor/dashboard
+        contract_mode: external_only
+
+  - title: Vehicle & Charger Detail
+    path: asset-detail
+    icon: mdi:shape-outline
+    subview: true
+    panel: true
+    cards:
+      - type: custom:homebrain-mobility-asset-detail-card
+        dashboard_path: /mobility-supervisor/dashboard
+        contract_mode: external_only
+
+  - title: Chargers
+    path: charger-maintenance
+    icon: mdi:ev-station
+    panel: true
+    cards:
+      - type: custom:homebrain-mobility-charger-maintenance-card
+        dashboard_path: /mobility-supervisor/dashboard
+        contract_mode: external_only

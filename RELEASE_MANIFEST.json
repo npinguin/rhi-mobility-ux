@@ -1,0 +1,15 @@
+{
+  "product": "rhi-mobility-ux",
+  "version": "1.0.0-rc.1",
+  "stage": "migration_rc",
+  "license": "GPL-3.0-only",
+  "legacy_source_release": "R22.12.11.30",
+  "legacy_bundle_sha256": "13c018f8937eaabec418fc18b34ea54c22e967a76629f4ccb06304884c34823b",
+  "dist_sha256": "37e73d4b110f89127a51f25b99a9615e4139207d158fba3c1bc572a59b189c14",
+  "mobility_contract": "MOBILITY_PUBLIC_RUNTIME_V1",
+  "backend_baseline": "R43.2.60",
+  "runtime_proof": "pending",
+  "hacs_category": "plugin",
+  "asset_delivery": "dist/assets",
+  "runtime_manual_local_dependency": false
+}

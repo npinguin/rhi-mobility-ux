@@ -1,0 +1,29 @@
+{
+  "legacy_source": "R22.12.11.30",
+  "files": {
+    "chargers/charger_fallback.png": "1d5b2baace7e9ab5",
+    "chargers/charger_peblar.png": "c35422b1a2164c46",
+    "chargers/charger_utility_plug.png": "5445d64839b36e98",
+    "chargers/charger_wallbox.png": "1d5b2baace7e9ab5",
+    "chargers/charger_wallbox_black.png": "861d364cfa17e7f2",
+    "chargers/charger_wallbox_white.png": "1d5b2baace7e9ab5",
+    "chargers/default_charger.png": "1d5b2baace7e9ab5",
+    "vehicles/default_vehicle.png": "9d9191f8079dc817",
+    "vehicles/vehicle_audi_q8.png": "a1970e8f24da134b",
+    "vehicles/vehicle_audi_q8_hero.png": "a1970e8f24da134b",
+    "vehicles/vehicle_bmw_ix1_phev.png": "5f5051c385360b25",
+    "vehicles/vehicle_bmw_ix1_phev_hero.png": "5f5051c385360b25",
+    "vehicles/vehicle_fallback.png": "9d9191f8079dc817",
+    "vehicles/vehicle_guest.png": "9d9191f8079dc817",
+    "vehicles/vehicle_guest_hero.png": "9d9191f8079dc817",
+    "vehicles/vehicle_mercedes_gla.png": "b4be69201b7f6ac6",
+    "vehicles/vehicle_mercedes_gla_hero.png": "b4be69201b7f6ac6",
+    "vehicles/vehicle_renault_scenic_techno_ev.png": "9d9191f8079dc817",
+    "vehicles/vehicle_renault_scenic_techno_ev_hero.png": "9d9191f8079dc817",
+    "vehicles/vehicle_unknown_profile.png": "9d9191f8079dc817",
+    "vehicles/vehicle_unknown_profile_hero.png": "9d9191f8079dc817",
+    "vehicles/vehicle_vw_id4.png": "b4be69201b7f6ac6",
+    "vehicles/vehicle_vw_id4_hero.png": "b4be69201b7f6ac6"
+  },
+  "unique_blob_count": 8
+}
