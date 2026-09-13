@@ -1,0 +1,32 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const order = [
+  'src/assets/asset-paths.js',
+  'src/entry/00-header-and-navigation.js',
+  'src/adapters/06-intelligence-model-alignment.js',
+  'src/runtime/10-ha-contract-runtime.js',
+  'src/view-models/20-asset-factory.js',
+  'src/adapters/30-vehicle-adapter.js',
+  'src/adapters/40-charger-adapter.js',
+  'src/components/50-asset-shell-components.js',
+  'src/screens/60-vehicle-detail-card.js',
+  'src/screens/70-charger-detail-card.js',
+  'src/screens/80-charger-maintenance-card.js',
+  'src/screens/90-mobility-dashboard-card.js',
+  'src/screens/95-placeholder-and-router-cards.js'
+];
+const missing = order.filter((rel) => !fs.existsSync(path.join(root, rel)));
+if (missing.length) throw new Error(`Missing build inputs: ${missing.join(', ')}`);
+const banner = `/**\n * Robotix Home Intelligence Mobility UX v1.0.0-rc.1\n * HACS migration baseline from legacy R22.12.11.30.\n * GENERATED FILE - DO NOT EDIT.\n * License: GPL-3.0-only\n */\n\n`;
+const body = order.map((rel) => `// ---- ${rel} ----\n${fs.readFileSync(path.join(root, rel), 'utf8').trim()}`).join('\n\n');
+const out = path.join(root, 'dist/rhi-mobility-ux.js');
+fs.mkdirSync(path.dirname(out), { recursive: true });
+fs.writeFileSync(out, banner + body + '\n');
+const assetSource = path.join(root, 'src/assets/files');
+const assetDist = path.join(root, 'dist/assets');
+fs.cpSync(assetSource, assetDist, { recursive: true });
+
+console.log(`Built ${order.length} modules -> ${path.relative(root, out)} and copied runtime assets`);
