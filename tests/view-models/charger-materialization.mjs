@@ -10,6 +10,7 @@ const aid='charger_driveway_right';
 const prop=(value, extra={})=>({value, ...extra});
 const fields={
   'asset.display_name':{property_key:'asset.display_name',card_id:'charger_overview',section_id:'identity',label:'Name',display_order:10},
+  'asset.profile_id':{property_key:'asset.profile_id',card_id:'charger_overview',section_id:'identity',label:'Profile',display_order:20},
   'lifecycle_status':{property_key:'lifecycle_status',card_id:'charger_overview',section_id:'status',label:'Lifecycle',display_order:10},
   'charger.operating_state':{property_key:'charger.operating_state',card_id:'charger_overview',section_id:'status',label:'Operating state',display_order:20},
   'charger.connection_state':{property_key:'charger.connection_state',card_id:'charger_overview',section_id:'connection',label:'Connection',display_order:10},
@@ -29,6 +30,7 @@ const cards=[
 ];
 const propertiesByKey={
  [`${aid}:asset.display_name`]:prop('Driveway Right Charger',{editable:false}),
+ [`${aid}:asset.profile_id`]:prop('wallbox_ocpp',{editable:true,write_supported:true,write_service_domain:'select',write_service_action:'select_option',write_target_entity:'select.rhi_mobility_charger_profile',choices:[{value:'wallbox_ocpp',label:'Wallbox OCPP charger'},{value:'__none__',label:'None'}],value_field:'value',label_field:'label'}),
  [`${aid}:lifecycle_status`]:prop('active',{editable:true}),
  [`${aid}:charger.operating_state`]:prop('stopped'),
  [`${aid}:charger.connection_state`]:prop('connected'),
@@ -60,6 +62,10 @@ if(snapshot.operating.display!=='Stopped') throw new Error('operating_state not 
 if(snapshot.connection.display!=='Connected') throw new Error('connection_state not materialized');
 if(snapshot.power.display!=='0 kW') throw new Error(`power not materialized: ${snapshot.power.display}`);
 if(snapshot.health.display!=='Ok' && snapshot.health.display!=='OK') throw new Error(`health not materialized: ${snapshot.health.display}`);
+const profileRow=rt.propertyByCompoundKey(aid,'asset.profile_id');
+if(rt.uxEditorControlKind(profileRow)!=='select') throw new Error('backend profile choices did not produce select editor');
+const profileEditor=rt.propertyEditorRow(profileRow);
+if(profileEditor.choices.length!==2 || profileEditor.choices[0].value!=='wallbox_ocpp') throw new Error('backend profile choices were not preserved');
 const sections=rt.chargerComponentDetailSections(aid);
 for(const title of ['Charger','Control','Metering','Engineering']) if(!sections.some(s=>s.title===title)) throw new Error(`missing component ${title}`);
 const metering=sections.find(s=>s.title==='Metering');
@@ -72,6 +78,7 @@ const keys=commands.map(c=>c.command_key);
 for(const key of ['charger.command.start_charging','charger.command.stop_charging','charger.command.unlock_connector','charger.command.restart']) if(!keys.includes(key)) throw new Error(`missing command ${key}`);
 const stop=commands.find(c=>c.command_key==='charger.command.stop_charging');
 if(stop.execution_allowed!==false) throw new Error('command readiness not taken from command index');
+console.log('PASS backend-owned profile choices render as select metadata');
 console.log('PASS charger canonical keyed-map materialization');
 console.log('PASS charger component contract-driven details + explicit Unmapped retention');
 console.log('PASS merged charger action container: Start/Stop/Unlock/Restart');
