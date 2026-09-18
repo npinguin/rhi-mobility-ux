@@ -1,5 +1,5 @@
 /**
- * Robotix Home Intelligence Mobility UX v1.0.0-rc.1
+ * Robotix Home Intelligence Mobility UX v1.0.0-rc.2
  * HACS migration baseline from legacy R22.12.11.30.
  * GENERATED FILE - DO NOT EDIT.
  * License: GPL-3.0-only
@@ -56,7 +56,7 @@ Internal structure:
 - HomeBrainChargerAdapter: charger contract mapping
 */
 
-const UX_VERSION = "1.0.0-rc.1";
+const UX_VERSION = "1.0.0-rc.2";
 
 const HB_MOBILITY_BASE_PATH = "/mobility-supervisor";
 const HB_MOBILITY_TABS = [
