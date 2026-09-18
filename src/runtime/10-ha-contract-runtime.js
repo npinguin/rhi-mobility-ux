@@ -1311,6 +1311,9 @@ class HomeBrainAssetRuntime {
     const key = String(prop.property_key || "").toLowerCase();
     const semantic = String(prop.semantic_value_type || prop.value_type || prop.editor || "").toLowerCase();
     const unit = String(prop.unit || "").toLowerCase();
+    // Backend-published choices are authoritative editor metadata. Treat any
+    // writable property with choices as a select before legacy text heuristics.
+    if (this.propertyEditorChoices(prop).length > 0) return "select";
     if (key === "lifecycle_status" || key === "vehicle.lifecycle_status" || key === "charger.lifecycle_status" || key === "asset.lifecycle_status") return "select";
     if (semantic === "text" || key.includes("display_name") || key.includes("short_name") || key.includes("owner_label") || key.includes("location_label")) return "text";
     if (semantic === "boolean" || String(prop.value_type || "").toLowerCase() === "boolean") return "toggle";
