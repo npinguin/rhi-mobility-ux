@@ -3,7 +3,7 @@
 
 /**
  * Home Brain Mobility Assets Bundle
- * Release: v1.0.0-rc.1_HACS_MIGRATION_BASELINE
+ * Release: v1.0.0-rc.2_CONTROL_VISIBILITY_CLOSURE
  *
  * Purpose:
  * - Provides the bundled frontend custom elements for the Mobility domain.
