@@ -1477,17 +1477,20 @@ class HomeBrainAssetRuntime {
       allow_none: this.contractBool(prop.allow_none, false),
       none_value: prop.none_value ?? "",
       disabled: !this.isWritableProperty(prop),
-      disabled_reason: !this.contractBool(prop.write_supported, false) ? "Editing not available" : (!prop.write_service_domain || !prop.write_service_action || !prop.write_target_entity) ? "Write binding incomplete" : ""
+      disabled_reason: prop.write_blocked_reason || (!this.contractBool(prop.write_supported, false) ? "Editing not available" : (!prop.write_service_domain || !prop.write_service_action || !prop.write_target_entity) ? "Write binding incomplete" : "")
     };
   }
 
   propertyOperationalRow(prop) {
-    if (this.isWritableProperty(prop)) return this.propertyEditorRow(prop);
+    // A backend-declared editor remains visible when execution is temporarily
+    // unavailable. The backend still owns readiness, bounds and write target;
+    // UX only renders the disabled control and its published reason.
+    if (this.contractBool(prop.write_declared, false) === true || this.isWritableProperty(prop)) return this.propertyEditorRow(prop);
     return { type:"readonly", icon: prop.icon || this.propertyIcon(prop.property_key), label:this.propertyDisplayLabel(prop), value:this.propertyDisplayValue(prop), detail_level:prop._ux_level, parent:prop._ux_parent, group:prop._ux_group };
   }
 
   propertyWriteSection(prop) {
-    if (this.isWritableProperty(prop)) return "editors";
+    if (this.contractBool(prop.write_declared, false) === true || this.isWritableProperty(prop)) return "editors";
     return this.familyLogicalSectionForProperty(prop);
   }
 
