@@ -21,7 +21,7 @@ The repository distinguishes **source candidate** from **published release**:
 
 Do not infer the installed HACS version from this README. Check the installed HACS version or GitHub Releases. Stable promotion is a separate manual gate after target runtime and rollback qualification.
 
-The current source candidate is `v1.0.0-rc.5`. It preserves `MOBILITY_PUBLIC_RUNTIME_V1` and closes release-evidence/promotion drift with focused regressions; it does not introduce a new UX architecture or semantic authority.
+The current source candidate is `v1.0.0-rc.5`. It preserves `MOBILITY_PUBLIC_RUNTIME_V1`, keeps the existing UX architecture, and removes frontend-derived global supervisor conclusions: backend intelligence is authoritative and missing supervisor meaning fails closed.
 
 ## HACS installation
 
