@@ -16,6 +16,8 @@ const changelog=read('CHANGELOG.md');
 const notes=read('release/RELEASE_NOTES.md');
 const governance=read('documentation/RELEASE_GOVERNANCE.md');
 const handover=read('documentation/ENGINEER_HANDOVER.md');
+const publishWorkflow=read('.github/workflows/publish-hacs.yml');
+const releaseWorkflow=read('.github/workflows/release.yml');
 
 const version=String(pkg.version);
 const contract='MOBILITY_PUBLIC_RUNTIME_V1';
@@ -41,6 +43,7 @@ for(const [label,value] of [
   ['RELEASE_STATUS',status.contract]
 ]) if(String(value)!==contract) throw new Error(`${label} contract ${value} != ${contract}`);
 
+if(qualification.candidate_tag!==`v${version}`) throw new Error('qualification candidate tag drift');
 if(manifest.publication_authority!=='github_releases') throw new Error('GitHub Releases must be publication authority');
 if(manifest.known_accepted_technical_debt!==0) throw new Error('accepted technical debt must be zero');
 if(manifest.known_accepted_feature_debt!==0) throw new Error('accepted feature debt must be zero');
@@ -55,11 +58,20 @@ if(!headings.length || !headings[0].startsWith(`## ${version} `)) throw new Erro
 
 if(!governance.includes('GitHub Releases/tags are the publication authority')) throw new Error('release governance publication rule missing');
 if(!governance.includes('`publish-hacs.yml` is the only TEST CANDIDATE publication path')) throw new Error('automatic candidate publication governance missing');
+if(!governance.includes('qualification evidence may change after candidate publication')) throw new Error('post-publication qualification rule missing');
 if(!handover.includes(`Current source candidate: **v${version}**`)) throw new Error('handover source candidate drift');
+
+const publishTrigger=publishWorkflow.split('  workflow_dispatch:')[0];
+if(publishTrigger.includes("'release/QUALIFICATION.json'")) throw new Error('qualification evidence must not trigger immutable candidate republish');
+if(!releaseWorkflow.includes('candidate_sha')) throw new Error('stable promotion must bind to qualification candidate_sha');
+if(!releaseWorkflow.includes('git show "${TAG}:dist/rhi-mobility-ux.js"')) throw new Error('stable promotion must compare release payload with immutable tag payload');
+if(releaseWorkflow.includes('= "$(git rev-parse "$GITHUB_SHA")"')) throw new Error('stable promotion must not require current main SHA to equal immutable candidate SHA');
 
 const workflowDir=path.join(root,'.github/workflows');
 const workflows=fs.readdirSync(workflowDir).filter(n=>/\.ya?ml$/.test(n)).sort();
 const expected=['publish-hacs.yml','release.yml','validate.yml'];
 if(JSON.stringify(workflows)!==JSON.stringify(expected)) throw new Error(`workflow governance violation: ${workflows.join(', ')}`);
 
-console.log(`PASS release governance: source candidate ${version}, contract ${contract}, workflows ${workflows.join(' + ')}`);
+if(fs.existsSync(path.join(root,'documentation/validation/MIGRATION_VALIDATION.txt'))) throw new Error('stale rc.1 validation transcript must not remain active evidence');
+
+console.log(`PASS release governance: source candidate ${version}, contract ${contract}, immutable qualification lifecycle enforced`);
