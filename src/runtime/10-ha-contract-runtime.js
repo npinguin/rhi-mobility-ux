@@ -497,28 +497,16 @@ class HomeBrainAssetRuntime {
   releaseContract() {
     const e = this.entity("sensor.mobility_release_contract");
     const attrs = e?.attributes || {};
-    const backend = this.cleanValue(
-      attrs.backend_release ||
-      attrs.backend_version ||
-      attrs.backend_release_version ||
-      attrs.release_version ||
-      attrs.release ||
-      attrs.version ||
-      attrs.package_version ||
-      e?.state ||
-      "",
-      "Unknown"
-    ) || "Unknown";
     return {
-      backend_release: backend,
-      backend_version: backend,
-      contract_version: this.cleanValue(attrs.contract_version || attrs.contract_release || attrs.contract || "", "Unknown") || "Unknown",
-      schema_version: this.cleanValue(attrs.schema_version || attrs.schema || "", "Unknown") || "Unknown",
-      build_date: this.cleanValue(attrs.build_date || attrs.release_date || attrs.generated_at || "", "Unknown") || "Unknown",
-      contract_health: this.cleanValue(attrs.contract_health || attrs.health || attrs.status || "Unknown", "Unknown") || "Unknown",
-      runtime_health: this.cleanValue(attrs.runtime_health || attrs.runtime_status || "", "Unknown") || "Unknown",
-      physical_acceptance: this.cleanValue(attrs.physical_acceptance || attrs.physical_execution_acceptance || "", "Unknown") || "Unknown",
-      release_acceptance: this.cleanValue(attrs.release_acceptance || attrs.acceptance || "", "Unknown") || "Unknown"
+      backend_release: this.cleanValue(attrs.backend_release || "", "Unknown") || "Unknown",
+      backend_version: this.cleanValue(attrs.backend_release || "", "Unknown") || "Unknown",
+      contract_version: this.cleanValue(attrs.contract_version || "", "Unknown") || "Unknown",
+      schema_version: this.cleanValue(attrs.schema_version || "", "Unknown") || "Unknown",
+      build_date: this.cleanValue(attrs.build_date || "", "Unknown") || "Unknown",
+      contract_health: this.cleanValue(attrs.contract_health || "", "Unknown") || "Unknown",
+      runtime_health: this.cleanValue(attrs.runtime_health || "", "Unknown") || "Unknown",
+      physical_acceptance: this.cleanValue(attrs.physical_acceptance || "", "Unknown") || "Unknown",
+      release_acceptance: this.cleanValue(attrs.release_acceptance || "", "Unknown") || "Unknown"
     };
   }
 
