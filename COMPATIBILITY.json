@@ -1,12 +1,12 @@
 {
   "ux_version": "1.0.0-rc.2",
-  "release_stage": "migration_rc",
+  "release_stage": "release_candidate",
   "legacy_source_release": "R22.12.11.30",
   "mobility_contract": {
     "contract": "MOBILITY_PUBLIC_RUNTIME_V1",
     "minimum_backend": "R43.2.60",
     "tested_backend_releases": [
-      "R43.2.60"
+      "R43.2.65"
     ],
     "runtime_proof": "pending"
   }

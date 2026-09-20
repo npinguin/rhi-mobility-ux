@@ -7,17 +7,25 @@ Public HACS Dashboard/plugin repository for Robotix Home Intelligence Mobility U
 - License: GPL-3.0-only
 - HACS category: Dashboard
 - Runtime artifact: `rhi-mobility-ux.js`
-- Current migration release: `v1.0.0-rc.2`
+- Source candidate: `v1.0.0-rc.2`
 - Public backend contract: `MOBILITY_PUBLIC_RUNTIME_V1`
-- Public backend compatibility boundary: `MOBILITY_PUBLIC_RUNTIME_V1`
+- Tested backend baseline: `R43.2.65`
 
-## Status
+## Release status
 
-`v1.0.0-rc.2` is a migration release candidate. It preserves the legacy `R22.12.11.30` UX behavior while moving delivery to a deterministic HACS repository. Known UX/product defects remain explicitly tracked and are not silently redesigned during migration.
+The repository distinguishes **source candidate** from **published release**:
+
+- `package.json`, `COMPATIBILITY.json` and `RELEASE_MANIFEST.json` describe the candidate currently on `main`;
+- GitHub Releases is the authority for immutable published versions that HACS can install;
+- a candidate on `main` is **not** a release until the release workflow has created its immutable tag and GitHub Release.
+
+Do not infer the installed HACS version from this README. Check the installed HACS version or the GitHub Releases page.
+
+The current source candidate is `v1.0.0-rc.2`. It adds the V1 configuration-control correction for backend-owned profile/selection editables while preserving `MOBILITY_PUBLIC_RUNTIME_V1`.
 
 ## HACS installation
 
-Add this repository to HACS as a **Dashboard** custom repository and install the latest release candidate. The resource is expected at:
+Add this repository to HACS as a **Dashboard** custom repository and install the desired published release. The resource is expected at:
 
 `/hacsfiles/rhi-mobility-ux/rhi-mobility-ux.js`
 
