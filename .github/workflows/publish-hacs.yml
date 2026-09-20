@@ -1,0 +1,132 @@
+name: Publish HACS
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'dist/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'hacs.json'
+      - 'COMPATIBILITY.json'
+      - 'RELEASE_MANIFEST.json'
+      - 'CHANGELOG.md'
+      - 'release/RELEASE_NOTES.md'
+      - 'release/QUALIFICATION.json'
+      - 'tools/build.mjs'
+      - 'tools/verify-dist.mjs'
+      - 'tools/check-release-governance.mjs'
+      - '.github/workflows/publish-hacs.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ${{ github.repository }}-publish-candidate
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    name: Validate candidate source and package
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exact main candidate
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Reject immutable version republish
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          VERSION=$(node -p "require('./package.json').version")
+          TAG="v${VERSION}"
+          git fetch --tags --force
+          if git rev-parse -q --verify "refs/tags/${TAG}" >/dev/null; then
+            echo "Refusing to republish immutable HACS candidate ${TAG}; create the next UX version." >&2
+            exit 1
+          fi
+          if gh release view "${TAG}" >/dev/null 2>&1; then
+            echo "Refusing to republish immutable GitHub Release ${TAG}; create the next UX version." >&2
+            exit 1
+          fi
+      - name: Full validation
+        run: npm test
+      - name: Deterministic two-build proof
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp dist/rhi-mobility-ux.js /tmp/rhi-ux-first.js
+          cp dist/rhi-mobility-ux.js.sha256 /tmp/rhi-ux-first.sha256
+          npm run clean
+          npm run build
+          cmp /tmp/rhi-ux-first.js dist/rhi-mobility-ux.js
+          cmp /tmp/rhi-ux-first.sha256 dist/rhi-mobility-ux.js.sha256
+          git diff --exit-code -- dist/rhi-mobility-ux.js dist/assets
+      - name: HACS validation
+        uses: hacs/action@885037da508419fd08c13515967aec868dfdee2d
+        with:
+          category: plugin
+
+  publish:
+    name: Publish immutable TEST CANDIDATE
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - name: Rebuild exact runtime
+        run: |
+          npm run clean
+          npm run build
+          node tools/verify-dist.mjs
+      - name: Publish immutable version and rollback assets
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          VERSION=$(node -p "require('./package.json').version")
+          TAG="v${VERSION}"
+          git fetch --tags --force
+          if git rev-parse -q --verify "refs/tags/${TAG}" >/dev/null || gh release view "${TAG}" >/dev/null 2>&1; then
+            echo "Immutable candidate ${TAG} already exists; refusing republish." >&2
+            exit 1
+          fi
+          git tag "${TAG}" "$GITHUB_SHA"
+          git push origin "${TAG}"
+          gh release create "${TAG}"             --prerelease             --target "$GITHUB_SHA"             --title "RHI Mobility UX ${TAG} — TEST CANDIDATE"             --notes-file release/RELEASE_NOTES.md             dist/rhi-mobility-ux.js             dist/rhi-mobility-ux.js.sha256             COMPATIBILITY.json             RELEASE_MANIFEST.json             release/QUALIFICATION.json
+          test "$(gh release view "${TAG}" --json isPrerelease --jq '.isPrerelease')" = true
+      - name: Summary
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          {
+            echo '## RHI Mobility UX HACS publication'
+            echo "- Version: v${VERSION}"
+            echo "- Source/package/tests: PASS"
+            echo "- Deterministic build: PASS"
+            echo "- HACS validation: PASS"
+            echo "- Immutable TEST CANDIDATE: PUBLISHED"
+            echo "- Rollback assets: PUBLISHED"
+            echo "- Stable promotion: BLOCKED until target HA qualification passes"
+          } >> "$GITHUB_STEP_SUMMARY"

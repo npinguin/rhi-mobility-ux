@@ -17,9 +17,9 @@ The repository distinguishes **source candidate** from **published release**:
 
 - `package.json`, `COMPATIBILITY.json` and `RELEASE_MANIFEST.json` describe the candidate currently on `main`;
 - GitHub Releases is the authority for immutable published versions that HACS can install;
-- a candidate on `main` is **not** a release until the release workflow has created its immutable tag and GitHub Release.
+- a candidate on `main` is **not** a release until `publish-hacs.yml` has automatically created its immutable tag and GitHub prerelease.
 
-Do not infer the installed HACS version from this README. Check the installed HACS version or the GitHub Releases page.
+Do not infer the installed HACS version from this README. Check the installed HACS version or GitHub Releases. Stable promotion is a separate manual gate after target runtime and rollback qualification.
 
 The current source candidate is `v1.0.0-rc.2`. It adds the V1 configuration-control correction for backend-owned profile/selection editables while preserving `MOBILITY_PUBLIC_RUNTIME_V1`.
 

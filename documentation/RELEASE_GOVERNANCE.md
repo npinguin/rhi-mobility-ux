@@ -10,10 +10,11 @@ The UX may consume `MOBILITY_PUBLIC_RUNTIME_V1`; it may not create a second Mobi
 
 ## Workflow model
 
-This repository has exactly two release workflows:
+This repository has exactly three governed workflows:
 
 - `.github/workflows/validate.yml` — side-effect-free validation.
-- `.github/workflows/release.yml` — manual immutable publication.
+- `.github/workflows/publish-hacs.yml` — automatic immutable HACS TEST CANDIDATE publication from validated `main` changes.
+- `.github/workflows/release.yml` — manual, fail-closed stable promotion after target runtime qualification.
 
 No repair/release-helper workflow may be added to make a failing candidate green.
 
@@ -25,10 +26,11 @@ branch
 → Validate green
 → squash merge
 → main Validate green
-→ manual Release
-→ immutable vX.Y.Z Git tag + GitHub Release
+→ automatic Publish HACS
+→ immutable vX.Y.Z TEST CANDIDATE tag + GitHub prerelease
 → HACS install/update
-→ target Home Assistant runtime proof
+→ target Home Assistant runtime proof + rollback proof
+→ manual stable promotion of the exact same immutable candidate
 → next version for any runtime-impacting correction
 ```
 
@@ -43,7 +45,7 @@ branch
 - `UX_VERSION` in source
 - generated `dist/rhi-mobility-ux.js`
 
-A source candidate is not a published release. GitHub Releases/tags are the publication authority.
+A source candidate is not a published release. `publish-hacs.yml` is the only TEST CANDIDATE publication path. GitHub Releases/tags are the publication authority. `release.yml` may only promote an already-published, byte-identical candidate after qualification; it may not manufacture or replace the candidate.
 
 ## Immutable publication and rollback
 

@@ -2,26 +2,22 @@ name: Release
 
 on:
   workflow_dispatch:
-    inputs:
-      version:
-        description: Version without v prefix
-        required: true
 
 permissions:
   contents: write
 
 concurrency:
-  group: ${{ github.repository }}-release
+  group: ${{ github.repository }}-stable-release
   cancel-in-progress: false
 
 jobs:
   release:
-    name: Publish immutable HACS version
+    name: Qualified stable promotion
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - name: Checkout exact main candidate
+      - name: Checkout current main
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -30,49 +26,12 @@ jobs:
         with:
           node-version: '24'
           cache: npm
-      - name: Install locked dependencies
-        run: npm ci
-      - name: Validate requested identity
-        shell: bash
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          ACTUAL=$(node -p "require('./package.json').version")
-          test "$ACTUAL" = "${{ inputs.version }}"
-          TAG="v${ACTUAL}"
-          if git rev-parse -q --verify "refs/tags/${TAG}" >/dev/null; then
-            echo "Refusing immutable tag overwrite: ${TAG}" >&2
-            exit 1
-          fi
-          if gh release view "${TAG}" >/dev/null 2>&1; then
-            echo "Refusing immutable release overwrite: ${TAG}" >&2
-            exit 1
-          fi
+      - run: npm ci
       - name: Full source/package validation
         run: npm test
-      - name: Deterministic two-build proof
-        shell: bash
-        run: |
-          set -euo pipefail
-          cp dist/rhi-mobility-ux.js /tmp/rhi-ux-first.js
-          cp dist/rhi-mobility-ux.js.sha256 /tmp/rhi-ux-first.sha256
-          npm run clean
-          npm run build
-          cmp /tmp/rhi-ux-first.js dist/rhi-mobility-ux.js
-          cmp /tmp/rhi-ux-first.sha256 dist/rhi-mobility-ux.js.sha256
-          git diff --exit-code -- dist/rhi-mobility-ux.js dist/assets
-      - name: Stable qualification gate
-        shell: bash
-        run: |
-          set -euo pipefail
-          VERSION=$(node -p "require('./package.json').version")
-          if [[ "$VERSION" != *-* ]]; then
-            node tools/check-qualification.mjs --require-pass
-          else
-            echo "Prerelease TEST CANDIDATE: target runtime qualification may remain pending."
-          fi
-      - name: Publish immutable version and rollback assets
+      - name: Require completed target runtime qualification
+        run: node tools/check-qualification.mjs --require-pass
+      - name: Verify immutable published candidate
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
@@ -80,30 +39,35 @@ jobs:
           set -euo pipefail
           VERSION=$(node -p "require('./package.json').version")
           TAG="v${VERSION}"
-          git tag -a "${TAG}" "$GITHUB_SHA" -m "RHI Mobility UX ${TAG}"
-          git push origin "${TAG}"
-          PRE=""
-          TITLE="RHI Mobility UX ${TAG}"
-          if [[ "$VERSION" == *-* ]]; then
-            PRE="--prerelease"
-            TITLE="RHI Mobility UX ${TAG} — TEST CANDIDATE"
-          fi
-          gh release create "${TAG}" $PRE             --target "$GITHUB_SHA"             --title "$TITLE"             --notes-file release/RELEASE_NOTES.md             dist/rhi-mobility-ux.js             dist/rhi-mobility-ux.js.sha256             COMPATIBILITY.json             RELEASE_MANIFEST.json             release/QUALIFICATION.json
-          gh release view "${TAG}" --json tagName,isPrerelease,url
+          git fetch --tags --force
+          TAG_SHA=$(git rev-list -n 1 "${TAG}" 2>/dev/null || true)
+          test -n "$TAG_SHA"
+          RELEASE_SHA=$(gh release view "${TAG}" --json targetCommitish --jq '.targetCommitish')
+          test "$(git rev-parse "$TAG_SHA")" = "$(git rev-parse "$GITHUB_SHA")"
+          test "$(gh release view "${TAG}" --json isPrerelease --jq '.isPrerelease')" = true
+          gh release download "${TAG}" --pattern 'rhi-mobility-ux.js' --dir /tmp/rhi-ux-release
+          gh release download "${TAG}" --pattern 'rhi-mobility-ux.js.sha256' --dir /tmp/rhi-ux-release
+          cmp dist/rhi-mobility-ux.js /tmp/rhi-ux-release/rhi-mobility-ux.js
+          cmp dist/rhi-mobility-ux.js.sha256 /tmp/rhi-ux-release/rhi-mobility-ux.js.sha256
+      - name: Promote exact candidate to stable
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          VERSION=$(node -p "require('./package.json').version")
+          TAG="v${VERSION}"
+          gh release edit "${TAG}"             --prerelease=false             --title "RHI Mobility UX ${TAG}"             --notes-file release/RELEASE_NOTES.md
+          test "$(gh release view "${TAG}" --json isPrerelease --jq '.isPrerelease')" = false
       - name: Summary
         run: |
           VERSION=$(node -p "require('./package.json').version")
           {
-            echo '## RHI Mobility UX release'
+            echo '## RHI Mobility UX stable promotion'
             echo "- Version: v${VERSION}"
-            echo "- Source validation: PASS"
-            echo "- Deterministic build: PASS"
-            echo "- Immutable tag/release: PUBLISHED"
-            echo "- Runtime bundle + SHA-256: PUBLISHED"
-            if [[ "$VERSION" == *-* ]]; then
-              echo "- Target HA qualification: REQUIRED before stable promotion"
-            else
-              echo "- Target HA qualification: PASS (stable gate)"
-            fi
-            echo "- Rollback: select any previous immutable HACS release version"
+            echo "- Source/package/tests: PASS"
+            echo "- Target HA qualification: PASS"
+            echo "- Published candidate payload: EXACT MATCH"
+            echo "- Stable promotion: COMPLETE"
+            echo "- Rollback: previous immutable HACS releases remain selectable"
           } >> "$GITHUB_STEP_SUMMARY"
