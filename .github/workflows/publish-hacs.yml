@@ -113,9 +113,7 @@ jobs:
             echo "Immutable candidate ${TAG} already exists; refusing republish." >&2
             exit 1
           fi
-          git config user.name 'RHI UX Release Bot'
-          git config user.email 'actions@users.noreply.github.com'
-          git tag -a "${TAG}" "$GITHUB_SHA" -m "RHI Mobility UX ${TAG} TEST CANDIDATE"
+          git tag "${TAG}" "$GITHUB_SHA"
           git push origin "${TAG}"
           gh release create "${TAG}"             --prerelease             --target "$GITHUB_SHA"             --title "RHI Mobility UX ${TAG} — TEST CANDIDATE"             --notes-file release/RELEASE_NOTES.md             dist/rhi-mobility-ux.js             dist/rhi-mobility-ux.js.sha256             COMPATIBILITY.json             RELEASE_MANIFEST.json             release/QUALIFICATION.json
           test "$(gh release view "${TAG}" --json isPrerelease --jq '.isPrerelease')" = true
