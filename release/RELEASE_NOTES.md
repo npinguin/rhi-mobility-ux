@@ -1,19 +1,19 @@
-# v1.0.0-rc.2 — V1 configuration controls TEST CANDIDATE
+# v1.0.0-rc.4 — closure governance and regression TEST CANDIDATE
 
 ## Scope
 
-This candidate keeps the public boundary at `MOBILITY_PUBLIC_RUNTIME_V1` and corrects UX consumption of existing V1 configuration-write metadata.
+This candidate preserves `MOBILITY_PUBLIC_RUNTIME_V1` and the existing UX architecture. It closes release-evidence drift and adds focused regression coverage without introducing a new framework or runtime authority.
 
 ## Included
 
-- vehicle and charger `asset.profile_id` render as configuration controls when V1 publishes them editable, including null/unset current values;
-- selector options/labels come from V1 `choices/options`;
-- `vehicle.selected_charger` follows the same unset configuration-control pattern;
-- editor type, editability and write target are V1-owned;
-- requested charging runtime controls remain fail-closed without published write capability;
-- frontend does not infer profile/capability from integration, device name, model or units;
-- frontend does not retain a second durable truth after write dispatch;
-- deterministic build/checksum and release-governance gates are included.
+- keeps the UX boundary at backend V1 → runtime/adapters → canonical viewmodels → screens/components;
+- fixes candidate → runtime qualification → stable promotion so qualification evidence can be recorded after immutable candidate publication without moving or republishing the candidate tag;
+- binds stable promotion to the exact candidate tag and SHA recorded in `release/QUALIFICATION.json`;
+- keeps runtime JS/checksum immutable while allowing final qualification evidence to be attached at stable promotion;
+- aligns release-governance documentation and automated checks;
+- archives the historical rc.1 validation transcript instead of presenting it as current candidate evidence;
+- adds focused release-lifecycle and canonical runtime regression coverage;
+- preserves zero vs unavailable semantics and backend-owned command/readiness/write metadata.
 
 ## Compatibility
 
@@ -24,4 +24,4 @@ This candidate keeps the public boundary at `MOBILITY_PUBLIC_RUNTIME_V1` and cor
 
 ## Qualification status
 
-Static repository validation and HACS validation are required before publication. Target Home Assistant runtime install/update/write/readback/restart/rollback proof remains required before stable promotion.
+Static validation and HACS validation are required before TEST CANDIDATE publication. Target Home Assistant install/update/render/write-readback/restart/rollback evidence remains pending until performed against the immutable candidate. Stable promotion remains blocked until that evidence is PASS and bound to the published candidate SHA.
