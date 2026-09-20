@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.0.0-rc.4 — closure governance and regression candidate
+
+- Preserves `MOBILITY_PUBLIC_RUNTIME_V1` and the existing runtime/adapters → viewmodels → screens/components architecture.
+- Fixes the immutable TEST CANDIDATE → runtime qualification → stable promotion lifecycle.
+- Binds runtime qualification to the published candidate tag and exact commit SHA without moving or republishing the candidate.
+- Keeps runtime JS/checksum immutable while allowing final qualification evidence to be attached at stable promotion.
+- Aligns governance documentation and automated enforcement, including removal of the obsolete `MIGRATION_STATUS.md` requirement.
+- Moves the historical rc.1 validation transcript out of active candidate evidence.
+- Adds focused regressions for qualification lifecycle and canonical actual/unavailable semantics.
+- Does not introduce new frontend semantic authority, framework layers or fallback reconstruction.
+- Status: source candidate until an immutable GitHub prerelease/tag is created.
+
 ## 1.0.0-rc.2 — V1 configuration editable candidate
 
 - Renders `asset.profile_id` as a V1-owned configuration control for vehicle and charger assets even when its current value is unset.
@@ -9,7 +21,7 @@
 - Removes editor-type inference from property names/units and avoids retaining a second local truth after write dispatch.
 - Adds vehicle and charger regression coverage for these semantics.
 - Makes bundle/runtime version checks derive from `package.json` instead of hard-coded RC strings.
-- Status: source candidate until an immutable GitHub Release/tag is created.
+- Status: immutable HACS TEST CANDIDATE published.
 
 ## 1.0.0-rc.1 — HACS migration baseline
 

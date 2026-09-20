@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - name: Checkout current main
+      - name: Checkout current main qualification record
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -31,43 +31,58 @@ jobs:
         run: npm test
       - name: Require completed target runtime qualification
         run: node tools/check-qualification.mjs --require-pass
-      - name: Verify immutable published candidate
+      - name: Verify exact immutable candidate and payload
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           VERSION=$(node -p "require('./package.json').version")
-          TAG="v${VERSION}"
+          TAG=$(node -p "require('./release/QUALIFICATION.json').candidate_tag")
+          CANDIDATE_SHA=$(node -p "require('./release/QUALIFICATION.json').candidate_sha")
+          test "$TAG" = "v${VERSION}"
           git fetch --tags --force
           TAG_SHA=$(git rev-list -n 1 "${TAG}" 2>/dev/null || true)
           test -n "$TAG_SHA"
+          test "$TAG_SHA" = "$CANDIDATE_SHA"
           RELEASE_SHA=$(gh release view "${TAG}" --json targetCommitish --jq '.targetCommitish')
-          test "$(git rev-parse "$TAG_SHA")" = "$(git rev-parse "$GITHUB_SHA")"
+          test "$RELEASE_SHA" = "$CANDIDATE_SHA"
           test "$(gh release view "${TAG}" --json isPrerelease --jq '.isPrerelease')" = true
+
+          rm -rf /tmp/rhi-ux-release
+          mkdir -p /tmp/rhi-ux-release
           gh release download "${TAG}" --pattern 'rhi-mobility-ux.js' --dir /tmp/rhi-ux-release
           gh release download "${TAG}" --pattern 'rhi-mobility-ux.js.sha256' --dir /tmp/rhi-ux-release
-          cmp dist/rhi-mobility-ux.js /tmp/rhi-ux-release/rhi-mobility-ux.js
-          cmp dist/rhi-mobility-ux.js.sha256 /tmp/rhi-ux-release/rhi-mobility-ux.js.sha256
-      - name: Promote exact candidate to stable
+
+          git show "${TAG}:dist/rhi-mobility-ux.js" > /tmp/rhi-ux-tag.js
+          git show "${TAG}:dist/rhi-mobility-ux.js.sha256" > /tmp/rhi-ux-tag.sha256
+          cmp /tmp/rhi-ux-tag.js /tmp/rhi-ux-release/rhi-mobility-ux.js
+          cmp /tmp/rhi-ux-tag.sha256 /tmp/rhi-ux-release/rhi-mobility-ux.js.sha256
+      - name: Attach final qualification and promote exact candidate
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          VERSION=$(node -p "require('./package.json').version")
-          TAG="v${VERSION}"
-          gh release edit "${TAG}"             --prerelease=false             --title "RHI Mobility UX ${TAG}"             --notes-file release/RELEASE_NOTES.md
+          TAG=$(node -p "require('./release/QUALIFICATION.json').candidate_tag")
+          gh release upload "${TAG}" release/QUALIFICATION.json --clobber
+          gh release edit "${TAG}" \
+            --prerelease=false \
+            --title "RHI Mobility UX ${TAG}" \
+            --notes-file release/RELEASE_NOTES.md
           test "$(gh release view "${TAG}" --json isPrerelease --jq '.isPrerelease')" = false
       - name: Summary
         run: |
           VERSION=$(node -p "require('./package.json').version")
+          CANDIDATE_SHA=$(node -p "require('./release/QUALIFICATION.json').candidate_sha")
           {
             echo '## RHI Mobility UX stable promotion'
             echo "- Version: v${VERSION}"
+            echo "- Candidate SHA: ${CANDIDATE_SHA}"
             echo "- Source/package/tests: PASS"
             echo "- Target HA qualification: PASS"
-            echo "- Published candidate payload: EXACT MATCH"
+            echo "- Published runtime payload: EXACT TAG MATCH"
+            echo "- Final qualification evidence: ATTACHED"
             echo "- Stable promotion: COMPLETE"
             echo "- Rollback: previous immutable HACS releases remain selectable"
           } >> "$GITHUB_STEP_SUMMARY"
