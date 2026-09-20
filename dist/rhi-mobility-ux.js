@@ -3607,8 +3607,9 @@ class HomeBrainAssetRuntime {
     const clean = this.cleanValue(value, "");
     if (!clean) return fallback;
     const allowed = this.outcomeCatalogValues(kind);
-    // When the runtime catalog entity is unavailable, render the backend value; when it exists, enforce it.
-    if (!allowed) return clean;
+    // No catalog is currently published. If one is added later, only a real
+    // non-empty Set constrains backend values.
+    if (!(allowed instanceof Set) || allowed.size === 0) return clean;
     return allowed.has(clean) ? clean : fallback;
   }
 
