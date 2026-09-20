@@ -40,10 +40,10 @@ branch
 → Validate green
 → squash merge
 → main Validate green
-→ Release workflow
-→ immutable HACS version
-→ target HA runtime proof
-→ stable only after qualification
+→ automatic Publish HACS
+→ immutable HACS TEST CANDIDATE
+→ target HA runtime + rollback proof
+→ manual stable promotion of the exact candidate
 ```
 
 Never move or overwrite a published tag. Any runtime change after publication requires a new version.
