@@ -5,7 +5,7 @@
   "license": "GPL-3.0-only",
   "legacy_source_release": "R22.12.11.30",
   "legacy_bundle_sha256": "13c018f8937eaabec418fc18b34ea54c22e967a76629f4ccb06304884c34823b",
-  "dist_sha256": "b41fc1306728303c9700cdaab8b981c380cdadd2a262036b1ad9339295810093",
+  "dist_sha256": "b564ceb6a2f7db2e5edcccad22db754b33a492c67acece4079aaa3fa0553a5be",
   "mobility_contract": "MOBILITY_PUBLIC_RUNTIME_V1",
   "backend_baseline": "M0.9.20",
   "runtime_proof": "pending",
