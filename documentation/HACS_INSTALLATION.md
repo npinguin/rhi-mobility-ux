@@ -7,9 +7,11 @@ Category: **Dashboard**
 
 1. HACS → Custom repositories.
 2. Add `npinguin/rhi-mobility-ux` as type **Dashboard**.
-3. Download the desired release.
-4. Confirm the Lovelace resource resolves to `/hacsfiles/rhi-mobility-ux/rhi-mobility-ux.js` as a JavaScript module.
-5. Refresh Home Assistant frontend resources/browser.
+3. For a TEST CANDIDATE (`-rc.N`), enable **Show beta versions** in the HACS repository settings before downloading. HACS otherwise tracks the default-branch commit and shows short commit SHAs instead of the immutable prerelease tag.
+4. Download/select the desired immutable version (for example `v1.0.0-rc.2`), not the default branch.
+5. Verify the HACS dialog shows semantic versions such as `v1.0.0-rc.2` for Installed/Latest. If it shows short commit hashes (for example `abcdef0`), the repository is still in default-branch mode; use **Redownload** and select the tagged prerelease after enabling beta versions.
+6. Confirm the Lovelace resource resolves to `/hacsfiles/rhi-mobility-ux/rhi-mobility-ux.js` as a JavaScript module.
+7. Refresh Home Assistant frontend resources/browser.
 
 No `/local/homebrain/...` Mobility resource or image copy is required by the HACS bundle.
 
@@ -92,9 +94,13 @@ The same YAML is available as `documentation/homebrain_mobility.hacs.yaml`.
    - no `Custom element doesn't exist` or JavaScript runtime errors appear.
 7. Only after runtime parity and rollback are proven, remove the old `/local/homebrain/...` Lovelace resource and then retire the legacy files.
 
+## Release announcement links
+
+A valid versioned HACS install must show an immutable tag such as `v1.0.0-rc.2`. The HACS **Read release announcement** link is only reliable in that versioned mode. If Installed/Latest are short commit hashes, HACS is tracking the default branch and can generate a non-existent `/releases/<commit>` URL. Switch to the tagged prerelease as described above; do not treat a branch commit as a governed release.
+
 ## Rollback
 
-HACS → RHI Mobility UX → Redownload → select the previous immutable release version.
+HACS → RHI Mobility UX → Redownload → enable beta versions when rolling back to an RC → select the previous immutable release version.
 
 If the dashboard YAML itself must be rolled back, restore the previous dashboard Raw configuration before removing the HACS resource.
 
