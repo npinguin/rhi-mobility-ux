@@ -11,29 +11,77 @@ permissions:
   contents: read
 
 concurrency:
-  group: validate-${{ github.ref }}
+  group: ${{ github.repository }}-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
-  test:
+  source:
+    name: Source / package
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
           cache: npm
       - name: Install locked dependencies
         run: npm ci
-      - name: Validate, test and rebuild
+      - name: Protect immutable published version
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION=$(node -p "require('./package.json').version")
+          TAG="v${VERSION}"
+          if git ls-remote --exit-code --tags "https://github.com/${GITHUB_REPOSITORY}.git" "refs/tags/${TAG}" >/dev/null 2>&1; then
+            git diff --name-only "origin/${GITHUB_BASE_REF}...HEAD" > /tmp/rhi_ux_changed.txt
+            node - <<'NODE'
+          const fs=require('fs');
+          const changed=fs.readFileSync('/tmp/rhi_ux_changed.txt','utf8').split(/\r?\n/).filter(Boolean);
+          const blocked=[
+            /^src\//,
+            /^dist\//,
+            /^package\.json$/,
+            /^package-lock\.json$/,
+            /^hacs\.json$/,
+            /^tools\/build\.mjs$/,
+            /^tools\/verify-dist\.mjs$/,
+            /^\.github\/workflows\/release\.yml$/
+          ];
+          const runtimeImpact=changed.filter(p=>blocked.some(re=>re.test(p)));
+          if(runtimeImpact.length){
+            console.error('Published version is immutable; runtime/publication-impacting changes require the next UX version:\n'+runtimeImpact.join('\n'));
+            process.exit(1);
+          }
+          console.log('Published runtime unchanged; evidence/documentation-only change allowed.');
+          NODE
+          else
+            echo "${TAG} is not published yet; candidate may converge before first publication."
+          fi
+      - name: Full validation
         run: npm test
-      - name: Verify committed dist matches clean build
-        run: git diff --exit-code -- dist/rhi-mobility-ux.js
+      - name: Deterministic two-build proof
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp dist/rhi-mobility-ux.js /tmp/rhi-ux-first.js
+          cp dist/rhi-mobility-ux.js.sha256 /tmp/rhi-ux-first.sha256
+          npm run clean
+          npm run build
+          cmp /tmp/rhi-ux-first.js dist/rhi-mobility-ux.js
+          cmp /tmp/rhi-ux-first.sha256 dist/rhi-mobility-ux.js.sha256
+      - name: Verify committed runtime matches clean build
+        run: git diff --exit-code -- dist/rhi-mobility-ux.js dist/assets
 
   hacs:
+    name: HACS
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -41,3 +89,32 @@ jobs:
         uses: hacs/action@885037da508419fd08c13515967aec868dfdee2d
         with:
           category: plugin
+
+  gate:
+    name: RHI UX / Validate
+    if: always()
+    needs: [source, hacs]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require all gates
+        env:
+          SOURCE: ${{ needs.source.result }}
+          HACS: ${{ needs.hacs.result }}
+        run: |
+          set -euo pipefail
+          test "$SOURCE" = success
+          test "$HACS" = success
+      - name: Summary
+        if: always()
+        env:
+          SOURCE: ${{ needs.source.result }}
+          HACS: ${{ needs.hacs.result }}
+        run: |
+          VERSION=$(node -p "require('./package.json').version" 2>/dev/null || echo unknown)
+          {
+            echo '## RHI Mobility UX validation'
+            echo "- Source candidate: v${VERSION}"
+            echo "- Commit: ${GITHUB_SHA}"
+            echo "- Source/package/tests: ${SOURCE}"
+            echo "- HACS: ${HACS}"
+          } >> "$GITHUB_STEP_SUMMARY"
