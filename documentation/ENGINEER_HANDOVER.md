@@ -2,7 +2,7 @@
 
 ## Start here
 
-Current source candidate: **v1.0.0-rc.4**. Public contract: **MOBILITY_PUBLIC_RUNTIME_V1**. Minimum backend: **R43.2.60**. Current tested backend baseline: **R43.2.65**.
+Current source candidate: **v1.0.0-rc.5**. Public contract: **MOBILITY_PUBLIC_RUNTIME_V1**. Minimum backend: **R43.2.60**. Current tested backend baseline: **R43.2.65**.
 
 Read in this order:
 
@@ -31,6 +31,8 @@ UX renders V1 and does not create a second Mobility semantic authority.
 Configuration controls use backend V1 write metadata, options and write targets. `asset.profile_id` and `vehicle.selected_charger` may remain visible/editable while unset. Runtime controls remain fail-closed without V1 write capability.
 
 Actual/readback is the normal operational truth. Requested intent is transient during editing/pending write and must not replace canonical actual state.
+
+Global supervisor status, trust, attention, opportunity and recommendation are backend-owned. The UX may present factual charging information, but it may not turn those facts into a substitute recommendation. Missing supervisor intelligence fails closed as unavailable/Unknown.
 
 ## Current known product gaps
 
