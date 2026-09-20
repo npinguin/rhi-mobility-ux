@@ -19,7 +19,7 @@ function rhiMobilityAssetUrl(path) {
 
 /**
  * Home Brain Mobility Assets Bundle
- * Release: v1.0.0-rc.1_HACS_MIGRATION_BASELINE
+ * Release: v1.0.0-rc.3_HACS_MIGRATION_BASELINE
  *
  * Purpose:
  * - Provides the bundled frontend custom elements for the Mobility domain.
@@ -43,7 +43,7 @@ function rhiMobilityAssetUrl(path) {
  * - HACS migration baseline: single self-contained rhi-mobility-ux.js; no /local runtime dependency
  */
 /*
-Robotix Home Intelligence Mobility UX v1.0.0-rc.1
+Robotix Home Intelligence Mobility UX v1.0.0-rc.3
 
 Defines:
 - custom:homebrain-vehicle-asset-detail-card
@@ -56,7 +56,7 @@ Internal structure:
 - HomeBrainChargerAdapter: charger contract mapping
 */
 
-const UX_VERSION = "1.0.0-rc.2";
+const UX_VERSION = "1.0.0-rc.3";
 
 const HB_MOBILITY_BASE_PATH = "/mobility-supervisor";
 const HB_MOBILITY_TABS = [
@@ -80,38 +80,37 @@ function hbMobilityTitleBlock(title = "Mobility", description = "Vehicle readine
 function hbMobilityReleaseFooter(rt) {
   const esc = (v) => rt && rt.escape ? rt.escape(v) : String(v ?? "").replace(/[&<>]/g, (ch) => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[ch]));
   const rel = rt && rt.releaseContract ? rt.releaseContract() : {};
-  const backend = rel.backend_release || rel.backend_version || "Unknown";
-  const contract = rel.contract_version && rel.contract_version !== "Unknown" ? ` · Contract ${rel.contract_version}` : "";
-  const health = rel.contract_health && rel.contract_health !== "Unknown" ? ` · ${rel.contract_health}` : "";
-  let runtimeNote = "";
-  let acceptanceNote = "";
-  let diagnosticsNote = "";
+  const backend = rel.backend_release || "Unknown";
+  const contract = rel.contract_version || "Unknown";
+  const issues = [];
+  let severity = "warning";
   try {
     const summary = rt && rt.runtimeHealthSummary ? rt.runtimeHealthSummary() : null;
-    if (summary) {
-      if (summary.status === "OK") runtimeNote = `<span class="hi-release-health trusted" title="Canonical Mobility runtime health is OK.">Runtime healthy</span>`;
-      else if (summary.status === "DEGRADED") runtimeNote = `<span class="hi-release-health degraded" title="Canonical Mobility runtime health reports degradation.">Runtime degraded</span>`;
-      else if (summary.status === "BLOCKED") runtimeNote = `<span class="hi-release-health blocking" title="Canonical Mobility runtime health reports failure.">Runtime failed</span>`;
-      else runtimeNote = `<span class="hi-release-health degraded" title="Canonical Mobility runtime health is unavailable.">Runtime health unavailable</span>`;
-      const physical = String(summary.physical_acceptance || "Unknown");
-      const releaseAcceptance = String(summary.release_acceptance || "Unknown");
-      const pendingPhysical = ["NOT_PROVEN","PENDING","UNKNOWN"].includes(physical.toUpperCase());
-      const pendingRelease = ["NOT_PROVEN","PENDING","UNKNOWN"].includes(releaseAcceptance.toUpperCase());
-      const parts = [];
-      if (pendingPhysical) parts.push("Physical execution proof pending");
-      else if (physical && physical !== "Unknown") parts.push(`Physical ${physical}`);
-      if (pendingRelease) parts.push("Release acceptance pending");
-      else if (releaseAcceptance && releaseAcceptance !== "Unknown") parts.push(`Release ${releaseAcceptance}`);
-      if (parts.length) acceptanceNote = `<span class="hi-release-health degraded" title="Runtime health and acceptance proof are separate backend-owned states.">${parts.map(esc).join(" · ")}</span>`;
+    if (!summary) {
+      issues.push("Runtime health unavailable");
+    } else {
+      if (summary.status && summary.status !== "OK") {
+        issues.push(`Runtime ${String(summary.status).toLowerCase()}`);
+        if (summary.status === "BLOCKED") severity = "error";
+      }
+      const physical = String(summary.physical_acceptance || "Unknown").toUpperCase();
+      const releaseAcceptance = String(summary.release_acceptance || "Unknown").toUpperCase();
+      if (!["OK","PROVEN","ACCEPTED","COMPLETE"].includes(physical)) issues.push(`Physical acceptance ${physical.toLowerCase()}`);
+      if (!["OK","PROVEN","ACCEPTED","COMPLETE"].includes(releaseAcceptance)) issues.push(`Release acceptance ${releaseAcceptance.toLowerCase()}`);
+      if (summary.diagnostic_bad_count) issues.push(`${summary.diagnostic_bad_count} diagnostic issue${summary.diagnostic_bad_count === 1 ? "" : "s"}`);
     }
-    if (summary && summary.diagnostic_bad_count) {
-      const rows = (summary.diagnostics || []).filter((r) => r.bad).slice(0, 3);
-      diagnosticsNote = `<span class="hi-release-health degraded" title="Non-blocking diagnostics only.">Diagnostics: ${esc(summary.diagnostic_status)}${rows.length ? ` — ${rows.map((r)=>`${esc(r.label)} ${esc(r.state)}`).join(", ")}` : ""}</span>`;
-    }
-  } catch (e) { /* footer must never break the dashboard */ }
-  return `<div class="hi-release-footer" title="Backend version is read from the Mobility release contract"><span>UX ${esc(UX_VERSION)}</span><span>Backend ${esc(backend)}</span><span>Source Mobility release contract${esc(contract)}${esc(health)}</span>${runtimeNote}${acceptanceNote}${diagnosticsNote}</div>`;
+  } catch (e) {
+    issues.push("Runtime status unavailable");
+  }
+  const tooltip = [
+    `UX package: ${UX_VERSION} (HACS)`,
+    `Backend release: ${backend}`,
+    `Public contract: ${contract}`,
+    issues.length ? `Issues: ${issues.join(" · ")}` : "Status: healthy"
+  ].join("\n");
+  const issue = issues.length ? `<span class="hi-release-issue ${severity}" title="${esc(issues.join("\n"))}">${esc(issues.length === 1 ? issues[0] : `${issues.length} issues`)}</span>` : "";
+  return `<div class="hi-release-footer" title="${esc(tooltip)}"><span>RHI Mobility UX ${esc(UX_VERSION)}</span><span>Backend ${esc(backend)}</span>${issue}</div>`;
 }
-
 function hbMobilityOutcomeStrip(rt, contextId = "mobility", fallback = {}) {
   const esc = (v) => rt && rt.escape ? rt.escape(v) : String(v ?? "").replace(/[&<>]/g, (ch) => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[ch]));
   const outcome = (field, fb) => (rt && rt.supervisorOutcome ? rt.supervisorOutcome(contextId, field, fb) : fb) || fb;
@@ -163,7 +162,7 @@ function hbMobilitySharedShellStyles() {
     .hi-version-block{display:none!important}
     .hi-release-footer{display:flex;align-items:center;gap:8px;flex-wrap:wrap;width:100%;box-sizing:border-box;margin:8px 0 0;padding:8px 14px;border-top:1px solid rgba(14,35,72,.10);background:rgba(255,255,255,.92);color:#53627A;font-size:11px;font-weight:500;line-height:1.2;white-space:normal;overflow:hidden}
     .hi-release-footer span+span::before{content:"•";margin-right:8px;color:#8A96AA}
-    .hi-release-footer .hi-release-health{color:#6B7280;font-weight:650;opacity:.92}
+    .hi-release-footer .hi-release-health{color:#6B7280;font-weight:650;opacity:.92}.hi-release-footer .hi-release-issue{font-weight:650}.hi-release-footer .hi-release-issue.warning{color:#b7791f}.hi-release-footer .hi-release-issue.error{color:#b42318}
     .hi-release-footer .hi-release-health.trusted{color:#2F6B4F}
     .hi-release-footer .hi-release-health.degraded{color:#8A5A00}
     .hi-release-footer .hi-release-health.blocking{color:#9A3412}
@@ -696,28 +695,16 @@ class HomeBrainAssetRuntime {
   releaseContract() {
     const e = this.entity("sensor.mobility_release_contract");
     const attrs = e?.attributes || {};
-    const backend = this.cleanValue(
-      attrs.backend_release ||
-      attrs.backend_version ||
-      attrs.backend_release_version ||
-      attrs.release_version ||
-      attrs.release ||
-      attrs.version ||
-      attrs.package_version ||
-      e?.state ||
-      "",
-      "Unknown"
-    ) || "Unknown";
     return {
-      backend_release: backend,
-      backend_version: backend,
-      contract_version: this.cleanValue(attrs.contract_version || attrs.contract_release || attrs.contract || "", "Unknown") || "Unknown",
-      schema_version: this.cleanValue(attrs.schema_version || attrs.schema || "", "Unknown") || "Unknown",
-      build_date: this.cleanValue(attrs.build_date || attrs.release_date || attrs.generated_at || "", "Unknown") || "Unknown",
-      contract_health: this.cleanValue(attrs.contract_health || attrs.health || attrs.status || "Unknown", "Unknown") || "Unknown",
-      runtime_health: this.cleanValue(attrs.runtime_health || attrs.runtime_status || "", "Unknown") || "Unknown",
-      physical_acceptance: this.cleanValue(attrs.physical_acceptance || attrs.physical_execution_acceptance || "", "Unknown") || "Unknown",
-      release_acceptance: this.cleanValue(attrs.release_acceptance || attrs.acceptance || "", "Unknown") || "Unknown"
+      backend_release: this.cleanValue(attrs.backend_release || "", "Unknown") || "Unknown",
+      backend_version: this.cleanValue(attrs.backend_release || "", "Unknown") || "Unknown",
+      contract_version: this.cleanValue(attrs.contract_version || "", "Unknown") || "Unknown",
+      schema_version: this.cleanValue(attrs.schema_version || "", "Unknown") || "Unknown",
+      build_date: this.cleanValue(attrs.build_date || "", "Unknown") || "Unknown",
+      contract_health: this.cleanValue(attrs.contract_health || "", "Unknown") || "Unknown",
+      runtime_health: this.cleanValue(attrs.runtime_health || "", "Unknown") || "Unknown",
+      physical_acceptance: this.cleanValue(attrs.physical_acceptance || "", "Unknown") || "Unknown",
+      release_acceptance: this.cleanValue(attrs.release_acceptance || "", "Unknown") || "Unknown"
     };
   }
 
