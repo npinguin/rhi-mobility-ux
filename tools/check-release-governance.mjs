@@ -42,6 +42,10 @@ for(const [label,value] of [
 ]) if(String(value)!==contract) throw new Error(`${label} contract ${value} != ${contract}`);
 
 if(manifest.publication_authority!=='github_releases') throw new Error('GitHub Releases must be publication authority');
+if(manifest.known_accepted_technical_debt!==0) throw new Error('accepted technical debt must be zero');
+if(manifest.known_accepted_feature_debt!==0) throw new Error('accepted feature debt must be zero');
+if(manifest.hacs_repository_type!=='dashboard' || manifest.hacs_validation_category!=='plugin') throw new Error('HACS repository/category governance drift');
+if(manifest.runtime_artifact!=='dist/rhi-mobility-ux.js' || manifest.runtime_checksum_artifact!=='dist/rhi-mobility-ux.js.sha256') throw new Error('runtime artifact governance drift');
 if(status.publication_status!=='derive_from_github_release') throw new Error('release status must derive publication state from GitHub Releases');
 if(!readme.includes(`Source candidate: \`v${version}\``)) throw new Error('README source candidate does not match package');
 if(!notes.startsWith(`# v${version} `)) throw new Error('current release notes do not start with source candidate version');
