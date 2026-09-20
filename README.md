@@ -7,13 +7,13 @@ Public HACS Dashboard/plugin repository for Robotix Home Intelligence Mobility U
 - License: GPL-3.0-only
 - HACS category: Dashboard
 - Runtime artifact: `rhi-mobility-ux.js`
-- Current migration release: `v1.0.0-rc.2`
+- Current migration release: `v1.0.0-rc.3`
 - Public backend contract: `MOBILITY_PUBLIC_RUNTIME_V1`
 - Public backend compatibility boundary: `MOBILITY_PUBLIC_RUNTIME_V1`
 
 ## Status
 
-`v1.0.0-rc.2` is a migration release candidate. It preserves the legacy `R22.12.11.30` UX behavior while moving delivery to a deterministic HACS repository. Known UX/product defects remain explicitly tracked and are not silently redesigned during migration.
+`v1.0.0-rc.3` is a migration release candidate. It preserves the legacy `R22.12.11.30` UX behavior while moving delivery to a deterministic HACS repository. Known UX/product defects remain explicitly tracked and are not silently redesigned during migration.
 
 ## HACS installation
 
