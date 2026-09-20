@@ -54,11 +54,12 @@ const headings=changelog.split(/\r?\n/).filter(line=>/^## \d/.test(line));
 if(!headings.length || !headings[0].startsWith(`## ${version} `)) throw new Error('CHANGELOG current version is not first release entry');
 
 if(!governance.includes('GitHub Releases/tags are the publication authority')) throw new Error('release governance publication rule missing');
+if(!governance.includes('`publish-hacs.yml` is the only TEST CANDIDATE publication path')) throw new Error('automatic candidate publication governance missing');
 if(!handover.includes(`Current source candidate: **v${version}**`)) throw new Error('handover source candidate drift');
 
 const workflowDir=path.join(root,'.github/workflows');
 const workflows=fs.readdirSync(workflowDir).filter(n=>/\.ya?ml$/.test(n)).sort();
-const expected=['release.yml','validate.yml'];
+const expected=['publish-hacs.yml','release.yml','validate.yml'];
 if(JSON.stringify(workflows)!==JSON.stringify(expected)) throw new Error(`workflow governance violation: ${workflows.join(', ')}`);
 
 console.log(`PASS release governance: source candidate ${version}, contract ${contract}, workflows ${workflows.join(' + ')}`);
