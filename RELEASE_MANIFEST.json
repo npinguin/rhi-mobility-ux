@@ -1,7 +1,7 @@
 {
   "product": "rhi-mobility-ux",
   "version": "1.0.0-rc.2",
-  "stage": "release_candidate",
+  "stage": "test_candidate",
   "publication_authority": "github_releases",
   "publication_status": "candidate_until_tagged",
   "license": "GPL-3.0-only",
@@ -10,8 +10,15 @@
   "mobility_contract": "MOBILITY_PUBLIC_RUNTIME_V1",
   "minimum_backend": "R43.2.60",
   "tested_backend_baseline": "R43.2.65",
-  "runtime_proof": "pending",
-  "hacs_category": "plugin",
+  "runtime_artifact": "dist/rhi-mobility-ux.js",
+  "runtime_checksum_artifact": "dist/rhi-mobility-ux.js.sha256",
+  "hacs_repository_type": "dashboard",
+  "hacs_validation_category": "plugin",
   "asset_delivery": "dist/assets",
-  "runtime_manual_local_dependency": false
+  "runtime_manual_local_dependency": false,
+  "known_accepted_technical_debt": 0,
+  "known_accepted_feature_debt": 0,
+  "stable_blockers_documented": true,
+  "target_runtime_proof": "pending",
+  "rollback_proof": "pending"
 }
