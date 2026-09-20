@@ -3622,8 +3622,11 @@ class HomeBrainAssetRuntime {
     for (const row of this.intelligenceRowsFor("")) {
       const scope = String(row?.asset_id || row?.subject_asset_id || row?.scope || row?.id || "").trim().toLowerCase();
       if (scope && !["mobility", "global"].includes(scope)) continue;
-      const value = this.cleanValue(this.parseSupervisorValue(row, "mobility", key), "");
-      if (value) return this.normalizeOutcomeValue(key, value, fallback || "Unknown");
+      const raw = this.parseSupervisorValue(row, "mobility", key);
+      if (raw === undefined || raw === null || String(raw).trim() === "") continue;
+      // "None" is a valid backend supervisor outcome (for example Attention=None),
+      // not missing data. Preserve the published value exactly.
+      return String(raw).trim();
     }
     return fallback;
   }
