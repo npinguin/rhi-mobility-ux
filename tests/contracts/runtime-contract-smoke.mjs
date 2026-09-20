@@ -8,6 +8,7 @@ vm.runInContext(asset+'\n'+runtime+'\n;globalThis.HomeBrainAssetRuntime=HomeBrai
 const Runtime=ctx.HomeBrainAssetRuntime;
 const aid='charger_test';
 const hass={states:{
+  'sensor.mobility_release_contract':{state:'OK',attributes:{backend_release:'M0.9.20',contract_version:'MOBILITY_PUBLIC_RUNTIME_V1',contract_health:'OK'}},
   'sensor.mobility_charger_property_index':{state:'ready',attributes:{properties_by_key:{
     [`${aid}:charger.operating_state`]:{value:'running'},
     [`${aid}:charger.connection_state`]:{value:'connected'},
@@ -20,9 +21,12 @@ const hass={states:{
   'sensor.mobility_relationship_index':{state:'ready',attributes:{relationships:[]}}
 }};
 const rt=new Runtime(hass,{});
+const rel=rt.releaseContract();
+if(rel.backend_release!=='M0.9.20') throw new Error(`backend release drift: ${rel.backend_release}`);
+if(rel.contract_version!=='MOBILITY_PUBLIC_RUNTIME_V1') throw new Error(`contract drift: ${rel.contract_version}`);
 const snap=rt.chargerProductSnapshot(aid);
 if(snap.operating.display!=='Charging') throw new Error(`operating_state drift: ${snap.operating.display}`);
 if(snap.connection.display!=='Connected') throw new Error(`connection_state drift: ${snap.connection.display}`);
 if(snap.power.display!=='0 kW') throw new Error(`zero must remain zero: ${snap.power.display}`);
 if(String(snap.health.display).toLowerCase()!=='ok') throw new Error(`health drift: ${snap.health.display}`);
-console.log('PASS canonical charger status/connection/power/health contract smoke');
+console.log('PASS strict release identity and canonical charger contract smoke');
