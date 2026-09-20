@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import crypto from 'node:crypto';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
@@ -26,8 +27,10 @@ const body = order.map((rel) => `// ---- ${rel} ----\n${fs.readFileSync(path.joi
 const out = path.join(root, 'dist/rhi-mobility-ux.js');
 fs.mkdirSync(path.dirname(out), { recursive: true });
 fs.writeFileSync(out, banner + body + '\n');
+const digest = crypto.createHash('sha256').update(fs.readFileSync(out)).digest('hex');
+fs.writeFileSync(path.join(root, 'dist/rhi-mobility-ux.js.sha256'), `${digest}  rhi-mobility-ux.js\n`);
 const assetSource = path.join(root, 'src/assets/files');
 const assetDist = path.join(root, 'dist/assets');
 fs.cpSync(assetSource, assetDist, { recursive: true });
 
-console.log(`Built ${order.length} modules -> ${path.relative(root, out)} and copied runtime assets`);
+console.log(`Built ${order.length} modules -> ${path.relative(root, out)}, checksum ${digest}, and copied runtime assets`);
