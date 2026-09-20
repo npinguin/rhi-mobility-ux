@@ -11,5 +11,5 @@ vm.runInContext(bundle,context,{timeout:10000});
 for(const name of ['homebrain-mobility-dashboard-card','homebrain-vehicle-asset-detail-card','homebrain-charger-asset-detail-card','homebrain-mobility-charger-maintenance-card']){
   if(!registry.has(name)) throw new Error(`custom element not registered: ${name}`);
 }
-if(window.HomeBrainMobilityAssetsVersion!=='1.0.0-rc.1') throw new Error(`wrong runtime version ${window.HomeBrainMobilityAssetsVersion}`);
+if(window.HomeBrainMobilityAssetsVersion!=='1.0.0-rc.3') throw new Error(`wrong runtime version ${window.HomeBrainMobilityAssetsVersion}`);
 console.log('PASS bundle load and custom-element registration smoke');
