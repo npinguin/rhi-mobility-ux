@@ -20,7 +20,7 @@ const order = [
 ];
 const missing = order.filter((rel) => !fs.existsSync(path.join(root, rel)));
 if (missing.length) throw new Error(`Missing build inputs: ${missing.join(', ')}`);
-const banner = `/**\n * Robotix Home Intelligence Mobility UX v1.0.0-rc.1\n * HACS migration baseline from legacy R22.12.11.30.\n * GENERATED FILE - DO NOT EDIT.\n * License: GPL-3.0-only\n */\n\n`;
+const banner = `/**\n * Robotix Home Intelligence Mobility UX v1.0.0-rc.3\n * HACS migration baseline from legacy R22.12.11.30.\n * GENERATED FILE - DO NOT EDIT.\n * License: GPL-3.0-only\n */\n\n`;
 const body = order.map((rel) => `// ---- ${rel} ----\n${fs.readFileSync(path.join(root, rel), 'utf8').trim()}`).join('\n\n');
 const out = path.join(root, 'dist/rhi-mobility-ux.js');
 fs.mkdirSync(path.dirname(out), { recursive: true });
