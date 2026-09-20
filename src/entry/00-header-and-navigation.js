@@ -3,7 +3,7 @@
 
 /**
  * Home Brain Mobility Assets Bundle
- * Release: v1.0.0-rc.1_HACS_MIGRATION_BASELINE
+ * Release version is defined by UX_VERSION below and package.json.
  *
  * Purpose:
  * - Provides the bundled frontend custom elements for the Mobility domain.
@@ -27,7 +27,7 @@
  * - HACS migration baseline: single self-contained rhi-mobility-ux.js; no /local runtime dependency
  */
 /*
-Robotix Home Intelligence Mobility UX v1.0.0-rc.1
+Robotix Home Intelligence Mobility UX
 
 Defines:
 - custom:homebrain-vehicle-asset-detail-card
