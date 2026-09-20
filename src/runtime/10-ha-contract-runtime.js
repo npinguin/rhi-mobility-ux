@@ -3409,14 +3409,27 @@ class HomeBrainAssetRuntime {
     const clean = this.cleanValue(value, "");
     if (!clean) return fallback;
     const allowed = this.outcomeCatalogValues(kind);
-    // When the runtime catalog entity is unavailable, render the backend value; when it exists, enforce it.
-    if (!allowed) return clean;
+    // No catalog is currently published. If one is added later, only a real
+    // non-empty Set constrains backend values.
+    if (!(allowed instanceof Set) || allowed.size === 0) return clean;
     return allowed.has(clean) ? clean : fallback;
   }
 
   supervisorOutcome(assetId = "mobility", key = "status", fallback = "") {
     const canonical = this.canonicalAssetId(assetId || "");
     if (canonical && canonical !== "mobility") return this.factContractValue(canonical, key, fallback);
+
+    // Global supervisor meaning is backend-owned and may only come from the
+    // published Mobility Intelligence Index. Never derive it from local facts.
+    for (const row of this.intelligenceRowsFor("")) {
+      const scope = String(row?.asset_id || row?.subject_asset_id || row?.scope || row?.id || "").trim().toLowerCase();
+      if (scope && !["mobility", "global"].includes(scope)) continue;
+      const raw = this.parseSupervisorValue(row, "mobility", key);
+      if (raw === undefined || raw === null || String(raw).trim() === "") continue;
+      // "None" is a valid backend supervisor outcome (for example Attention=None),
+      // not missing data. Preserve the published value exactly.
+      return String(raw).trim();
+    }
     return fallback;
   }
 

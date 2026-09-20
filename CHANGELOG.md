@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.0.0-rc.5 — backend-owned supervisor semantics candidate
+
+- Removes frontend-derived global supervisor conclusions from the Mobility dashboard.
+- Reads global status, trust, attention, opportunity and recommendation from the backend-owned Mobility Intelligence Index.
+- Fails closed as Unknown/unavailable when supervisor meaning is not published.
+- Stops factual charging summaries from being promoted into supervisor recommendations/opportunities.
+- Keeps requested charge-power intent separate from canonical actual charger power.
+- Adds a focused regression that rejects reintroduction of positive frontend supervisor fallbacks.
+- Preserves the rc.4 release-governance and immutable qualification lifecycle.
+- Status: source candidate until an immutable GitHub prerelease/tag is created.
+
 ## 1.0.0-rc.4 — closure governance and regression candidate
 
 - Preserves `MOBILITY_PUBLIC_RUNTIME_V1` and the existing runtime/adapters → viewmodels → screens/components architecture.

@@ -1,5 +1,5 @@
 /**
- * Robotix Home Intelligence Mobility UX v1.0.0-rc.4
+ * Robotix Home Intelligence Mobility UX v1.0.0-rc.5
  * GENERATED FILE - DO NOT EDIT.
  * License: GPL-3.0-only
  */
@@ -55,7 +55,7 @@ Internal structure:
 - HomeBrainChargerAdapter: charger contract mapping
 */
 
-const UX_VERSION = "1.0.0-rc.4";
+const UX_VERSION = "1.0.0-rc.5";
 
 const HB_MOBILITY_BASE_PATH = "/mobility-supervisor";
 const HB_MOBILITY_TABS = [
@@ -3607,14 +3607,27 @@ class HomeBrainAssetRuntime {
     const clean = this.cleanValue(value, "");
     if (!clean) return fallback;
     const allowed = this.outcomeCatalogValues(kind);
-    // When the runtime catalog entity is unavailable, render the backend value; when it exists, enforce it.
-    if (!allowed) return clean;
+    // No catalog is currently published. If one is added later, only a real
+    // non-empty Set constrains backend values.
+    if (!(allowed instanceof Set) || allowed.size === 0) return clean;
     return allowed.has(clean) ? clean : fallback;
   }
 
   supervisorOutcome(assetId = "mobility", key = "status", fallback = "") {
     const canonical = this.canonicalAssetId(assetId || "");
     if (canonical && canonical !== "mobility") return this.factContractValue(canonical, key, fallback);
+
+    // Global supervisor meaning is backend-owned and may only come from the
+    // published Mobility Intelligence Index. Never derive it from local facts.
+    for (const row of this.intelligenceRowsFor("")) {
+      const scope = String(row?.asset_id || row?.subject_asset_id || row?.scope || row?.id || "").trim().toLowerCase();
+      if (scope && !["mobility", "global"].includes(scope)) continue;
+      const raw = this.parseSupervisorValue(row, "mobility", key);
+      if (raw === undefined || raw === null || String(raw).trim() === "") continue;
+      // "None" is a valid backend supervisor outcome (for example Attention=None),
+      // not missing data. Preserve the published value exactly.
+      return String(raw).trim();
+    }
     return fallback;
   }
 
@@ -5482,42 +5495,30 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
 
   issueRows(rt, vehicles) {
     const rows = [];
+    let missing = 0;
     for (const a of vehicles) {
-      const id = this.vehicleId(a);
       const label = a.display_name || rt.vehicleLabel(a.asset_id);
-      const supAttention = rt.supervisorOutcome(a.asset_id, "attention", "");
-      const supReason = rt.supervisorOutcome(a.asset_id, "attention_reason", "");
-      const attention = supAttention || rt.assetStatus(a.asset_id, "attention_status", "");
-      const reason = supReason || rt.assetStatus(a.asset_id, "attention_reason", "") || "Review vehicle status.";
-      const att = String(attention || "").toLowerCase();
-      if (att && !["none", "ok", "not applicable", "unknown"].includes(att) && this.isBad(attention)) rows.push(`<li><b>${rt.escape(label)}</b><span>${rt.escape(reason)}</span></li>`);
+      const attention = rt.supervisorOutcome(a.asset_id, "attention", "");
+      const reason = rt.supervisorOutcome(a.asset_id, "attention_reason", "");
+      if (!attention) {
+        missing += 1;
+        continue;
+      }
+      const att = String(attention).toLowerCase();
+      if (!["none", "ok", "not applicable"].includes(att)) {
+        rows.push(`<li><b>${rt.escape(label)}</b><span>${rt.escape(reason || attention)}</span></li>`);
+      }
     }
-    return rows.length ? rows.join("") : `<li class="clear"><b>All vehicles</b><span>No mobility attention requiring action.</span></li>`;
+    if (rows.length) return rows.join("");
+    if (missing) return `<li><b>Supervisor</b><span>Attention unavailable for ${missing} vehicle${missing === 1 ? "" : "s"}.</span></li>`;
+    return `<li class="clear"><b>All vehicles</b><span>Backend supervisor reports no attention requiring action.</span></li>`;
   }
 
-  recommended(rt, vehicles) {
-    const supAction = rt.supervisorOutcome("mobility", "recommended_action", "");
-    const supReason = rt.supervisorOutcome("mobility", "recommended_reason", "") || rt.supervisorOutcome("mobility", "attention", "");
-    if (supAction) return { label: "Mobility", action: supAction, reason: supReason || "Supervisor recommendation." };
-    const charging = this.chargingSummary(rt, vehicles);
-    if (charging) return charging;
-    for (const a of vehicles) {
-      const id = this.vehicleId(a);
-      const label = a.display_name || rt.vehicleLabel(a.asset_id);
-      const trust = rt.assetStatus(a.asset_id, "trust_status", a.trust_status || "");
-      if (this.isBad(trust)) return { label, action: "Review vehicle data", reason: rt.assetStatus(a.asset_id, "attention_reason", "Vehicle data quality needs review.") };
-      const chargingInfo = this.vehicleChargingInfo(rt, a);
-      if (!chargingInfo.active && this.isBad(chargingInfo.rawStatus)) return { label, action: "Review charging", reason: chargingInfo.reason || "Charging requires attention." };
-    }
-    return { label: "Mobility", action: "No immediate action", reason: "Vehicles and chargers are under supervision." };
-  }
-
-  chargingSummary(rt, vehicles) {
-    const active = vehicles.map((asset) => ({ asset, info: this.vehicleChargingInfo(rt, asset) })).filter((row) => row.info.active);
-    if (!active.length) return null;
-    const names = active.map((row) => row.asset.display_name || rt.vehicleLabel(row.asset.asset_id));
-    const total = active.reduce((sum, row) => sum + (row.info.power || 0), 0);
-    return { count: active.length, label: names.join(", "), action: active.length === 1 ? "Charging now" : `${active.length} vehicles charging`, reason: total > 0 ? `Active charging load: ${total.toFixed(1)} kW.` : "One or more vehicles are actively charging." };
+  recommended(rt) {
+    const action = rt.supervisorOutcome("mobility", "recommended_action", "");
+    const reason = rt.supervisorOutcome("mobility", "recommended_reason", "") || rt.supervisorOutcome("mobility", "attention", "");
+    if (action) return { label: "Mobility", action, reason: reason || "Backend supervisor recommendation." };
+    return { label: "Mobility", action: "Unknown", reason: "Backend supervisor recommendation unavailable." };
   }
 
   set hass(hass) {
@@ -5538,10 +5539,9 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
           const chargers = factory.chargers().filter((a)=>a.frontend_allowed !== false && rt.lifecycleStatus(a) === "active").sort((a,b)=>(Number(a.sort_order ?? 999)-Number(b.sort_order ?? 999)) || String(a.display_name).localeCompare(String(b.display_name)));
           const activeVehicles = vehicles.filter((v)=>rt.lifecycleStatus(v) === "active");
           const inactiveVehicles = vehicles.filter((v)=>rt.lifecycleStatus(v) !== "active" && rt.lifecycleStatus(v) !== "retired");
-          const reco = this.recommended(rt, activeVehicles.length ? activeVehicles : vehicles);
-          const chargingSummary = this.chargingSummary(rt, vehicles);
-          const plan = rt.supervisorOutcome("mobility", "opportunity", "") || (chargingSummary ? `${chargingSummary.action} — ${chargingSummary.reason}` : "Supervised");
-          const trust = rt.supervisorOutcome("mobility", "trust", "") || "Unknown";
+          const reco = this.recommended(rt);
+          const plan = rt.supervisorOutcome("mobility", "opportunity", "Unknown") || "Unknown";
+          const trust = rt.supervisorOutcome("mobility", "trust", "Unknown") || "Unknown";
           const activityRows = rt.activityRowsFor ? rt.activityRowsFor("") : [];
           const intelligenceRows = rt.intelligenceRowsFor ? rt.intelligenceRowsFor("") : [];
           const activity = activityRows.slice(0, 3).map((a)=>a.message || a.activity_state || a.activity_type || "Current activity");
@@ -5577,11 +5577,11 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
             <section class="title"><p class="eyebrow">HOME INTELLIGENCE / MOBILITY</p><h1>Mobility</h1><p>Vehicle readiness, charging, comfort and security in one calm control cockpit.</p></section>
             ${hbMobilityNav("vehicles")}
             <section class="status-strip dashboard-status-strip" style="display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;border:1px solid rgba(14,35,72,.11)!important;border-radius:17px!important;background:rgba(255,255,255,.96)!important;box-shadow:0 16px 32px rgba(15,35,80,.08)!important;overflow:hidden!important;max-width:none!important;width:100%!important;margin:8px 0 10px!important">
-              <div class="metric tone-green" style="display:grid!important;grid-template-columns:34px minmax(0,1fr)!important;gap:8px!important;align-items:center!important;padding:14px 16px!important;border-right:1px solid #E6ECF5!important;min-width:0!important;background:transparent!important"><ha-icon icon="mdi:check-circle-outline" style="color:#18A957;--mdc-icon-size:23px"></ha-icon><div><span style="display:block;font-size:11px;font-weight:600;color:#66728B;line-height:1.1">Status</span><b style="display:block;font-size:16px;font-weight:600;color:#071327;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${rt.escape(rt.supervisorOutcome("vehicles", "status", rt.supervisorOutcome("mobility", "status", "OK")) || "OK")}</b></div></div>
-              <div class="metric tone-blue" style="display:grid!important;grid-template-columns:34px minmax(0,1fr)!important;gap:8px!important;align-items:center!important;padding:14px 16px!important;border-right:1px solid #E6ECF5!important;min-width:0!important;background:transparent!important"><ha-icon icon="mdi:shield-check-outline" style="color:#1467F5;--mdc-icon-size:23px"></ha-icon><div><span style="display:block;font-size:11px;font-weight:600;color:#66728B;line-height:1.1">Trust</span><b style="display:block;font-size:16px;font-weight:600;color:#071327;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${rt.escape(rt.supervisorOutcome("vehicles", "trust", trust) || trust)}</b></div></div>
-              <div class="metric tone-orange" style="display:grid!important;grid-template-columns:34px minmax(0,1fr)!important;gap:8px!important;align-items:center!important;padding:14px 16px!important;border-right:1px solid #E6ECF5!important;min-width:0!important;background:transparent!important"><ha-icon icon="mdi:alert-circle-outline" style="color:#F59E0B;--mdc-icon-size:23px"></ha-icon><div><span style="display:block;font-size:11px;font-weight:600;color:#66728B;line-height:1.1">Attention</span><b style="display:block;font-size:16px;font-weight:600;color:#071327;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${rt.escape(rt.supervisorOutcome("vehicles", "attention", this.issueRows(rt, vehicles).includes("No vehicle") ? "None" : "Warning") || "None")}</b></div></div>
-              <div class="metric tone-green" style="display:grid!important;grid-template-columns:34px minmax(0,1fr)!important;gap:8px!important;align-items:center!important;padding:14px 16px!important;border-right:1px solid #E6ECF5!important;min-width:0!important;background:transparent!important"><ha-icon icon="mdi:lightbulb-outline" style="color:#18A957;--mdc-icon-size:23px"></ha-icon><div><span style="display:block;font-size:11px;font-weight:600;color:#66728B;line-height:1.1">Opportunity</span><b style="display:block;font-size:16px;font-weight:600;color:#071327;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${rt.escape(rt.supervisorOutcome("vehicles", "opportunity", rt.supervisorOutcome("mobility", "opportunity", "charge_when_optimal")) || "charge_when_optimal")}</b></div></div>
-              <div class="metric tone-blue" style="display:grid!important;grid-template-columns:34px minmax(0,1fr)!important;gap:8px!important;align-items:center!important;padding:14px 16px!important;border-right:1px solid #E6ECF5!important;min-width:0!important;background:transparent!important"><ha-icon icon="mdi:arrow-right-circle-outline" style="color:#1467F5;--mdc-icon-size:23px"></ha-icon><div><span style="display:block;font-size:11px;font-weight:600;color:#66728B;line-height:1.1">Recommended action</span><b style="display:block;font-size:16px;font-weight:600;color:#071327;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${rt.escape(rt.supervisorOutcome("vehicles", "recommended_action", reco.action || "none") || reco.action || "none")}</b></div></div>
+              <div class="metric tone-green" style="display:grid!important;grid-template-columns:34px minmax(0,1fr)!important;gap:8px!important;align-items:center!important;padding:14px 16px!important;border-right:1px solid #E6ECF5!important;min-width:0!important;background:transparent!important"><ha-icon icon="mdi:check-circle-outline" style="color:#18A957;--mdc-icon-size:23px"></ha-icon><div><span style="display:block;font-size:11px;font-weight:600;color:#66728B;line-height:1.1">Status</span><b style="display:block;font-size:16px;font-weight:600;color:#071327;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${rt.escape(rt.supervisorOutcome("mobility", "status", "Unknown") || "Unknown")}</b></div></div>
+              <div class="metric tone-blue" style="display:grid!important;grid-template-columns:34px minmax(0,1fr)!important;gap:8px!important;align-items:center!important;padding:14px 16px!important;border-right:1px solid #E6ECF5!important;min-width:0!important;background:transparent!important"><ha-icon icon="mdi:shield-check-outline" style="color:#1467F5;--mdc-icon-size:23px"></ha-icon><div><span style="display:block;font-size:11px;font-weight:600;color:#66728B;line-height:1.1">Trust</span><b style="display:block;font-size:16px;font-weight:600;color:#071327;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${rt.escape(rt.supervisorOutcome("mobility", "trust", "Unknown") || "Unknown")}</b></div></div>
+              <div class="metric tone-orange" style="display:grid!important;grid-template-columns:34px minmax(0,1fr)!important;gap:8px!important;align-items:center!important;padding:14px 16px!important;border-right:1px solid #E6ECF5!important;min-width:0!important;background:transparent!important"><ha-icon icon="mdi:alert-circle-outline" style="color:#F59E0B;--mdc-icon-size:23px"></ha-icon><div><span style="display:block;font-size:11px;font-weight:600;color:#66728B;line-height:1.1">Attention</span><b style="display:block;font-size:16px;font-weight:600;color:#071327;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${rt.escape(rt.supervisorOutcome("mobility", "attention", "Unknown") || "Unknown")}</b></div></div>
+              <div class="metric tone-green" style="display:grid!important;grid-template-columns:34px minmax(0,1fr)!important;gap:8px!important;align-items:center!important;padding:14px 16px!important;border-right:1px solid #E6ECF5!important;min-width:0!important;background:transparent!important"><ha-icon icon="mdi:lightbulb-outline" style="color:#18A957;--mdc-icon-size:23px"></ha-icon><div><span style="display:block;font-size:11px;font-weight:600;color:#66728B;line-height:1.1">Opportunity</span><b style="display:block;font-size:16px;font-weight:600;color:#071327;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${rt.escape(rt.supervisorOutcome("mobility", "opportunity", "Unknown") || "Unknown")}</b></div></div>
+              <div class="metric tone-blue" style="display:grid!important;grid-template-columns:34px minmax(0,1fr)!important;gap:8px!important;align-items:center!important;padding:14px 16px!important;border-right:1px solid #E6ECF5!important;min-width:0!important;background:transparent!important"><ha-icon icon="mdi:arrow-right-circle-outline" style="color:#1467F5;--mdc-icon-size:23px"></ha-icon><div><span style="display:block;font-size:11px;font-weight:600;color:#66728B;line-height:1.1">Recommended action</span><b style="display:block;font-size:16px;font-weight:600;color:#071327;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${rt.escape(reco.action || "Unknown")}</b></div></div>
             </section>
             <section class="section-title"><h2>Active vehicles</h2><span>${activeVehicles.length} active</span></section>
             <section class="vehicles">${activeVehicles.length ? activeVehicles.map((v)=>this.renderVehicle(rt,v,chargers)).join("") : `<div class="empty">No active vehicles. Activate a vehicle below when needed.</div>`}</section>
