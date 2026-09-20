@@ -1,5 +1,5 @@
 /**
- * Robotix Home Intelligence Mobility UX v1.0.0-rc.2
+ * Robotix Home Intelligence Mobility UX v1.0.0-rc.3
  * HACS migration baseline from legacy R22.12.11.30.
  * GENERATED FILE - DO NOT EDIT.
  * License: GPL-3.0-only
