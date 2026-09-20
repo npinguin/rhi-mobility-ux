@@ -30,14 +30,14 @@ const cards=[
 ];
 const propertiesByKey={
  [`${aid}:asset.display_name`]:prop('Driveway Right Charger',{editable:false}),
- [`${aid}:asset.profile_id`]:prop('wallbox_ocpp',{editable:true,write_supported:true,write_service_domain:'select',write_service_action:'select_option',write_target_entity:'select.rhi_mobility_charger_profile',choices:[{value:'wallbox_ocpp',label:'Wallbox OCPP charger'},{value:'__none__',label:'None'}],value_field:'value',label_field:'label'}),
+ [`${aid}:asset.profile_id`]:prop('wallbox_ocpp',{editable:true,write_supported:true,write_binding_type:'select',write_service_domain:'select',write_service_action:'select_option',write_target_entity:'select.rhi_mobility_charger_profile',choices:[{value:'wallbox_ocpp',label:'Wallbox OCPP charger'},{value:'__none__',label:'None'}],value_field:'value',label_field:'label'}),
  [`${aid}:lifecycle_status`]:prop('active',{editable:true}),
  [`${aid}:charger.operating_state`]:prop('stopped'),
  [`${aid}:charger.connection_state`]:prop('connected'),
  [`${aid}:charger.power_kw`]:prop(0,{unit:'kW'}),
  [`${aid}:charger.health`]:prop('OK'),
  [`${aid}:charger.health_reason`]:prop('none'),
- [`${aid}:charger.requested_charge_power_kw`]:prop(3.68,{unit:'kW',editable:true,min:2.76,max:7.36,step:.46,write_supported:true,write_service_domain:'input_number',write_service_action:'set_value',write_target_entity:'input_number.test'}),
+ [`${aid}:charger.requested_charge_power_kw`]:prop(3.68,{unit:'kW',editable:true,min:2.76,max:7.36,step:.46,write_supported:true,write_binding_type:'number',write_service_domain:'input_number',write_service_action:'set_value',write_target_entity:'input_number.test'}),
  [`${aid}:charger.session_energy_kwh`]:prop(.364,{unit:'kWh'}),
  [`${aid}:charger.lifetime_energy_kwh`]:prop(209.599,{unit:'kWh'}),
  [`${aid}:charger.vendor`]:prop('Wallbox'),

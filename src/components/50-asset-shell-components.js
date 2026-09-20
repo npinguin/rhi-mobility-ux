@@ -35,7 +35,11 @@ class HomeBrainAssetShell {
     const step = validation.step ?? prop.step ?? 1;
     const disabled = row.disabled ? "disabled" : "";
     const title = row.disabled_reason || row.help || "";
-    const value = this.rt.valueWithoutUnit(row.value ?? prop.value ?? "", prop.unit || "");
+    // Editors show the configured/readback value published by V1. For an
+    // explicitly nullable configuration property (profile/selected charger), use
+    // the backend-published none token rather than hiding the control.
+    const editorValue = row.editor_value ?? prop.value ?? "";
+    const value = this.rt.valueWithoutUnit(editorValue, prop.unit || "");
     const controlKind = this.rt.uxEditorControlKind(prop);
     const unit = String(prop.unit || "").trim();
     const key = String(prop.property_key || "").toLowerCase();
@@ -298,8 +302,10 @@ class HomeBrainAssetShell {
         if (!assetId || !propertyKey) return;
         let value = el.type === "checkbox" ? el.checked : el.value;
         if (el.getAttribute("data-write-toggle") === "1") value = !el.classList.contains("on");
-        const written = this.rt.writePublishedProperty(assetId, propertyKey, value);
-        if (written && el.getAttribute("data-write-toggle") === "1") el.classList.toggle("on");
+        // V1 readback remains the only durable UI truth. The browser control may
+        // show the user's active edit while the write is pending, but UX does not
+        // mutate a second local state after dispatch.
+        this.rt.writePublishedProperty(assetId, propertyKey, value);
       };
       el.addEventListener(el.tagName === "BUTTON" ? "click" : "change", send);
     });

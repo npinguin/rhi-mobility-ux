@@ -1,6 +1,5 @@
 /**
  * Robotix Home Intelligence Mobility UX v1.0.0-rc.2
- * HACS migration baseline from legacy R22.12.11.30.
  * GENERATED FILE - DO NOT EDIT.
  * License: GPL-3.0-only
  */
@@ -19,7 +18,7 @@ function rhiMobilityAssetUrl(path) {
 
 /**
  * Home Brain Mobility Assets Bundle
- * Release: v1.0.0-rc.1_HACS_MIGRATION_BASELINE
+ * Release version is defined by UX_VERSION below and package.json.
  *
  * Purpose:
  * - Provides the bundled frontend custom elements for the Mobility domain.
@@ -43,7 +42,7 @@ function rhiMobilityAssetUrl(path) {
  * - HACS migration baseline: single self-contained rhi-mobility-ux.js; no /local runtime dependency
  */
 /*
-Robotix Home Intelligence Mobility UX v1.0.0-rc.1
+Robotix Home Intelligence Mobility UX
 
 Defines:
 - custom:homebrain-vehicle-asset-detail-card
@@ -1507,21 +1506,15 @@ class HomeBrainAssetRuntime {
   }
 
   uxEditorControlKind(prop = {}) {
-    const key = String(prop.property_key || "").toLowerCase();
-    const semantic = String(prop.semantic_value_type || prop.value_type || prop.editor || "").toLowerCase();
-    const unit = String(prop.unit || "").toLowerCase();
-    // Backend-published choices are authoritative editor metadata. Treat any
-    // writable property with choices as a select before legacy text heuristics.
-    if (this.propertyEditorChoices(prop).length > 0) return "select";
-    if (key === "lifecycle_status" || key === "vehicle.lifecycle_status" || key === "charger.lifecycle_status" || key === "asset.lifecycle_status") return "select";
-    if (semantic === "text" || key.includes("display_name") || key.includes("short_name") || key.includes("owner_label") || key.includes("location_label")) return "text";
-    if (semantic === "boolean" || String(prop.value_type || "").toLowerCase() === "boolean") return "toggle";
-    if (semantic === "datetime" || key.includes("ready_by") || key.includes("time")) return "datetime";
-    if (semantic === "percentage" || key.includes("target_soc") || key.includes("soc_pct") || key.endsWith("_pct")) return "slider";
-    if (key.includes("current_limit") || key.includes("requested_power") || key.includes("power_kw") || unit === "a" || unit === "kw") return "slider";
-    if (semantic === "asset_reference" || semantic === "billing_account_reference" || semantic === "enum") return "select";
-    if (["number","integer","float"].includes(semantic)) return "slider";
-    return "text";
+    // MOBILITY_PUBLIC_RUNTIME_V1 write metadata is the sole editor authority.
+    // Do not infer editor type from property names, units, integrations or values.
+    const binding = String(prop.write_binding_type || prop.editor || "").trim().toLowerCase();
+    if (binding === "select") return "select";
+    if (binding === "text") return "text";
+    if (binding === "switch" || binding === "toggle" || binding === "boolean") return "toggle";
+    if (binding === "number" || binding === "slider") return "slider";
+    if (binding === "datetime" || binding === "datetime-local") return "datetime";
+    return "";
   }
 
   isConfigurationCommand(command = {}) {
@@ -1593,18 +1586,22 @@ class HomeBrainAssetRuntime {
 
 
   isWritableProperty(prop = {}) {
+    const editor = this.uxEditorControlKind(prop);
     return this.contractBool(prop.editable, false) === true
       && this.contractBool(prop.write_supported, false) === true
+      && !!editor
       && !!prop.write_service_domain
       && !!prop.write_service_action
       && !!prop.write_target_entity;
   }
 
   propertyEditorChoices(prop = {}) {
-    // R43.2.54: choices are backend-published property metadata. UX never
-    // manufactures option sets, including lifecycle values.
+    // V1-published choices/options are authoritative. UX never derives profile,
+    // charger or other configuration options from integrations or device identity.
     const direct = this.parseJsonValue(prop.choices, prop.choices || null);
     if (Array.isArray(direct)) return direct;
+    const options = this.parseJsonValue(prop.options, prop.options || null);
+    if (Array.isArray(options)) return options;
     const validation = prop.validation && typeof prop.validation === "object" ? prop.validation : {};
     const validationChoices = this.parseJsonValue(validation.choices, validation.choices || null);
     if (Array.isArray(validationChoices)) return validationChoices;
@@ -1649,7 +1646,7 @@ class HomeBrainAssetRuntime {
   }
 
   propertyEditorRow(prop) {
-    const editor = String(prop.semantic_value_type || prop.editor || prop.value_type || "").toLowerCase();
+    const editor = this.uxEditorControlKind(prop);
     const validation = prop.validation && typeof prop.validation === "object" ? { ...prop.validation } : {};
     const slider = this.sliderBoundsForProperty(prop);
     if (slider.valid) {
@@ -1657,12 +1654,18 @@ class HomeBrainAssetRuntime {
       validation.max = slider.max;
       validation.step = slider.step;
     }
+    const allowNone = this.contractBool(prop.allow_none, false);
+    const noneValue = prop.none_value ?? "";
+    const configuredValue = prop.value === undefined || prop.value === null || String(prop.value).trim() === ""
+      ? (allowNone ? noneValue : "")
+      : prop.value;
     return {
       type:"property-editor",
       property: prop,
       icon: prop.icon || this.propertyIcon(prop.property_key),
       label: this.propertyDisplayLabel(prop),
       value: this.propertyDisplayValue(prop),
+      editor_value: configuredValue,
       help: prop.description || prop.meaning || "",
       editor,
       validation,
@@ -1673,10 +1676,10 @@ class HomeBrainAssetRuntime {
       value_field: prop.value_field || "value",
       label_field: prop.label_field || "label",
       secondary_label_field: prop.secondary_label_field || "secondary_label",
-      allow_none: this.contractBool(prop.allow_none, false),
-      none_value: prop.none_value ?? "",
+      allow_none: allowNone,
+      none_value: noneValue,
       disabled: !this.isWritableProperty(prop),
-      disabled_reason: !this.contractBool(prop.write_supported, false) ? "Editing not available" : (!prop.write_service_domain || !prop.write_service_action || !prop.write_target_entity) ? "Write binding incomplete" : ""
+      disabled_reason: !this.contractBool(prop.write_supported, false) ? "Editing not available" : (!editor ? "Editor metadata missing" : (!prop.write_service_domain || !prop.write_service_action || !prop.write_target_entity) ? "Write binding incomplete" : "")
     };
   }
 
@@ -2722,17 +2725,20 @@ class HomeBrainAssetRuntime {
       editor: row.editor || row.editor_type || "",
       validation: this.parseJsonValue(row.validation, row.validation || {}),
       choices: this.parseJsonValue(row.choices, row.choices || null),
+      options: this.parseJsonValue(row.options, row.options || null),
       choice_source: row.choice_source || "",
       value_field: row.value_field || "value",
       label_field: row.label_field || "label",
       secondary_label_field: row.secondary_label_field || "secondary_label",
       allow_none: this.contractBool(row.allow_none, false),
       none_value: row.none_value ?? "",
-      write_supported: this.contractBool(row.write_supported, !!(row.write_service_domain || row.write_domain) && !!(row.write_service_action || row.write_action) && !!(row.write_target_entity || row.target_entity)),
-      write_binding_type: row.write_binding_type || "",
-      write_service_domain: row.write_service_domain || row.write_domain || "",
-      write_service_action: row.write_service_action || row.write_action || "",
-      write_target_entity: row.write_target_entity || row.target_entity || "",
+      // V1 write metadata is authoritative. Never manufacture writeability from
+      // the mere presence of a target/service binding.
+      write_supported: this.contractBool(row.write_supported, false),
+      write_binding_type: row.write_binding_type || row.editor || "",
+      write_service_domain: row.write_service_domain || "",
+      write_service_action: row.write_service_action || "",
+      write_target_entity: row.write_target_entity || "",
       write_service_data: this.parseJsonValue(row.write_service_data, row.write_service_data || {}),
       write_value_field: row.write_value_field || row.write_field || "",
       write_command: row.write_command || "",
@@ -3979,7 +3985,11 @@ class HomeBrainAssetShell {
     const step = validation.step ?? prop.step ?? 1;
     const disabled = row.disabled ? "disabled" : "";
     const title = row.disabled_reason || row.help || "";
-    const value = this.rt.valueWithoutUnit(row.value ?? prop.value ?? "", prop.unit || "");
+    // Editors show the configured/readback value published by V1. For an
+    // explicitly nullable configuration property (profile/selected charger), use
+    // the backend-published none token rather than hiding the control.
+    const editorValue = row.editor_value ?? prop.value ?? "";
+    const value = this.rt.valueWithoutUnit(editorValue, prop.unit || "");
     const controlKind = this.rt.uxEditorControlKind(prop);
     const unit = String(prop.unit || "").trim();
     const key = String(prop.property_key || "").toLowerCase();
@@ -4242,8 +4252,10 @@ class HomeBrainAssetShell {
         if (!assetId || !propertyKey) return;
         let value = el.type === "checkbox" ? el.checked : el.value;
         if (el.getAttribute("data-write-toggle") === "1") value = !el.classList.contains("on");
-        const written = this.rt.writePublishedProperty(assetId, propertyKey, value);
-        if (written && el.getAttribute("data-write-toggle") === "1") el.classList.toggle("on");
+        // V1 readback remains the only durable UI truth. The browser control may
+        // show the user's active edit while the write is pending, but UX does not
+        // mutate a second local state after dispatch.
+        this.rt.writePublishedProperty(assetId, propertyKey, value);
       };
       el.addEventListener(el.tagName === "BUTTON" ? "click" : "change", send);
     });

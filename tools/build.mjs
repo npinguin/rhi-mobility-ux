@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
 const order = [
   'src/assets/asset-paths.js',
   'src/entry/00-header-and-navigation.js',
@@ -20,7 +21,7 @@ const order = [
 ];
 const missing = order.filter((rel) => !fs.existsSync(path.join(root, rel)));
 if (missing.length) throw new Error(`Missing build inputs: ${missing.join(', ')}`);
-const banner = `/**\n * Robotix Home Intelligence Mobility UX v1.0.0-rc.1\n * HACS migration baseline from legacy R22.12.11.30.\n * GENERATED FILE - DO NOT EDIT.\n * License: GPL-3.0-only\n */\n\n`;
+const banner = `/**\n * Robotix Home Intelligence Mobility UX v${pkg.version}\n * GENERATED FILE - DO NOT EDIT.\n * License: GPL-3.0-only\n */\n\n`;
 const body = order.map((rel) => `// ---- ${rel} ----\n${fs.readFileSync(path.join(root, rel), 'utf8').trim()}`).join('\n\n');
 const out = path.join(root, 'dist/rhi-mobility-ux.js');
 fs.mkdirSync(path.dirname(out), { recursive: true });
