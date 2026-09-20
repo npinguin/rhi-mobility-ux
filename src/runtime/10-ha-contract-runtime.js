@@ -3417,6 +3417,15 @@ class HomeBrainAssetRuntime {
   supervisorOutcome(assetId = "mobility", key = "status", fallback = "") {
     const canonical = this.canonicalAssetId(assetId || "");
     if (canonical && canonical !== "mobility") return this.factContractValue(canonical, key, fallback);
+
+    // Global supervisor meaning is backend-owned and may only come from the
+    // published Mobility Intelligence Index. Never derive it from local facts.
+    for (const row of this.intelligenceRowsFor("")) {
+      const scope = String(row?.asset_id || row?.subject_asset_id || row?.scope || row?.id || "").trim().toLowerCase();
+      if (scope && !["mobility", "global"].includes(scope)) continue;
+      const value = this.cleanValue(this.parseSupervisorValue(row, "mobility", key), "");
+      if (value) return this.normalizeOutcomeValue(key, value, fallback || "Unknown");
+    }
     return fallback;
   }
 
