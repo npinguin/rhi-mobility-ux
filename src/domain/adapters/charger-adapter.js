@@ -15,6 +15,7 @@ class HomeBrainChargerAdapter {
     const assetId = this.assetId();
     const lifecycle = this.rt.lifecycleStatus(this.registryEntry() || assetId);
     if (lifecycle === "disabled") return { bucket:"disabled", resolved:true, label:"Disabled" };
+    if (lifecycle !== "active") return { bucket:"unknown", resolved:false, label:"N/A" };
     const snapshot = this.rt.chargerProductSnapshot(assetId);
     if (!snapshot?.operating?.resolved) return { bucket:"unknown", resolved:false, label:"N/A" };
     const raw = String(snapshot.operating.value || "").trim().toLowerCase();
