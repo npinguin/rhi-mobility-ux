@@ -40,8 +40,8 @@ Internal structure:
 - HomeBrainChargerAdapter: charger contract mapping
 */
 
-const UX_VERSION = "1.0.0-rc.13";
-const HB_MOBILITY_COMPANY_LOGO = "branding/company-logo.svg";
+const UX_VERSION = "1.0.0-rc.14";
+const HB_MOBILITY_COMPANY_LOGO_SVG = "__RHI_COMPANY_LOGO_INLINE__";
 
 const HB_MOBILITY_BASE_PATH = "/mobility-supervisor";
 
@@ -96,7 +96,7 @@ function hbMobilityModuleFor(active = "overview") {
 
 function hbMobilityCompanyBrand() {
   return `<div class="hi-company-brand" aria-label="Robotix.be · DomotiX · Network · Security">
-    <img class="hi-company-logo" src="${rhiMobilityAssetUrl(HB_MOBILITY_COMPANY_LOGO, UX_VERSION)}" alt="Robotix.be — DomotiX · Network · Security" />
+    <span class="hi-company-logo" role="img" aria-label="Robotix.be — DomotiX · Network · Security">${HB_MOBILITY_COMPANY_LOGO_SVG}</span>
   </div>`;
 }
 
@@ -345,6 +345,13 @@ function hbMobilitySharedShellStyles() {
     .hi-company-logo{
       display:block;
       width:min(100%,var(--rhi-company-logo-max-width));
+      max-height:var(--rhi-company-logo-max-height);
+      line-height:0;
+      overflow:hidden;
+    }
+    .hi-company-logo svg{
+      display:block;
+      width:100%;
       height:auto;
       max-height:var(--rhi-company-logo-max-height);
       object-fit:contain;
