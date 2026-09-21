@@ -28,7 +28,9 @@ branch
    → committed-dist equality
    → HACS validation
 → squash merge
-→ Publish HACS verifies exact committed artifact
+→ Publish HACS verifies the complete committed `dist/` package
+→ create or verify immutable tag
+→ normal GitHub Release contains evidence only
 → immutable HACS-visible TEST CANDIDATE
 → target HA qualification + rollback
 → manual stable promotion of exact immutable candidate
@@ -65,12 +67,12 @@ The human release notes and changelog remain required, but they describe the rel
 
 ## Published-version immutability
 
-Published runtime bytes are immutable.
+Published HACS package bytes are immutable.
 
-For a PR using an already published package version, Validate builds the branch and compares the generated JS/checksum with the published tag:
+For a PR using an already published package version, Validate rebuilds and compares the complete generated `dist/` tree with the published tag:
 
-- identical runtime bytes → governance/test/documentation refactoring is allowed without fake version churn;
-- different runtime bytes → the next package version is mandatory.
+- identical package bytes → governance/test/documentation refactoring is allowed without fake version churn;
+- any changed runtime, asset, checksum or package-manifest byte → the next package version is mandatory.
 
 This replaces path-based immutability checks that incorrectly treated every source/test refactor as a runtime release.
 
@@ -97,3 +99,5 @@ Runtime controls remain fail-closed. Actual/readback remains operational truth. 
 Static CI is not target Home Assistant evidence. `release/QUALIFICATION.json` qualifies the exact immutable candidate tag/SHA after publication.
 
 Rollback remains a previous immutable HACS version. For plugin packages with nested assets, a same-named JS GitHub Release asset is forbidden because HACS would switch to single-file delivery and omit the structured asset tree.
+
+Publication is idempotent: an already existing tag/release is accepted only when the immutable tag's complete `dist/` package matches the current candidate byte-for-byte and the release targets that tag. In that case the workflow verifies and exits green without mutation.

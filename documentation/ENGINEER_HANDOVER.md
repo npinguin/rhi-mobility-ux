@@ -10,7 +10,10 @@ Read in this order:
 2. `documentation/ARCHITECTURE.md`
 3. `documentation/RELEASE_GOVERNANCE.md`
 4. `documentation/TEST_GOVERNANCE.md`
-5. `src/OWNERSHIP.json`\n6. `src/manifest.json`\n7. `documentation/SOURCE_PACKAGE_GOVERNANCE.md`\n8. `tests/OWNERSHIP.json`
+5. `src/OWNERSHIP.json`
+6. `src/manifest.json`
+7. `documentation/SOURCE_PACKAGE_GOVERNANCE.md`
+8. `tests/OWNERSHIP.json`
 9. `documentation/BRANDING.md`
 10. `documentation/HACS_INSTALLATION.md`
 11. `documentation/KNOWN_DEFECTS.md`
@@ -56,9 +59,9 @@ Testing mirrors code ownership: **one invariant, one test owner**. Do not make a
 ```text
 Mobility backend
 → MOBILITY_PUBLIC_RUNTIME_V1
-→ UX runtime/adapters
-→ viewmodels
-→ screens/components
+→ runtime
+→ domain adapters/models
+→ UI components/screens
 ```
 
 UX renders V1 and does not create a second Mobility semantic authority.
@@ -89,7 +92,8 @@ branch
    → committed-dist equality
    → HACS validation
 → squash merge
-→ Publish HACS verifies the complete committed dist package and creates the immutable tag (no rebuild)\n→ GitHub Release attaches evidence only; no JS release asset
+→ Publish HACS verifies the complete committed dist package and creates/verifies the immutable tag (no rebuild)
+→ GitHub Release attaches evidence only; no JS release asset
 → immutable HACS-visible TEST CANDIDATE
 → target HA runtime + rollback proof
 → update release/QUALIFICATION.json with PASS + exact candidate SHA

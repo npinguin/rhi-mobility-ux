@@ -73,10 +73,10 @@ if(!headings.length || !headings[0].startsWith(`## ${version} `)) throw new Erro
 
 if(!testGovernance.includes('One invariant has exactly one test owner')) throw new Error('test ownership principle missing');
 if(ownership.principle!=='one invariant, one test owner') throw new Error('machine-readable test ownership principle drift');
-if(!pkg.scripts?.['check:test-ownership'] || !pkg.scripts?.['check:source-ownership'] || !pkg.scripts?.['check:asset-policy'] || !pkg.scripts?.['check:hacs-package'] || !pkg.scripts?.['test:hacs-install'] || !pkg.scripts?.['test:contract'] || !pkg.scripts?.['test:ux'] || !pkg.scripts?.['test:package'] || !pkg.scripts?.['test:release']) throw new Error('owned test/package suite scripts missing');
+if(!pkg.scripts?.['check:test-ownership'] || !pkg.scripts?.['check:source-ownership'] || !pkg.scripts?.['check:asset-policy'] || !pkg.scripts?.['check:hacs-package'] || !pkg.scripts?.['check:documentation-drift'] || !pkg.scripts?.['test:hacs-install'] || !pkg.scripts?.['test:contract'] || !pkg.scripts?.['test:ux'] || !pkg.scripts?.['test:package'] || !pkg.scripts?.['test:release']) throw new Error('owned test/package suite scripts missing');
 
 if(!governance.includes('publication does not rebuild')) throw new Error('Mobility release governance must prohibit publication rebuilds');
-if(!sharedRelease.includes('publish the exact committed artifact')) throw new Error('shared UX release standard missing exact-artifact publication rule');
+if(!sharedRelease.includes('immutable tag') || !sharedRelease.includes('Publication must be idempotent')) throw new Error('shared UX release standard missing immutable/idempotent package publication rule');
 if(validateWorkflow.includes('push:\n    branches: [main]')) throw new Error('full Validate must not rebuild again on main push');
 if(!validateWorkflow.includes('Deterministic two-build proof')) throw new Error('PR reproducibility proof missing');
 if(!validateWorkflow.includes('Protect immutable published package')) throw new Error('immutable complete-package gate missing');
@@ -84,7 +84,7 @@ for(const forbidden of ['npm test','npm run build','npm run clean']){
   if(publishWorkflow.includes(forbidden)) throw new Error(`publication must not rebuild/retest candidate: ${forbidden}`);
   if(releaseWorkflow.includes(forbidden)) throw new Error(`stable promotion must not rebuild/retest candidate: ${forbidden}`);
 }
-if(!publishWorkflow.includes('node tools/verify-dist.mjs') || !publishWorkflow.includes('node tools/check-hacs-package.mjs')) throw new Error('publication must verify exact committed HACS package');
+if(!publishWorkflow.includes('node tools/verify-dist.mjs') || !publishWorkflow.includes('node tools/check-hacs-package.mjs') || !publishWorkflow.includes('Existing immutable tag package matches current dist')) throw new Error('publication must verify exact committed/idempotent HACS package');
 if(!publishWorkflow.includes('dist/PACKAGE_MANIFEST.json')) throw new Error('publication must attach package manifest evidence');
 if(/gh release create[\s\S]*dist\/rhi-mobility-ux\.js(?:\s|\\)/.test(publishWorkflow)) throw new Error('JS release asset would force HACS single-file mode');
 if(!releaseWorkflow.includes('git archive "${TAG}" dist')) throw new Error('stable promotion must compare complete immutable tag dist package');

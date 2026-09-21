@@ -9,7 +9,7 @@ This document is normative for every public Robotix Home Intelligence UX package
    - product/release context: `release/product.json`;
    - runtime version: generated from package version during build;
    - qualification evidence: `release/QUALIFICATION.json`;
-   - published runtime authority: immutable GitHub Release/tag.
+   - published package authority: immutable GitHub tag plus its release metadata.
 
 2. **One invariant, one test owner.** Test ownership follows code ownership. Package-specific test governance must define owners and prevent foreign assertions.
 
@@ -31,8 +31,9 @@ branch
 → committed-dist equality
 → HACS validation
 → squash merge to main
-→ verify committed candidate artifact
-→ publish the exact committed artifact as immutable TEST CANDIDATE
+→ verify complete committed candidate package
+→ create or verify immutable tag containing that package
+→ expose a normal GitHub Release as HACS-visible TEST CANDIDATE
 → target Home Assistant runtime + rollback proof
 → qualification bound to exact tag/SHA
 → stable promotion of that exact immutable candidate
@@ -78,11 +79,15 @@ GitHub Releases are the HACS version authority. A TEST CANDIDATE is a normal Git
 
 Candidate publication must:
 
-- reject an existing immutable tag/release;
+- create a new immutable tag/release, or verify an already existing identical candidate without mutation;
 - verify the committed runtime and checksum;
 - verify release metadata/qualification identity;
 - run HACS package validation;
-- publish the exact committed package through the immutable tag.\n\nFor HACS Dashboard/plugin packages that contain nested assets, do not attach the plugin JS filename itself as a GitHub Release asset. HACS treats a matching release asset as single-file delivery. Keep release assets evidence-only so HACS installs the repository `dist/` subtree with its nested assets.
+- publish the exact committed package through the immutable tag.
+
+For HACS Dashboard/plugin packages that contain nested assets, do not attach the plugin JS filename itself as a GitHub Release asset. HACS treats a matching release asset as single-file delivery. Keep release assets evidence-only so HACS installs the repository `dist/` subtree with its nested assets.
+
+Publication must be idempotent. If the tag/release already exists, verify complete package-byte identity, release target identity and release-asset policy, then finish green without mutation.
 
 Candidate publication must not run `npm test`, `npm run build` or `npm run clean`.
 
@@ -104,7 +109,7 @@ Stable promotion must prove:
 - technical debt = 0;
 - feature debt = 0.
 
-Stable promotion updates evidence/title only and does not rebuild or mutate runtime bytes.
+Stable promotion updates evidence/title only and does not rebuild or mutate package bytes.
 
 ## Workflow ownership
 
