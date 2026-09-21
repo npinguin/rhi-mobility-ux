@@ -373,6 +373,148 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     </article>`;
   }
 
+  overviewVehicleSignals(rt, assetId) {
+    const tiles = rt.vehicleIntelligenceStatusTiles(assetId) || [];
+    const byLabel = (label) => tiles.find((tile) => String(tile?.label || "").toLowerCase() === String(label).toLowerCase()) || null;
+    const climate = (rt.propertyRows(assetId) || []).find((row) => {
+      if (!row || row.value === undefined || row.value === null || String(row.value).trim() === "") return false;
+      return rt.propertyFamily(row) === "climate" && rt.propertyDetailLevel(row) !== "technical";
+    }) || null;
+    return {
+      range: byLabel("Range"),
+      energy: byLabel("Energy"),
+      security: byLabel("Security"),
+      maintenance: byLabel("Maintenance"),
+      climate: climate ? rt.propertyDisplayValue(climate) : "—"
+    };
+  }
+
+  renderOverviewVehicleRow(rt, asset, chargers) {
+    const factory = new HomeBrainAssetFactory(rt);
+    const model = factory.adapterFor(asset, this.config)?.build?.() || null;
+    const assetId = this.assetId(asset);
+    const display = model?.display || asset.display_name || rt.vehicleLabel(assetId);
+    const image = model?.image || "";
+    const route = rt.assetDetailRoute(asset);
+    const signals = this.overviewVehicleSignals(rt, assetId);
+    const charging = this.chargingActivityDisplay(rt, asset);
+    const commands = this.dashboardVehicleCommands(rt, assetId).slice(0, 2);
+    const signalValue = (tile, fallback = "—") => tile?.value && !String(tile.value).toLowerCase().includes("contract gap") ? tile.value : fallback;
+    const signalTone = (tile) => {
+      const tone = String(tile?.tone || "").toLowerCase();
+      return tone === "error" ? "bad" : tone === "attention" ? "warn" : tone === "active" ? "active" : "ok";
+    };
+    return `<article class="ov-vehicle-row">
+      <button class="ov-vehicle-main" data-nav="${rt.escape(route)}" title="Open vehicle details">
+        <span class="ov-vehicle-image">${image ? `<img src="${rt.escape(rt.cache(image))}" alt="${rt.escape(display)}">` : `<ha-icon icon="mdi:car-electric"></ha-icon>`}</span>
+        <span class="ov-vehicle-copy"><b>${rt.escape(display)}</b><small>${rt.escape(signalValue(signals.energy))} · ${rt.escape(signalValue(signals.range))}</small></span>
+      </button>
+      <div class="ov-signal ${signalTone(signals.security)}" title="${rt.escape(signals.security?.subvalue || "")}"><ha-icon icon="mdi:lock-outline"></ha-icon><span>Security</span><b>${rt.escape(signalValue(signals.security, "Unknown"))}</b></div>
+      <div class="ov-signal" title="Published climate/comfort property"><ha-icon icon="mdi:fan"></ha-icon><span>Comfort</span><b>${rt.escape(signals.climate)}</b></div>
+      <div class="ov-signal ${signalTone(signals.maintenance)}" title="${rt.escape(signals.maintenance?.subvalue || "")}"><ha-icon icon="mdi:wrench-outline"></ha-icon><span>Maintenance</span><b>${rt.escape(signalValue(signals.maintenance, "Unknown"))}</b></div>
+      <div class="ov-charging-state"><ha-icon icon="mdi:lightning-bolt"></ha-icon><span>${rt.escape(charging)}</span></div>
+      <div class="ov-assignment">${this.renderChargerAssignmentSelect(rt, asset)}</div>
+      <div class="ov-row-actions">
+        ${commands.map((cmd, index)=>this.renderCommand(rt, cmd, cmd?.label || "Action", this.commandIcon(cmd), index === 0 ? "primary-charge" : "")).join("")}
+        <button class="action icon-only ov-detail" data-nav="${rt.escape(route)}" title="Open all vehicle details"><ha-icon icon="mdi:chevron-right"></ha-icon></button>
+      </div>
+    </article>`;
+  }
+
+  renderOverviewChargerRow(rt, charger) {
+    const assetId = this.assetId(charger);
+    const display = charger.display_name || rt.chargerLabel(assetId);
+    const route = rt.assetDetailRoute(charger);
+    const snapshot = rt.chargerProductSnapshot(assetId);
+    const status = snapshot.operating?.resolved ? snapshot.operating.display : "Unknown";
+    const power = snapshot.power?.resolved ? snapshot.power.display : "—";
+    const image = this.chargerImage(charger);
+    return `<article class="ov-charger-row">
+      <span class="ov-charger-image"><img src="${rt.escape(rt.cache(image))}" alt="${rt.escape(display)}" onerror="this.style.display='none'"><ha-icon icon="mdi:ev-station"></ha-icon></span>
+      <span class="ov-charger-copy"><b>${rt.escape(display)}</b><small><i class="ov-dot"></i>${rt.escape(status)}</small></span>
+      <span class="ov-charger-power"><b>${rt.escape(power)}</b><small>Current power</small></span>
+      <button class="action icon-only ov-detail" data-nav="${rt.escape(route)}" title="Open charger details"><ha-icon icon="mdi:chevron-right"></ha-icon></button>
+    </article>`;
+  }
+
+  renderOverviewPage(rt, vehicles, chargers, activityRows, reco) {
+    const activeVehicles = vehicles.filter((v)=>rt.lifecycleStatus(v) === "active");
+    const heroVehicle = activeVehicles[0] || vehicles[0] || null;
+    const heroModel = heroVehicle ? (new HomeBrainAssetFactory(rt).adapterFor(heroVehicle, this.config)?.build?.() || null) : null;
+    const heroImage = heroModel?.image || "";
+    const chargingCount = activeVehicles.filter((v)=>!!this.vehicleChargingInfo(rt, v)?.active).length;
+    const availableChargers = chargers.filter((c)=>{
+      const snapshot = rt.chargerProductSnapshot(c.asset_id);
+      const status = String(snapshot.operating?.display || "").toLowerCase();
+      return snapshot.operating?.resolved && !["fault","error","offline","unavailable"].some((token)=>status.includes(token));
+    }).length;
+    const energyToday = rt.supervisorOutcome("mobility", "energy_today", "—") || "—";
+    const dateText = new Intl.DateTimeFormat(undefined,{weekday:"short",day:"2-digit",month:"short",year:"numeric"}).format(new Date());
+    const timeText = new Intl.DateTimeFormat(undefined,{hour:"2-digit",minute:"2-digit"}).format(new Date());
+    const recent = (activityRows || []).slice(0,3);
+    const recommended = reco?.action && reco.action !== "Unknown" ? reco : null;
+
+    return `
+      <section class="ov-hero">
+        <div class="ov-hero-copy">
+          <div class="ov-hero-icon"><ha-icon icon="mdi:car-electric"></ha-icon></div>
+          <div><span class="ov-kicker">MOBILITY</span><h1>Overview</h1><h2>Your mobility at a glance</h2><p>Current status, next actions and key metrics.</p></div>
+        </div>
+        <div class="ov-hero-time"><b>${rt.escape(dateText)}</b><span>${rt.escape(timeText)}</span></div>
+        ${heroImage ? `<div class="ov-hero-vehicle"><img src="${rt.escape(rt.cache(heroImage))}" alt=""></div>` : ""}
+        <div class="ov-kpis">
+          <div class="ov-kpi"><ha-icon icon="mdi:car-electric"></ha-icon><div><span>Vehicles</span><b>${activeVehicles.length}</b><small>${activeVehicles.length === 1 ? "1 active vehicle" : `${activeVehicles.length} active vehicles`}</small></div></div>
+          <div class="ov-kpi"><ha-icon icon="mdi:ev-station"></ha-icon><div><span>Chargers</span><b>${chargers.length}</b><small>${availableChargers} available</small></div></div>
+          <div class="ov-kpi"><ha-icon icon="mdi:lightning-bolt"></ha-icon><div><span>Charging</span><b>${chargingCount}</b><small>${chargingCount ? "Active now" : "No active session"}</small></div></div>
+          <div class="ov-kpi"><ha-icon icon="mdi:chart-bar"></ha-icon><div><span>Energy today</span><b>${rt.escape(energyToday)}</b><small>${energyToday === "—" ? "Not published" : "Backend reported"}</small></div></div>
+        </div>
+      </section>
+
+      <section class="ov-quickbar">
+        <span class="ov-quick-title">Quick actions</span>
+        <button class="ov-nav-action primary" data-nav="${hbMobilityPath("/vehicles")}"><ha-icon icon="mdi:lightning-bolt"></ha-icon>Vehicle actions</button>
+        <button class="ov-nav-action" data-nav="${hbMobilityPath("/planning")}"><ha-icon icon="mdi:calendar-clock"></ha-icon>Set schedule</button>
+        <button class="ov-nav-action" data-nav="${hbMobilityPath("/vehicles")}"><ha-icon icon="mdi:fan"></ha-icon>Precondition</button>
+        <button class="ov-nav-action" data-nav="${hbMobilityPath("/vehicles")}"><ha-icon icon="mdi:ev-station"></ha-icon>Change charger</button>
+        <button class="ov-nav-action ov-more" data-nav="${hbMobilityPath("/vehicles")}">View all actions<ha-icon icon="mdi:chevron-right"></ha-icon></button>
+      </section>
+
+      <section class="ov-two-col">
+        <section class="ov-panel">
+          <div class="ov-panel-head"><div><h2>Vehicles</h2><p>Range, charge, security, comfort and maintenance.</p></div><button data-nav="${hbMobilityPath("/vehicles")}">View all <ha-icon icon="mdi:chevron-right"></ha-icon></button></div>
+          <div class="ov-vehicle-list">${activeVehicles.length ? activeVehicles.map((vehicle)=>this.renderOverviewVehicleRow(rt,vehicle,chargers)).join("") : `<div class="ov-empty">No active vehicles.</div>`}</div>
+        </section>
+        <section class="ov-panel">
+          <div class="ov-panel-head"><div><h2>Chargers</h2><p>Status of your charging points.</p></div><button data-nav="${hbMobilityPath("/charger-maintenance")}">View all <ha-icon icon="mdi:chevron-right"></ha-icon></button></div>
+          <div class="ov-charger-list">${chargers.length ? chargers.map((charger)=>this.renderOverviewChargerRow(rt,charger)).join("") : `<div class="ov-empty">No active chargers.</div>`}</div>
+        </section>
+        <section class="ov-panel ov-small-panel">
+          <div class="ov-panel-head"><div><h2>Recent activity</h2><p>Latest Mobility events.</p></div><button data-nav="${hbMobilityPath("/history")}">View all <ha-icon icon="mdi:chevron-right"></ha-icon></button></div>
+          <div class="ov-activity-list">${recent.length ? recent.map((row)=>`<div class="ov-activity-row"><ha-icon icon="mdi:history"></ha-icon><span><b>${rt.escape(row.message || row.activity_state || row.activity_type || "Mobility activity")}</b><small>${rt.escape(row.observed_at || row.timestamp || "")}</small></span></div>`).join("") : `<div class="ov-empty">No recent activity published.</div>`}</div>
+        </section>
+        <section class="ov-panel ov-small-panel">
+          <div class="ov-panel-head"><div><h2>Next actions</h2><p>Upcoming items based on backend-owned intelligence.</p></div><button data-nav="${hbMobilityPath("/planning")}">View plan <ha-icon icon="mdi:chevron-right"></ha-icon></button></div>
+          ${recommended ? `<div class="ov-next-row"><ha-icon icon="mdi:calendar-check-outline"></ha-icon><span><b>${rt.escape(recommended.action)}</b><small>${rt.escape(recommended.reason || "")}</small></span><button data-nav="${hbMobilityPath("/planning")}">Open</button></div>` : `<div class="ov-empty">No next action published.</div>`}
+        </section>
+      </section>`;
+  }
+
+  renderVehiclesPage(rt, activeVehicles, inactiveVehicles, chargers, reco, plan, trust, activity, intelligenceSummary) {
+    return `
+      <section class="title"><h1>Vehicles</h1><p>Manage your vehicles and keep range, charge, security, comfort and maintenance visible.</p></section>
+      <section class="status-strip dashboard-status-strip">
+        <div class="metric tone-green"><ha-icon icon="mdi:check-circle-outline"></ha-icon><div><span>Status</span><b>${rt.escape(rt.supervisorOutcome("mobility", "status", "Unknown") || "Unknown")}</b></div></div>
+        <div class="metric tone-blue"><ha-icon icon="mdi:shield-check-outline"></ha-icon><div><span>Trust</span><b>${rt.escape(rt.supervisorOutcome("mobility", "trust", "Unknown") || "Unknown")}</b></div></div>
+        <div class="metric tone-orange"><ha-icon icon="mdi:alert-circle-outline"></ha-icon><div><span>Attention</span><b>${rt.escape(rt.supervisorOutcome("mobility", "attention", "Unknown") || "Unknown")}</b></div></div>
+        <div class="metric tone-green"><ha-icon icon="mdi:lightbulb-outline"></ha-icon><div><span>Opportunity</span><b>${rt.escape(rt.supervisorOutcome("mobility", "opportunity", "Unknown") || "Unknown")}</b></div></div>
+        <div class="metric tone-blue"><ha-icon icon="mdi:arrow-right-circle-outline"></ha-icon><div><span>Recommended action</span><b>${rt.escape(reco.action || "Unknown")}</b></div></div>
+      </section>
+      <section class="section-title"><h2>Active vehicles</h2><span>${activeVehicles.length} active</span></section>
+      <section class="vehicles">${activeVehicles.length ? activeVehicles.map((v)=>this.renderVehicle(rt,v,chargers)).join("") : `<div class="empty">No active vehicles.</div>`}</section>
+      ${inactiveVehicles.length ? `<section class="section-title compact-title"><h2>Inactive vehicles</h2><span>${inactiveVehicles.length} inactive</span></section><section class="inactive-list">${inactiveVehicles.map((v)=>this.renderInactiveVehicle(rt,v)).join("")}</section>` : `<section class="debt-strip"><ha-icon icon="mdi:information-outline"></ha-icon><b>Inactive vehicles (0)</b><span>Deactivated vehicles are hidden.</span></section>`}
+      <section class="bottom-grid"><div class="info"><h3><ha-icon icon="mdi:calendar-clock"></ha-icon>Charging Plan</h3><p>${rt.escape(plan)}</p></div><div class="info"><h3><ha-icon icon="mdi:shield-check-outline"></ha-icon>System Trust</h3><p>${rt.escape(intelligenceSummary ? (intelligenceSummary.message || intelligenceSummary.meaning || intelligenceSummary.value || intelligenceSummary.title || intelligenceSummary.insight_type) : trust)}</p></div><div class="info"><h3><ha-icon icon="mdi:history"></ha-icon>Current Activity</h3>${activity.length ? `<ul>${activity.map((a)=>`<li>${rt.escape(a)}</li>`).join("")}</ul>` : `<p>No current activity published.</p>`}</div></section>`;
+  }
+
   versionBlock(rt) {
     return `<div class="hi-version-block" style="position:absolute;top:18px;right:22px;text-align:right;font-size:10.5px;line-height:1.25;font-weight:400;color:var(--secondary-text-color,#6B7280);opacity:.82;background:none;border:0;box-shadow:none;padding:0;margin:0;z-index:3;pointer-events:none;"><div>UX ${rt.escape(UX_VERSION)}</div><div>Backend ${rt.escape(rt.backendVersion())}</div></div>`;
   }
