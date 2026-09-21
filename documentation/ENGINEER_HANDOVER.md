@@ -7,21 +7,23 @@ Do not copy current release identity from this document. The authoritative sourc
 Read in this order:
 
 1. `README.md`
-2. `documentation/ARCHITECTURE.md`
-3. `documentation/RELEASE_GOVERNANCE.md`
-- `documentation/UX_REPOSITORY_STANDARD.md`
-4. `documentation/TEST_GOVERNANCE.md`
-5. `src/OWNERSHIP.json`
-6. `src/manifest.json`
-7. `documentation/SOURCE_PACKAGE_GOVERNANCE.md`
-8. `tests/OWNERSHIP.json`
-9. `documentation/BRANDING.md`
-10. `documentation/HACS_INSTALLATION.md`
-11. `documentation/KNOWN_DEFECTS.md`
-12. `release/product.json`
-13. `release/QUALIFICATION.json`
-14. `release/RELEASE_NOTES.md`
-15. `CHANGELOG.md`
+2. `documentation/PRODUCT_VISION.md`
+3. `documentation/ARCHITECTURE.md`
+4. `documentation/BACKEND_INTERFACE_BACKLOG.md`
+5. `documentation/RELEASE_GOVERNANCE.md`
+6. `documentation/UX_REPOSITORY_STANDARD.md`
+7. `documentation/TEST_GOVERNANCE.md`
+8. `src/OWNERSHIP.json`
+9. `src/manifest.json`
+10. `documentation/SOURCE_PACKAGE_GOVERNANCE.md`
+11. `tests/OWNERSHIP.json`
+12. `documentation/BRANDING.md`
+13. `documentation/HACS_INSTALLATION.md`
+14. `documentation/KNOWN_DEFECTS.md`
+15. `release/product.json`
+16. `release/QUALIFICATION.json`
+17. `release/RELEASE_NOTES.md`
+18. `CHANGELOG.md`
 
 ## Footer authority
 
@@ -72,6 +74,18 @@ Configuration controls use backend V1 write metadata, options and write targets.
 Actual/readback is the normal operational truth. Requested intent is transient during editing/pending write and must not replace canonical actual state.
 
 Global supervisor status, trust, attention, opportunity and recommendation are backend-owned. The UX may present factual charging information, but it may not turn those facts into a substitute recommendation. Missing supervisor intelligence fails closed as unavailable/Unknown.
+
+
+### Product/contract rule
+
+- One Mobility model sits behind every tab; screens are projections only.
+- Overview evolves from the current V1 implementation; do not replace it with a mock redesign.
+- Missing backend capabilities render N/A/empty and go to `documentation/BACKEND_INTERFACE_BACKLOG.md`.
+- Do not mock user→vehicle links, HA-user permissions, management capabilities or future V2.x fields.
+- `No charger` is a first-class selected-charger state only when V1 publishes backend-owned unset metadata.
+- URL route is authoritative product state: refresh must preserve the current tab and relevant position.
+- The connected HA user may influence focus/sorting only after the backend publishes HA-native relationship and rights contracts.
+- Shared RHI header/footer remain unchanged unless a transversal RHI UX change is explicitly approved. Mobility may only simplify the outer Lovelace top menu as part of this program.
 
 ## Current known product gaps
 
