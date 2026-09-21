@@ -2,7 +2,7 @@
 
 ## Start here
 
-Current source candidate: **v1.0.0-rc.10**. Public contract: **MOBILITY_PUBLIC_RUNTIME_V1**. Minimum backend: **R43.2.60**. Current tested backend baseline: **R43.2.65**.
+Current source candidate: **v1.0.0-rc.11**. Public contract: **MOBILITY_PUBLIC_RUNTIME_V1**. Minimum backend: **R43.2.60**. Current tested backend baseline: **R43.2.65**.
 
 Read in this order:
 
@@ -17,6 +17,12 @@ Read in this order:
 9. `release/RELEASE_NOTES.md`
 10. `CHANGELOG.md`
 
+## Footer authority
+
+- Healthy footer is `RHI Mobility UX <version> · Backend <version>`.
+- Runtime health, acceptance proof and diagnostics may create one issue label/tooltip only.
+- Footer geometry/classes must match the shared standard and Energy.
+
 ## Shared shell and brand authority
 
 - Mobility uses the same two-level header hierarchy and company-brand slot contract as Energy.
@@ -25,6 +31,11 @@ Read in this order:
 - Compact gray secondary-navigation icons are presentation metadata only; routes and backend ownership are unchanged.
 - Do not redraw, recolour, filter, crop or replace the company mark locally.
 - Responsive header sizing is controlled only through the shared `--rhi-company-*` tokens documented in `documentation/BRANDING.md`.
+
+## Shared UX standards
+
+- `documentation/UX_RELEASE_STANDARD.md` is normative for release lifecycle across all RHI UX packages.
+- `documentation/UX_FOOTER_STANDARD.md` is normative for footer layout, data ownership and diagnostics presentation.
 
 ## Product boundary
 
