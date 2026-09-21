@@ -611,7 +611,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
           if (!forceRender && this._lastSignature === signature && this._lastRenderOk && !(activeElement && ["SELECT", "INPUT"].includes(activeElement.tagName))) return;
           this._lastSignature = signature;
           this._lastRenderOk = true;
-          const navActive = this.config?.nav_active || "overview";
+          const navActive = this.config?.nav_active || "vehicles";
           const pageContent = navActive === "overview"
             ? this.renderOverviewPage(rt, activeVehicles, chargers, activityRows, reco)
             : this.renderVehiclesPage(rt, activeVehicles, inactiveVehicles, chargers, reco, plan, trust, activity, intelligenceSummary);

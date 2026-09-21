@@ -4,13 +4,15 @@ const header=fs.readFileSync(new URL('../../src/entry/00-header-and-navigation.j
 const dashboard=fs.readFileSync(new URL('../../src/screens/90-mobility-dashboard-card.js',import.meta.url),'utf8');
 const chargers=fs.readFileSync(new URL('../../src/screens/80-charger-maintenance-card.js',import.meta.url),'utf8');
 const routes=fs.readFileSync(new URL('../../documentation/homebrain_mobility.hacs.yaml',import.meta.url),'utf8');
+const officialLogo=new URL('../../src/assets/files/branding/robotix-logo.webp',import.meta.url);
+if (!fs.existsSync(officialLogo)) throw new Error('official Robotix.be logo asset is not packaged in source assets');
 
 const required = [
   'key: "mobility"',
   'key: "intelligence"',
   'key: "insights"',
-  '{ key: "overview", label: "Overview", path: "/dashboard" }',
-  '{ key: "vehicles", label: "Vehicles", path: "/vehicles" }',
+  '{ key: "overview", label: "Overview", path: "/overview" }',
+  '{ key: "vehicles", label: "Vehicles", path: "/dashboard" }',
   '{ key: "chargers", label: "Chargers", path: "/charger-maintenance" }',
   '{ key: "charging", label: "Charging", path: "/charging" }',
   '{ key: "planning", label: "Planning", path: "/planning" }',
@@ -20,8 +22,8 @@ const required = [
   'class="hi-domain-shell"',
   'class="hi-module-tabs"',
   'class="hi-company-brand"',
-  'Robotix.be',
-  'DomotiX · Network · Security',
+  'branding/robotix-logo.webp',
+  'class="hi-company-logo"',
   'font-family:Inter,ui-sans-serif'
 ];
 for (const needle of required) if (!header.includes(needle)) throw new Error(`navigation shell missing: ${needle}`);
@@ -35,12 +37,14 @@ if (!intelligenceBlock.includes('Planning') || !intelligenceBlock.includes('Stra
 const insightsBlock = header.slice(header.indexOf('key: "insights"'), header.indexOf('const HB_MOBILITY_NAV_ITEMS'));
 if (!insightsBlock.includes('History') || !insightsBlock.includes('Log')) throw new Error('Insights submenu drift');
 
-if (!dashboard.includes('const navActive = this.config?.nav_active || "overview"')) throw new Error('dashboard does not default to Overview navigation');
+if (!dashboard.includes('const navActive = this.config?.nav_active || "vehicles"')) throw new Error('legacy dashboard mount does not default to Vehicles navigation');
 if (!dashboard.includes('hbMobilityNav(navActive)')) throw new Error('dashboard does not render canonical navigation from normalized active route');
 if (!chargers.includes('hbMobilityNav(this.config?.nav_active || "chargers")')) throw new Error('charger screen does not preserve grouped navigation');
 
-for (const path of ['dashboard','vehicles','charger-maintenance','charging','planning','strategies','history','log']) {
+for (const path of ['overview','dashboard','charger-maintenance','charging','planning','strategies','history','log']) {
   if (!routes.includes(`path: ${path}`)) throw new Error(`dashboard route missing: ${path}`);
 }
 
-console.log('PASS Energy-style Mobility header and grouped two-level navigation');
+if (!routes.includes('title: Overview\n    path: overview')) throw new Error('Overview must be additive on /overview');
+if (!routes.includes('title: Vehicles\n    path: dashboard')) throw new Error('legacy Vehicles route /dashboard must be preserved');
+console.log('PASS Energy-style Mobility header, official brand asset and additive grouped navigation');
