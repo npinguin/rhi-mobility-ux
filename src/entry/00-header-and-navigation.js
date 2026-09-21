@@ -40,7 +40,8 @@ Internal structure:
 - HomeBrainChargerAdapter: charger contract mapping
 */
 
-const UX_VERSION = "1.0.0-rc.9";
+const UX_VERSION = "1.0.0-rc.10";
+const HB_MOBILITY_COMPANY_LOGO = "branding/company-logo.svg";
 
 const HB_MOBILITY_BASE_PATH = "/mobility-supervisor";
 
@@ -51,10 +52,10 @@ const HB_MOBILITY_MODULES = [
     icon: "mdi:car-electric",
     path: "/overview",
     items: [
-      { key: "overview", label: "Overview", path: "/overview" },
-      { key: "vehicles", label: "Vehicles", path: "/dashboard" },
-      { key: "chargers", label: "Chargers", path: "/charger-maintenance" },
-      { key: "charging", label: "Charging", path: "/charging" }
+      { key: "overview", label: "Overview", icon: "mdi:view-dashboard-outline", path: "/overview" },
+      { key: "vehicles", label: "Vehicles", icon: "mdi:car-outline", path: "/dashboard" },
+      { key: "chargers", label: "Chargers", icon: "mdi:ev-station", path: "/charger-maintenance" },
+      { key: "charging", label: "Charging", icon: "mdi:lightning-bolt-outline", path: "/charging" }
     ]
   },
   {
@@ -63,8 +64,8 @@ const HB_MOBILITY_MODULES = [
     icon: "mdi:brain",
     path: "/planning",
     items: [
-      { key: "planning", label: "Planning", path: "/planning" },
-      { key: "strategies", label: "Strategies", path: "/strategies" }
+      { key: "planning", label: "Planning", icon: "mdi:calendar-clock-outline", path: "/planning" },
+      { key: "strategies", label: "Strategies", icon: "mdi:target", path: "/strategies" }
     ]
   },
   {
@@ -73,8 +74,8 @@ const HB_MOBILITY_MODULES = [
     icon: "mdi:chart-bar",
     path: "/history",
     items: [
-      { key: "history", label: "History", path: "/history" },
-      { key: "log", label: "Log", path: "/log" }
+      { key: "history", label: "History", icon: "mdi:chart-timeline-variant", path: "/history" },
+      { key: "log", label: "Log", icon: "mdi:format-list-bulleted", path: "/log" }
     ]
   }
 ];
@@ -94,32 +95,31 @@ function hbMobilityModuleFor(active = "overview") {
 }
 
 function hbMobilityCompanyBrand() {
-  // Official Robotix.be brand asset supplied by the product owner.
-  return `<div class="hi-company-brand" aria-label="Robotix.be — DomotiX Network Security">
-    <img class="hi-company-logo" src="${rhiMobilityAssetUrl("branding/robotix-logo.webp")}" alt="Robotix.be — DomotiX · Network · Security" />
+  return `<div class="hi-company-brand" aria-label="Robotix.be · DomotiX · Network · Security">
+    <img class="hi-company-logo" src="${rhiMobilityAssetUrl(HB_MOBILITY_COMPANY_LOGO)}" alt="Robotix.be — DomotiX · Network · Security" />
   </div>`;
 }
 
 function hbMobilityNav(active = "overview") {
   const module = hbMobilityModuleFor(active);
-  return `<header class="hi-domain-shell">
-    <div class="hi-domain-shell-top">
-      <div class="hi-domain-identity">
-        <span>Home Intelligence</span>
-        <strong>MOBILITY</strong>
+  return `<header class="hi-domain-shell hi-nav-${module.key}">
+    <div class="hi-product-area">
+      <div class="hi-domain-shell-top">
+        <div class="hi-domain-identity" aria-label="Home Intelligence Mobility">
+          <span>Home Intelligence</span>
+          <strong>MOBILITY</strong>
+        </div>
+        <nav class="hi-module-tabs" aria-label="Home Intelligence modules">
+          ${HB_MOBILITY_MODULES.map((entry) => `<button type="button" class="hi-module-tab ${entry.key === module.key ? "active" : ""}" data-nav="${hbMobilityPath(entry.path)}" title="${entry.label}"><ha-icon icon="${entry.icon}"></ha-icon><span>${entry.label}</span></button>`).join("")}
+        </nav>
       </div>
-      <div class="hi-domain-divider" aria-hidden="true"></div>
-      <nav class="hi-module-tabs" aria-label="Home Intelligence modules">
-        ${HB_MOBILITY_MODULES.map((entry) => `<button type="button" class="hi-module-tab ${entry.key === module.key ? "active" : ""}" data-nav="${hbMobilityPath(entry.path)}" title="${entry.label}"><ha-icon icon="${entry.icon}"></ha-icon><span>${entry.label}</span></button>`).join("")}
-      </nav>
-      <div class="hi-company-divider" aria-hidden="true"></div>
-      ${hbMobilityCompanyBrand()}
+      <div class="hi-domain-shell-bottom">
+        <nav class="domain-tabs" aria-label="${module.label} navigation">
+          ${module.items.map((tab) => `<button type="button" class="domain-tab ${tab.key === active ? "active" : ""}" data-nav="${hbMobilityPath(tab.path)}" title="${tab.label}"><ha-icon class="domain-tab-icon" icon="${tab.icon}"></ha-icon><span>${tab.label}</span></button>`).join("")}
+        </nav>
+      </div>
     </div>
-    <div class="hi-domain-shell-bottom">
-      <nav class="domain-tabs" aria-label="${module.label} navigation">
-        ${module.items.map((tab) => `<button type="button" class="domain-tab ${tab.key === active ? "active" : ""}" data-nav="${hbMobilityPath(tab.path)}" title="${tab.label}"><span>${tab.label}</span></button>`).join("")}
-      </nav>
-    </div>
+    ${hbMobilityCompanyBrand()}
     <style>${hbMobilitySharedShellStyles()}</style>
   </header>`;
 }
@@ -194,26 +194,138 @@ function hbMobilitySharedShellStyles() {
       --hi-surface-soft:#F8FAFC;
       font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
     }
-    .hi-domain-shell{width:100%;box-sizing:border-box;margin:0 0 12px;border:1px solid #DCE6F2;border-radius:22px;background:linear-gradient(180deg,#fff 0%,#fbfdff 100%);box-shadow:0 14px 34px rgba(15,35,80,.055);overflow:hidden;color:var(--hi-ink)}
-    .hi-domain-shell-top{min-height:92px;display:grid;grid-template-columns:minmax(220px,260px) 1px minmax(460px,1fr) 1px minmax(280px,320px);align-items:center;gap:22px;padding:12px 24px 8px}
-    .hi-domain-identity{display:grid;align-content:center;line-height:1}
-    .hi-domain-identity span{font-size:17px;font-weight:450;color:#4E6A91;letter-spacing:-.01em}
-    .hi-domain-identity strong{font-size:34px;font-weight:760;letter-spacing:-.035em;color:#0C3F79;margin-top:4px}
-    .hi-domain-divider,.hi-company-divider{width:1px;height:54px;background:#D7E1ED}
-    .hi-module-tabs{display:flex;align-items:center;justify-content:flex-start;gap:20px;min-width:0}
-    .hi-module-tab{appearance:none;border:0;background:transparent;min-height:58px;padding:0 24px;border-radius:18px;color:#3F587A;display:inline-flex;align-items:center;justify-content:center;gap:12px;font:inherit;font-size:17px;font-weight:560;cursor:pointer;white-space:nowrap;transition:background .15s ease,color .15s ease}
-    .hi-module-tab ha-icon{--mdc-icon-size:27px;color:#345A88}
-    .hi-module-tab:hover{background:#F4F8FE;color:#0F3F79}
-    .hi-module-tab.active{background:#EAF3FF;color:#0961E7;font-weight:650}
-    .hi-module-tab.active ha-icon{color:#0961E7}
-    .hi-company-brand{justify-self:end;display:flex;align-items:center;justify-content:flex-end;min-width:220px;overflow:visible}
-    .hi-company-logo{display:block;width:290px;max-width:100%;height:82px;object-fit:contain;object-position:right center;filter:none;image-rendering:auto}
-    .hi-domain-shell-bottom{border-top:1px solid #E1E8F1;padding:6px 20px 10px}
-    .domain-tabs{display:flex;align-items:center;gap:10px;width:100%;min-height:52px;overflow-x:auto;scrollbar-width:none}
-    .domain-tabs::-webkit-scrollbar{display:none}
-    .domain-tab{appearance:none;border:0;background:transparent;color:#40587A;min-height:42px;padding:0 20px;border-radius:14px;display:inline-flex;align-items:center;justify-content:center;font:inherit;font-size:15px;font-weight:560;cursor:pointer;white-space:nowrap;transition:background .15s ease,color .15s ease,box-shadow .15s ease}
-    .domain-tab:hover{background:#F3F7FD;color:#0F3F79}
-    .domain-tab.active{background:#EAF3FF;color:#0961E7;font-weight:650;box-shadow:inset 0 -3px 0 #0961E7}
+
+    .hi-domain-shell{
+      --nav-active-bg:#edf5ff;
+      --nav-active-border:#cfdef1;
+      --nav-active-text:#0f4ca4;
+      --rhi-company-area-min:250px;
+      --rhi-company-area-max:320px;
+      --rhi-company-logo-max-width:286px;
+      --rhi-company-logo-max-height:116px;
+      --rhi-company-logo-padding:10px 16px;
+      --rhi-company-divider:rgba(226,232,240,.82);
+      position:relative;
+      display:grid;
+      grid-template-columns:minmax(0,1fr) minmax(var(--rhi-company-area-min),var(--rhi-company-area-max));
+      gap:0;
+      width:100%;
+      box-sizing:border-box;
+      margin:0 0 12px;
+      background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(249,251,254,.91));
+      border:1px solid rgba(207,217,230,.86);
+      border-radius:22px;
+      box-shadow:0 12px 30px rgba(15,23,42,.045);
+      overflow:hidden;
+      color:var(--hi-ink);
+      backdrop-filter:blur(16px);
+    }
+    .hi-domain-shell.hi-nav-intelligence{--nav-active-bg:#f1edff;--nav-active-border:#dfd5fb;--nav-active-text:#5a38b3}
+    .hi-domain-shell.hi-nav-insights{--nav-active-bg:#e7f7f4;--nav-active-border:#cdebe6;--nav-active-text:#176e67}
+
+    .hi-product-area{min-width:0}
+    .hi-domain-shell-top{
+      min-height:78px;
+      display:grid;
+      grid-template-columns:minmax(270px,.72fr) minmax(430px,1.28fr);
+      align-items:center;
+      gap:24px;
+      padding:10px 22px 9px;
+    }
+    .hi-domain-identity{display:grid;align-content:center;gap:2px;min-width:0;min-height:56px;padding:2px 0 0 4px}
+    .hi-domain-identity span{font-size:15px;line-height:1.1;font-weight:520;letter-spacing:-.01em;color:#58708f;white-space:nowrap}
+    .hi-domain-identity strong{font-size:24px;line-height:1.02;letter-spacing:.055em;font-weight:790;color:#0b467f;white-space:nowrap}
+
+    .hi-module-tabs,.domain-tabs{
+      display:flex;
+      align-items:center;
+      overflow-x:auto;
+      overflow-y:hidden;
+      white-space:nowrap;
+      scrollbar-width:none;
+      -webkit-overflow-scrolling:touch;
+      overscroll-behavior-inline:contain;
+    }
+    .hi-module-tabs::-webkit-scrollbar,.domain-tabs::-webkit-scrollbar{display:none}
+    .hi-module-tabs{justify-content:flex-start;gap:14px;padding:0;background:transparent;border:0;border-radius:0;max-width:100%}
+    .hi-module-tab{
+      appearance:none;
+      min-height:50px;
+      border:0;
+      border-radius:15px;
+      background:transparent;
+      padding:10px 20px;
+      font:inherit;
+      font-size:13px;
+      font-weight:660;
+      color:#53647d;
+      cursor:pointer;
+      white-space:nowrap;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      transition:background .15s ease,color .15s ease,box-shadow .15s ease;
+    }
+    .hi-module-tab ha-icon{--mdc-icon-size:22px;color:currentColor}
+    .hi-module-tab:hover{background:#f8fafc;color:#2f3f56}
+    .hi-module-tab.active{background:var(--nav-active-bg);color:var(--nav-active-text);box-shadow:inset 0 0 0 1px var(--nav-active-border),0 6px 16px rgba(15,23,42,.035)}
+
+    .hi-domain-shell-bottom{
+      margin:0;
+      padding:7px 22px 9px;
+      border:0;
+      border-top:1px solid rgba(226,232,240,.82);
+      border-radius:0;
+      background:rgba(255,255,255,.52);
+      box-shadow:none;
+      backdrop-filter:none;
+      min-height:52px;
+      box-sizing:border-box;
+    }
+    .domain-tabs{gap:10px;width:100%;min-height:34px}
+    .domain-tab{
+      appearance:none;
+      flex:0 0 auto;
+      min-height:34px;
+      border:0;
+      border-radius:11px;
+      background:transparent;
+      padding:7px 12px;
+      font:inherit;
+      font-size:11px;
+      font-weight:600;
+      color:#5f6d80;
+      cursor:pointer;
+      white-space:nowrap;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      transition:background .15s ease,color .15s ease,box-shadow .15s ease;
+    }
+    .domain-tab-icon{--mdc-icon-size:13px;color:#7a8798;flex:0 0 13px}
+    .domain-tab:hover{background:#f8fafc;color:#425269}
+    .domain-tab:hover .domain-tab-icon{color:#66758a}
+    .domain-tab.active{background:var(--nav-active-bg);color:var(--nav-active-text);box-shadow:inset 0 0 0 1px var(--nav-active-border)}
+    .domain-tab.active .domain-tab-icon{color:#718096}
+
+    .hi-company-brand{
+      min-width:0;
+      border-left:1px solid var(--rhi-company-divider);
+      display:grid;
+      place-items:center;
+      padding:var(--rhi-company-logo-padding);
+      background:linear-gradient(180deg,rgba(252,254,255,.78),rgba(247,250,253,.58));
+    }
+    .hi-company-logo{
+      display:block;
+      width:min(100%,var(--rhi-company-logo-max-width));
+      height:auto;
+      max-height:var(--rhi-company-logo-max-height);
+      object-fit:contain;
+      object-position:center;
+      filter:none;
+      image-rendering:auto;
+    }
 
     .placeholder-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
     .placeholder-card{background:#fff;border:1px solid #E8EEF7;border-radius:20px;padding:18px;box-shadow:0 16px 38px rgba(15,35,80,.07)}
@@ -222,6 +334,7 @@ function hbMobilitySharedShellStyles() {
     .placeholder-kicker{display:inline-flex;align-items:center;gap:8px;margin-bottom:10px;color:#1467F5;font-size:12px;font-weight:650;text-transform:uppercase;letter-spacing:.04em}
     .placeholder-kicker ha-icon{--mdc-icon-size:18px}
     .footer-note{margin-top:12px;color:#66728B;font-size:12px;font-weight:600}
+
     .status-strip.dashboard-status-strip,.status-strip.ops-status-strip,.outcome-header{width:100%!important;max-width:none!important;margin:8px 0 10px!important;display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;border:1px solid #E0E8F2!important;border-radius:16px!important;background:#fff!important;box-shadow:0 10px 24px rgba(15,35,80,.045)!important;overflow:hidden!important}
     .status-strip.dashboard-status-strip .metric,.status-strip.ops-status-strip .metric,.outcome-header .metric{display:grid!important;grid-template-columns:28px minmax(0,1fr)!important;gap:8px!important;align-items:center!important;min-width:0!important;padding:12px 14px!important;border-right:1px solid #E8EEF6!important;background:transparent!important}
     .status-strip.dashboard-status-strip .metric:last-child,.status-strip.ops-status-strip .metric:last-child,.outcome-header .metric:last-child{border-right:0!important}
@@ -230,7 +343,6 @@ function hbMobilitySharedShellStyles() {
     .status-strip.dashboard-status-strip .metric span,.status-strip.ops-status-strip .metric span,.outcome-header .metric span{display:block!important;font-size:9px!important;font-weight:600!important;line-height:1.1!important;color:#708098!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
     .status-strip.dashboard-status-strip .metric b,.status-strip.ops-status-strip .metric b,.outcome-header .metric b{display:block!important;margin-top:2px!important;font-size:12.5px!important;font-weight:650!important;line-height:1.15!important;color:#10213A!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
     .status-strip .tone-green>ha-icon{color:#16A765!important}.status-strip .tone-blue>ha-icon{color:#1467F5!important}.status-strip .tone-orange>ha-icon{color:#F59E0B!important}
-    @media(max-width:920px){.status-strip.dashboard-status-strip,.status-strip.ops-status-strip,.outcome-header{grid-template-columns:repeat(5,minmax(150px,1fr))!important;overflow-x:auto!important}.status-strip.dashboard-status-strip .metric,.status-strip.ops-status-strip .metric,.outcome-header .metric{min-width:150px!important}}
     .section-title{margin-top:4px!important;margin-bottom:8px!important}
     .hi-version-block{display:none!important}
     .hi-release-footer{display:flex;align-items:center;gap:8px;flex-wrap:wrap;width:100%;box-sizing:border-box;margin:8px 0 0;padding:8px 14px;border-top:1px solid rgba(14,35,72,.10);background:rgba(255,255,255,.92);color:#53627A;font-size:11px;font-weight:500;line-height:1.2;white-space:normal;overflow:hidden}
@@ -241,27 +353,47 @@ function hbMobilitySharedShellStyles() {
     .hi-release-footer .hi-release-health.blocking{color:#9A3412}
     .hi-release-footer .hi-release-health::before{content:"•";margin-right:8px;color:#C7A35A}
 
-    @media(max-width:1100px){
-      .hi-domain-shell-top{grid-template-columns:minmax(190px,240px) 1px 1fr;gap:16px;padding-right:18px}
-      .hi-company-divider,.hi-company-brand{display:none}
-      .hi-module-tabs{gap:8px;justify-content:flex-start}
-      .hi-module-tab{padding:0 16px;font-size:15px}
+    @media(max-width:1180px){
+      .hi-domain-shell{--rhi-company-area-min:220px;--rhi-company-area-max:250px;--rhi-company-logo-max-width:220px;--rhi-company-logo-max-height:94px;--rhi-company-logo-padding:8px 12px}
+      .hi-domain-shell-top{grid-template-columns:minmax(225px,.62fr) minmax(0,1.38fr);gap:14px;padding-inline:16px}
+      .hi-module-tabs{gap:6px}
+      .hi-module-tab{padding:9px 14px;font-size:11.5px}
+      .hi-domain-identity span{font-size:13.5px}
+      .hi-domain-identity strong{font-size:21px}
+      .hi-domain-shell-bottom{padding-inline:16px}
+      .domain-tabs{gap:7px}
+      .domain-tab{padding:7px 13px;font-size:11px}
+      .hi-company-brand{padding-inline:12px}
     }
-    @media(max-width:760px){
-      .hi-domain-shell{border-radius:18px}
-      .hi-domain-shell-top{min-height:76px;grid-template-columns:1fr auto;padding:10px 14px;gap:10px}
-      .hi-domain-divider{display:none}
-      .hi-domain-identity span{font-size:13px}
-      .hi-domain-identity strong{font-size:27px}
-      .hi-module-tabs{gap:4px}
-      .hi-module-tab{min-height:44px;width:44px;padding:0;border-radius:13px}
-      .hi-module-tab span{display:none}
-      .hi-module-tab ha-icon{--mdc-icon-size:22px}
-      .hi-domain-shell-bottom{padding:5px 10px 8px}
-      .domain-tabs{gap:6px;min-height:44px}
-      .domain-tab{font-size:13px;min-height:36px;padding:0 14px}
+    @media(max-width:920px){
+      .status-strip.dashboard-status-strip,.status-strip.ops-status-strip,.outcome-header{grid-template-columns:repeat(5,minmax(150px,1fr))!important;overflow-x:auto!important}
+      .status-strip.dashboard-status-strip .metric,.status-strip.ops-status-strip .metric,.outcome-header .metric{min-width:150px!important}
+    }
+    @media(max-width:820px){
+      .hi-domain-shell{--rhi-company-logo-max-width:126px;--rhi-company-logo-max-height:48px;display:block;border-radius:18px}
+      .hi-product-area{min-width:0}
+      .hi-company-brand{position:absolute;top:8px;right:10px;width:126px;height:48px;padding:0;border:0;background:transparent;pointer-events:none}
+      .hi-company-logo{max-height:var(--rhi-company-logo-max-height)}
+      .hi-domain-shell-top{display:grid;grid-template-columns:1fr;gap:7px;min-height:0;padding:10px 8px 7px}
+      .hi-domain-identity{min-height:48px;padding:1px 138px 0 6px}
+      .hi-domain-identity span{font-size:12.5px}
+      .hi-domain-identity strong{font-size:19px}
+      .hi-module-tabs{width:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+      .hi-module-tab{min-width:0;min-height:41px;justify-content:center;padding:7px 5px;font-size:10.5px;gap:6px}
+      .hi-module-tab ha-icon{--mdc-icon-size:17px}
+      .hi-domain-shell-bottom{padding:5px 8px 7px;min-height:48px}
+      .domain-tabs{display:flex;overflow-x:auto;white-space:nowrap;gap:4px;min-height:35px}
+      .domain-tab{min-height:35px;padding:6px 11px;font-size:10.5px}
       .placeholder-grid{grid-template-columns:1fr}
       .hi-release-footer{font-size:10px;padding:8px 10px}
+    }
+    @media(max-width:430px){
+      .hi-domain-shell{--rhi-company-logo-max-width:102px;--rhi-company-logo-max-height:42px}
+      .hi-company-brand{width:102px;right:8px}
+      .hi-domain-identity{padding-right:112px}
+      .hi-domain-identity strong{font-size:17px}
+      .hi-module-tab{font-size:10px}
+      .domain-tab{padding:6px 9px;font-size:10px}
     }
   `;
 }
