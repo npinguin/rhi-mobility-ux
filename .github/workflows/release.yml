@@ -47,7 +47,7 @@ jobs:
           test "$TAG_SHA" = "$CANDIDATE_SHA"
           RELEASE_SHA=$(gh release view "${TAG}" --json targetCommitish --jq '.targetCommitish')
           test "$RELEASE_SHA" = "$CANDIDATE_SHA"
-          test "$(gh release view "${TAG}" --json isPrerelease --jq '.isPrerelease')" = true
+          test "$(gh release view "${TAG}" --json isPrerelease --jq '.isPrerelease')" = false
 
           rm -rf /tmp/rhi-ux-release
           mkdir -p /tmp/rhi-ux-release
@@ -67,7 +67,6 @@ jobs:
           TAG=$(node -p "require('./release/QUALIFICATION.json').candidate_tag")
           gh release upload "${TAG}" release/QUALIFICATION.json --clobber
           gh release edit "${TAG}" \
-            --prerelease=false \
             --title "RHI Mobility UX ${TAG}" \
             --notes-file release/RELEASE_NOTES.md
           test "$(gh release view "${TAG}" --json isPrerelease --jq '.isPrerelease')" = false
