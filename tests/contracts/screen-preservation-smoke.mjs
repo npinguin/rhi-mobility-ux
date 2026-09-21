@@ -26,4 +26,12 @@ for (const [title,path] of expectedViews) {
 if (!charger.includes('homebrain-mobility-charger-maintenance-card')) throw new Error('charger screen class missing');
 if (!detail.includes('homebrain-mobility-asset-detail-card')) throw new Error('asset detail screen class missing');
 
+for (const [title,path] of expectedViews.filter(([title])=>title!=='Overview')) {
+  const blockStart=routes.indexOf(`- title: ${title}`);
+  if(blockStart<0) throw new Error(`missing internal Mobility view: ${title}`);
+  const next=routes.indexOf('\n  - title:',blockStart+1);
+  const block=routes.slice(blockStart,next<0?routes.length:next);
+  if(!block.includes('subview: true')) throw new Error(`internal Mobility view must remain a Lovelace subview: ${title} -> ${path}`);
+}
+
 console.log('PASS screen preservation: documented views and screen registrations retained');
