@@ -2,7 +2,7 @@ title: Home Intelligence Mobility
 
 views:
   - title: Overview
-    path: dashboard
+    path: overview
     icon: mdi:view-dashboard-outline
     panel: true
     cards:
@@ -16,7 +16,7 @@ views:
         release_info_position: bottom
 
   - title: Vehicles
-    path: vehicles
+    path: dashboard
     icon: mdi:car-electric
     panel: true
     cards:
