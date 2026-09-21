@@ -1,6 +1,6 @@
 {
   "product": "rhi-mobility-ux",
-  "version": "1.0.0-rc.17",
+  "version": "1.0.0-rc.18",
   "stage": "test_candidate",
   "publication_authority": "github_releases",
   "publication_status": "installable_candidate_until_qualified",
@@ -25,5 +25,5 @@
   "package_manifest": "dist/PACKAGE_MANIFEST.json",
   "hacs_package_root": "dist",
   "hacs_delivery_mode": "immutable_tag_dist_tree",
-  "release_asset_policy": "evidence_only"
+  "release_asset_policy": "none"
 }
