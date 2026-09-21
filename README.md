@@ -37,11 +37,11 @@ rhi-mobility backend
         ↓
 MOBILITY_PUBLIC_RUNTIME_V1
         ↓
-Mobility UX adapters/runtime
+runtime contract boundary
         ↓
-canonical UX viewmodels
+domain adapters/models
         ↓
-screens/components
+UI components/screens
 ```
 
 Screens and components may not access Home Assistant Mobility contract entities directly. Missing canonical backend data fails closed as unavailable; the UX must not recreate backend semantics.
@@ -77,6 +77,6 @@ Testing follows the same ownership model as the code: one invariant, one test ow
 
 ## Source and package structure
 
-`src/OWNERSHIP.json` and `src/manifest.json` define source ownership and bundle order. Canonical assets live only under `src/assets/<category>/`; the build preserves that tree under `dist/assets/<category>/`. `dist/PACKAGE_MANIFEST.json` records the generated install package with file hashes.
+`src/OWNERSHIP.json` and `src/manifest.json` define source ownership and bundle order. Canonical assets live only under `src/assets/<category>/`; the build preserves that tree under `dist/assets/<category>/`. `dist/PACKAGE_MANIFEST.json` records the generated install inventory, file sizes, asset categories and runtime SHA-256 without becoming a second source of truth.
 
 For Dashboard/plugin releases with nested assets, the GitHub Release does not attach `rhi-mobility-ux.js` as a release asset. HACS therefore installs the complete immutable tag `dist/` tree instead of switching to single-file mode. See `documentation/SOURCE_PACKAGE_GOVERNANCE.md`.
