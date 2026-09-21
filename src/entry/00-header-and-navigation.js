@@ -40,7 +40,7 @@ Internal structure:
 - HomeBrainChargerAdapter: charger contract mapping
 */
 
-const UX_VERSION = "1.0.0-rc.7";
+const UX_VERSION = "1.0.0-rc.8";
 
 const HB_MOBILITY_BASE_PATH = "/mobility-supervisor";
 
