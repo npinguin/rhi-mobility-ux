@@ -17,7 +17,7 @@ for (const needle of [
   'class="ov-conclusion"',
   'this.renderChargerAssignmentSelect(rt, asset)',
   'this.dashboardVehicleCommands(rt, assetId).slice(0, 2)',
-  'Readiness first: range and energy, security, comfort, maintenance, charger relationship and direct actions.'  "Readiness first: range and energy, security, comfort, maintenance, charger relationship and direct actions.",
+  "Readiness first: range and energy, security, comfort, maintenance, charger relationship and direct actions.",
   "overviewChargerSummary(rt, chargers)",
   "message: message || \"N/A\"",
   "attentionTone === \"muted\" ? \"N/A\" : attention",
