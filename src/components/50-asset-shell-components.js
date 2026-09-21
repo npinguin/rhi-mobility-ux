@@ -315,7 +315,7 @@ class HomeBrainAssetShell {
     return `
       :host { display:block;width:100%;box-sizing:border-box;--hb-blue:#1467F5;--hb-ink:#06142D;--hb-muted:#66728B;--hb-line:#E8EEF7;--hb-card-shadow:0 16px 38px rgba(15,35,80,.070);font-family:inherit;user-select:text;-webkit-user-select:text; }
       ha-card { background:transparent;box-shadow:none;border:none; }
-      .page { position:relative;width:min(100%,1500px);max-width:1500px;margin:0 auto;box-sizing:border-box;display:grid;gap:12px;padding:18px 26px 30px; }
+      .page { position:relative;width:min(100%,1560px);max-width:1560px;margin:0 auto;box-sizing:border-box;display:grid;gap:12px;padding:18px 26px 30px; }
       .release-badge { position:absolute;top:6px;right:26px;z-index:3;border:1px solid rgba(14,35,72,.10);background:rgba(255,255,255,.92);color:#33415C;border-radius:999px;padding:5px 10px;font-size:12px;font-weight:650;line-height:1;box-shadow:0 8px 20px rgba(15,35,80,.055); }
       .hero { position:relative;min-height:300px;display:grid;grid-template-columns:minmax(520px,1fr) minmax(420px,43%);gap:28px;align-items:center;padding:26px 42px 22px;border-radius:24px;border:1px solid rgba(14,35,72,.10);background:linear-gradient(135deg,#FFFFFF 0%,#F7FAFF 48%,#EDF4FF 100%);box-shadow:0 18px 42px rgba(15,35,80,.075);overflow:hidden; }
       .hero-topline { display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px; }
