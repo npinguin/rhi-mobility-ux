@@ -2,7 +2,7 @@
 
 ## Hard boundary
 
-Only `src/runtime/` and `src/adapters/` may know Home Assistant Mobility public contract entity/field names.
+Only `src/runtime/` and `src/domain/adapters/` may know Mobility public contract names; direct `hass.states` access belongs to `src/runtime/` only.
 
 ```text
 MOBILITY_PUBLIC_RUNTIME_V1
@@ -58,3 +58,19 @@ release/qualification gates
 An invariant is asserted by exactly one owner. Other suites may rely on it but may not freeze its implementation. The normative mapping is `tests/OWNERSHIP.json`; see `documentation/TEST_GOVERNANCE.md`.
 
 This is an architectural boundary, not a testing preference. Cross-owner assertions are test technical debt because they make unrelated changes fail together and recreate the same drift that package ownership is intended to prevent.
+
+## Source/package architecture
+
+The physical repository structure is part of the architecture contract:
+
+```text
+src/app
+src/runtime
+src/domain/adapters
+src/domain/models
+src/ui/components
+src/ui/screens
+src/assets/<category>
+```
+
+`src/manifest.json` owns build order. `src/OWNERSHIP.json` owns source responsibilities. `dist/` is the complete generated HACS package and mirrors `src/assets/` under `dist/assets/`. See `documentation/SOURCE_PACKAGE_GOVERNANCE.md`.
