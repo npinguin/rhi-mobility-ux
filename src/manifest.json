@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "modules": [
+    "app/asset-paths.js",
+    "app/header-and-navigation.js",
+    "domain/adapters/intelligence-model-alignment.js",
+    "runtime/ha-contract-runtime.js",
+    "domain/models/asset-factory.js",
+    "domain/adapters/vehicle-adapter.js",
+    "domain/adapters/charger-adapter.js",
+    "ui/components/asset-shell.js",
+    "ui/screens/vehicle-detail.js",
+    "ui/screens/charger-detail.js",
+    "ui/screens/charger-maintenance.js",
+    "ui/screens/mobility-dashboard.js",
+    "ui/screens/router.js"
+  ],
+  "assets_root": "assets"
+}
