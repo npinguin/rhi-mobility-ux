@@ -1,6 +1,6 @@
 {
-  "candidate_version": "1.0.0-rc.16",
-  "candidate_tag": "v1.0.0-rc.16",
+  "candidate_version": "1.0.0-rc.17",
+  "candidate_tag": "v1.0.0-rc.17",
   "candidate_sha": "pending",
   "target_home_assistant": "pending",
   "hacs_install": "pending",
@@ -22,5 +22,8 @@
   "overview_route_refresh": "pending",
   "overview_position_restore": "pending",
   "vehicle_selected_charger_no_charger": "pending",
-  "overview_semantic_fail_closed": "pending"
+  "overview_semantic_fail_closed": "pending",
+  "hacs_resource_load": "pending",
+  "custom_element_registration": "pending",
+  "dashboard_subview_migration": "pending"
 }
