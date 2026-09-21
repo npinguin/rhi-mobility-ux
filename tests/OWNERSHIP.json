@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "principle": "one invariant, one test owner",
+  "owners": {
+    "branding": {
+      "owner": "tools/check-branding.mjs",
+      "owns": ["canonical company artwork", "brand delivery", "brand source/generated parity"],
+      "forbidden_in": {
+        "tools/check-footer.mjs": ["COMPANY_LOGO", "branding/", "rhiMobilityAssetUrl", "__RHI_COMPANY_LOGO_INLINE__"],
+        "tests/contracts/navigation-shell-smoke.mjs": ["COMPANY_LOGO", "branding/", "company-logo.svg", "__RHI_COMPANY_LOGO_INLINE__"],
+        "tests/contracts/layout-hardening-smoke.mjs": ["COMPANY_LOGO", "branding/", "company-logo.svg", "__RHI_COMPANY_LOGO_INLINE__"]
+      }
+    },
+    "navigation": {
+      "owner": "tests/contracts/navigation-shell-smoke.mjs",
+      "owns": ["route mapping", "active navigation state", "Overview/Vehicles local switch behavior"],
+      "forbidden_in": {
+        "tests/contracts/screen-preservation-smoke.mjs": ["navActive", "hbMobilityNav", "_localNavActive"],
+        "tests/contracts/overview-shell-smoke.mjs": ["hbMobilityNav", "_localNavActive"]
+      }
+    },
+    "overview": {
+      "owner": "tests/contracts/overview-shell-smoke.mjs",
+      "owns": ["Overview content hierarchy", "Overview actions", "Mobility-only primary signals"]
+    },
+    "screen_preservation": {
+      "owner": "tests/contracts/screen-preservation-smoke.mjs",
+      "owns": ["screen registration", "documented view availability"]
+    },
+    "footer": {
+      "owner": "tools/check-footer.mjs",
+      "owns": ["footer content", "footer diagnostics disclosure", "footer readability"]
+    },
+    "layout": {
+      "owner": "tests/contracts/layout-hardening-smoke.mjs",
+      "owns": ["shared shell geometry", "status rail geometry", "responsive sizing invariants"]
+    },
+    "release": {
+      "owner": "tools/check-release-governance.mjs",
+      "owns": ["release identity", "publication lifecycle", "candidate immutability", "test ownership registration"]
+    }
+  }
+}
