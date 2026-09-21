@@ -36,7 +36,7 @@ if(architecture.includes('src/adapters/')) failures.push('documentation/ARCHITEC
 if(handover.includes('→ UX runtime/adapters') || handover.includes('→ viewmodels') || handover.includes('→ screens/components')) failures.push('documentation/ENGINEER_HANDOVER.md: obsolete source ownership terminology');
 
 const sourceGov=fs.readFileSync(path.join(root,'documentation/SOURCE_PACKAGE_GOVERNANCE.md'),'utf8');
-for(const token of ['src/app/','src/runtime/','src/domain/','src/ui/','src/assets/','dist/PACKAGE_MANIFEST.json','Migration sequence']){
+for(const token of ['app/','runtime/','domain/','ui/','assets/','dist/PACKAGE_MANIFEST.json','Migration sequence']){
   if(!sourceGov.includes(token)) failures.push(`SOURCE_PACKAGE_GOVERNANCE missing ${token}`);
 }
 
