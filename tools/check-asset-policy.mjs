@@ -33,10 +33,10 @@ for(const rel of sourceFiles){
   if(!sourceBytes.equals(distBytes)) throw new Error(`packaged asset differs from canonical source: ${rel}`);
 }
 
-const runtime=fs.readFileSync(path.join(root,'src/runtime/ha-contract-runtime.js'),'utf8');
-const referenced=[...runtime.matchAll(/rhiMobilityAssetUrl\("([^"]+)"\)/g)].map(m=>m[1]);
+const catalog=fs.readFileSync(path.join(root,'src/app/asset-catalog.js'),'utf8');
+const referenced=[...catalog.matchAll(/package_path:"([^"]+)"/g)].map(m=>m[1]);
 for(const rel of referenced){
-  if(!sourceFiles.includes(rel)) throw new Error(`runtime catalog references missing asset: ${rel}`);
+  if(!sourceFiles.includes(rel)) throw new Error(`package catalog references missing asset: ${rel}`);
 }
 
 const duplicates=new Map();
