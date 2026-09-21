@@ -114,6 +114,14 @@
         "package manifest integrity",
         "release asset single-file avoidance"
       ]
+    },
+    "documentation": {
+      "owner": "tools/check-documentation-drift.mjs",
+      "owns": [
+        "normative path currency",
+        "source/package terminology",
+        "migration-sequence documentation"
+      ]
     }
   }
 }
