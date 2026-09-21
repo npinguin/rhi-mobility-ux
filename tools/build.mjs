@@ -25,8 +25,11 @@ if (missing.length) throw new Error(`Missing build inputs: ${missing.join(', ')}
 const banner = `/**\n * Robotix Home Intelligence Mobility UX v${pkg.version}\n * GENERATED FILE - DO NOT EDIT.\n * License: GPL-3.0-only\n */\n\n`;
 const rawBody = order.map((rel) => `// ---- ${rel} ----\n${fs.readFileSync(path.join(root, rel), 'utf8').trim()}`).join('\n\n');
 const companyLogoSvg = fs.readFileSync(path.join(root, 'src/assets/files/branding/company-logo.svg'), 'utf8').trim();
-const body = rawBody.replace('"__RHI_COMPANY_LOGO_INLINE__"', JSON.stringify(companyLogoSvg));
+let body = rawBody.replace('"__RHI_COMPANY_LOGO_INLINE__"', JSON.stringify(companyLogoSvg));
 if (body === rawBody) throw new Error('Company logo inline build placeholder not found');
+const versionPlaceholder = '"__RHI_UX_VERSION__"';
+if (!body.includes(versionPlaceholder)) throw new Error('UX version build placeholder not found');
+body = body.replace(versionPlaceholder, JSON.stringify(pkg.version));
 const out = path.join(root, 'dist/rhi-mobility-ux.js');
 fs.mkdirSync(path.dirname(out), { recursive: true });
 fs.writeFileSync(out, banner + body + '\n');
