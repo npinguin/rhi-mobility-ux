@@ -2,19 +2,29 @@
 
 ## Start here
 
-Current source candidate: **v1.0.0-rc.9**. Public contract: **MOBILITY_PUBLIC_RUNTIME_V1**. Minimum backend: **R43.2.60**. Current tested backend baseline: **R43.2.65**.
+Current source candidate: **v1.0.0-rc.10**. Public contract: **MOBILITY_PUBLIC_RUNTIME_V1**. Minimum backend: **R43.2.60**. Current tested backend baseline: **R43.2.65**.
 
 Read in this order:
 
 1. `README.md`
 2. `documentation/ARCHITECTURE.md`
 3. `documentation/RELEASE_GOVERNANCE.md`
-4. `documentation/HACS_INSTALLATION.md`
-5. `documentation/KNOWN_DEFECTS.md`
-6. `release/RELEASE_STATUS.json`
-7. `release/QUALIFICATION.json`
-8. `release/RELEASE_NOTES.md`
-9. `CHANGELOG.md`
+4. `documentation/BRANDING.md`
+5. `documentation/HACS_INSTALLATION.md`
+6. `documentation/KNOWN_DEFECTS.md`
+7. `release/RELEASE_STATUS.json`
+8. `release/QUALIFICATION.json`
+9. `release/RELEASE_NOTES.md`
+10. `CHANGELOG.md`
+
+## Shared shell and brand authority
+
+- Mobility uses the same two-level header hierarchy and company-brand slot contract as Energy.
+- Canonical company mark: `src/assets/files/branding/company-logo.svg`.
+- The build copies the mark unchanged to `assets/branding/company-logo.svg` and `dist/assets/branding/company-logo.svg`.
+- Compact gray secondary-navigation icons are presentation metadata only; routes and backend ownership are unchanged.
+- Do not redraw, recolour, filter, crop or replace the company mark locally.
+- Responsive header sizing is controlled only through the shared `--rhi-company-*` tokens documented in `documentation/BRANDING.md`.
 
 ## Product boundary
 

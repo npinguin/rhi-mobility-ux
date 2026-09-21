@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.0.0-rc.10 — unified RHI header and company branding
+
+- Aligns Mobility header geometry and hierarchy with the current Energy shell.
+- Uses the exact shared transparent Robotix company logo and shared brand-slot tokens.
+- Adds compact gray icons to the second navigation line without changing routes.
+- Keeps the company mark visible and consistently sized across desktop, tablet and mobile.
+- Removes the superseded Mobility-specific WebP logo asset.
+- Adds immutable brand hash/parity validation and transferable branding documentation.
+- Preserves all Mobility screens, actions, status rails and backend semantic boundaries.
+- Status: source candidate until immutable TEST CANDIDATE publication.
+
 ## 1.0.0-rc.9 — layout hardening
 
 - Fixes the official Robotix.be logo runtime path for HACS.
