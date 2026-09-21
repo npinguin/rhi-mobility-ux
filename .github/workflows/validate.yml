@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: ${{ github.repository }}-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -31,24 +31,6 @@ jobs:
         run: npm ci
       - name: Full validation
         run: npm test
-      - name: Bootstrap generated dist for source/package migration
-        if: github.event_name == 'pull_request' && github.head_ref == 'refactor/source-package-layout'
-        shell: bash
-        run: |
-          set -euo pipefail
-          rm -rf /tmp/rhi-generated-dist
-          cp -a dist /tmp/rhi-generated-dist
-          git fetch origin "$GITHUB_HEAD_REF"
-          git checkout "$GITHUB_HEAD_REF"
-          rm -rf dist
-          cp -a /tmp/rhi-generated-dist dist
-          if ! git diff --quiet -- dist || test -n "$(git ls-files --others --exclude-standard dist)"; then
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add dist
-            git commit -m "build: generate rc.15 structured HACS package"
-            git push origin "HEAD:$GITHUB_HEAD_REF"
-          fi
       - name: Protect immutable published package
         shell: bash
         run: |
