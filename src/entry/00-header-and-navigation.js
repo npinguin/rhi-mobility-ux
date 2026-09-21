@@ -49,10 +49,10 @@ const HB_MOBILITY_MODULES = [
     key: "mobility",
     label: "Mobility",
     icon: "mdi:car-electric",
-    path: "/dashboard",
+    path: "/overview",
     items: [
-      { key: "overview", label: "Overview", path: "/dashboard" },
-      { key: "vehicles", label: "Vehicles", path: "/vehicles" },
+      { key: "overview", label: "Overview", path: "/overview" },
+      { key: "vehicles", label: "Vehicles", path: "/dashboard" },
       { key: "chargers", label: "Chargers", path: "/charger-maintenance" },
       { key: "charging", label: "Charging", path: "/charging" }
     ]
@@ -94,15 +94,9 @@ function hbMobilityModuleFor(active = "overview") {
 }
 
 function hbMobilityCompanyBrand() {
-  // One replaceable company-brand helper. Keep product navigation independent from branding assets.
+  // Official Robotix.be brand asset supplied by the product owner.
   return `<div class="hi-company-brand" aria-label="Robotix.be — DomotiX Network Security">
-    <div class="hi-company-wordmark">Robotix.be</div>
-    <div class="hi-company-tagline">DomotiX · Network · Security</div>
-    <svg class="hi-company-mark" viewBox="0 0 220 48" role="img" aria-label="Robotix building mark">
-      <path d="M8 38h204M24 38V27l30-8v19M54 38V13l42-9v34M96 38V10l42 8v20M138 38V18l48 12v8" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/>
-      <path d="M54 19l42-9 42 8M24 27l30-8M138 18l48 12" fill="none" stroke="currentColor" stroke-width="1.4" opacity=".72"/>
-      <path d="M64 20h12v18H64zM82 16h10v22H82zM106 16h12v22h-12zM124 19h9v19h-9zM148 25h11v13h-11zM165 29h10v9h-10z" fill="currentColor" opacity=".12"/>
-    </svg>
+    <img class="hi-company-logo" src="${rhiMobilityAssetUrl("branding/robotix-logo.webp")}" alt="Robotix.be — DomotiX · Network · Security" />
   </div>`;
 }
 
