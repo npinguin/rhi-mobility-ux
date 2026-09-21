@@ -219,6 +219,7 @@ class HomeBrainAssetShell {
       <ha-card>
         <div class="page">
           <div class="hi-version-block" style="position:absolute;top:18px;right:22px;text-align:right;font-size:10.5px;line-height:1.25;font-weight:400;color:var(--secondary-text-color,#6B7280);opacity:.82;background:none;border:0;box-shadow:none;padding:0;margin:0;z-index:3;pointer-events:none;"><div>UX ${this.rt.escape(UX_VERSION)}</div><div>Backend ${this.rt.escape(this.rt.backendVersion())}</div></div>
+          ${hbMobilityNav(model.type === "charger" ? "chargers" : "vehicles")}
           <section class="hero">
             <div class="hero-left">
               <div class="hero-topline">
@@ -229,7 +230,6 @@ class HomeBrainAssetShell {
                 <h1>${this.rt.escape(model.display)}</h1>
               </div>
               <div class="subtitle">${this.rt.escape(model.subtitle)}</div>
-              ${hbMobilityNav(model.type === "charger" ? "charging" : "vehicle")}
               <div class="status-strip">${status}</div>
             </div>
             <div class="hero-image">${this.renderHeroVisual(model)}</div>
