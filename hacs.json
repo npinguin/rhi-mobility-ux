@@ -1,5 +1,6 @@
 {
   "name": "Robotix Home Intelligence Mobility UX",
   "filename": "rhi-mobility-ux.js",
-  "hide_default_branch": true
+  "hide_default_branch": true,
+  "content_in_root": false
 }
