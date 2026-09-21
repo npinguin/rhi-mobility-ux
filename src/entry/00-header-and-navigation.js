@@ -159,14 +159,10 @@ function hbMobilityReleaseFooter(rt) {
       if (["NOT_PROVEN","PENDING","UNKNOWN"].includes(physical.toUpperCase())) {
         if (!severity) severity = "warning";
         details.push("Physical execution proof pending.");
-      } else if (physical !== "Unknown") {
-        details.push(`Physical acceptance: ${physical}.`);
       }
       if (["NOT_PROVEN","PENDING","UNKNOWN"].includes(releaseAcceptance.toUpperCase())) {
         if (!severity) severity = "warning";
         details.push("Release acceptance proof pending.");
-      } else if (releaseAcceptance !== "Unknown") {
-        details.push(`Release acceptance: ${releaseAcceptance}.`);
       }
       if (summary.diagnostic_bad_count) {
         if (!severity) severity = "warning";
