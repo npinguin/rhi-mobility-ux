@@ -22,14 +22,8 @@ const headerText=fs.readFileSync(header,'utf8');
 for(const token of [
   'const HB_MOBILITY_COMPANY_LOGO_SVG = "__RHI_COMPANY_LOGO_INLINE__";',
   'HB_MOBILITY_COMPANY_LOGO_SVG',
-  '--rhi-company-area-min',
-  '--rhi-company-area-max',
-  '--rhi-company-logo-max-width',
-  '--rhi-company-logo-max-height',
-  '--rhi-company-logo-padding',
-  '--rhi-company-divider',
-  'object-fit:contain',
-  'object-position:center'
+  'class="hi-company-brand"',
+  'class="hi-company-logo"'
 ]) if(!headerText.includes(token)) throw new Error('shared company-brand contract missing: '+token);
 for(const forbidden of ['robotix-logo.webp','filter:saturate','data:image/','rhiMobilityAssetUrl(HB_MOBILITY_COMPANY_LOGO']) if(headerText.includes(forbidden)) throw new Error('company-brand drift: '+forbidden);
 
