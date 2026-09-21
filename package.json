@@ -1,6 +1,6 @@
 {
   "name": "rhi-mobility-ux",
-  "version": "1.0.0-rc.16",
+  "version": "1.0.0-rc.17",
   "private": false,
   "description": "Robotix Home Intelligence Mobility UX for Home Assistant",
   "license": "GPL-3.0-only",
