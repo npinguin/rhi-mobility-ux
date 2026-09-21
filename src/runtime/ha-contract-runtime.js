@@ -335,7 +335,12 @@ class HomeBrainAssetRuntime {
   resolveImageCatalogEntry(imageKey = "") {
     const key = String(imageKey || "").trim();
     if (!key) return null;
-    return this.imageCatalog().find((row) => String(row.image_key || "") === key) || null;
+    const direct = this.imageCatalog().find((row) => String(row.image_key || "") === key) || null;
+    if (direct) return direct;
+    const visual = typeof rhiMobilityParseVehicleVisualKey === "function" ? rhiMobilityParseVehicleVisualKey(key) : null;
+    if (!visual) return null;
+    const base = this.imageCatalog().find((row) => String(row.image_key || "") === String(visual.vehicle?.image_key || "")) || null;
+    return base ? { ...base, visual_key:visual.key, vehicle_visual:visual } : null;
   }
 
   imageUrlFromCatalog(imageKey = "", fallbackKey = "") {
