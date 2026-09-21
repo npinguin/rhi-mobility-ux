@@ -56,9 +56,9 @@ Testing mirrors code ownership: **one invariant, one test owner**. Do not make a
 ```text
 Mobility backend
 → MOBILITY_PUBLIC_RUNTIME_V1
-→ UX runtime/adapters
-→ viewmodels
-→ screens/components
+→ runtime
+→ domain adapters/models
+→ UI components/screens
 ```
 
 UX renders V1 and does not create a second Mobility semantic authority.
