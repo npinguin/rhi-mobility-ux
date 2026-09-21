@@ -57,7 +57,7 @@ Internal structure:
 - HomeBrainChargerAdapter: charger contract mapping
 */
 
-const UX_VERSION = "1.0.0-rc.12";
+const UX_VERSION = "1.0.0-rc.13";
 const HB_MOBILITY_COMPANY_LOGO = "branding/company-logo.svg";
 
 const HB_MOBILITY_BASE_PATH = "/mobility-supervisor";
