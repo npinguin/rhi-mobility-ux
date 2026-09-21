@@ -2,7 +2,7 @@
 
 ## Start here
 
-Current source candidate: **v1.0.0-rc.11**. Public contract: **MOBILITY_PUBLIC_RUNTIME_V1**. Minimum backend: **R43.2.60**. Current tested backend baseline: **R43.2.65**.
+Current source candidate: **v1.0.0-rc.12**. Public contract: **MOBILITY_PUBLIC_RUNTIME_V1**. Minimum backend: **R43.2.60**. Current tested backend baseline: **R43.2.65**.
 
 Read in this order:
 
@@ -20,8 +20,14 @@ Read in this order:
 ## Footer authority
 
 - Healthy footer is `RHI Mobility UX <version> · Backend <version>`.
-- Runtime health, acceptance proof and diagnostics may create one issue label/tooltip only.
+- Runtime health, acceptance proof and diagnostics may create one expandable issue summary only.
+- Hover-only issue disclosure is forbidden; concrete conditions must be visible when expanded.
 - Footer geometry/classes must match the shared standard and Energy.
+
+## Asset refresh authority
+
+- Company-logo requests must carry the current UX package version as a query revision.
+- A timeless external logo URL is forbidden because browser caches can survive HACS package updates.
 
 ## Shared shell and brand authority
 
