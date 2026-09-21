@@ -30,7 +30,7 @@ branch
 → squash merge
 → Publish HACS verifies the complete committed `dist/` package
 → create or verify immutable tag
-→ normal GitHub Release contains evidence only
+→ normal GitHub Release contains notes only and zero assets
 → immutable HACS-visible TEST CANDIDATE
 → target HA qualification + rollback
 → manual stable promotion of exact immutable candidate
@@ -98,6 +98,6 @@ Runtime controls remain fail-closed. Actual/readback remains operational truth. 
 
 Static CI is not target Home Assistant evidence. `release/QUALIFICATION.json` qualifies the exact immutable candidate tag/SHA after publication.
 
-Rollback remains a previous immutable HACS version. For plugin packages with nested assets, a same-named JS GitHub Release asset is forbidden because HACS would switch to single-file delivery and omit the structured asset tree.
+Rollback remains a previous immutable HACS version. Tagged HACS plugin releases must contain zero GitHub Release assets. Current HACS prefers any tagged release assets over the repository tree, so even non-runtime evidence attachments can suppress installation of the structured `dist/` package.
 
 Publication is idempotent: an already existing tag/release is accepted only when the immutable tag's complete `dist/` package matches the current candidate byte-for-byte and the release targets that tag. In that case the workflow verifies and exits green without mutation.
