@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.0.0-rc.13 — Mobility-first Energy-style Overview
+
+- Reworks the Overview into the same calm information hierarchy used by Energy while preserving Mobility ownership.
+- Promotes Vehicles, Charging now, Chargers and Attention as the four primary Mobility status signals.
+- Removes `Energy today` from the primary Mobility overview instead of reconstructing Energy-domain semantics.
+- Keeps range/charge, security, comfort, maintenance, selected charger and direct commands on each vehicle row.
+- Adds backend-owned Next action, Recent activity and a concise conclusion.
+- Preserves all existing routes, detail screens, rc.12 footer/cache fixes and `MOBILITY_PUBLIC_RUNTIME_V1`.
+- Adds regression coverage locking the Mobility-first overview structure.
+
 ## 1.0.0-rc.12 — readable footer and cache-safe company asset
 
 - Makes the shared UX footer readable at 11px desktop / 10.5px phone with full opacity.
