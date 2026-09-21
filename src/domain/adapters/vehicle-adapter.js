@@ -12,6 +12,44 @@ class HomeBrainVehicleAdapter {
   imageFromProfile() { const reg = this.registryEntry() || {}; return this.rt.visualImageUrl(reg, "vehicle", "hero", "vehicle_fallback"); }
   chargerImage(assetId="") { const reg = assetId ? (this.rt.chargerById(assetId) || this.rt.assetById(assetId) || { asset_id: assetId }) : {}; return this.rt.visualImageUrl(reg, "charger", "image", "charger_fallback"); }
 
+  chargerAssignmentModel() {
+    const assetId = this.assetId();
+    const prop = this.rt.propertyByCompoundKey(assetId, "vehicle.selected_charger");
+    if (!prop) {
+      return { resolved:false, property:null, writable:false, display:"N/A", value:"", editor_value:"", choices:[], allow_none:false, none_value:"" };
+    }
+    const editor = this.rt.propertyEditorRow(prop);
+    const allowNone = editor.allow_none === true;
+    const noneValue = editor.none_value ?? "";
+    const rawCurrent = prop.value;
+    const currentUnset = rawCurrent === undefined || rawCurrent === null || String(rawCurrent).trim() === "";
+    const currentValue = currentUnset && allowNone ? String(noneValue ?? "") : String(rawCurrent ?? "").trim();
+    const choices = [];
+    if (allowNone) choices.push({ value:String(noneValue ?? ""), label:"No charger", is_none:true });
+    for (const choice of (editor.choices || [])) {
+      const value = String(choice?.value ?? choice?.id ?? choice?.asset_id ?? choice ?? "").trim();
+      const label = String(choice?.label ?? choice?.display_name ?? choice?.name ?? (value ? this.rt.chargerLabel(value) : "")).trim();
+      if (!value || choices.some((row)=>row.value === value)) continue;
+      choices.push({ value, label:label || value, is_none:false });
+    }
+    const currentKnown = choices.some((choice)=>choice.value === String(editor.editor_value ?? currentValue));
+    const display = currentUnset
+      ? (allowNone ? "No charger" : "N/A")
+      : (this.rt.chargerLabel(String(rawCurrent).trim()) || String(rawCurrent).trim());
+    return {
+      resolved:true,
+      property:prop,
+      writable:!editor.disabled && choices.length > 0,
+      display,
+      value:String(rawCurrent ?? "").trim(),
+      editor_value:String(editor.editor_value ?? currentValue),
+      choices,
+      current_known:currentKnown,
+      allow_none:allowNone,
+      none_value:String(noneValue ?? "")
+    };
+  }
+
   latestActivityRows(assetId) {
     const activities = this.rt.activityRowsFor(assetId).slice(0, 3);
     const valueFor = (a) => String(a.result || a.result_code || a.activity_state || a.status || a.message || a.activity_type || a.command_key || a.command_id || "Unavailable");
