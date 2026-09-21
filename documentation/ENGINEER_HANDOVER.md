@@ -9,6 +9,7 @@ Read in this order:
 1. `README.md`
 2. `documentation/ARCHITECTURE.md`
 3. `documentation/RELEASE_GOVERNANCE.md`
+- `documentation/UX_REPOSITORY_STANDARD.md`
 4. `documentation/TEST_GOVERNANCE.md`
 5. `src/OWNERSHIP.json`
 6. `src/manifest.json`
