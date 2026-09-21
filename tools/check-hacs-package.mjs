@@ -9,6 +9,7 @@ const manifest=JSON.parse(fs.readFileSync(path.join(root,'dist/PACKAGE_MANIFEST.
 const publish=fs.readFileSync(path.join(root,'.github/workflows/publish-hacs.yml'),'utf8');
 
 if(hacs.filename!=='rhi-mobility-ux.js') throw new Error('HACS filename drift');
+if(hacs.content_in_root!==false) throw new Error('HACS plugin must use standard dist/ package semantics (content_in_root=false)');
 if(hacs.zip_release===true) throw new Error('plugin zip_release is not part of the supported package model');
 if(manifest.version!==pkg.version) throw new Error('package manifest version drift');
 if(manifest.hacs_package_root!=='dist') throw new Error('HACS package root must be dist');
@@ -31,4 +32,4 @@ if(/gh release create[\s\S]*dist\/rhi-mobility-ux\.js(?:\s|\\)/.test(publish)) {
 if(!publish.includes('dist/PACKAGE_MANIFEST.json')) throw new Error('release must attach package manifest evidence');
 const checksum=fs.readFileSync(path.join(root,'dist/rhi-mobility-ux.js.sha256'),'utf8').trim().split(/\s+/)[0];
 if(manifest.runtime_sha256!==checksum) throw new Error('package manifest runtime checksum drift');
-console.log('PASS HACS package: immutable tag dist tree contains runtime + structured assets; release assets are evidence-only');
+console.log('PASS HACS package: standard HACS plugin dist/ layout is explicit; immutable tag dist tree contains runtime + structured assets; release assets are evidence-only');
