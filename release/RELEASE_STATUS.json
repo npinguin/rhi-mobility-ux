@@ -1,6 +1,6 @@
 {
   "product": "rhi-mobility-ux",
-  "source_candidate_version": "1.0.0-rc.10",
+  "source_candidate_version": "1.0.0-rc.11",
   "stage": "test_candidate",
   "publication_authority": "github_releases",
   "publication_status": "derive_from_github_release",
@@ -11,5 +11,7 @@
   "hacs_validation": "required_before_publication",
   "target_runtime_proof": "see release/QUALIFICATION.json",
   "rollback": "immutable GitHub/HACS version selection",
-  "stable_promotion": "blocked_until_qualification_pass"
+  "stable_promotion": "blocked_until_qualification_pass",
+  "github_release_prerelease": false,
+  "hacs_visibility": "normal_release_visible_without_beta_toggle"
 }

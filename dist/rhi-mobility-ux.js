@@ -1,5 +1,5 @@
 /**
- * Robotix Home Intelligence Mobility UX v1.0.0-rc.10
+ * Robotix Home Intelligence Mobility UX v1.0.0-rc.11
  * GENERATED FILE - DO NOT EDIT.
  * License: GPL-3.0-only
  */
@@ -55,7 +55,7 @@ Internal structure:
 - HomeBrainChargerAdapter: charger contract mapping
 */
 
-const UX_VERSION = "1.0.0-rc.10";
+const UX_VERSION = "1.0.0-rc.11";
 const HB_MOBILITY_COMPANY_LOGO = "branding/company-logo.svg";
 
 const HB_MOBILITY_BASE_PATH = "/mobility-supervisor";
@@ -147,35 +147,51 @@ function hbMobilityReleaseFooter(rt) {
   const esc = (v) => rt && rt.escape ? rt.escape(v) : String(v ?? "").replace(/[&<>]/g, (ch) => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[ch]));
   const rel = rt && rt.releaseContract ? rt.releaseContract() : {};
   const backend = rel.backend_release || rel.backend_version || "Unknown";
-  const contract = rel.contract_version && rel.contract_version !== "Unknown" ? ` · Contract ${rel.contract_version}` : "";
-  const health = rel.contract_health && rel.contract_health !== "Unknown" ? ` · ${rel.contract_health}` : "";
-  let runtimeNote = "";
-  let acceptanceNote = "";
-  let diagnosticsNote = "";
+  const details = [];
+  let severity = "";
   try {
     const summary = rt && rt.runtimeHealthSummary ? rt.runtimeHealthSummary() : null;
+    if (backend === "Unknown") {
+      severity = "error";
+      details.push("Backend release contract unavailable.");
+    }
     if (summary) {
-      if (summary.status === "OK") runtimeNote = `<span class="hi-release-health trusted" title="Canonical Mobility runtime health is OK.">Runtime healthy</span>`;
-      else if (summary.status === "DEGRADED") runtimeNote = `<span class="hi-release-health degraded" title="Canonical Mobility runtime health reports degradation.">Runtime degraded</span>`;
-      else if (summary.status === "BLOCKED") runtimeNote = `<span class="hi-release-health blocking" title="Canonical Mobility runtime health reports failure.">Runtime failed</span>`;
-      else runtimeNote = `<span class="hi-release-health degraded" title="Canonical Mobility runtime health is unavailable.">Runtime health unavailable</span>`;
+      const status = String(summary.status || "Unknown").toUpperCase();
+      if (status === "BLOCKED") {
+        severity = "error";
+        details.push("Canonical Mobility runtime health reports failure.");
+      } else if (status === "DEGRADED") {
+        if (!severity) severity = "warning";
+        details.push("Canonical Mobility runtime health reports degradation.");
+      } else if (!["OK","HEALTHY"].includes(status)) {
+        if (!severity) severity = "warning";
+        details.push("Canonical Mobility runtime health is unavailable.");
+      }
+
       const physical = String(summary.physical_acceptance || "Unknown");
       const releaseAcceptance = String(summary.release_acceptance || "Unknown");
-      const pendingPhysical = ["NOT_PROVEN","PENDING","UNKNOWN"].includes(physical.toUpperCase());
-      const pendingRelease = ["NOT_PROVEN","PENDING","UNKNOWN"].includes(releaseAcceptance.toUpperCase());
-      const parts = [];
-      if (pendingPhysical) parts.push("Physical execution proof pending");
-      else if (physical && physical !== "Unknown") parts.push(`Physical ${physical}`);
-      if (pendingRelease) parts.push("Release acceptance pending");
-      else if (releaseAcceptance && releaseAcceptance !== "Unknown") parts.push(`Release ${releaseAcceptance}`);
-      if (parts.length) acceptanceNote = `<span class="hi-release-health degraded" title="Runtime health and acceptance proof are separate backend-owned states.">${parts.map(esc).join(" · ")}</span>`;
+      if (["NOT_PROVEN","PENDING","UNKNOWN"].includes(physical.toUpperCase())) {
+        if (!severity) severity = "warning";
+        details.push("Physical execution proof pending.");
+      }
+      if (["NOT_PROVEN","PENDING","UNKNOWN"].includes(releaseAcceptance.toUpperCase())) {
+        if (!severity) severity = "warning";
+        details.push("Release acceptance proof pending.");
+      }
+      if (summary.diagnostic_bad_count) {
+        if (!severity) severity = "warning";
+        const rows = (summary.diagnostics || []).filter((row) => row.bad).slice(0, 3);
+        details.push(`Diagnostics: ${esc(summary.diagnostic_status || "degraded")}${rows.length ? ` — ${rows.map((row) => `${esc(row.label)} ${esc(row.state)}`).join(", ")}` : ""}`);
+      }
     }
-    if (summary && summary.diagnostic_bad_count) {
-      const rows = (summary.diagnostics || []).filter((r) => r.bad).slice(0, 3);
-      diagnosticsNote = `<span class="hi-release-health degraded" title="Non-blocking diagnostics only.">Diagnostics: ${esc(summary.diagnostic_status)}${rows.length ? ` — ${rows.map((r)=>`${esc(r.label)} ${esc(r.state)}`).join(", ")}` : ""}</span>`;
-    }
-  } catch (e) { /* footer must never break the dashboard */ }
-  return `<div class="hi-release-footer" title="Backend version is read from the Mobility release contract"><span>UX ${esc(UX_VERSION)}</span><span>Backend ${esc(backend)}</span><span>Source Mobility release contract${esc(contract)}${esc(health)}</span>${runtimeNote}${acceptanceNote}${diagnosticsNote}</div>`;
+  } catch (e) {
+    if (!severity) severity = "warning";
+    details.push("Runtime diagnostics unavailable.");
+  }
+  const issue = details.length
+    ? `<span class="rhiUxFooterIssue ${severity || "warning"}" title="${esc(details.join("\n"))}">${severity === "error" ? "Runtime issue" : `${details.length} issue${details.length === 1 ? "" : "s"}`}</span>`
+    : "";
+  return `<footer class="rhiUxFooter" aria-label="RHI Mobility release information"><span>RHI Mobility UX ${esc(UX_VERSION)}</span><span>Backend ${esc(backend)}</span>${issue}</footer>`;
 }
 
 function hbMobilityOutcomeStrip(rt, contextId = "mobility", fallback = {}) {
@@ -360,13 +376,11 @@ function hbMobilitySharedShellStyles() {
     .status-strip .tone-green>ha-icon{color:#16A765!important}.status-strip .tone-blue>ha-icon{color:#1467F5!important}.status-strip .tone-orange>ha-icon{color:#F59E0B!important}
     .section-title{margin-top:4px!important;margin-bottom:8px!important}
     .hi-version-block{display:none!important}
-    .hi-release-footer{display:flex;align-items:center;gap:8px;flex-wrap:wrap;width:100%;box-sizing:border-box;margin:8px 0 0;padding:8px 14px;border-top:1px solid rgba(14,35,72,.10);background:rgba(255,255,255,.92);color:#53627A;font-size:11px;font-weight:500;line-height:1.2;white-space:normal;overflow:hidden}
-    .hi-release-footer span+span::before{content:"•";margin-right:8px;color:#8A96AA}
-    .hi-release-footer .hi-release-health{color:#6B7280;font-weight:650;opacity:.92}
-    .hi-release-footer .hi-release-health.trusted{color:#2F6B4F}
-    .hi-release-footer .hi-release-health.degraded{color:#8A5A00}
-    .hi-release-footer .hi-release-health.blocking{color:#9A3412}
-    .hi-release-footer .hi-release-health::before{content:"•";margin-right:8px;color:#C7A35A}
+    .rhiUxFooter{display:flex!important;justify-content:center!important;align-items:center!important;flex-wrap:wrap!important;gap:4px 9px!important;margin:7px 3px 0!important;padding:4px 2px!important;border:0!important;background:transparent!important;color:#94a3b8!important;font-size:9px!important;font-weight:500!important;line-height:1.2!important;opacity:.82!important;white-space:normal!important;overflow:visible!important;text-overflow:clip!important}
+    .rhiUxFooter span+span:before{content:"·";margin-right:9px;color:#cbd5e1}
+    .rhiUxFooterIssue{font-weight:650!important}
+    .rhiUxFooterIssue.warning{color:#b7791f!important}
+    .rhiUxFooterIssue.error{color:#b42318!important}
 
     @media(max-width:1180px){
       .hi-domain-shell{--rhi-company-area-min:220px;--rhi-company-area-max:250px;--rhi-company-logo-max-width:220px;--rhi-company-logo-max-height:94px;--rhi-company-logo-padding:8px 12px}
@@ -400,7 +414,7 @@ function hbMobilitySharedShellStyles() {
       .domain-tabs{display:flex;overflow-x:auto;white-space:nowrap;gap:4px;min-height:35px}
       .domain-tab{min-height:35px;padding:6px 11px;font-size:10.5px}
       .placeholder-grid{grid-template-columns:1fr}
-      .hi-release-footer{font-size:10px;padding:8px 10px}
+      .rhiUxFooter{font-size:8.5px!important;gap:3px 7px!important}.rhiUxFooter span+span:before{margin-right:7px!important}
     }
     @media(max-width:430px){
       .hi-domain-shell{--rhi-company-logo-max-width:102px;--rhi-company-logo-max-height:42px}

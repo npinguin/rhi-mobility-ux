@@ -18,11 +18,11 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: Checkout current main qualification record
-        uses: actions/checkout@v4
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
         with:
           fetch-depth: 0
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444
         with:
           node-version: '24'
           cache: npm
@@ -47,7 +47,7 @@ jobs:
           test "$TAG_SHA" = "$CANDIDATE_SHA"
           RELEASE_SHA=$(gh release view "${TAG}" --json targetCommitish --jq '.targetCommitish')
           test "$RELEASE_SHA" = "$CANDIDATE_SHA"
-          test "$(gh release view "${TAG}" --json isPrerelease --jq '.isPrerelease')" = true
+          test "$(gh release view "${TAG}" --json isPrerelease --jq '.isPrerelease')" = false
 
           rm -rf /tmp/rhi-ux-release
           mkdir -p /tmp/rhi-ux-release
@@ -67,7 +67,6 @@ jobs:
           TAG=$(node -p "require('./release/QUALIFICATION.json').candidate_tag")
           gh release upload "${TAG}" release/QUALIFICATION.json --clobber
           gh release edit "${TAG}" \
-            --prerelease=false \
             --title "RHI Mobility UX ${TAG}" \
             --notes-file release/RELEASE_NOTES.md
           test "$(gh release view "${TAG}" --json isPrerelease --jq '.isPrerelease')" = false

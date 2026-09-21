@@ -15,10 +15,6 @@ on:
       - 'release/RELEASE_NOTES.md'
       - 'tools/build.mjs'
       - 'tools/verify-dist.mjs'
-      - 'tools/check-release-governance.mjs'
-      - 'tools/check-qualification.mjs'
-      - '.github/workflows/publish-hacs.yml'
-      - '.github/workflows/release.yml'
   workflow_dispatch:
 
 permissions:
@@ -35,11 +31,11 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: Checkout exact main candidate
-        uses: actions/checkout@v4
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
         with:
           fetch-depth: 0
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444
         with:
           node-version: '24'
           cache: npm
@@ -87,11 +83,11 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Checkout exact candidate
-        uses: actions/checkout@v4
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
         with:
           fetch-depth: 0
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444
         with:
           node-version: '24'
           cache: npm
@@ -117,7 +113,6 @@ jobs:
           git tag "${TAG}" "$GITHUB_SHA"
           git push origin "${TAG}"
           gh release create "${TAG}" \
-            --prerelease \
             --target "$GITHUB_SHA" \
             --title "RHI Mobility UX ${TAG} — TEST CANDIDATE" \
             --notes-file release/RELEASE_NOTES.md \
@@ -126,7 +121,7 @@ jobs:
             COMPATIBILITY.json \
             RELEASE_MANIFEST.json \
             release/QUALIFICATION.json
-          test "$(gh release view "${TAG}" --json isPrerelease --jq '.isPrerelease')" = true
+          test "$(gh release view "${TAG}" --json isPrerelease --jq '.isPrerelease')" = false
       - name: Summary
         run: |
           VERSION=$(node -p "require('./package.json').version")
@@ -136,7 +131,7 @@ jobs:
             echo "- Source/package/tests: PASS"
             echo "- Deterministic build: PASS"
             echo "- HACS validation: PASS"
-            echo "- Immutable TEST CANDIDATE: PUBLISHED"
+            echo "- Immutable HACS-visible TEST CANDIDATE: PUBLISHED"
             echo "- Runtime qualification: PENDING and recorded separately"
             echo "- Stable promotion: BLOCKED until target HA qualification passes"
           } >> "$GITHUB_STEP_SUMMARY"
