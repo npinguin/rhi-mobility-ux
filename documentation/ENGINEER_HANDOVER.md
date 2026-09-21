@@ -73,7 +73,7 @@ branch
 → squash merge
 → main Validate green
 → automatic Publish HACS
-→ immutable HACS TEST CANDIDATE
+→ immutable HACS-visible TEST CANDIDATE
 → target HA runtime + rollback proof
 → update release/QUALIFICATION.json with PASS + exact candidate SHA
 → manual stable promotion of the exact candidate
