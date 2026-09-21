@@ -113,9 +113,9 @@ For HACS plugin repositories, the GitHub Release must **not** attach a release a
 - HACS package root;
 - runtime filename;
 - asset categories;
-- every package file with byte size and SHA-256.
+- every package file with byte size;\n- the runtime JS SHA-256.
 
-It is evidence, not a second source of truth.
+It is evidence, not a second source of truth. Per-asset cryptographic hashes are intentionally not duplicated here; source↔dist byte parity and immutable Git tags already protect the asset tree.
 
 ## Ownership gates
 
@@ -133,3 +133,18 @@ A new abstraction requires at least one of:
 3. a public package contract that must be stable.
 
 Otherwise keep the implementation local and explicit.
+
+## Migration sequence
+
+Use this order when aligning another RHI UX package, including Energy:
+
+1. **Governance first** — establish release/test/source ownership before moving files.
+2. **Restructure source without semantic redesign** — move code into owner folders and introduce an explicit source manifest.
+3. **Normalize assets** — move to one canonical `src/assets/<category>/` tree and remove duplicate generated roots.
+4. **Update build/package gates** — make `dist/` the complete install package and add package/install simulation.
+5. **Generate and commit `dist/` before opening the PR** — metadata/version and generated package must never be temporarily out of sync in review.
+6. **Run the complete PR gate** — candidate build, owned tests, deterministic rebuild, committed-dist equality, HACS validation.
+7. **Merge and publish idempotently** — if a tag/release already exists, verify identical package bytes and finish green without mutation.
+8. **Only then perform target Home Assistant qualification**.
+
+Never combine this migration with unrelated product/semantic redesign. Structural migration must be reviewable and reversible on its own.
