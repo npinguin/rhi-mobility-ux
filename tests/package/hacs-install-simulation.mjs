@@ -14,7 +14,10 @@ const stable=fs.readFileSync(path.join(root,'.github/workflows/release.yml'),'ut
 
 try{
   if(product.release_asset_policy!=='none') throw new Error('tagged HACS plugin release must have release_asset_policy=none');
-  if(/gh release create[\s\S]*?(?:dist\/|COMPATIBILITY\.json|RELEASE_MANIFEST\.json|QUALIFICATION\.json)/.test(publish)) throw new Error('publish workflow attaches HACS-diverting GitHub Release assets');
+  const createBlock=(publish.match(/gh release create[\s\S]*?^\s*fi/m)||[''])[0];
+  for(const forbidden of ['dist/','COMPATIBILITY.json','RELEASE_MANIFEST.json','QUALIFICATION.json','PACKAGE_MANIFEST.json','.sha256']){
+    if(createBlock.includes(forbidden)) throw new Error(`publish workflow attaches HACS-diverting GitHub Release asset: ${forbidden}`);
+  }
   if(publish.includes('gh release upload')) throw new Error('publish workflow must not upload GitHub Release assets');
   if(stable.includes('gh release upload')) throw new Error('stable workflow must not upload GitHub Release assets');
 
