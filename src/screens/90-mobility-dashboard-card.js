@@ -402,6 +402,8 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     const signalValue = (tile, fallback = "—") => tile?.value && !String(tile.value).toLowerCase().includes("contract gap") ? tile.value : fallback;
     const signalTone = (tile) => {
       const tone = String(tile?.tone || "").toLowerCase();
+      const value = String(tile?.value || "").toLowerCase();
+      if (!tile || !value || ["unknown","unavailable","contract gap"].some((token)=>value.includes(token))) return "muted";
       return tone === "error" ? "bad" : tone === "attention" ? "warn" : tone === "active" ? "active" : "ok";
     };
     return `<article class="ov-vehicle-row">
