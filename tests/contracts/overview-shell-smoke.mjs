@@ -6,20 +6,21 @@ const chargers=fs.readFileSync(new URL('../../src/screens/80-charger-maintenance
 const placeholder=fs.readFileSync(new URL('../../src/screens/95-placeholder-and-router-cards.js',import.meta.url),'utf8');
 
 for (const needle of [
-  'class="ov-hero"',
-  'Your mobility at a glance',
-  'Energy today',
-  'class="ov-quickbar"',
-  'class="ov-two-col"',
+  'class="ov-energy-hero"',
+  'Mobility Overview',
+  'Know if your vehicles are ready, secure and comfortable',
+  'class="ov-status-grid"',
+  'Charging now',
+  'class="ov-quickbar energy-like"',
+  'class="ov-core-grid"',
   '<h2>Vehicles</h2>',
   '<h2>Chargers</h2>',
   '<h2>Recent activity</h2>',
-  '<h2>Next actions</h2>',
+  '<h2>Next action</h2>',
+  'class="ov-conclusion"',
   'this.renderChargerAssignmentSelect(rt, asset)',
   'this.dashboardVehicleCommands(rt, assetId).slice(0, 2)',
-  'Range, charge, security, comfort and maintenance',
-  'Backend reported',
-  'Not published'
+  'Range and charge first, with security, comfort, maintenance and direct actions alongside.'
 ]) if (!dashboard.includes(needle)) throw new Error(`canonical Overview missing: ${needle}`);
 
 if (!dashboard.includes('navActive === "overview"')) throw new Error('Overview/vehicles surface split missing');
@@ -36,7 +37,7 @@ for (const [name, source] of [['detail',shell],['chargers',chargers],['placehold
 }
 
 for (const forbidden of [
-  'Energy today</span><b>12.6',
+  'Energy today',
   'All ready</small>',
   '3 available</small>'
 ]) if (dashboard.includes(forbidden)) throw new Error(`mock-only hardcoded runtime value leaked into product: ${forbidden}`);

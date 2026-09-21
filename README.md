@@ -7,7 +7,7 @@ Public HACS Dashboard/plugin repository for Robotix Home Intelligence Mobility U
 - License: GPL-3.0-only
 - HACS category: Dashboard
 - Runtime artifact: `rhi-mobility-ux.js`
-- Source candidate: `v1.0.0-rc.12`
+- Source candidate: `v1.0.0-rc.13`
 - Public backend contract: `MOBILITY_PUBLIC_RUNTIME_V1`
 - Tested backend baseline: `R43.2.65`
 
@@ -21,7 +21,7 @@ The repository distinguishes **source candidate** from **published release**:
 
 Do not infer the installed HACS version from this README. Check the installed HACS version or GitHub Releases. Stable promotion is a separate manual gate after target runtime and rollback qualification.
 
-The current source candidate is `v1.0.0-rc.12`. It preserves all existing Mobility routes and screens while aligning the shared shell with Energy: identical header proportions and hierarchy, the same canonical transparent Robotix company mark, compact gray icons on the secondary navigation, and responsive brand-slot behaviour.
+The current source candidate is `v1.0.0-rc.13`. It keeps the rc.12 shared shell/footer/cache corrections and introduces a Mobility-first Overview using the calm Energy visual hierarchy. Primary overview truth is Vehicles, Charging now, Chargers and Attention; vehicle readiness, security, comfort, maintenance and direct actions remain driven by `MOBILITY_PUBLIC_RUNTIME_V1`.
 
 ## HACS installation
 
