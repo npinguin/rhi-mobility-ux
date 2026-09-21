@@ -21,7 +21,7 @@ The repository distinguishes **source candidate** from **published release**:
 
 Do not infer the installed HACS version from this README. Check the installed HACS version or GitHub Releases. Stable promotion is a separate manual gate after target runtime and rollback qualification.
 
-The current source candidate is `v1.0.0-rc.7`. It preserves `MOBILITY_PUBLIC_RUNTIME_V1` and existing screen behavior while aligning the Mobility shell with Energy: Mobility / Intelligence / Insights at level one, with domain-specific subnavigation at level two.
+The current source candidate is `v1.0.0-rc.7`. It preserves `MOBILITY_PUBLIC_RUNTIME_V1`, applies one canonical Mobility / Intelligence / Insights shell across screens, and introduces the approved action-first Mobility Overview without moving semantic authority into the frontend.
 
 ## HACS installation
 
