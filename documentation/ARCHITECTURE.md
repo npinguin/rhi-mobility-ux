@@ -7,11 +7,11 @@ Only `src/runtime/` and `src/domain/adapters/` may know Mobility public contract
 ```text
 MOBILITY_PUBLIC_RUNTIME_V1
         ↓
-runtime / adapters
+runtime
         ↓
-canonical viewmodels
+domain adapters / models
         ↓
-components / screens
+UI components / screens
 ```
 
 Forbidden for screens/components:
