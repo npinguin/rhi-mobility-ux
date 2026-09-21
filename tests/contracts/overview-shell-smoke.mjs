@@ -17,7 +17,12 @@ for (const needle of [
   'class="ov-conclusion"',
   'this.renderChargerAssignmentSelect(rt, asset)',
   'this.dashboardVehicleCommands(rt, assetId).slice(0, 2)',
-  'Range and charge first, with security, comfort, maintenance and direct actions alongside.'
+  "Readiness first: range and energy, security, comfort, maintenance, charger relationship and direct actions.",
+  "overviewChargerSummary(rt, chargers)",
+  "message: message || \"N/A\"",
+  "attentionTone === \"muted\" ? \"N/A\" : attention",
+  "const navActive = this.dashboardTabFromRoute()",
+
 ]) if (!dashboard.includes(needle)) throw new Error(`canonical Overview missing: ${needle}`);
 
 for (const forbidden of [

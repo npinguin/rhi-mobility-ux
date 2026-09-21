@@ -1,9 +1,13 @@
 import vm from 'node:vm';
+import fs from 'node:fs';
 import { mobilityRuntimeSource } from '../helpers/source-fixtures.mjs';
 
 const ctx={console,globalThis:{}};ctx.globalThis=ctx;vm.createContext(ctx);
 vm.runInContext(mobilityRuntimeSource()+'\n;globalThis.HomeBrainAssetRuntime=HomeBrainAssetRuntime;',ctx);
 const Runtime=ctx.HomeBrainAssetRuntime;
+
+const dashboard=fs.readFileSync(new URL('../../src/ui/screens/mobility-dashboard.js',import.meta.url),'utf8');
+const vehicleAdapter=fs.readFileSync(new URL('../../src/domain/adapters/vehicle-adapter.js',import.meta.url),'utf8');
 
 const charger='charger_profile_test';
 const hass={states:{
@@ -113,6 +117,10 @@ for(const key of ['asset.profile_id','vehicle.selected_charger']) {
   if(row.editor_value!=='__none__') throw new Error(`unset vehicle configuration must use backend none token for ${key}`);
   if(!row.choices.length) throw new Error(`vehicle configuration choices missing for ${key}`);
 }
+if(!vehicleAdapter.includes('label:"No charger"') || !vehicleAdapter.includes('allow_none:allowNone')) throw new Error('shared vehicle adapter must model backend-owned No charger semantics once');
+if(!dashboard.includes('adapter.chargerAssignmentModel()')) throw new Error('Overview/vehicle surfaces must consume the shared charger-assignment model');
+if(!dashboard.includes('<strong>N/A</strong>')) throw new Error('missing selected-charger backend contract must fail closed as N/A');
+
 const vehicleRuntimeControl=vrt.propertyByCompoundKey(vehicle,'vehicle.requested_charge_power_kw');
 if(vrt.isWritableProperty(vehicleRuntimeControl)) throw new Error('vehicle runtime requested power must fail closed without V1 write capability');
 console.log('PASS vehicle profile and selected-charger configuration controls remain editable while unset');

@@ -31,7 +31,7 @@ if (!intelligenceBlock.includes('Planning') || !intelligenceBlock.includes('Stra
 const insightsBlock = header.slice(header.indexOf('key: "insights"'), header.indexOf('const HB_MOBILITY_NAV_ITEMS'));
 if (!insightsBlock.includes('History') || !insightsBlock.includes('Log')) throw new Error('Insights submenu drift');
 
-if (!dashboard.includes('const navActive = this._localNavActive || this.config?.nav_active || "vehicles"')) throw new Error('dashboard does not preserve local Overview/Vehicles switching');
+if (!dashboard.includes('const navActive = this.dashboardTabFromRoute()')) throw new Error('dashboard route is not authoritative for Overview/Vehicles state');
 if (!dashboard.includes('hbMobilityNav(navActive)')) throw new Error('dashboard does not render canonical navigation from normalized active route');
 if (!chargers.includes('hbMobilityNav(this.config?.nav_active || "chargers")')) throw new Error('charger screen does not preserve grouped navigation');
 
@@ -41,6 +41,7 @@ for (const path of ['overview','dashboard','charger-maintenance','charging','pla
 
 if (!routes.includes('title: Overview\n    path: overview')) throw new Error('Overview route definition missing');
 if (!routes.includes('title: Vehicles\n    path: dashboard')) throw new Error('legacy Vehicles route /dashboard must be preserved');
-if (!dashboard.includes('target === hbMobilityPath("/overview") || target === hbMobilityPath("/dashboard")')) throw new Error('Overview/Vehicles local navigation fallback missing');
+if (!dashboard.includes('rt.navigate(target)')) throw new Error('Overview/Vehicles navigation must update the canonical URL so refresh preserves the current tab');
+if (!dashboard.includes('rememberViewPosition()') || !dashboard.includes('restoreViewPositionOnce()') || !dashboard.includes('window.addEventListener("pagehide"')) throw new Error('Mobility route/refresh position persistence missing');
 if (dashboard.includes('hbMobilityPath("/vehicles")')) throw new Error('invalid /vehicles route leaked into dashboard');
-console.log('PASS Mobility route mapping, active navigation and resilient Overview/Vehicles switching');
+console.log('PASS Mobility route mapping, URL-authoritative tab state and refresh/position persistence');

@@ -11,6 +11,20 @@ class HomeBrainChargerAdapter {
   profile() { const reg = this.registryEntry(); return reg?.profile_display_name || reg?.profile || this.config.fallback_profile || "Charger"; }
   status() { return this.rt.chargerOperationalStatus(this.assetId()); }
   can(capability) { return this.commandExists(capability); }
+  overviewAvailability() {
+    const assetId = this.assetId();
+    const lifecycle = this.rt.lifecycleStatus(this.registryEntry() || assetId);
+    if (lifecycle === "disabled") return { bucket:"disabled", resolved:true, label:"Disabled" };
+    if (lifecycle !== "active") return { bucket:"unknown", resolved:false, label:"N/A" };
+    const snapshot = this.rt.chargerProductSnapshot(assetId);
+    if (!snapshot?.operating?.resolved) return { bucket:"unknown", resolved:false, label:"N/A" };
+    const raw = String(snapshot.operating.value || "").trim().toLowerCase();
+    if (["idle", "stopped"].includes(raw)) return { bucket:"free", resolved:true, label:"Free" };
+    if (["running", "preparing"].includes(raw)) return { bucket:"in_use", resolved:true, label:"In use" };
+    if (["fault"].includes(raw)) return { bucket:"unavailable", resolved:true, label:"Unavailable" };
+    return { bucket:"unknown", resolved:false, label:"N/A" };
+  }
+
   latestActivityRows(assetId) {
     const activities = this.rt.activityRowsFor(assetId).slice(0, 3);
     const valueFor = (a) => String(a.result || a.result_code || a.activity_state || a.status || a.message || a.activity_type || a.command_key || a.command_id || "Unavailable");

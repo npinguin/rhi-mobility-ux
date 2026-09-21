@@ -46,6 +46,16 @@ UI components/screens
 
 Screens and components may not access Home Assistant Mobility contract entities directly. Missing canonical backend data fails closed as unavailable; the UX must not recreate backend semantics.
 
+## Product vision and backend backlog
+
+Mobility UX has one semantic model behind all tabs. Overview, Vehicles, Chargers, Charging and detail views are projections of the same backend-owned truth.
+
+Read:
+- `documentation/PRODUCT_VISION.md` for user focus, tab intent, No charger semantics, route persistence and V1/V2.x rules;
+- `documentation/BACKEND_INTERFACE_BACKLOG.md` for required backend interfaces that must remain N/A/empty in V1 until published.
+
+No future backend capability is mocked in the UX.
+
 ## Development
 
 ```bash

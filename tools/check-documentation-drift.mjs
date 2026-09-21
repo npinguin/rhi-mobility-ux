@@ -6,6 +6,8 @@ const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const normative=[
   'README.md',
   'documentation/ARCHITECTURE.md',
+  'documentation/PRODUCT_VISION.md',
+  'documentation/BACKEND_INTERFACE_BACKLOG.md',
   'documentation/BRANDING.md',
   'documentation/ENGINEER_HANDOVER.md',
   'documentation/HACS_INSTALLATION.md',
@@ -34,6 +36,11 @@ for(const [rel,text] of [['README.md',readme],['documentation/BRANDING.md',brand
 }
 if(architecture.includes('src/adapters/')) failures.push('documentation/ARCHITECTURE.md: obsolete adapter ownership path');
 if(handover.includes('→ UX runtime/adapters') || handover.includes('→ viewmodels') || handover.includes('→ screens/components')) failures.push('documentation/ENGINEER_HANDOVER.md: obsolete source ownership terminology');
+
+const vision=fs.readFileSync(path.join(root,'documentation/PRODUCT_VISION.md'),'utf8');
+const backlog=fs.readFileSync(path.join(root,'documentation/BACKEND_INTERFACE_BACKLOG.md'),'utf8');
+if(!vision.includes('One model, one ownership') || !vision.includes('No charger') || !vision.includes('refresh')) failures.push('PRODUCT_VISION missing locked Mobility UX invariants');
+if(!backlog.includes('HA-native user') || !backlog.includes('do not mock') || !backlog.includes('V2.x')) failures.push('BACKEND_INTERFACE_BACKLOG missing interface governance');
 
 const sourceGov=fs.readFileSync(path.join(root,'documentation/SOURCE_PACKAGE_GOVERNANCE.md'),'utf8');
 for(const token of ['app/','runtime/','domain/','ui/','assets/','dist/PACKAGE_MANIFEST.json','Migration sequence']){

@@ -1,6 +1,6 @@
 {
-  "candidate_version": "1.0.0-rc.15",
-  "candidate_tag": "v1.0.0-rc.15",
+  "candidate_version": "1.0.0-rc.16",
+  "candidate_tag": "v1.0.0-rc.16",
   "candidate_sha": "pending",
   "target_home_assistant": "pending",
   "hacs_install": "pending",
@@ -18,5 +18,9 @@
   "restart_reload": "pending",
   "stable_promotion": "blocked",
   "hacs_package_tree": "pending",
-  "asset_tree_delivery": "pending"
+  "asset_tree_delivery": "pending",
+  "overview_route_refresh": "pending",
+  "overview_position_restore": "pending",
+  "vehicle_selected_charger_no_charger": "pending",
+  "overview_semantic_fail_closed": "pending"
 }
