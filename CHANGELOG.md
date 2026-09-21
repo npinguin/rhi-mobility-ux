@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.0.0-rc.17 — HACS runtime install hardening
+
+- Makes standard HACS `dist/` plugin semantics explicit with `content_in_root: false`.
+- Binds immutable tag verification to HACS/package metadata as well as generated `dist/` bytes.
+- Makes Overview the only visible Lovelace Mobility view; all internal routes are subviews.
+- Separates HACS plugin installation from required Lovelace dashboard migration.
+- Preserves all rc.16 Overview/product behavior and `MOBILITY_PUBLIC_RUNTIME_V1`.
+- Adds runtime qualification gates for resource loading, custom-element registration and subview migration.
+
 ## 1.0.0-rc.16 — Overview completion and contract hardening
 
 - Evolves the existing Overview in place; no screen rewrite.

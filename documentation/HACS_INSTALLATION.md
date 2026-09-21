@@ -20,7 +20,8 @@ The HACS bundle keeps the current custom card names and dashboard routes. The ex
 Important:
 - the dashboard URL/path must remain `mobility-supervisor`, because internal navigation uses `/mobility-supervisor/...`;
 - `/mobility-supervisor/dashboard` remains the legacy **Vehicles** route for backward compatibility; the new Overview is `/mobility-supervisor/overview`;
-- HACS updates the JS resource only; it does **not** add Lovelace views automatically. Apply the complete dashboard YAML below when moving to rc.8+;
+- HACS installs/updates the plugin resource only; it does **not** create or migrate the Lovelace dashboard structure. Apply the complete dashboard YAML below when installing this candidate;
+- only Overview remains a visible Lovelace tab; Vehicles, Chargers, Charging, Planning, Strategies, History and Log are internal `subview: true` routes navigated from the RHI Mobility shell;
 - remove the legacy `resource_version: 'R22.12.11.30'` entries so the HACS bundle version owns cache busting;
 - keep the HACS resource `/hacsfiles/rhi-mobility-ux/rhi-mobility-ux.js` configured as a JavaScript module;
 - do not remove the old `/local/homebrain/...` resource/files until HACS install, refresh, navigation and rollback have been proven.
@@ -47,7 +48,7 @@ views:
 
   - title: Vehicles
     path: dashboard
-    icon: mdi:car-electric
+    subview: true
     panel: true
     cards:
       - type: custom:homebrain-mobility-dashboard-card
@@ -77,7 +78,7 @@ views:
 
   - title: Chargers
     path: charger-maintenance
-    icon: mdi:ev-station
+    subview: true
     panel: true
     cards:
       - type: custom:homebrain-mobility-charger-maintenance-card
@@ -91,7 +92,7 @@ views:
 
   - title: Charging
     path: charging
-    icon: mdi:lightning-bolt
+    subview: true
     panel: true
     cards:
       - type: custom:homebrain-mobility-charger-maintenance-card
@@ -105,7 +106,7 @@ views:
 
   - title: Planning
     path: planning
-    icon: mdi:calendar-clock
+    subview: true
     panel: true
     cards:
       - type: custom:homebrain-mobility-placeholder-card
@@ -113,7 +114,7 @@ views:
 
   - title: Strategies
     path: strategies
-    icon: mdi:tune-variant
+    subview: true
     panel: true
     cards:
       - type: custom:homebrain-mobility-placeholder-card
@@ -121,7 +122,7 @@ views:
 
   - title: History
     path: history
-    icon: mdi:history
+    subview: true
     panel: true
     cards:
       - type: custom:homebrain-mobility-placeholder-card
@@ -129,7 +130,7 @@ views:
 
   - title: Log
     path: log
-    icon: mdi:text-box-search-outline
+    subview: true
     panel: true
     cards:
       - type: custom:homebrain-mobility-placeholder-card
@@ -143,9 +144,10 @@ The same YAML is available as `documentation/homebrain_mobility.hacs.yaml`.
 1. Keep the current working Mobility dashboard as rollback reference.
 2. Install the HACS release and confirm the HACS Lovelace resource is loaded.
 3. Open the existing Mobility dashboard Raw configuration editor.
-4. Replace the dashboard YAML with the copy/paste YAML above.
+4. Replace the dashboard YAML with the copy/paste YAML above. This is a required dashboard migration; HACS does not manage Lovelace views.
 5. Save and hard-refresh the browser.
 6. Verify:
+   - the Lovelace top bar shows only the Mobility Overview entry; internal Mobility routes do not appear as duplicate top tabs;
    - `/mobility-supervisor/dashboard` renders the existing Vehicles screen;
    - `/mobility-supervisor/overview` renders the new Overview screen;
    - vehicle detail navigation opens `/mobility-supervisor/asset-detail?asset=...`;

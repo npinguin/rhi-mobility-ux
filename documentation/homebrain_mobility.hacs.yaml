@@ -17,7 +17,7 @@ views:
 
   - title: Vehicles
     path: dashboard
-    icon: mdi:car-electric
+    subview: true
     panel: true
     cards:
       - type: custom:homebrain-mobility-dashboard-card
@@ -47,7 +47,7 @@ views:
 
   - title: Chargers
     path: charger-maintenance
-    icon: mdi:ev-station
+    subview: true
     panel: true
     cards:
       - type: custom:homebrain-mobility-charger-maintenance-card
@@ -61,7 +61,7 @@ views:
 
   - title: Charging
     path: charging
-    icon: mdi:lightning-bolt
+    subview: true
     panel: true
     cards:
       - type: custom:homebrain-mobility-charger-maintenance-card
@@ -75,7 +75,7 @@ views:
 
   - title: Planning
     path: planning
-    icon: mdi:calendar-clock
+    subview: true
     panel: true
     cards:
       - type: custom:homebrain-mobility-placeholder-card
@@ -83,7 +83,7 @@ views:
 
   - title: Strategies
     path: strategies
-    icon: mdi:tune-variant
+    subview: true
     panel: true
     cards:
       - type: custom:homebrain-mobility-placeholder-card
@@ -91,7 +91,7 @@ views:
 
   - title: History
     path: history
-    icon: mdi:history
+    subview: true
     panel: true
     cards:
       - type: custom:homebrain-mobility-placeholder-card
@@ -99,7 +99,7 @@ views:
 
   - title: Log
     path: log
-    icon: mdi:text-box-search-outline
+    subview: true
     panel: true
     cards:
       - type: custom:homebrain-mobility-placeholder-card
