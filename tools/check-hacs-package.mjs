@@ -26,8 +26,9 @@ for(const row of manifest.files){
   const bytes=fs.readFileSync(full);
   if(bytes.length!==row.bytes) throw new Error(`package manifest size drift: ${row.path}`);
 }
-if(/gh release create[\s\S]*?(?:dist\/|COMPATIBILITY\.json|RELEASE_MANIFEST\.json|QUALIFICATION\.json)/.test(publish)) {
-  throw new Error('tagged HACS plugin release must not attach any GitHub Release assets');
+const createBlock=(publish.match(/gh release create[\s\S]*?^\s*fi/m)||[''])[0];
+for(const forbidden of ['dist/','COMPATIBILITY.json','RELEASE_MANIFEST.json','QUALIFICATION.json','PACKAGE_MANIFEST.json','.sha256']){
+  if(createBlock.includes(forbidden)) throw new Error(`tagged HACS plugin release must not attach GitHub Release asset: ${forbidden}`);
 }
 if(publish.includes('gh release upload')) throw new Error('publication must not upload GitHub Release assets');
 const checksum=fs.readFileSync(path.join(root,'dist/rhi-mobility-ux.js.sha256'),'utf8').trim().split(/\s+/)[0];
