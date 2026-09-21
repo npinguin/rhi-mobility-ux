@@ -1,24 +1,28 @@
-# v1.0.0-rc.14 — Overview navigation and inline company brand TEST CANDIDATE
+# v1.0.0-rc.15 — Source ownership and structured HACS package TEST CANDIDATE
 
 ## Scope
 
-Runtime closure over rc.13 for two target-HA issues observed after deployment.
+Structural package release over rc.14. Mobility product semantics and user flows remain unchanged.
 
-- fixes Overview/Vehicle navigation so the dashboard card can switch locally between both product views without depending on a separately provisioned Lovelace route;
-- removes invalid internal `/vehicles` navigation targets and uses the canonical Vehicles dashboard target;
-- keeps the dedicated `/overview` Lovelace route compatible when it exists;
-- embeds the canonical approved Robotix company SVG into the generated JS bundle at build time;
-- removes runtime dependency on `/hacsfiles/rhi-mobility-ux/assets/branding/company-logo.svg`;
-- preserves the same canonical SVG source and immutable branding hash;
-- keeps the company brand in the right-hand shared header slot aligned with Energy;
-- leaves all vehicle/charger semantics, detail screens and backend contracts unchanged.
+- replaces historical numbered source-file ordering with explicit `src/manifest.json`;
+- introduces explicit source ownership: app, runtime, domain adapters/models, UI components/screens and assets;
+- removes the redundant `src/assets/files/` layer;
+- makes `src/assets/` the single canonical artwork tree;
+- preserves asset categories one-to-one under `dist/assets/`, including `branding/`, `vehicles/` and `chargers/`;
+- allows future real categories such as `profiles/` or `manufacturers/` without build-code changes;
+- removes the parallel generated repository-root `assets/` tree;
+- generates `dist/PACKAGE_MANIFEST.json` with package file hashes and asset categories;
+- makes `dist/` the complete HACS plugin package root;
+- stops attaching `rhi-mobility-ux.js` as a GitHub Release asset so HACS does not fall into single-file plugin mode and omit nested assets;
+- keeps GitHub Release assets evidence-only while the immutable tag owns the installable `dist/` tree;
+- adds source-ownership and HACS-package gates.
 
 ## Compatibility
 
-- Mobility UX: 1.0.0-rc.14
+- Mobility UX: 1.0.0-rc.15
 - Contract: `MOBILITY_PUBLIC_RUNTIME_V1`
 - Minimum backend: `R43.2.60`
 - Tested backend baseline: `R43.2.65`
-- Rollback release: `v1.0.0-rc.13`
+- Rollback release: `v1.0.0-rc.14`
 
-Stable promotion remains blocked until target Home Assistant runtime and rollback proof are PASS.
+Target Home Assistant qualification must prove HACS installs the complete package tree and that structured assets resolve under `/hacsfiles/rhi-mobility-ux/assets/...`.

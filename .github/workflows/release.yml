@@ -27,7 +27,7 @@ jobs:
           node-version: '24'
       - name: Require completed target runtime qualification
         run: node tools/check-qualification.mjs --require-pass
-      - name: Verify exact immutable candidate and payload
+      - name: Verify exact immutable candidate package
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
@@ -44,16 +44,13 @@ jobs:
           RELEASE_SHA=$(gh release view "${TAG}" --json targetCommitish --jq '.targetCommitish')
           test "$RELEASE_SHA" = "$CANDIDATE_SHA"
           test "$(gh release view "${TAG}" --json isPrerelease --jq '.isPrerelease')" = false
+          test "$(gh release view "${TAG}" --json assets --jq '[.assets[].name] | index("rhi-mobility-ux.js")')" = null
 
-          rm -rf /tmp/rhi-ux-release
-          mkdir -p /tmp/rhi-ux-release
-          gh release download "${TAG}" --pattern 'rhi-mobility-ux.js' --dir /tmp/rhi-ux-release
-          gh release download "${TAG}" --pattern 'rhi-mobility-ux.js.sha256' --dir /tmp/rhi-ux-release
-
-          git show "${TAG}:dist/rhi-mobility-ux.js" > /tmp/rhi-ux-tag.js
-          git show "${TAG}:dist/rhi-mobility-ux.js.sha256" > /tmp/rhi-ux-tag.sha256
-          cmp /tmp/rhi-ux-tag.js /tmp/rhi-ux-release/rhi-mobility-ux.js
-          cmp /tmp/rhi-ux-tag.sha256 /tmp/rhi-ux-release/rhi-mobility-ux.js.sha256
+          rm -rf /tmp/rhi-mobility-tag
+          mkdir -p /tmp/rhi-mobility-tag
+          git archive "${TAG}" dist | tar -x -C /tmp/rhi-mobility-tag
+          diff -qr /tmp/rhi-mobility-tag/dist dist
+          (cd /tmp/rhi-mobility-tag/dist && sha256sum -c rhi-mobility-ux.js.sha256)
       - name: Attach final qualification and promote exact candidate
         shell: bash
         env:
@@ -65,7 +62,6 @@ jobs:
           gh release edit "${TAG}" \
             --title "RHI Mobility UX ${TAG}" \
             --notes-file release/RELEASE_NOTES.md
-          test "$(gh release view "${TAG}" --json isPrerelease --jq '.isPrerelease')" = false
       - name: Summary
         run: |
           VERSION=$(node -p "require('./package.json').version")
@@ -74,8 +70,8 @@ jobs:
             echo '## RHI Mobility UX stable promotion'
             echo "- Version: v${VERSION}"
             echo "- Candidate SHA: ${CANDIDATE_SHA}"
+            echo "- Complete tag dist package: VERIFIED"
             echo "- Rebuild during promotion: NO"
             echo "- Target HA qualification: PASS"
-            echo "- Published runtime payload: EXACT TAG MATCH"
             echo "- Stable promotion: COMPLETE"
           } >> "$GITHUB_STEP_SUMMARY"

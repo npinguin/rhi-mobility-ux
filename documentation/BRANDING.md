@@ -4,7 +4,7 @@ Mobility uses the same Robotix company mark and header-slot contract as the othe
 
 ## Canonical asset
 
-- Source of truth: `src/assets/files/branding/company-logo.svg`
+- Source of truth: `src/assets/branding/company-logo.svg`
 - Runtime copy: `assets/branding/company-logo.svg`
 - Distribution copy: `dist/assets/branding/company-logo.svg`
 - Background: transparent
@@ -45,7 +45,7 @@ Active section colour may differ by section. The company mark must not change wi
 
 - Shared company mark: canonical brand asset.
 - Mobility: route labels, icons and active state only.
-- Build: copies source assets unchanged to generated asset locations and injects the canonical SVG into the JS bundle for runtime delivery.
+- Build: preserves the canonical source tree under `dist/assets/` and injects the canonical SVG into the JS bundle for runtime delivery.
 - Branding validation: pinned hash, source/generated parity, transparent asset, inline runtime parity and no runtime redraw/filter.
 - Layout validation: owns header-slot geometry separately; branding tests do not own responsive sizing.
 - Footer/navigation tests must not assert logo transport or artwork details.

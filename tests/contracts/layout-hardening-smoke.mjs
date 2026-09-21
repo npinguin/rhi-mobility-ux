@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 
-const header=fs.readFileSync(new URL('../../src/entry/00-header-and-navigation.js',import.meta.url),'utf8');
+const header=fs.readFileSync(new URL('../../src/app/header-and-navigation.js',import.meta.url),'utf8');
 for(const needle of [
   'display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important',
   '.status-strip.dashboard-status-strip .metric',

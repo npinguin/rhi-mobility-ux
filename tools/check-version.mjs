@@ -2,7 +2,7 @@ import fs from 'node:fs';
 const pkg=JSON.parse(fs.readFileSync(new URL('../package.json',import.meta.url),'utf8'));
 const compat=JSON.parse(fs.readFileSync(new URL('../COMPATIBILITY.json',import.meta.url),'utf8'));
 if(pkg.version!==compat.ux_version) throw new Error(`package/compatibility version mismatch: ${pkg.version} vs ${compat.ux_version}`);
-const header=fs.readFileSync(new URL('../src/entry/00-header-and-navigation.js',import.meta.url),'utf8');
+const header=fs.readFileSync(new URL('../src/app/header-and-navigation.js',import.meta.url),'utf8');
 if(!header.includes('const UX_VERSION = "__RHI_UX_VERSION__";')) throw new Error('source UX_VERSION must be build-owned placeholder');
 const dist=fs.readFileSync(new URL('../dist/rhi-mobility-ux.js',import.meta.url),'utf8');
 if(!dist.includes(`const UX_VERSION = "${pkg.version}";`)) throw new Error('built UX_VERSION does not match package version');

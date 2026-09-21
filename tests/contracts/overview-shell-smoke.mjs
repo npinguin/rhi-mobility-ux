@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 
-const dashboard=fs.readFileSync(new URL('../../src/screens/90-mobility-dashboard-card.js',import.meta.url),'utf8');
+const dashboard=fs.readFileSync(new URL('../../src/ui/screens/mobility-dashboard.js',import.meta.url),'utf8');
 
 for (const needle of [
   'class="ov-energy-hero"',

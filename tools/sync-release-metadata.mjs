@@ -33,6 +33,10 @@ manifest.runtime_artifact=product.runtime_artifact;
 manifest.runtime_checksum_artifact=product.runtime_checksum_artifact;
 manifest.hacs_repository_type=product.hacs_repository_type;
 manifest.hacs_validation_category=product.hacs_validation_category;
+manifest.package_manifest=product.package_manifest;
+manifest.hacs_package_root=product.hacs_package_root;
+manifest.hacs_delivery_mode=product.hacs_delivery_mode;
+manifest.release_asset_policy=product.release_asset_policy;
 writeJson('RELEASE_MANIFEST.json',manifest);
 
 const status=readJson('release/RELEASE_STATUS.json');

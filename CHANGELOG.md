@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.0.0-rc.15 — source ownership and structured HACS package
+
+- Establishes explicit `app / runtime / domain / ui / assets` source ownership.
+- Moves build order into `src/manifest.json` instead of numeric filenames.
+- Makes `src/assets/` the only canonical asset tree and mirrors categories one-to-one into `dist/assets/`.
+- Removes the duplicate root `assets/` output.
+- Generates a hashed `dist/PACKAGE_MANIFEST.json`.
+- Makes immutable-tag `dist/` the HACS package source so nested assets are installed with the plugin.
+- Makes GitHub Release assets evidence-only to avoid HACS single-file mode.
+- Adds source ownership and complete-package regression gates.
+- Leaves Mobility backend semantics and UX behavior unchanged.
+
+
 ## 1.0.0-rc.14 — Overview navigation and inline company brand
 
 - Makes Overview and Vehicles switch reliably inside the dashboard card even when a separate Lovelace Overview route has not been provisioned.

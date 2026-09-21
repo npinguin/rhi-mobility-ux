@@ -1,0 +1,121 @@
+{
+  "schema_version": 1,
+  "product": "rhi-mobility-ux",
+  "version": "1.0.0-rc.15",
+  "source_manifest_schema": 1,
+  "hacs_package_root": "dist",
+  "hacs_filename": "rhi-mobility-ux.js",
+  "assets_root": "assets",
+  "asset_categories": [
+    "branding",
+    "chargers",
+    "vehicles"
+  ],
+  "runtime_sha256": "0062245c403b433fadd4c172014deb3c6171422fbe874e9d7207827c6af795a6",
+  "files": [
+    {
+      "path": "assets/branding/company-logo.svg",
+      "bytes": 17019
+    },
+    {
+      "path": "assets/chargers/charger_fallback.png",
+      "bytes": 132329
+    },
+    {
+      "path": "assets/chargers/charger_peblar.png",
+      "bytes": 84179
+    },
+    {
+      "path": "assets/chargers/charger_utility_plug.png",
+      "bytes": 129658
+    },
+    {
+      "path": "assets/chargers/charger_wallbox_black.png",
+      "bytes": 119449
+    },
+    {
+      "path": "assets/chargers/charger_wallbox_white.png",
+      "bytes": 132329
+    },
+    {
+      "path": "assets/chargers/charger_wallbox.png",
+      "bytes": 132329
+    },
+    {
+      "path": "assets/chargers/default_charger.png",
+      "bytes": 132329
+    },
+    {
+      "path": "assets/vehicles/default_vehicle.png",
+      "bytes": 113622
+    },
+    {
+      "path": "assets/vehicles/vehicle_audi_q8_hero.png",
+      "bytes": 261604
+    },
+    {
+      "path": "assets/vehicles/vehicle_audi_q8.png",
+      "bytes": 261604
+    },
+    {
+      "path": "assets/vehicles/vehicle_bmw_ix1_phev_hero.png",
+      "bytes": 267503
+    },
+    {
+      "path": "assets/vehicles/vehicle_bmw_ix1_phev.png",
+      "bytes": 267503
+    },
+    {
+      "path": "assets/vehicles/vehicle_fallback.png",
+      "bytes": 113622
+    },
+    {
+      "path": "assets/vehicles/vehicle_guest_hero.png",
+      "bytes": 113622
+    },
+    {
+      "path": "assets/vehicles/vehicle_guest.png",
+      "bytes": 113622
+    },
+    {
+      "path": "assets/vehicles/vehicle_mercedes_gla_hero.png",
+      "bytes": 238575
+    },
+    {
+      "path": "assets/vehicles/vehicle_mercedes_gla.png",
+      "bytes": 238575
+    },
+    {
+      "path": "assets/vehicles/vehicle_renault_scenic_techno_ev_hero.png",
+      "bytes": 113622
+    },
+    {
+      "path": "assets/vehicles/vehicle_renault_scenic_techno_ev.png",
+      "bytes": 113622
+    },
+    {
+      "path": "assets/vehicles/vehicle_unknown_profile_hero.png",
+      "bytes": 113622
+    },
+    {
+      "path": "assets/vehicles/vehicle_unknown_profile.png",
+      "bytes": 113622
+    },
+    {
+      "path": "assets/vehicles/vehicle_vw_id4_hero.png",
+      "bytes": 238575
+    },
+    {
+      "path": "assets/vehicles/vehicle_vw_id4.png",
+      "bytes": 238575
+    },
+    {
+      "path": "rhi-mobility-ux.js",
+      "bytes": 539873
+    },
+    {
+      "path": "rhi-mobility-ux.js.sha256",
+      "bytes": 85
+    }
+  ]
+}

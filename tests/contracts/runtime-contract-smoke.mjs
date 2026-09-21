@@ -1,10 +1,7 @@
-import fs from 'node:fs';
 import vm from 'node:vm';
-const root=new URL('../../',import.meta.url);
-const asset=fs.readFileSync(new URL('src/assets/asset-paths.js',root),'utf8');
-const runtime=fs.readFileSync(new URL('src/runtime/10-ha-contract-runtime.js',root),'utf8');
+import { mobilityRuntimeSource } from '../helpers/source-fixtures.mjs';
 const ctx={console,globalThis:{}};ctx.globalThis=ctx;vm.createContext(ctx);
-vm.runInContext(asset+'\n'+runtime+'\n;globalThis.HomeBrainAssetRuntime=HomeBrainAssetRuntime;',ctx);
+vm.runInContext(mobilityRuntimeSource()+'\n;globalThis.HomeBrainAssetRuntime=HomeBrainAssetRuntime;',ctx);
 const Runtime=ctx.HomeBrainAssetRuntime;
 const aid='charger_test';
 const hass={states:{

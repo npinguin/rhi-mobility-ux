@@ -4,43 +4,89 @@ import { fileURLToPath } from 'node:url';
 import crypto from 'node:crypto';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
-const order = [
-  'src/assets/asset-paths.js',
-  'src/entry/00-header-and-navigation.js',
-  'src/adapters/06-intelligence-model-alignment.js',
-  'src/runtime/10-ha-contract-runtime.js',
-  'src/view-models/20-asset-factory.js',
-  'src/adapters/30-vehicle-adapter.js',
-  'src/adapters/40-charger-adapter.js',
-  'src/components/50-asset-shell-components.js',
-  'src/screens/60-vehicle-detail-card.js',
-  'src/screens/70-charger-detail-card.js',
-  'src/screens/80-charger-maintenance-card.js',
-  'src/screens/90-mobility-dashboard-card.js',
-  'src/screens/95-placeholder-and-router-cards.js'
-];
-const missing = order.filter((rel) => !fs.existsSync(path.join(root, rel)));
+const readJson = (rel) => JSON.parse(fs.readFileSync(path.join(root, rel), 'utf8'));
+const pkg = readJson('package.json');
+const sourceManifest = readJson('src/manifest.json');
+
+const srcRoot = path.join(root, 'src');
+const modules = sourceManifest.modules.map((rel) => path.posix.join('src', rel));
+const missing = modules.filter((rel) => !fs.existsSync(path.join(root, rel)));
 if (missing.length) throw new Error(`Missing build inputs: ${missing.join(', ')}`);
+
+const distRoot = path.join(root, 'dist');
+const out = path.join(distRoot, 'rhi-mobility-ux.js');
+const checksumPath = path.join(distRoot, 'rhi-mobility-ux.js.sha256');
+const packageManifestPath = path.join(distRoot, 'PACKAGE_MANIFEST.json');
+
+fs.mkdirSync(distRoot, { recursive: true });
+
 const banner = `/**\n * Robotix Home Intelligence Mobility UX v${pkg.version}\n * GENERATED FILE - DO NOT EDIT.\n * License: GPL-3.0-only\n */\n\n`;
-const rawBody = order.map((rel) => `// ---- ${rel} ----\n${fs.readFileSync(path.join(root, rel), 'utf8').trim()}`).join('\n\n');
-const companyLogoSvg = fs.readFileSync(path.join(root, 'src/assets/files/branding/company-logo.svg'), 'utf8').trim();
+const rawBody = modules
+  .map((rel) => `// ---- ${rel} ----\n${fs.readFileSync(path.join(root, rel), 'utf8').trim()}`)
+  .join('\n\n');
+
+const companyLogoPath = path.join(srcRoot, sourceManifest.assets_root, 'branding/company-logo.svg');
+const companyLogoSvg = fs.readFileSync(companyLogoPath, 'utf8').trim();
 let body = rawBody.replace('"__RHI_COMPANY_LOGO_INLINE__"', JSON.stringify(companyLogoSvg));
 if (body === rawBody) throw new Error('Company logo inline build placeholder not found');
+
 const versionPlaceholder = '"__RHI_UX_VERSION__"';
 if (!body.includes(versionPlaceholder)) throw new Error('UX version build placeholder not found');
 body = body.replace(versionPlaceholder, JSON.stringify(pkg.version));
-const out = path.join(root, 'dist/rhi-mobility-ux.js');
-fs.mkdirSync(path.dirname(out), { recursive: true });
-fs.writeFileSync(out, banner + body + '\n');
-const digest = crypto.createHash('sha256').update(fs.readFileSync(out)).digest('hex');
-fs.writeFileSync(path.join(root, 'dist/rhi-mobility-ux.js.sha256'), `${digest}  rhi-mobility-ux.js\n`);
-const assetSource = path.join(root, 'src/assets/files');
-const assetDist = path.join(root, 'dist/assets');
-const assetRuntime = path.join(root, 'assets');
-fs.rmSync(assetDist, { recursive: true, force: true });
-fs.rmSync(assetRuntime, { recursive: true, force: true });
-fs.cpSync(assetSource, assetDist, { recursive: true });
-fs.cpSync(assetSource, assetRuntime, { recursive: true });
 
-console.log(`Built ${order.length} modules -> ${path.relative(root, out)}, checksum ${digest}, and copied runtime assets to dist/assets and assets`);
+fs.writeFileSync(out, banner + body + '\n');
+const runtimeDigest = crypto.createHash('sha256').update(fs.readFileSync(out)).digest('hex');
+fs.writeFileSync(checksumPath, `${runtimeDigest}  rhi-mobility-ux.js\n`);
+
+const assetSource = path.join(srcRoot, sourceManifest.assets_root);
+const assetDist = path.join(distRoot, 'assets');
+fs.rmSync(assetDist, { recursive: true, force: true });
+fs.mkdirSync(assetDist, { recursive: true });
+
+const assetCategories = fs.readdirSync(assetSource, { withFileTypes: true })
+  .filter((entry) => entry.isDirectory())
+  .map((entry) => entry.name)
+  .sort();
+
+for (const category of assetCategories) {
+  fs.cpSync(path.join(assetSource, category), path.join(assetDist, category), { recursive: true });
+}
+
+function packageFiles(dir, base = dir) {
+  const rows = [];
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true }).sort((a,b)=>a.name.localeCompare(b.name))) {
+    const absolute = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      rows.push(...packageFiles(absolute, base));
+      continue;
+    }
+    if (!entry.isFile()) continue;
+    const relative = path.relative(base, absolute).split(path.sep).join('/');
+    if (relative === 'PACKAGE_MANIFEST.json') continue;
+    const bytes = fs.readFileSync(absolute);
+    rows.push({
+      path: relative,
+      bytes: bytes.length
+    });
+  }
+  return rows;
+}
+
+const packageManifest = {
+  schema_version: 1,
+  product: 'rhi-mobility-ux',
+  version: pkg.version,
+  source_manifest_schema: sourceManifest.schema_version,
+  hacs_package_root: 'dist',
+  hacs_filename: 'rhi-mobility-ux.js',
+  assets_root: 'assets',
+  asset_categories: assetCategories,
+  runtime_sha256: runtimeDigest,
+  files: packageFiles(distRoot)
+};
+fs.writeFileSync(packageManifestPath, JSON.stringify(packageManifest, null, 2) + '\n');
+
+console.log(
+  `Built ${modules.length} modules -> ${path.relative(root, out)}, checksum ${runtimeDigest}; ` +
+  `packaged ${assetCategories.length} asset categories under dist/assets`
+);

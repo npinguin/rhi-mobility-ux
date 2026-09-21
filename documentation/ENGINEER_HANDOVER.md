@@ -10,14 +10,14 @@ Read in this order:
 2. `documentation/ARCHITECTURE.md`
 3. `documentation/RELEASE_GOVERNANCE.md`
 4. `documentation/TEST_GOVERNANCE.md`
-5. `tests/OWNERSHIP.json`
-6. `documentation/BRANDING.md`
-7. `documentation/HACS_INSTALLATION.md`
-8. `documentation/KNOWN_DEFECTS.md`
-9. `release/product.json`
-10. `release/QUALIFICATION.json`
-11. `release/RELEASE_NOTES.md`
-12. `CHANGELOG.md`
+5. `src/OWNERSHIP.json`\n6. `src/manifest.json`\n7. `documentation/SOURCE_PACKAGE_GOVERNANCE.md`\n8. `tests/OWNERSHIP.json`
+9. `documentation/BRANDING.md`
+10. `documentation/HACS_INSTALLATION.md`
+11. `documentation/KNOWN_DEFECTS.md`
+12. `release/product.json`
+13. `release/QUALIFICATION.json`
+14. `release/RELEASE_NOTES.md`
+15. `CHANGELOG.md`
 
 ## Footer authority
 
@@ -28,15 +28,15 @@ Read in this order:
 
 ## Brand delivery authority
 
-- `src/assets/files/branding/company-logo.svg` is the canonical artwork source.
+- `src/assets/branding/company-logo.svg` is the canonical artwork source.
 - The build injects that canonical SVG into the runtime bundle; source code must not contain a second copy of the artwork.
 - Branding tests own artwork/delivery. Footer, navigation and layout tests must not re-test the delivery mechanism.
 
 ## Shared shell and brand authority
 
 - Mobility uses the same two-level header hierarchy and company-brand slot contract as Energy.
-- Canonical company mark: `src/assets/files/branding/company-logo.svg`.
-- The build copies the mark unchanged to generated asset locations and injects the same canonical SVG into the JS runtime bundle for HACS-safe delivery.
+- Canonical company mark: `src/assets/branding/company-logo.svg`.
+- The build mirrors the canonical `src/assets/` tree into `dist/assets/` and injects the same canonical SVG into the JS runtime bundle for HACS-safe delivery.
 - Compact gray secondary-navigation icons are presentation metadata only; routes and backend ownership are unchanged.
 - Do not redraw, recolour, filter, crop or replace the company mark locally.
 - Responsive header sizing is controlled only through the shared `--rhi-company-*` tokens documented in `documentation/BRANDING.md`.
@@ -89,7 +89,7 @@ branch
    → committed-dist equality
    → HACS validation
 → squash merge
-→ Publish HACS verifies and publishes the exact committed artifact (no rebuild)
+→ Publish HACS verifies the complete committed dist package and creates the immutable tag (no rebuild)\n→ GitHub Release attaches evidence only; no JS release asset
 → immutable HACS-visible TEST CANDIDATE
 → target HA runtime + rollback proof
 → update release/QUALIFICATION.json with PASS + exact candidate SHA
@@ -122,3 +122,16 @@ The next engineer must be able to determine without tribal knowledge:
 - how to roll back through HACS.
 
 If any of those requires guessing, release governance is not clean.
+
+## Source/package ownership
+
+- `src/app/`: shell, navigation and package URL glue.
+- `src/runtime/`: Home Assistant/public contract boundary.
+- `src/domain/adapters/`: backend → canonical UX mapping.
+- `src/domain/models/`: canonical view models.
+- `src/ui/`: presentation only.
+- `src/assets/`: canonical artwork by category.
+- `src/manifest.json`: bundle order.
+- `dist/`: complete generated HACS package.
+
+Do not reintroduce numeric load-order filenames, `src/assets/files/`, a root generated `assets/` tree or a same-named JS GitHub Release asset.

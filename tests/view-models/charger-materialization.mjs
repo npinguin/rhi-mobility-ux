@@ -1,6 +1,6 @@
-import fs from 'fs';
 import vm from 'vm';
-const src = fs.readFileSync(new URL('../../src/assets/asset-paths.js', import.meta.url), 'utf8') + '\n' + fs.readFileSync(new URL('../../src/runtime/10-ha-contract-runtime.js', import.meta.url), 'utf8') + '\n;globalThis.HomeBrainAssetRuntime = HomeBrainAssetRuntime;';
+import { mobilityRuntimeSource } from '../helpers/source-fixtures.mjs';
+const src = mobilityRuntimeSource() + '\n;globalThis.HomeBrainAssetRuntime = HomeBrainAssetRuntime;';
 const ctx = { console, globalThis: {} };
 ctx.globalThis = ctx;
 vm.createContext(ctx);
