@@ -19,7 +19,7 @@ const required = [
   '{ key: "strategies", label: "Strategies", icon: "mdi:target", path: "/strategies" }',
   '{ key: "history", label: "History", icon: "mdi:chart-timeline-variant", path: "/history" }',
   '{ key: "log", label: "Log", icon: "mdi:format-list-bulleted", path: "/log" }',
-  'class="hi-domain-shell"',
+  'class="hi-domain-shell hi-nav-',
   'class="hi-module-tabs"',
   'class="hi-product-area"',
   'class="hi-company-brand"',
