@@ -19,6 +19,8 @@ The HACS bundle keeps the current custom card names and dashboard routes. The ex
 
 Important:
 - the dashboard URL/path must remain `mobility-supervisor`, because internal navigation uses `/mobility-supervisor/...`;
+- `/mobility-supervisor/dashboard` remains the legacy **Vehicles** route for backward compatibility; the new Overview is `/mobility-supervisor/overview`;
+- HACS updates the JS resource only; it does **not** add Lovelace views automatically. Apply the complete dashboard YAML below when moving to rc.8+;
 - remove the legacy `resource_version: 'R22.12.11.30'` entries so the HACS bundle version owns cache busting;
 - keep the HACS resource `/hacsfiles/rhi-mobility-ux/rhi-mobility-ux.js` configured as a JavaScript module;
 - do not remove the old `/local/homebrain/...` resource/files until HACS install, refresh, navigation and rollback have been proven.
@@ -29,6 +31,20 @@ Important:
 title: Home Intelligence Mobility
 
 views:
+  - title: Overview
+    path: overview
+    icon: mdi:view-dashboard-outline
+    panel: true
+    cards:
+      - type: custom:homebrain-mobility-dashboard-card
+        dashboard_path: /mobility-supervisor/dashboard
+        nav_active: overview
+        contract_mode: external_only
+        outcome_renderer: shared_asset_outcome
+        command_source: mobility_command_index
+        relationship_source: mobility_relationship_index
+        release_info_position: bottom
+
   - title: Vehicles
     path: dashboard
     icon: mdi:car-electric
@@ -36,6 +52,7 @@ views:
     cards:
       - type: custom:homebrain-mobility-dashboard-card
         dashboard_path: /mobility-supervisor/dashboard
+        nav_active: vehicles
         contract_mode: external_only
         outcome_renderer: shared_asset_outcome
         command_source: mobility_command_index
@@ -65,11 +82,58 @@ views:
     cards:
       - type: custom:homebrain-mobility-charger-maintenance-card
         dashboard_path: /mobility-supervisor/dashboard
+        nav_active: chargers
         contract_mode: external_only
         show_contract_inspector: true
         outcome_renderer: shared_asset_outcome
         command_source: mobility_command_index
         release_info_position: bottom
+
+  - title: Charging
+    path: charging
+    icon: mdi:lightning-bolt
+    panel: true
+    cards:
+      - type: custom:homebrain-mobility-charger-maintenance-card
+        dashboard_path: /mobility-supervisor/dashboard
+        nav_active: charging
+        contract_mode: external_only
+        show_contract_inspector: true
+        outcome_renderer: shared_asset_outcome
+        command_source: mobility_command_index
+        release_info_position: bottom
+
+  - title: Planning
+    path: planning
+    icon: mdi:calendar-clock
+    panel: true
+    cards:
+      - type: custom:homebrain-mobility-placeholder-card
+        view: planning
+
+  - title: Strategies
+    path: strategies
+    icon: mdi:tune-variant
+    panel: true
+    cards:
+      - type: custom:homebrain-mobility-placeholder-card
+        view: strategies
+
+  - title: History
+    path: history
+    icon: mdi:history
+    panel: true
+    cards:
+      - type: custom:homebrain-mobility-placeholder-card
+        view: history
+
+  - title: Log
+    path: log
+    icon: mdi:text-box-search-outline
+    panel: true
+    cards:
+      - type: custom:homebrain-mobility-placeholder-card
+        view: log
 ```
 
 The same YAML is available as `documentation/homebrain_mobility.hacs.yaml`.
@@ -82,9 +146,13 @@ The same YAML is available as `documentation/homebrain_mobility.hacs.yaml`.
 4. Replace the dashboard YAML with the copy/paste YAML above.
 5. Save and hard-refresh the browser.
 6. Verify:
-   - `/mobility-supervisor/dashboard` renders the vehicle overview;
+   - `/mobility-supervisor/dashboard` renders the existing Vehicles screen;
+   - `/mobility-supervisor/overview` renders the new Overview screen;
    - vehicle detail navigation opens `/mobility-supervisor/asset-detail?asset=...`;
-   - `/mobility-supervisor/charger-maintenance` renders chargers;
+   - `/mobility-supervisor/charger-maintenance` renders Chargers;
+   - `/mobility-supervisor/charging` renders Charging;
+   - `/mobility-supervisor/planning` and `/strategies` render Intelligence screens;
+   - `/mobility-supervisor/history` and `/log` render Insights screens;
    - charger detail navigation works;
    - packaged images load from `/hacsfiles/rhi-mobility-ux/assets/...`;
    - the footer reports the installed Mobility UX version;
