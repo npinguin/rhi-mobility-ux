@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.0.0-rc.16 — Overview completion and contract hardening
+
+- Evolves the existing Overview in place; no screen rewrite.
+- Makes the current URL route authoritative so refresh preserves Overview/Vehicle tab state.
+- Persists/restores route-specific browser position.
+- Centralizes selected-charger semantics and exposes backend-owned unset as **No charger**.
+- Uses one shared charger availability projection for truthful free/in-use/unavailable/disabled/N/A counts.
+- Fails closed for invalid comfort duration presentation and missing activity messages.
+- Formalizes one-model/one-ownership UX governance and a backend interface backlog.
+- Keeps HA-native user→vehicle focus and per-user permissions out of V1 until the backend publishes them.
+- Keeps `MOBILITY_PUBLIC_RUNTIME_V1` and backend R43.2.65 baseline unchanged.
+
 ## 1.0.0-rc.15 — source ownership and structured HACS package
 
 - Establishes explicit `app / runtime / domain / ui / assets` source ownership.
