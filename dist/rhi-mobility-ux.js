@@ -4148,7 +4148,7 @@ class HomeBrainVehicleAdapter {
     const allowNone = editor.allow_none === true;
     const noneValue = editor.none_value ?? "";
     const rawCurrent = prop.value;
-    const currentUnset = rawCurrent === undefined || rawCurrent === null || String(rawCurrent).trim() === "";
+    const currentUnset = rawCurrent === undefined || rawCurrent === null || String(rawCurrent).trim() === "" || (allowNone && String(rawCurrent).trim() === String(noneValue ?? ""));
     const currentValue = currentUnset && allowNone ? String(noneValue ?? "") : String(rawCurrent ?? "").trim();
     const choices = [];
     if (allowNone) choices.push({ value:String(noneValue ?? ""), label:"No charger", is_none:true });
@@ -4256,6 +4256,7 @@ class HomeBrainChargerAdapter {
     const assetId = this.assetId();
     const lifecycle = this.rt.lifecycleStatus(this.registryEntry() || assetId);
     if (lifecycle === "disabled") return { bucket:"disabled", resolved:true, label:"Disabled" };
+    if (lifecycle !== "active") return { bucket:"unknown", resolved:false, label:"N/A" };
     const snapshot = this.rt.chargerProductSnapshot(assetId);
     if (!snapshot?.operating?.resolved) return { bucket:"unknown", resolved:false, label:"N/A" };
     const raw = String(snapshot.operating.value || "").trim().toLowerCase();
@@ -5473,6 +5474,18 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     this._currentOverrides = this._currentOverrides || new Map();
     this._lastDashboardRenderAt = this._lastDashboardRenderAt || 0;
     this._lastSignature = this._lastSignature || "";
+    if (!this._viewPositionBound) {
+      this._viewPositionListener = ()=>this.rememberViewPosition();
+      window.addEventListener("pagehide", this._viewPositionListener);
+      this._viewPositionBound = true;
+    }
+  }
+
+  disconnectedCallback() {
+    if (this._viewPositionBound && this._viewPositionListener) {
+      window.removeEventListener("pagehide", this._viewPositionListener);
+      this._viewPositionBound = false;
+    }
   }
 
   assetId(asset) { return asset?.asset_id || ""; }
