@@ -66,8 +66,7 @@ function packageFiles(dir, base = dir) {
     const bytes = fs.readFileSync(absolute);
     rows.push({
       path: relative,
-      bytes: bytes.length,
-      sha256: crypto.createHash('sha256').update(bytes).digest('hex')
+      bytes: bytes.length
     });
   }
   return rows;
@@ -82,6 +81,7 @@ const packageManifest = {
   hacs_filename: 'rhi-mobility-ux.js',
   assets_root: 'assets',
   asset_categories: assetCategories,
+  runtime_sha256: runtimeDigest,
   files: packageFiles(distRoot)
 };
 fs.writeFileSync(packageManifestPath, JSON.stringify(packageManifest, null, 2) + '\n');
