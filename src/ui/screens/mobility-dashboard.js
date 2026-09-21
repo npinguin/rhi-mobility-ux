@@ -10,6 +10,18 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     this._currentOverrides = this._currentOverrides || new Map();
     this._lastDashboardRenderAt = this._lastDashboardRenderAt || 0;
     this._lastSignature = this._lastSignature || "";
+    if (!this._viewPositionBound) {
+      this._viewPositionListener = ()=>this.rememberViewPosition();
+      window.addEventListener("pagehide", this._viewPositionListener);
+      this._viewPositionBound = true;
+    }
+  }
+
+  disconnectedCallback() {
+    if (this._viewPositionBound && this._viewPositionListener) {
+      window.removeEventListener("pagehide", this._viewPositionListener);
+      this._viewPositionBound = false;
+    }
   }
 
   assetId(asset) { return asset?.asset_id || ""; }
