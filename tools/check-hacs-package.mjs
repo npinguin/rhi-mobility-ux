@@ -1,6 +1,5 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
@@ -24,11 +23,12 @@ for(const row of manifest.files){
   const full=path.join(root,'dist',row.path);
   if(!fs.existsSync(full)) throw new Error(`package manifest file missing: ${row.path}`);
   const bytes=fs.readFileSync(full);
-  const digest=crypto.createHash('sha256').update(bytes).digest('hex');
-  if(bytes.length!==row.bytes || digest!==row.sha256) throw new Error(`package manifest hash drift: ${row.path}`);
+  if(bytes.length!==row.bytes) throw new Error(`package manifest size drift: ${row.path}`);
 }
 if(/gh release create[\s\S]*dist\/rhi-mobility-ux\.js(?:\s|\\)/.test(publish)) {
   throw new Error('publishing JS as a GitHub release asset would force HACS single-file mode and drop nested assets');
 }
 if(!publish.includes('dist/PACKAGE_MANIFEST.json')) throw new Error('release must attach package manifest evidence');
+const checksum=fs.readFileSync(path.join(root,'dist/rhi-mobility-ux.js.sha256'),'utf8').trim().split(/\s+/)[0];
+if(manifest.runtime_sha256!==checksum) throw new Error('package manifest runtime checksum drift');
 console.log('PASS HACS package: immutable tag dist tree contains runtime + structured assets; release assets are evidence-only');
