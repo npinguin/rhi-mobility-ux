@@ -78,7 +78,7 @@ GitHub Releases are the HACS version authority. A TEST CANDIDATE is a normal Git
 
 Candidate publication must:
 
-- reject an existing immutable tag/release;
+- create a new immutable tag/release, or verify an already existing identical candidate without mutation;
 - verify the committed runtime and checksum;
 - verify release metadata/qualification identity;
 - run HACS package validation;
