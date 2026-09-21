@@ -74,7 +74,7 @@ jobs:
           npm run build
           cmp /tmp/rhi-ux-first.js dist/rhi-mobility-ux.js
           cmp /tmp/rhi-ux-first.sha256 dist/rhi-mobility-ux.js.sha256
-          git diff --exit-code -- dist/rhi-mobility-ux.js dist/rhi-mobility-ux.js.sha256 dist/assets
+          git diff --exit-code -- dist/rhi-mobility-ux.js dist/rhi-mobility-ux.js.sha256 dist/assets assets
       - name: HACS validation
         uses: hacs/action@885037da508419fd08c13515967aec868dfdee2d
         with:

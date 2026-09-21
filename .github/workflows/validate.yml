@@ -76,7 +76,7 @@ jobs:
           cmp /tmp/rhi-ux-first.js dist/rhi-mobility-ux.js
           cmp /tmp/rhi-ux-first.sha256 dist/rhi-mobility-ux.js.sha256
       - name: Verify committed runtime matches clean build
-        run: git diff --exit-code -- dist/rhi-mobility-ux.js dist/rhi-mobility-ux.js.sha256 dist/assets
+        run: git diff --exit-code -- dist/rhi-mobility-ux.js dist/rhi-mobility-ux.js.sha256 dist/assets assets
 
   hacs:
     name: HACS

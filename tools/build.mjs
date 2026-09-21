@@ -31,6 +31,10 @@ const digest = crypto.createHash('sha256').update(fs.readFileSync(out)).digest('
 fs.writeFileSync(path.join(root, 'dist/rhi-mobility-ux.js.sha256'), `${digest}  rhi-mobility-ux.js\n`);
 const assetSource = path.join(root, 'src/assets/files');
 const assetDist = path.join(root, 'dist/assets');
+const assetRuntime = path.join(root, 'assets');
+fs.rmSync(assetDist, { recursive: true, force: true });
+fs.rmSync(assetRuntime, { recursive: true, force: true });
 fs.cpSync(assetSource, assetDist, { recursive: true });
+fs.cpSync(assetSource, assetRuntime, { recursive: true });
 
-console.log(`Built ${order.length} modules -> ${path.relative(root, out)}, checksum ${digest}, and copied runtime assets`);
+console.log(`Built ${order.length} modules -> ${path.relative(root, out)}, checksum ${digest}, and copied runtime assets to dist/assets and assets`);
