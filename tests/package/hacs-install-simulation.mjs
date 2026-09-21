@@ -25,16 +25,17 @@ try{
     if(bytes.length!==row.bytes) throw new Error(`simulated HACS install size mismatch: ${row.path}`);
   }
 
-  const bundle=fs.readFileSync(path.join(installRoot,'rhi-mobility-ux.js'),'utf8');
-  const refs=[...bundle.matchAll(/\/hacsfiles\/rhi-mobility-ux\/assets\/([a-z0-9_./-]+\.(?:png|webp|svg|jpg|jpeg))/g)].map(m=>m[1]);
+  const catalog=fs.readFileSync(path.join(root,'src/app/asset-catalog.js'),'utf8');
+  const refs=[...catalog.matchAll(/package_path:"([^"]+)"/g)].map(m=>m[1]);
+  if(!refs.length) throw new Error('package asset catalog has no references');
   for(const rel of refs){
-    if(!fs.existsSync(path.join(installRoot,'assets',rel))) throw new Error(`bundle URL has no installed asset: ${rel}`);
+    if(!fs.existsSync(path.join(installRoot,'assets',rel))) throw new Error(`package catalog has no installed asset: ${rel}`);
   }
 
   for(const required of ['assets/branding/company-logo.svg','assets/vehicles/vehicle_fallback.png','assets/chargers/charger_fallback.png']){
     if(!fs.existsSync(path.join(installRoot,required))) throw new Error(`required installed package asset missing: ${required}`);
   }
-  console.log(`PASS HACS install simulation: ${manifest.files.length} files installed under www/community/rhi-mobility-ux with ${refs.length} runtime asset references resolved`);
+  console.log(`PASS HACS install simulation: ${manifest.files.length} files installed under www/community/rhi-mobility-ux with ${refs.length} catalog asset references resolved`);
 } finally {
   fs.rmSync(tmp,{recursive:true,force:true});
 }
