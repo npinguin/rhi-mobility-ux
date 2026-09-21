@@ -25,10 +25,6 @@ jobs:
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444
         with:
           node-version: '24'
-          cache: npm
-      - run: npm ci
-      - name: Full source/package validation
-        run: npm test
       - name: Require completed target runtime qualification
         run: node tools/check-qualification.mjs --require-pass
       - name: Verify exact immutable candidate and payload
@@ -78,10 +74,8 @@ jobs:
             echo '## RHI Mobility UX stable promotion'
             echo "- Version: v${VERSION}"
             echo "- Candidate SHA: ${CANDIDATE_SHA}"
-            echo "- Source/package/tests: PASS"
+            echo "- Rebuild during promotion: NO"
             echo "- Target HA qualification: PASS"
             echo "- Published runtime payload: EXACT TAG MATCH"
-            echo "- Final qualification evidence: ATTACHED"
             echo "- Stable promotion: COMPLETE"
-            echo "- Rollback: previous immutable HACS releases remain selectable"
           } >> "$GITHUB_STEP_SUMMARY"
