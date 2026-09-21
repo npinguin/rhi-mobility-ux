@@ -1,25 +1,24 @@
-# v1.0.0-rc.13 — Mobility-first Energy-style Overview TEST CANDIDATE
+# v1.0.0-rc.14 — Overview navigation and inline company brand TEST CANDIDATE
 
 ## Scope
 
-Product-level redesign of the Mobility Overview on top of rc.12. The shared header, readable/actionable footer, cache-safe company logo, existing routes, detail screens and backend contracts remain intact.
+Runtime closure over rc.13 for two target-HA issues observed after deployment.
 
-- adopts the calm Energy information hierarchy without importing Energy semantics;
-- makes Mobility purpose explicit: readiness, charging, security, comfort, maintenance and required action;
-- replaces the primary `Energy today` KPI with Mobility-owned `Attention`;
-- shows Vehicles, Charging now, Chargers and Attention as the four primary status signals;
-- keeps direct vehicle actions, charging plan, preconditioning and charger assignment close to the overview;
-- keeps vehicle rows contract-driven for range/charge, security, comfort, maintenance and commands;
-- treats chargers as supporting Mobility infrastructure;
-- adds backend-owned Next action, Recent activity and a concise conclusion;
-- preserves fail-closed rendering when canonical backend evidence is unavailable.
+- fixes Overview/Vehicle navigation so the dashboard card can switch locally between both product views without depending on a separately provisioned Lovelace route;
+- removes invalid internal `/vehicles` navigation targets and uses the canonical Vehicles dashboard target;
+- keeps the dedicated `/overview` Lovelace route compatible when it exists;
+- embeds the canonical approved Robotix company SVG into the generated JS bundle at build time;
+- removes runtime dependency on `/hacsfiles/rhi-mobility-ux/assets/branding/company-logo.svg`;
+- preserves the same canonical SVG source and immutable branding hash;
+- keeps the company brand in the right-hand shared header slot aligned with Energy;
+- leaves all vehicle/charger semantics, detail screens and backend contracts unchanged.
 
 ## Compatibility
 
-- Mobility UX: 1.0.0-rc.13
+- Mobility UX: 1.0.0-rc.14
 - Contract: `MOBILITY_PUBLIC_RUNTIME_V1`
 - Minimum backend: `R43.2.60`
 - Tested backend baseline: `R43.2.65`
-- Rollback release: `v1.0.0-rc.12`
+- Rollback release: `v1.0.0-rc.13`
 
 Stable promotion remains blocked until target Home Assistant runtime and rollback proof are PASS.
