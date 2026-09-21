@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.0.0-rc.8 — screen preservation and official brand asset
+
+- Replaces the temporary drawn Robotix mark with the official supplied Robotix.be logo asset.
+- Preserves the legacy Vehicles route at `/dashboard`, Chargers at `/charger-maintenance`, and generic asset detail at `/asset-detail`.
+- Moves the new Overview to additive route `/overview` instead of replacing Vehicles.
+- Keeps Mobility → Overview / Vehicles / Chargers / Charging, Intelligence → Planning / Strategies, and Insights → History / Log.
+- Updates HACS migration YAML to include every agreed screen/view.
+- Makes legacy dashboard-card mounts default to Vehicles when no `nav_active` is configured.
+- Adds route/screen preservation regression coverage.
+- Status: source candidate until immutable TEST CANDIDATE publication.
+
 ## 1.0.0-rc.7 — canonical shell and action-first Overview
 
 - Implements the approved Mobility Overview composition with hero, four KPIs, quick actions, Vehicles, Chargers, Recent activity and Next actions.
