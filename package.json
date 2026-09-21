@@ -13,7 +13,7 @@
     "check:hygiene": "node tools/check-public-hygiene.mjs",
     "check:release-governance": "node tools/check-release-governance.mjs",
     "check:qualification": "node tools/check-qualification.mjs",
-    "test:contracts": "node tests/contracts/runtime-contract-smoke.mjs && node tests/contracts/command-placement-smoke.mjs && node tests/contracts/configuration-editables-smoke.mjs && node tests/contracts/release-qualification-lifecycle.mjs && node tests/contracts/supervisor-authority-smoke.mjs && node tests/contracts/navigation-shell-smoke.mjs",
+    "test:contracts": "node tests/contracts/runtime-contract-smoke.mjs && node tests/contracts/command-placement-smoke.mjs && node tests/contracts/configuration-editables-smoke.mjs && node tests/contracts/release-qualification-lifecycle.mjs && node tests/contracts/supervisor-authority-smoke.mjs && node tests/contracts/navigation-shell-smoke.mjs && node tests/contracts/overview-shell-smoke.mjs",
     "test:viewmodels": "node tests/view-models/charger-materialization.mjs",
     "test:render": "node tests/render/bundle-load-smoke.mjs",
     "test": "npm run clean && npm run build && node tools/check-version.mjs && npm run check:syntax && npm run check:architecture && npm run check:hygiene && npm run check:release-governance && npm run check:qualification && npm run test:contracts && npm run test:viewmodels && npm run test:render && node tools/verify-dist.mjs"
