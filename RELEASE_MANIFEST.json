@@ -1,9 +1,9 @@
 {
   "product": "rhi-mobility-ux",
-  "version": "1.0.0-rc.10",
+  "version": "1.0.0-rc.11",
   "stage": "test_candidate",
   "publication_authority": "github_releases",
-  "publication_status": "candidate_until_tagged",
+  "publication_status": "installable_candidate_until_qualified",
   "license": "GPL-3.0-only",
   "legacy_source_release": "R22.12.11.30",
   "legacy_bundle_sha256": "13c018f8937eaabec418fc18b34ea54c22e967a76629f4ccb06304884c34823b",
@@ -20,5 +20,6 @@
   "known_accepted_feature_debt": 0,
   "stable_blockers_documented": true,
   "target_runtime_proof": "pending",
-  "rollback_proof": "pending"
+  "rollback_proof": "pending",
+  "github_release_prerelease": false
 }
