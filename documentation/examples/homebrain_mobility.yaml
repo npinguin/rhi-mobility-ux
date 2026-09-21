@@ -1,14 +1,34 @@
 # Example only. HACS manages the JS resource; no resource_version query is required.
 title: Home Intelligence Mobility
+
 views:
-  - title: Vehicles
+  - title: Overview
     path: dashboard
+    icon: mdi:view-dashboard-outline
+    panel: true
+    cards:
+      - type: custom:homebrain-mobility-dashboard-card
+        dashboard_path: /mobility-supervisor/dashboard
+        nav_active: overview
+        contract_mode: external_only
+        outcome_renderer: shared_asset_outcome
+        command_source: mobility_command_index
+        relationship_source: mobility_relationship_index
+        release_info_position: bottom
+
+  - title: Vehicles
+    path: vehicles
     icon: mdi:car-electric
     panel: true
     cards:
       - type: custom:homebrain-mobility-dashboard-card
         dashboard_path: /mobility-supervisor/dashboard
+        nav_active: vehicles
         contract_mode: external_only
+        outcome_renderer: shared_asset_outcome
+        command_source: mobility_command_index
+        relationship_source: mobility_relationship_index
+        release_info_position: bottom
 
   - title: Vehicle & Charger Detail
     path: asset-detail
@@ -19,6 +39,12 @@ views:
       - type: custom:homebrain-mobility-asset-detail-card
         dashboard_path: /mobility-supervisor/dashboard
         contract_mode: external_only
+        show_contract_inspector: true
+        show_widget_contract_trace: true
+        outcome_renderer: shared_asset_outcome
+        command_source: mobility_command_index
+        relationship_source: mobility_relationship_index
+        release_info_position: bottom
 
   - title: Chargers
     path: charger-maintenance
@@ -27,4 +53,55 @@ views:
     cards:
       - type: custom:homebrain-mobility-charger-maintenance-card
         dashboard_path: /mobility-supervisor/dashboard
+        nav_active: chargers
         contract_mode: external_only
+        show_contract_inspector: true
+        outcome_renderer: shared_asset_outcome
+        command_source: mobility_command_index
+        release_info_position: bottom
+
+  - title: Charging
+    path: charging
+    icon: mdi:lightning-bolt
+    panel: true
+    cards:
+      - type: custom:homebrain-mobility-charger-maintenance-card
+        dashboard_path: /mobility-supervisor/dashboard
+        nav_active: charging
+        contract_mode: external_only
+        show_contract_inspector: true
+        outcome_renderer: shared_asset_outcome
+        command_source: mobility_command_index
+        release_info_position: bottom
+
+  - title: Planning
+    path: planning
+    icon: mdi:calendar-clock
+    panel: true
+    cards:
+      - type: custom:homebrain-mobility-placeholder-card
+        view: planning
+
+  - title: Strategies
+    path: strategies
+    icon: mdi:tune-variant
+    panel: true
+    cards:
+      - type: custom:homebrain-mobility-placeholder-card
+        view: strategies
+
+  - title: History
+    path: history
+    icon: mdi:history
+    panel: true
+    cards:
+      - type: custom:homebrain-mobility-placeholder-card
+        view: history
+
+  - title: Log
+    path: log
+    icon: mdi:text-box-search-outline
+    panel: true
+    cards:
+      - type: custom:homebrain-mobility-placeholder-card
+        view: log
