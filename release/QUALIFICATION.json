@@ -1,6 +1,6 @@
 {
-  "candidate_version": "1.0.0-rc.19",
-  "candidate_tag": "v1.0.0-rc.19",
+  "candidate_version": "1.0.0-rc.20",
+  "candidate_tag": "v1.0.0-rc.20",
   "candidate_sha": "pending",
   "target_home_assistant": "pending",
   "hacs_install": "pending",
@@ -25,5 +25,8 @@
   "overview_semantic_fail_closed": "pending",
   "hacs_resource_load": "pending",
   "custom_element_registration": "pending",
-  "dashboard_subview_migration": "pending"
+  "dashboard_subview_migration": "pending",
+  "vehicle_management_filters": "pending",
+  "vehicle_management_options_link": "pending",
+  "vehicle_lifecycle_management": "pending"
 }
