@@ -26,10 +26,10 @@ for(const row of manifest.files){
   const bytes=fs.readFileSync(full);
   if(bytes.length!==row.bytes) throw new Error(`package manifest size drift: ${row.path}`);
 }
-if(/gh release create[\s\S]*dist\/rhi-mobility-ux\.js(?:\s|\\)/.test(publish)) {
-  throw new Error('publishing JS as a GitHub release asset would force HACS single-file mode and drop nested assets');
+if(/gh release create[\s\S]*?(?:dist\/|COMPATIBILITY\.json|RELEASE_MANIFEST\.json|QUALIFICATION\.json)/.test(publish)) {
+  throw new Error('tagged HACS plugin release must not attach any GitHub Release assets');
 }
-if(!publish.includes('dist/PACKAGE_MANIFEST.json')) throw new Error('release must attach package manifest evidence');
+if(publish.includes('gh release upload')) throw new Error('publication must not upload GitHub Release assets');
 const checksum=fs.readFileSync(path.join(root,'dist/rhi-mobility-ux.js.sha256'),'utf8').trim().split(/\s+/)[0];
 if(manifest.runtime_sha256!==checksum) throw new Error('package manifest runtime checksum drift');
-console.log('PASS HACS package: standard HACS plugin dist/ layout is explicit; immutable tag dist tree contains runtime + structured assets; release assets are evidence-only');
+console.log('PASS HACS package: standard HACS plugin dist/ layout is explicit; immutable tag dist tree contains runtime + structured assets; GitHub Release assets are forbidden so HACS selects the immutable tag dist tree');
