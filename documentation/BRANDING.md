@@ -45,7 +45,9 @@ Active section colour may differ by section. The company mark must not change wi
 
 - Shared company mark: canonical brand asset.
 - Mobility: route labels, icons and active state only.
-- Build: copies source assets unchanged to `assets/` and `dist/assets/`.
-- Validation: pinned hash, source/generated parity, transparent asset and no runtime redraw/filter.
+- Build: copies source assets unchanged to generated asset locations and injects the canonical SVG into the JS bundle for runtime delivery.
+- Branding validation: pinned hash, source/generated parity, transparent asset, inline runtime parity and no runtime redraw/filter.
+- Layout validation: owns header-slot geometry separately; branding tests do not own responsive sizing.
+- Footer/navigation tests must not assert logo transport or artwork details.
 
 Any future module should copy this asset unchanged and reuse the same `--rhi-company-*` slot contract.
