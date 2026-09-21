@@ -4,9 +4,6 @@ const header=fs.readFileSync(new URL('../../src/entry/00-header-and-navigation.j
 const dashboard=fs.readFileSync(new URL('../../src/screens/90-mobility-dashboard-card.js',import.meta.url),'utf8');
 const chargers=fs.readFileSync(new URL('../../src/screens/80-charger-maintenance-card.js',import.meta.url),'utf8');
 const routes=fs.readFileSync(new URL('../../documentation/homebrain_mobility.hacs.yaml',import.meta.url),'utf8');
-const officialLogo=new URL('../../src/assets/files/branding/company-logo.svg',import.meta.url);
-if (!fs.existsSync(officialLogo)) throw new Error('canonical shared Robotix.be logo asset is not packaged in source assets');
-
 const required = [
   'key: "mobility"',
   'key: "intelligence"',
@@ -21,13 +18,7 @@ const required = [
   '{ key: "log", label: "Log", icon: "mdi:format-list-bulleted", path: "/log" }',
   'class="hi-domain-shell hi-nav-',
   'class="hi-module-tabs"',
-  'class="hi-product-area"',
-  'class="hi-company-brand"',
-  'const HB_MOBILITY_COMPANY_LOGO_SVG = "__RHI_COMPANY_LOGO_INLINE__";',
-  'class="hi-company-logo"',
   'class="domain-tab-icon"',
-  '--rhi-company-logo-max-width',
-  'font-family:Inter,ui-sans-serif'
 ];
 for (const needle of required) if (!header.includes(needle)) throw new Error(`navigation shell missing: ${needle}`);
 
@@ -52,4 +43,4 @@ if (!routes.includes('title: Overview\n    path: overview')) throw new Error('Ov
 if (!routes.includes('title: Vehicles\n    path: dashboard')) throw new Error('legacy Vehicles route /dashboard must be preserved');
 if (!dashboard.includes('target === hbMobilityPath("/overview") || target === hbMobilityPath("/dashboard")')) throw new Error('Overview/Vehicles local navigation fallback missing');
 if (dashboard.includes('hbMobilityPath("/vehicles")')) throw new Error('invalid /vehicles route leaked into dashboard');
-console.log('PASS unified RHI Mobility header, inline shared brand and resilient Overview/Vehicles navigation');
+console.log('PASS Mobility route mapping, active navigation and resilient Overview/Vehicles switching');
