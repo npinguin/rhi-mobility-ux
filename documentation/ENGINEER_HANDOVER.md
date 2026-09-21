@@ -2,20 +2,22 @@
 
 ## Start here
 
-Current source candidate: **v1.0.0-rc.14**. Public contract: **MOBILITY_PUBLIC_RUNTIME_V1**. Minimum backend: **R43.2.60**. Current tested backend baseline: **R43.2.65**.
+Do not copy current release identity from this document. The authoritative sources are `package.json` for package version and `release/product.json` for contract/backend/release context. Published versions are authoritative in GitHub Releases.
 
 Read in this order:
 
 1. `README.md`
 2. `documentation/ARCHITECTURE.md`
 3. `documentation/RELEASE_GOVERNANCE.md`
-4. `documentation/BRANDING.md`
-5. `documentation/HACS_INSTALLATION.md`
-6. `documentation/KNOWN_DEFECTS.md`
-7. `release/RELEASE_STATUS.json`
-8. `release/QUALIFICATION.json`
-9. `release/RELEASE_NOTES.md`
-10. `CHANGELOG.md`
+4. `documentation/TEST_GOVERNANCE.md`
+5. `tests/OWNERSHIP.json`
+6. `documentation/BRANDING.md`
+7. `documentation/HACS_INSTALLATION.md`
+8. `documentation/KNOWN_DEFECTS.md`
+9. `release/product.json`
+10. `release/QUALIFICATION.json`
+11. `release/RELEASE_NOTES.md`
+12. `CHANGELOG.md`
 
 ## Footer authority
 
@@ -24,24 +26,30 @@ Read in this order:
 - Hover-only issue disclosure is forbidden; concrete conditions must be visible when expanded.
 - Footer geometry/classes must match the shared standard and Energy.
 
-## Asset refresh authority
+## Brand delivery authority
 
-- Company-logo requests must carry the current UX package version as a query revision.
-- A timeless external logo URL is forbidden because browser caches can survive HACS package updates.
+- `src/assets/files/branding/company-logo.svg` is the canonical artwork source.
+- The build injects that canonical SVG into the runtime bundle; source code must not contain a second copy of the artwork.
+- Branding tests own artwork/delivery. Footer, navigation and layout tests must not re-test the delivery mechanism.
 
 ## Shared shell and brand authority
 
 - Mobility uses the same two-level header hierarchy and company-brand slot contract as Energy.
 - Canonical company mark: `src/assets/files/branding/company-logo.svg`.
-- The build copies the mark unchanged to `assets/branding/company-logo.svg` and `dist/assets/branding/company-logo.svg`.
+- The build copies the mark unchanged to generated asset locations and injects the same canonical SVG into the JS runtime bundle for HACS-safe delivery.
 - Compact gray secondary-navigation icons are presentation metadata only; routes and backend ownership are unchanged.
 - Do not redraw, recolour, filter, crop or replace the company mark locally.
 - Responsive header sizing is controlled only through the shared `--rhi-company-*` tokens documented in `documentation/BRANDING.md`.
 
 ## Shared UX standards
 
-- `documentation/UX_RELEASE_STANDARD.md` is normative for release lifecycle across all RHI UX packages.
+- `documentation/UX_RELEASE_STANDARD.md` is normative for release lifecycle.
+- `documentation/TEST_GOVERNANCE.md` and `tests/OWNERSHIP.json` are normative for test ownership.
 - `documentation/UX_FOOTER_STANDARD.md` is normative for footer layout, data ownership and diagnostics presentation.
+
+### Testing ownership
+
+Testing mirrors code ownership: **one invariant, one test owner**. Do not make a footer test understand branding delivery, a screen-preservation test understand navigation internals, or a layout test understand asset packaging. If one local change breaks several unrelated suites, treat that as test-ownership drift unless multiple product contracts genuinely changed.
 
 ## Product boundary
 
@@ -73,16 +81,19 @@ Engineering/Unmapped remains a fail-visible safety net for unplaced published pr
 
 ```text
 branch
-→ structural fix + regression tests
+→ structural fix + owned regression tests
 → PR
-→ Validate green
+→ one full Validate gate
+   → candidate build + complete tests
+   → deterministic second-build proof
+   → committed-dist equality
+   → HACS validation
 → squash merge
-→ main Validate green
-→ automatic Publish HACS
+→ Publish HACS verifies and publishes the exact committed artifact (no rebuild)
 → immutable HACS-visible TEST CANDIDATE
 → target HA runtime + rollback proof
 → update release/QUALIFICATION.json with PASS + exact candidate SHA
-→ manual stable promotion of the exact candidate
+→ stable promotion of the exact candidate (no rebuild)
 ```
 
 Qualification evidence may change after candidate publication. Candidate runtime/source may not. Updating `release/QUALIFICATION.json` must not republish or move the candidate tag.
