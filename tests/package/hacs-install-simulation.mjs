@@ -3,7 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
+const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../..');
 const dist=path.join(root,'dist');
 const manifest=JSON.parse(fs.readFileSync(path.join(dist,'PACKAGE_MANIFEST.json'),'utf8'));
 const tmp=fs.mkdtempSync(path.join(os.tmpdir(),'rhi-mobility-hacs-'));
