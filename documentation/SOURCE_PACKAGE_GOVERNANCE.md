@@ -122,6 +122,7 @@ It is evidence, not a second source of truth. Per-asset cryptographic hashes are
 - `src/OWNERSHIP.json` defines source owners.
 - `tools/check-source-ownership.mjs` rejects legacy/parallel source folders and numeric load-order filenames.
 - `tools/check-hacs-package.mjs` verifies the installable dist tree and release-delivery rules.
+- `tools/check-documentation-drift.mjs` rejects stale normative paths/terminology and escaped migration artifacts.
 - `tests/OWNERSHIP.json` independently owns test boundaries.
 
 ## Mean and lean rule
