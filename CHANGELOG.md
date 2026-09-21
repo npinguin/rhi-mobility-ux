@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.0.0-rc.11 — shared UX release and footer governance
+
+- Publishes TEST CANDIDATE versions as HACS-visible normal GitHub Releases rather than GitHub prereleases.
+- Makes stable promotion evidence-only against the exact immutable candidate.
+- Standardizes the compact footer contract with Energy.
+- Collapses Mobility runtime/acceptance diagnostics into one issue label + tooltip in the footer.
+- Adds shared release/footer standards and fail-closed drift validation.
+- Preserves all Mobility routes, screens, actions, header geometry and company branding.
+
+
 ## 1.0.0-rc.10 — unified RHI header and company branding
 
 - Aligns Mobility header geometry and hierarchy with the current Energy shell.
