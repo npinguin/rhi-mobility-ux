@@ -43,24 +43,97 @@ Internal structure:
 const UX_VERSION = "1.0.0-rc.5";
 
 const HB_MOBILITY_BASE_PATH = "/mobility-supervisor";
-const HB_MOBILITY_TABS = [
-  { key: "vehicle", label: "Vehicles", path: "/dashboard", icon: "mdi:car-electric" },
-  { key: "charging", label: "Chargers", path: "/charger-maintenance", icon: "mdi:ev-station" }
+
+const HB_MOBILITY_MODULES = [
+  {
+    key: "mobility",
+    label: "Mobility",
+    icon: "mdi:car-electric",
+    path: "/dashboard",
+    items: [
+      { key: "overview", label: "Overview", path: "/dashboard" },
+      { key: "vehicles", label: "Vehicles", path: "/vehicles" },
+      { key: "chargers", label: "Chargers", path: "/charger-maintenance" },
+      { key: "charging", label: "Charging", path: "/charging" }
+    ]
+  },
+  {
+    key: "intelligence",
+    label: "Intelligence",
+    icon: "mdi:brain",
+    path: "/planning",
+    items: [
+      { key: "planning", label: "Planning", path: "/planning" },
+      { key: "strategies", label: "Strategies", path: "/strategies" }
+    ]
+  },
+  {
+    key: "insights",
+    label: "Insights",
+    icon: "mdi:chart-bar",
+    path: "/history",
+    items: [
+      { key: "history", label: "History", path: "/history" },
+      { key: "log", label: "Log", path: "/log" }
+    ]
+  }
 ];
+
+const HB_MOBILITY_NAV_ITEMS = HB_MOBILITY_MODULES.flatMap((module) =>
+  module.items.map((item) => ({ ...item, module: module.key }))
+);
+
 function hbMobilityPath(path) {
   return `${HB_MOBILITY_BASE_PATH}${path}`;
 }
-function hbMobilityNav(active = "vehicle") {
-  return `<div class="domain-tabs-wrap">
-    <nav class="domain-tabs" aria-label="Mobility navigation">
-      ${HB_MOBILITY_TABS.map((tab) => `<button type="button" class="domain-tab ${tab.key === active ? "active" : ""}" data-nav="${hbMobilityPath(tab.path)}" title="${tab.label}"><ha-icon icon="${tab.icon}"></ha-icon><span>${tab.label}</span></button>`).join("")}
-    </nav>
-    <style>${hbMobilitySharedShellStyles()}</style>
+
+function hbMobilityModuleFor(active = "overview") {
+  const item = HB_MOBILITY_NAV_ITEMS.find((entry) => entry.key === active);
+  return HB_MOBILITY_MODULES.find((module) => module.key === (item?.module || active))
+    || HB_MOBILITY_MODULES[0];
+}
+
+function hbMobilityCompanyBrand() {
+  // One replaceable company-brand helper. Keep product navigation independent from branding assets.
+  return `<div class="hi-company-brand" aria-label="Robotix.be — DomotiX Network Security">
+    <div class="hi-company-wordmark">Robotix.be</div>
+    <div class="hi-company-tagline">DomotiX · Network · Security</div>
+    <svg class="hi-company-mark" viewBox="0 0 220 48" role="img" aria-label="Robotix building mark">
+      <path d="M8 38h204M24 38V27l30-8v19M54 38V13l42-9v34M96 38V10l42 8v20M138 38V18l48 12v8" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/>
+      <path d="M54 19l42-9 42 8M24 27l30-8M138 18l48 12" fill="none" stroke="currentColor" stroke-width="1.4" opacity=".72"/>
+      <path d="M64 20h12v18H64zM82 16h10v22H82zM106 16h12v22h-12zM124 19h9v19h-9zM148 25h11v13h-11zM165 29h10v9h-10z" fill="currentColor" opacity=".12"/>
+    </svg>
   </div>`;
 }
+
+function hbMobilityNav(active = "overview") {
+  const module = hbMobilityModuleFor(active);
+  return `<header class="hi-domain-shell">
+    <div class="hi-domain-shell-top">
+      <div class="hi-domain-identity">
+        <span>Home Intelligence</span>
+        <strong>MOBILITY</strong>
+      </div>
+      <div class="hi-domain-divider" aria-hidden="true"></div>
+      <nav class="hi-module-tabs" aria-label="Home Intelligence modules">
+        ${HB_MOBILITY_MODULES.map((entry) => `<button type="button" class="hi-module-tab ${entry.key === module.key ? "active" : ""}" data-nav="${hbMobilityPath(entry.path)}" title="${entry.label}"><ha-icon icon="${entry.icon}"></ha-icon><span>${entry.label}</span></button>`).join("")}
+      </nav>
+      <div class="hi-company-divider" aria-hidden="true"></div>
+      ${hbMobilityCompanyBrand()}
+    </div>
+    <div class="hi-domain-shell-bottom">
+      <nav class="domain-tabs" aria-label="${module.label} navigation">
+        ${module.items.map((tab) => `<button type="button" class="domain-tab ${tab.key === active ? "active" : ""}" data-nav="${hbMobilityPath(tab.path)}" title="${tab.label}"><span>${tab.label}</span></button>`).join("")}
+      </nav>
+    </div>
+    <style>${hbMobilitySharedShellStyles()}</style>
+  </header>`;
+}
+
 function hbMobilityTitleBlock(title = "Mobility", description = "Vehicle readiness, charging, comfort and security in one calm control cockpit.") {
   return `<section class="title"><p class="eyebrow">HOME INTELLIGENCE / MOBILITY</p><h1>${title}</h1><p>${description}</p></section>`;
 }
+
 function hbMobilityReleaseFooter(rt) {
   const esc = (v) => rt && rt.escape ? rt.escape(v) : String(v ?? "").replace(/[&<>]/g, (ch) => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[ch]));
   const rel = rt && rt.releaseContract ? rt.releaseContract() : {};
