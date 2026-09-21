@@ -31,7 +31,7 @@ const requiredFiles=[
   'documentation/ARCHITECTURE.md','documentation/RELEASE_GOVERNANCE.md',
   'documentation/BRANDING.md','documentation/UX_RELEASE_STANDARD.md','documentation/UX_FOOTER_STANDARD.md',
   'documentation/TEST_GOVERNANCE.md','documentation/ENGINEER_HANDOVER.md','documentation/HACS_INSTALLATION.md',
-  'src/OWNERSHIP.json','src/manifest.json','documentation/SOURCE_PACKAGE_GOVERNANCE.md',
+  'src/OWNERSHIP.json','src/manifest.json','documentation/SOURCE_PACKAGE_GOVERNANCE.md','documentation/UX_REPOSITORY_STANDARD.md',
   'tests/OWNERSHIP.json','tools/check-test-ownership.mjs','tools/check-source-ownership.mjs',
   'tools/check-asset-policy.mjs','tools/check-hacs-package.mjs','tools/sync-release-metadata.mjs',
   'dist/rhi-mobility-ux.js','dist/rhi-mobility-ux.js.sha256','dist/PACKAGE_MANIFEST.json'
@@ -80,6 +80,7 @@ if(!sharedRelease.includes('immutable tag') || !sharedRelease.includes('Publicat
 if(validateWorkflow.includes('push:\n    branches: [main]')) throw new Error('full Validate must not rebuild again on main push');
 if(!validateWorkflow.includes('Deterministic two-build proof')) throw new Error('PR reproducibility proof missing');
 if(!validateWorkflow.includes('Protect immutable published package')) throw new Error('immutable complete-package gate missing');
+if(!/hacs:\n\s+name: HACS\n\s+needs: source/.test(validateWorkflow)) throw new Error('HACS validation must depend on source gate');
 for(const forbidden of ['npm test','npm run build','npm run clean']){
   if(publishWorkflow.includes(forbidden)) throw new Error(`publication must not rebuild/retest candidate: ${forbidden}`);
   if(releaseWorkflow.includes(forbidden)) throw new Error(`stable promotion must not rebuild/retest candidate: ${forbidden}`);
