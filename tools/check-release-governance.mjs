@@ -26,7 +26,7 @@ const requiredFiles=[
   'README.md','CHANGELOG.md','COMPATIBILITY.json','RELEASE_MANIFEST.json',
   'release/RELEASE_STATUS.json','release/RELEASE_NOTES.md','release/QUALIFICATION.json',
   'documentation/ARCHITECTURE.md','documentation/RELEASE_GOVERNANCE.md',
-  'documentation/ENGINEER_HANDOVER.md','documentation/HACS_INSTALLATION.md',
+  'documentation/BRANDING.md','documentation/ENGINEER_HANDOVER.md','documentation/HACS_INSTALLATION.md',
   'dist/rhi-mobility-ux.js','dist/rhi-mobility-ux.js.sha256'
 ];
 for(const rel of requiredFiles) if(!fs.existsSync(path.join(root,rel))) throw new Error(`missing release file ${rel}`);
