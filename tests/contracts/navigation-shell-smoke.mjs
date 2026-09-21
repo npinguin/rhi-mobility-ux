@@ -4,6 +4,8 @@ const header=fs.readFileSync(new URL('../../src/entry/00-header-and-navigation.j
 const dashboard=fs.readFileSync(new URL('../../src/screens/90-mobility-dashboard-card.js',import.meta.url),'utf8');
 const chargers=fs.readFileSync(new URL('../../src/screens/80-charger-maintenance-card.js',import.meta.url),'utf8');
 const routes=fs.readFileSync(new URL('../../documentation/homebrain_mobility.hacs.yaml',import.meta.url),'utf8');
+const officialLogo=new URL('../../src/assets/files/branding/robotix-logo.webp',import.meta.url);
+if (!fs.existsSync(officialLogo)) throw new Error('official Robotix.be logo asset is not packaged in source assets');
 
 const required = [
   'key: "mobility"',
@@ -35,7 +37,7 @@ if (!intelligenceBlock.includes('Planning') || !intelligenceBlock.includes('Stra
 const insightsBlock = header.slice(header.indexOf('key: "insights"'), header.indexOf('const HB_MOBILITY_NAV_ITEMS'));
 if (!insightsBlock.includes('History') || !insightsBlock.includes('Log')) throw new Error('Insights submenu drift');
 
-if (!dashboard.includes('const navActive = this.config?.nav_active || "vehicles"')) throw new Error('dashboard does not default to Overview navigation');
+if (!dashboard.includes('const navActive = this.config?.nav_active || "vehicles"')) throw new Error('legacy dashboard mount does not default to Vehicles navigation');
 if (!dashboard.includes('hbMobilityNav(navActive)')) throw new Error('dashboard does not render canonical navigation from normalized active route');
 if (!chargers.includes('hbMobilityNav(this.config?.nav_active || "chargers")')) throw new Error('charger screen does not preserve grouped navigation');
 
