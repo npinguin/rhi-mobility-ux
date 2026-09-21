@@ -7,9 +7,8 @@ Public HACS Dashboard/plugin repository for Robotix Home Intelligence Mobility U
 - License: GPL-3.0-only
 - HACS category: Dashboard
 - Runtime artifact: `rhi-mobility-ux.js`
-- Source candidate: `v1.0.0-rc.14`
-- Public backend contract: `MOBILITY_PUBLIC_RUNTIME_V1`
-- Tested backend baseline: `R43.2.65`
+- Source candidate version: see `package.json` (authoritative)
+- Release contract/backend baseline: see `release/product.json` (authoritative)
 
 ## Release status
 
@@ -21,7 +20,7 @@ The repository distinguishes **source candidate** from **published release**:
 
 Do not infer the installed HACS version from this README. Check the installed HACS version or GitHub Releases. Stable promotion is a separate manual gate after target runtime and rollback qualification.
 
-The current source candidate is `v1.0.0-rc.14`. It keeps the rc.12 shared shell/footer/cache corrections and introduces a Mobility-first Overview using the calm Energy visual hierarchy. Primary overview truth is Vehicles, Charging now, Chargers and Attention; vehicle readiness, security, comfort, maintenance and direct actions remain driven by `MOBILITY_PUBLIC_RUNTIME_V1`.
+Current candidate identity is intentionally not duplicated in this README. Read `package.json` and `release/product.json`. The Mobility Overview remains contract-driven: Vehicles, Charging now, Chargers and Attention are primary overview truth; vehicle readiness, security, comfort, maintenance and direct actions remain backend-owned.
 
 ## HACS installation
 
@@ -52,10 +51,11 @@ Screens and components may not access Home Assistant Mobility contract entities 
 ```bash
 npm ci
 npm test
-npm run build
+npm run check:test-ownership
+npm run release:sync   # only when preparing a new candidate
 ```
 
-`dist/rhi-mobility-ux.js` is generated. Do not edit it manually.
+`npm test` performs the candidate build and all owned test suites. `dist/rhi-mobility-ux.js` is generated; do not edit it manually. Publication uses this committed validated artifact and does not rebuild it.
 
 ## Migration traceability
 
@@ -63,10 +63,14 @@ Legacy source baseline: `R22.12.11.30`. The original package checksum and exact 
 
 ## Shared company branding
 
-The canonical company mark is `src/assets/files/branding/company-logo.svg`. It is byte-identical to the shared RHI company logo used by Energy and is copied unchanged by the build. Its browser-facing URL is versioned with the UX package version so an existing Chrome profile cannot retain an older cached logo after an update. Header sizing is controlled through the shared `--rhi-company-*` slot tokens. See `documentation/BRANDING.md`.
+The canonical company mark is `src/assets/files/branding/company-logo.svg`. The build preserves the canonical generated copies and injects the same SVG into the JS runtime bundle for HACS-safe delivery. Header sizing is independently owned by the shared `--rhi-company-*` layout tokens. See `documentation/BRANDING.md`.
 
 ## Candidate visibility and footer
 
 TEST CANDIDATE releases are normal GitHub Releases so HACS exposes them without enabling beta/prerelease versions. Qualification state is tracked separately in `release/QUALIFICATION.json`.
 
 The shared footer must render healthy state as `RHI Mobility UX <version> · Backend <version>`. Problems add one short amber/red `issues · details` summary that expands in-page to show the concrete runtime/backend conditions and verification guidance. See `documentation/UX_FOOTER_STANDARD.md`.
+
+## Test ownership
+
+Testing follows the same ownership model as the code: one invariant, one test owner. See `documentation/TEST_GOVERNANCE.md` and `tests/OWNERSHIP.json`. A local implementation change should not require unrelated test suites to learn the new implementation.
