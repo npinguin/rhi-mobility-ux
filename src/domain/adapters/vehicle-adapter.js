@@ -22,7 +22,7 @@ class HomeBrainVehicleAdapter {
     const allowNone = editor.allow_none === true;
     const noneValue = editor.none_value ?? "";
     const rawCurrent = prop.value;
-    const currentUnset = rawCurrent === undefined || rawCurrent === null || String(rawCurrent).trim() === "";
+    const currentUnset = rawCurrent === undefined || rawCurrent === null || String(rawCurrent).trim() === "" || (allowNone && String(rawCurrent).trim() === String(noneValue ?? ""));
     const currentValue = currentUnset && allowNone ? String(noneValue ?? "") : String(rawCurrent ?? "").trim();
     const choices = [];
     if (allowNone) choices.push({ value:String(noneValue ?? ""), label:"No charger", is_none:true });
