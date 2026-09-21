@@ -11,8 +11,10 @@ if(q.candidate_tag!==`v${pkg.version}`) throw new Error('qualification tag/versi
 if(q.candidate_sha!=='pending' && !/^[0-9a-f]{40}$/i.test(String(q.candidate_sha||''))) throw new Error('candidate_sha must be pending or exact SHA');
 if(!release.includes('CANDIDATE_SHA=$(node -p "require(\'./release/QUALIFICATION.json\').candidate_sha")')) throw new Error('stable flow missing candidate SHA binding');
 if(!release.includes('test "$TAG_SHA" = "$CANDIDATE_SHA"')) throw new Error('stable flow does not bind tag SHA to qualification evidence');
-if(!release.includes('git show "${TAG}:dist/rhi-mobility-ux.js"')) throw new Error('stable flow does not verify immutable tag runtime payload');
+if(!release.includes('git archive "${TAG}" dist')) throw new Error('stable flow does not verify immutable complete dist package');
+if(!release.includes('sha256sum -c rhi-mobility-ux.js.sha256')) throw new Error('stable flow does not verify immutable runtime checksum inside tag package');
+if(!release.includes('index("rhi-mobility-ux.js")')) throw new Error('stable flow does not enforce evidence-only release assets');
 if(release.includes('test "$(git rev-parse "$TAG_SHA")" = "$(git rev-parse "$GITHUB_SHA")"')) throw new Error('main SHA deadlock regression');
 if(!release.includes('release/QUALIFICATION.json --clobber')) throw new Error('final qualification evidence is not attached at stable promotion');
 
-console.log('PASS immutable candidate qualification lifecycle regression');
+console.log('PASS immutable complete-package candidate qualification lifecycle regression');
