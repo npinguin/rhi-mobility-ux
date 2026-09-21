@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.0.0-rc.9 — layout hardening
+
+- Fixes the official Robotix.be logo runtime path for HACS.
+- Keeps the logo sharp and right aligned in the shared header.
+- Makes the shared five-column status rail authoritative across screens.
+- Prevents Vehicles status/trust/attention/opportunity/recommendation from collapsing into a vertical text stack.
+- Tightens header proportions and shared spacing without changing routes or screen content.
+- Adds layout-hardening regression coverage.
+- Status: source candidate until immutable TEST CANDIDATE publication.
+
 ## 1.0.0-rc.8 — screen preservation and official brand asset
 
 - Replaces the temporary drawn Robotix mark with the official supplied Robotix.be logo asset.
