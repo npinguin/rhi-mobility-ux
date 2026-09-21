@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.0-rc.14 — Overview navigation and inline company brand
+
+- Makes Overview and Vehicles switch reliably inside the dashboard card even when a separate Lovelace Overview route has not been provisioned.
+- Removes invalid `/vehicles` internal targets in favor of the canonical Vehicles dashboard route.
+- Builds the approved Robotix company SVG directly into the runtime bundle from the canonical source asset.
+- Removes the runtime dependency on a separately served company-logo SVG, preventing broken-logo/alt-text rendering in HACS.
+- Preserves the Energy-aligned company brand slot, all existing screens and Mobility backend semantics.
+
 ## 1.0.0-rc.13 — Mobility-first Energy-style Overview
 
 - Reworks the Overview into the same calm information hierarchy used by Energy while preserving Mobility ownership.
