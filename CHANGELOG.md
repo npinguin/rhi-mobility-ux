@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.0-rc.19 — shared top-navigation alignment
+
+- Aligns Mobility / Intelligence / Insights into three equal-width primary navigation columns.
+- Centers top-level navigation actions and prevents tablet-width clipping into the Robotix brand area.
+- Uses the same primary-row geometry as Energy.
+- Preserves all routes, second-level tabs, product semantics and backend contracts.
+
 ## 1.0.0-rc.18 — HACS full-tree delivery correction
 
 - Removes all GitHub Release assets from tagged HACS plugin releases.
