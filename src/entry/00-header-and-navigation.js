@@ -206,10 +206,8 @@ function hbMobilitySharedShellStyles() {
     .hi-module-tab:hover{background:#F4F8FE;color:#0F3F79}
     .hi-module-tab.active{background:#EAF3FF;color:#0961E7;font-weight:650}
     .hi-module-tab.active ha-icon{color:#0961E7}
-    .hi-company-brand{justify-self:end;display:grid;grid-template-columns:auto;justify-items:end;align-content:center;color:#075095;min-width:220px}
-    .hi-company-wordmark{font-size:30px;line-height:.95;font-weight:820;letter-spacing:-.035em;color:#075095}
-    .hi-company-tagline{margin-top:5px;font-size:10.5px;line-height:1;text-transform:none;letter-spacing:.14em;font-weight:700;color:#155F9F}
-    .hi-company-mark{width:170px;height:38px;margin-top:5px;display:block;color:#075095}
+    .hi-company-brand{justify-self:end;display:flex;align-items:center;justify-content:flex-end;min-width:220px;overflow:visible}
+    .hi-company-logo{display:block;width:260px;max-width:100%;height:86px;object-fit:contain;object-position:right center;filter:none;image-rendering:auto}
     .hi-domain-shell-bottom{border-top:1px solid #E1E8F1;padding:6px 20px 10px}
     .domain-tabs{display:flex;align-items:center;gap:10px;width:100%;min-height:52px;overflow-x:auto;scrollbar-width:none}
     .domain-tabs::-webkit-scrollbar{display:none}
