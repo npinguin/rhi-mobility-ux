@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.0.0-rc.12 — readable footer and cache-safe company asset
+
+- Makes the shared UX footer readable at 11px desktop / 10.5px phone with full opacity.
+- Replaces hover-only issue disclosure with expandable concrete runtime/backend details.
+- Adds backend release/contract context and verification guidance in the expanded footer.
+- Adds package-version cache busting to the shared company-logo URL so Chrome cannot reuse a stale logo after HACS updates.
+- Keeps header geometry, company artwork, routes, screens and Mobility semantics unchanged.
+
+
 ## 1.0.0-rc.11 — shared UX release and footer governance
 
 - Publishes TEST CANDIDATE versions as HACS-visible normal GitHub Releases rather than GitHub prereleases.
