@@ -1,27 +1,23 @@
-# v1.0.0-rc.11 — Shared UX release and footer governance TEST CANDIDATE
+# v1.0.0-rc.12 — Readable footer and cache-safe company asset TEST CANDIDATE
 
 ## Scope
 
-Cross-package release-governance and footer convergence over rc.10. Existing Mobility routes, screens, actions, backend semantics, header geometry and company branding remain intact.
+Cross-package UX usability and browser-cache correction over rc.11. Existing Mobility routes, screens, actions, backend semantics, header geometry and company artwork remain intact.
 
-## Included
-
-- publishes TEST CANDIDATE versions as normal GitHub Releases so HACS exposes them without enabling beta/prerelease versions;
-- keeps TEST CANDIDATE state in release metadata and qualification evidence instead of the GitHub prerelease flag;
-- keeps candidate tags/runtime payloads immutable;
-- makes stable promotion evidence-only against the exact published candidate;
-- standardizes the footer with the shared RHI UX footer contract;
-- healthy footer is `RHI Mobility UX <version> · Backend <version>`;
-- runtime health, acceptance proof and diagnostics collapse into one short amber/red issue label with tooltip detail instead of Mobility-specific visible footer rows;
-- keeps the unified Energy/Mobility header and canonical company-logo asset introduced in rc.10;
-- adds shared release/footer standards and drift tests.
+- increases the shared footer to a readable 11px desktop / 10.5px phone with full opacity;
+- replaces hover-only issue disclosure with an expandable `issues · details` control;
+- expanded details show the concrete runtime/backend conditions plus backend release and contract context;
+- keeps one concise warning/error summary in the normal footer;
+- versions the company-logo request with the UX package version so Chrome cannot reuse a stale logo URL after a HACS update/reload;
+- keeps the canonical shared SVG unchanged;
+- keeps footer and asset-refresh behavior aligned with Energy.
 
 ## Compatibility
 
-- Mobility UX: 1.0.0-rc.11
+- Mobility UX: 1.0.0-rc.12
 - Contract: `MOBILITY_PUBLIC_RUNTIME_V1`
 - Minimum backend: `R43.2.60`
 - Tested backend baseline: `R43.2.65`
-- Rollback release: `v1.0.0-rc.10`
+- Rollback release: `v1.0.0-rc.11`
 
 Stable promotion remains blocked until target Home Assistant runtime and rollback proof are PASS.

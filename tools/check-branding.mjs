@@ -21,7 +21,7 @@ if(sourceText.includes('<rect') || /background/i.test(sourceText)) throw new Err
 const headerText=fs.readFileSync(header,'utf8');
 for(const token of [
   'const HB_MOBILITY_COMPANY_LOGO = "branding/company-logo.svg";',
-  'rhiMobilityAssetUrl(HB_MOBILITY_COMPANY_LOGO)',
+  'rhiMobilityAssetUrl(HB_MOBILITY_COMPANY_LOGO, UX_VERSION)',
   '--rhi-company-area-min',
   '--rhi-company-area-max',
   '--rhi-company-logo-max-width',
@@ -33,4 +33,5 @@ for(const token of [
 ]) if(!headerText.includes(token)) throw new Error('shared company-brand contract missing: '+token);
 for(const forbidden of ['robotix-logo.webp','filter:saturate','data:image/']) if(headerText.includes(forbidden)) throw new Error('company-brand drift: '+forbidden);
 
-console.log('PASS shared Robotix company-brand asset, hash, source/generated parity and portable header slot');
+if(!headerText.includes('rhiMobilityAssetUrl(HB_MOBILITY_COMPANY_LOGO, UX_VERSION)')) throw new Error('company logo URL must be package-versioned');
+console.log('PASS shared Robotix company-brand asset, hash, source/generated parity, portable slot and versioned browser URL');

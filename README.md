@@ -7,7 +7,7 @@ Public HACS Dashboard/plugin repository for Robotix Home Intelligence Mobility U
 - License: GPL-3.0-only
 - HACS category: Dashboard
 - Runtime artifact: `rhi-mobility-ux.js`
-- Source candidate: `v1.0.0-rc.11`
+- Source candidate: `v1.0.0-rc.12`
 - Public backend contract: `MOBILITY_PUBLIC_RUNTIME_V1`
 - Tested backend baseline: `R43.2.65`
 
@@ -21,7 +21,7 @@ The repository distinguishes **source candidate** from **published release**:
 
 Do not infer the installed HACS version from this README. Check the installed HACS version or GitHub Releases. Stable promotion is a separate manual gate after target runtime and rollback qualification.
 
-The current source candidate is `v1.0.0-rc.11`. It preserves all existing Mobility routes and screens while aligning the shared shell with Energy: identical header proportions and hierarchy, the same canonical transparent Robotix company mark, compact gray icons on the secondary navigation, and responsive brand-slot behaviour.
+The current source candidate is `v1.0.0-rc.12`. It preserves all existing Mobility routes and screens while aligning the shared shell with Energy: identical header proportions and hierarchy, the same canonical transparent Robotix company mark, compact gray icons on the secondary navigation, and responsive brand-slot behaviour.
 
 ## HACS installation
 
@@ -63,10 +63,10 @@ Legacy source baseline: `R22.12.11.30`. The original package checksum and exact 
 
 ## Shared company branding
 
-The canonical company mark is `src/assets/files/branding/company-logo.svg`. It is byte-identical to the shared RHI company logo used by Energy and is copied unchanged by the build. Header sizing is controlled through the shared `--rhi-company-*` slot tokens. See `documentation/BRANDING.md`.
+The canonical company mark is `src/assets/files/branding/company-logo.svg`. It is byte-identical to the shared RHI company logo used by Energy and is copied unchanged by the build. Its browser-facing URL is versioned with the UX package version so an existing Chrome profile cannot retain an older cached logo after an update. Header sizing is controlled through the shared `--rhi-company-*` slot tokens. See `documentation/BRANDING.md`.
 
 ## Candidate visibility and footer
 
 TEST CANDIDATE releases are normal GitHub Releases so HACS exposes them without enabling beta/prerelease versions. Qualification state is tracked separately in `release/QUALIFICATION.json`.
 
-The shared footer must render healthy state as `RHI Mobility UX <version> · Backend <version>`. Problems add only one short amber/red issue label with technical detail in its tooltip. See `documentation/UX_FOOTER_STANDARD.md`.
+The shared footer must render healthy state as `RHI Mobility UX <version> · Backend <version>`. Problems add one short amber/red `issues · details` summary that expands in-page to show the concrete runtime/backend conditions and verification guidance. See `documentation/UX_FOOTER_STANDARD.md`.
