@@ -42,6 +42,6 @@ for (const path of ['overview','dashboard','charger-maintenance','charging','pla
 if (!routes.includes('title: Overview\n    path: overview')) throw new Error('Overview route definition missing');
 if (!routes.includes('title: Vehicles\n    path: dashboard')) throw new Error('legacy Vehicles route /dashboard must be preserved');
 if (!dashboard.includes('rt.navigate(target)')) throw new Error('Overview/Vehicles navigation must update the canonical URL so refresh preserves the current tab');
-if (!dashboard.includes('rememberViewPosition()') || !dashboard.includes('restoreViewPositionOnce()')) throw new Error('Mobility route position persistence missing');
+if (!dashboard.includes('rememberViewPosition()') || !dashboard.includes('restoreViewPositionOnce()') || !dashboard.includes('window.addEventListener("pagehide"')) throw new Error('Mobility route/refresh position persistence missing');
 if (dashboard.includes('hbMobilityPath("/vehicles")')) throw new Error('invalid /vehicles route leaked into dashboard');
 console.log('PASS Mobility route mapping, URL-authoritative tab state and refresh/position persistence');
