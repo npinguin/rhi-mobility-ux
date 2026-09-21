@@ -29,4 +29,34 @@ for(const needle of [
   if(!dashboard.includes(needle)) throw new Error(`vehicle-management regression: missing ${needle}`);
 }
 
-console.log('PASS shared shell geometry and vehicle-management workspace');
+const catalog=fs.readFileSync(new URL('../../src/app/asset-catalog.js',import.meta.url),'utf8');
+const runtime=fs.readFileSync(new URL('../../src/runtime/ha-contract-runtime.js',import.meta.url),'utf8');
+
+for(const needle of [
+  'RHI_MOBILITY_VEHICLE_VISUALS',
+  'audi.q8.4m.2024-2026.tfsi-e',
+  'bmw.ix1.u11.2022-2026.ev',
+  'mercedes.gla.h247.2023-2026.phev',
+  'renault.scenic.e-tech.2024-2026.techno',
+  'volkswagen.id4.2024-2026.ev',
+  'generic.guest.current.generic',
+  'rhiMobilityParseVehicleVisualKey',
+  'rhiMobilityVehicleVisualKey'
+]) {
+  if(!catalog.includes(needle)) throw new Error(`vehicle visual catalog regression: missing ${needle}`);
+}
+
+for(const needle of [
+  'Choose vehicle & colour',
+  'data-vehicle-picker-type',
+  'data-vehicle-picker-color',
+  'data-vehicle-picker-save',
+  'vehicle.image_key',
+  'Picker stays fail-closed'
+]) {
+  if(!dashboard.includes(needle)) throw new Error(`vehicle picker regression: missing ${needle}`);
+}
+
+if(!runtime.includes('rhiMobilityParseVehicleVisualKey')) throw new Error('runtime no longer resolves structured vehicle visual keys');
+
+console.log('PASS shared shell geometry, vehicle management and vehicle visual picker');
