@@ -4,8 +4,8 @@ on:
   push:
     branches: [main]
     paths:
-      - 'dist/rhi-mobility-ux.js'
-      - 'dist/rhi-mobility-ux.js.sha256'
+      - 'dist/**'
+      - 'hacs.json'
       - 'COMPATIBILITY.json'
       - 'RELEASE_MANIFEST.json'
       - 'release/RELEASE_NOTES.md'
@@ -20,7 +20,7 @@ concurrency:
 
 jobs:
   verify:
-    name: Verify validated candidate artifact
+    name: Verify validated HACS package
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -45,9 +45,11 @@ jobs:
             echo "Immutable candidate ${TAG} already exists; refusing republish." >&2
             exit 1
           fi
-      - name: Verify committed artifact and release metadata
+      - name: Verify committed package and release metadata
         run: |
           node tools/verify-dist.mjs
+          node tools/check-hacs-package.mjs
+          node tests/package/hacs-install-simulation.mjs
           node tools/check-release-governance.mjs
           node tools/check-qualification.mjs
       - name: HACS validation
@@ -56,7 +58,7 @@ jobs:
           category: plugin
 
   publish:
-    name: Publish exact TEST CANDIDATE artifact
+    name: Publish immutable TEST CANDIDATE tag
     needs: verify
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -69,9 +71,11 @@ jobs:
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444
         with:
           node-version: '24'
-      - name: Verify exact committed payload
-        run: node tools/verify-dist.mjs
-      - name: Publish immutable version and rollback assets
+      - name: Verify exact committed HACS package
+        run: |
+          node tools/verify-dist.mjs
+          node tools/check-hacs-package.mjs
+      - name: Publish immutable tag and evidence-only release
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
@@ -90,21 +94,22 @@ jobs:
             --target "$GITHUB_SHA" \
             --title "RHI Mobility UX ${TAG} — TEST CANDIDATE" \
             --notes-file release/RELEASE_NOTES.md \
-            dist/rhi-mobility-ux.js \
             dist/rhi-mobility-ux.js.sha256 \
+            dist/PACKAGE_MANIFEST.json \
             COMPATIBILITY.json \
             RELEASE_MANIFEST.json \
             release/QUALIFICATION.json
           test "$(gh release view "${TAG}" --json isPrerelease --jq '.isPrerelease')" = false
+          test "$(gh release view "${TAG}" --json assets --jq '[.assets[].name] | index("rhi-mobility-ux.js")')" = null
       - name: Summary
         run: |
           VERSION=$(node -p "require('./package.json').version")
           {
             echo '## RHI Mobility UX HACS publication'
             echo "- Version: v${VERSION}"
-            echo "- Artifact: exact committed PR-validated dist"
+            echo "- HACS install source: immutable tag dist/ tree"
+            echo "- GitHub Release assets: evidence only"
+            echo "- JS release asset: NOT PRESENT (prevents HACS single-file mode)"
             echo "- Rebuild during publication: NO"
-            echo "- HACS validation: PASS"
             echo "- Immutable HACS-visible TEST CANDIDATE: PUBLISHED"
-            echo "- Runtime qualification: PENDING and recorded separately"
           } >> "$GITHUB_STEP_SUMMARY"
