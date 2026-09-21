@@ -1,10 +1,10 @@
 import fs from 'node:fs';
 import crypto from 'node:crypto';
 
-const source=new URL('../src/assets/files/branding/company-logo.svg',import.meta.url);
-const runtimeAsset=new URL('../assets/branding/company-logo.svg',import.meta.url);
+const source=new URL('../src/assets/branding/company-logo.svg',import.meta.url);
+const runtimeAsset=new URL('../dist/assets/branding/company-logo.svg',import.meta.url);
 const distAsset=new URL('../dist/assets/branding/company-logo.svg',import.meta.url);
-const header=new URL('../src/entry/00-header-and-navigation.js',import.meta.url);
+const header=new URL('../src/app/header-and-navigation.js',import.meta.url);
 const expected='264f0d86798a2a53e30b8beb5cae366e4b0916adbb3716b3deb23b5ddbed053d';
 
 for(const file of [source,runtimeAsset,distAsset]) if(!fs.existsSync(file)) throw new Error('missing canonical company brand asset: '+file.pathname);
