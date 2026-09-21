@@ -1331,6 +1331,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
 
 
     /* rc.7 canonical Overview — approved Mobility mock, contract-owned data/actions only */
+    .page{width:min(100%,1560px)!important;max-width:1560px!important;margin:0 auto!important;padding:18px 26px 30px!important;gap:12px!important}
     .ov-hero{position:relative;overflow:hidden;border:1px solid #DFE8F4;border-radius:20px;background:linear-gradient(110deg,#FFFFFF 0%,#FAFCFF 56%,#EEF5FD 100%);min-height:230px;box-shadow:0 14px 34px rgba(15,35,80,.055);display:grid;grid-template-rows:1fr auto}
     .ov-hero-copy{position:relative;z-index:2;display:flex;align-items:center;gap:18px;padding:24px 28px 12px;max-width:58%}
     .ov-hero-icon{width:58px;height:58px;border:1px solid #DDE8F6;border-radius:16px;background:#fff;display:flex;align-items:center;justify-content:center;color:#0B65EA;box-shadow:0 8px 18px rgba(15,35,80,.04)}
