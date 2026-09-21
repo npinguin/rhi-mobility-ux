@@ -55,7 +55,7 @@ npm run check:test-ownership
 npm run release:sync   # only when preparing a new candidate
 ```
 
-`npm test` performs the candidate build and all owned test suites. `dist/rhi-mobility-ux.js` is generated; do not edit it manually. Publication uses this committed validated artifact and does not rebuild it.
+`npm test` performs the candidate build and all owned test suites. `dist/` is the generated complete HACS package; do not edit it manually. Publication tags these exact committed bytes and does not rebuild them.
 
 ## Migration traceability
 
@@ -63,7 +63,7 @@ Legacy source baseline: `R22.12.11.30`. The original package checksum and exact 
 
 ## Shared company branding
 
-The canonical company mark is `src/assets/files/branding/company-logo.svg`. The build preserves the canonical generated copies and injects the same SVG into the JS runtime bundle for HACS-safe delivery. Header sizing is independently owned by the shared `--rhi-company-*` layout tokens. See `documentation/BRANDING.md`.
+The canonical company mark is `src/assets/branding/company-logo.svg`. The build mirrors the canonical asset tree into `dist/assets/` and injects the same SVG into the JS runtime bundle for HACS-safe delivery. Header sizing is independently owned by the shared `--rhi-company-*` layout tokens. See `documentation/BRANDING.md`.
 
 ## Candidate visibility and footer
 
@@ -74,3 +74,9 @@ The shared footer must render healthy state as `RHI Mobility UX <version> · Bac
 ## Test ownership
 
 Testing follows the same ownership model as the code: one invariant, one test owner. See `documentation/TEST_GOVERNANCE.md` and `tests/OWNERSHIP.json`. A local implementation change should not require unrelated test suites to learn the new implementation.
+
+## Source and package structure
+
+`src/OWNERSHIP.json` and `src/manifest.json` define source ownership and bundle order. Canonical assets live only under `src/assets/<category>/`; the build preserves that tree under `dist/assets/<category>/`. `dist/PACKAGE_MANIFEST.json` records the generated install package with file hashes.
+
+For Dashboard/plugin releases with nested assets, the GitHub Release does not attach `rhi-mobility-ux.js` as a release asset. HACS therefore installs the complete immutable tag `dist/` tree instead of switching to single-file mode. See `documentation/SOURCE_PACKAGE_GOVERNANCE.md`.
