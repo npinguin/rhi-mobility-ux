@@ -1,5 +1,5 @@
 /**
- * Robotix Home Intelligence Mobility UX v1.0.0-rc.8
+ * Robotix Home Intelligence Mobility UX v1.0.0-rc.9
  * GENERATED FILE - DO NOT EDIT.
  * License: GPL-3.0-only
  */
@@ -55,7 +55,7 @@ Internal structure:
 - HomeBrainChargerAdapter: charger contract mapping
 */
 
-const UX_VERSION = "1.0.0-rc.8";
+const UX_VERSION = "1.0.0-rc.9";
 
 const HB_MOBILITY_BASE_PATH = "/mobility-supervisor";
 
@@ -210,7 +210,7 @@ function hbMobilitySharedShellStyles() {
       font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
     }
     .hi-domain-shell{width:100%;box-sizing:border-box;margin:0 0 12px;border:1px solid #DCE6F2;border-radius:22px;background:linear-gradient(180deg,#fff 0%,#fbfdff 100%);box-shadow:0 14px 34px rgba(15,35,80,.055);overflow:hidden;color:var(--hi-ink)}
-    .hi-domain-shell-top{min-height:92px;display:grid;grid-template-columns:minmax(220px,280px) 1px minmax(420px,1fr) 1px minmax(240px,300px);align-items:center;gap:24px;padding:12px 26px 8px}
+    .hi-domain-shell-top{min-height:92px;display:grid;grid-template-columns:minmax(220px,260px) 1px minmax(460px,1fr) 1px minmax(280px,320px);align-items:center;gap:22px;padding:12px 24px 8px}
     .hi-domain-identity{display:grid;align-content:center;line-height:1}
     .hi-domain-identity span{font-size:17px;font-weight:450;color:#4E6A91;letter-spacing:-.01em}
     .hi-domain-identity strong{font-size:34px;font-weight:760;letter-spacing:-.035em;color:#0C3F79;margin-top:4px}
@@ -222,7 +222,7 @@ function hbMobilitySharedShellStyles() {
     .hi-module-tab.active{background:#EAF3FF;color:#0961E7;font-weight:650}
     .hi-module-tab.active ha-icon{color:#0961E7}
     .hi-company-brand{justify-self:end;display:flex;align-items:center;justify-content:flex-end;min-width:220px;overflow:visible}
-    .hi-company-logo{display:block;width:260px;max-width:100%;height:86px;object-fit:contain;object-position:right center;filter:none;image-rendering:auto}
+    .hi-company-logo{display:block;width:290px;max-width:100%;height:82px;object-fit:contain;object-position:right center;filter:none;image-rendering:auto}
     .hi-domain-shell-bottom{border-top:1px solid #E1E8F1;padding:6px 20px 10px}
     .domain-tabs{display:flex;align-items:center;gap:10px;width:100%;min-height:52px;overflow-x:auto;scrollbar-width:none}
     .domain-tabs::-webkit-scrollbar{display:none}
@@ -237,8 +237,16 @@ function hbMobilitySharedShellStyles() {
     .placeholder-kicker{display:inline-flex;align-items:center;gap:8px;margin-bottom:10px;color:#1467F5;font-size:12px;font-weight:650;text-transform:uppercase;letter-spacing:.04em}
     .placeholder-kicker ha-icon{--mdc-icon-size:18px}
     .footer-note{margin-top:12px;color:#66728B;font-size:12px;font-weight:600}
-    .status-strip.dashboard-status-strip,.status-strip.ops-status-strip,.outcome-header{width:100%!important;max-width:none!important;margin:8px 0 10px!important}
-    .section-title{margin-top:8px!important;margin-bottom:8px!important}
+    .status-strip.dashboard-status-strip,.status-strip.ops-status-strip,.outcome-header{width:100%!important;max-width:none!important;margin:8px 0 10px!important;display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;border:1px solid #E0E8F2!important;border-radius:16px!important;background:#fff!important;box-shadow:0 10px 24px rgba(15,35,80,.045)!important;overflow:hidden!important}
+    .status-strip.dashboard-status-strip .metric,.status-strip.ops-status-strip .metric,.outcome-header .metric{display:grid!important;grid-template-columns:28px minmax(0,1fr)!important;gap:8px!important;align-items:center!important;min-width:0!important;padding:12px 14px!important;border-right:1px solid #E8EEF6!important;background:transparent!important}
+    .status-strip.dashboard-status-strip .metric:last-child,.status-strip.ops-status-strip .metric:last-child,.outcome-header .metric:last-child{border-right:0!important}
+    .status-strip.dashboard-status-strip .metric ha-icon,.status-strip.ops-status-strip .metric ha-icon,.outcome-header .metric ha-icon{--mdc-icon-size:20px}
+    .status-strip.dashboard-status-strip .metric>div,.status-strip.ops-status-strip .metric>div,.outcome-header .metric>div{min-width:0}
+    .status-strip.dashboard-status-strip .metric span,.status-strip.ops-status-strip .metric span,.outcome-header .metric span{display:block!important;font-size:9px!important;font-weight:600!important;line-height:1.1!important;color:#708098!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+    .status-strip.dashboard-status-strip .metric b,.status-strip.ops-status-strip .metric b,.outcome-header .metric b{display:block!important;margin-top:2px!important;font-size:12.5px!important;font-weight:650!important;line-height:1.15!important;color:#10213A!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+    .status-strip .tone-green>ha-icon{color:#16A765!important}.status-strip .tone-blue>ha-icon{color:#1467F5!important}.status-strip .tone-orange>ha-icon{color:#F59E0B!important}
+    @media(max-width:920px){.status-strip.dashboard-status-strip,.status-strip.ops-status-strip,.outcome-header{grid-template-columns:repeat(5,minmax(150px,1fr))!important;overflow-x:auto!important}.status-strip.dashboard-status-strip .metric,.status-strip.ops-status-strip .metric,.outcome-header .metric{min-width:150px!important}}
+    .section-title{margin-top:4px!important;margin-bottom:8px!important}
     .hi-version-block{display:none!important}
     .hi-release-footer{display:flex;align-items:center;gap:8px;flex-wrap:wrap;width:100%;box-sizing:border-box;margin:8px 0 0;padding:8px 14px;border-top:1px solid rgba(14,35,72,.10);background:rgba(255,255,255,.92);color:#53627A;font-size:11px;font-weight:500;line-height:1.2;white-space:normal;overflow:hidden}
     .hi-release-footer span+span::before{content:"•";margin-right:8px;color:#8A96AA}
