@@ -102,7 +102,7 @@ dist/
 
 There is no generated root-level `assets/` copy.
 
-For HACS plugin repositories, the GitHub Release must **not** attach a release asset named `rhi-mobility-ux.js`. A matching JS release asset makes HACS treat the plugin as a single-file download and excludes nested assets. The immutable tag therefore carries the package under `dist/`; the GitHub Release carries release/evidence metadata only.
+For tagged HACS plugin repositories, the GitHub Release must contain **no assets at all**. HACS prefers release assets for tagged plugin installs when any are present; therefore even checksum or qualification files can divert installation away from the immutable `dist/` tree. The immutable tag carries the complete package under `dist/`; the GitHub Release carries release notes only.
 
 ## Package manifest
 
