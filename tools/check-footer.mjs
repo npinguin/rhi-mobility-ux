@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 
-const headerUrl=new URL('../src/entry/00-header-and-navigation.js',import.meta.url);
+const headerUrl=new URL('../src/app/header-and-navigation.js',import.meta.url);
 const docUrl=new URL('../documentation/UX_FOOTER_STANDARD.md',import.meta.url);
 const source=fs.readFileSync(headerUrl,'utf8');
 const doc=fs.readFileSync(docUrl,'utf8');
