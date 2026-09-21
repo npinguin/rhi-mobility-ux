@@ -4,26 +4,29 @@ const header=fs.readFileSync(new URL('../../src/entry/00-header-and-navigation.j
 const dashboard=fs.readFileSync(new URL('../../src/screens/90-mobility-dashboard-card.js',import.meta.url),'utf8');
 const chargers=fs.readFileSync(new URL('../../src/screens/80-charger-maintenance-card.js',import.meta.url),'utf8');
 const routes=fs.readFileSync(new URL('../../documentation/homebrain_mobility.hacs.yaml',import.meta.url),'utf8');
-const officialLogo=new URL('../../src/assets/files/branding/robotix-logo.webp',import.meta.url);
-if (!fs.existsSync(officialLogo)) throw new Error('official Robotix.be logo asset is not packaged in source assets');
+const officialLogo=new URL('../../src/assets/files/branding/company-logo.svg',import.meta.url);
+if (!fs.existsSync(officialLogo)) throw new Error('canonical shared Robotix.be logo asset is not packaged in source assets');
 
 const required = [
   'key: "mobility"',
   'key: "intelligence"',
   'key: "insights"',
-  '{ key: "overview", label: "Overview", path: "/overview" }',
-  '{ key: "vehicles", label: "Vehicles", path: "/dashboard" }',
-  '{ key: "chargers", label: "Chargers", path: "/charger-maintenance" }',
-  '{ key: "charging", label: "Charging", path: "/charging" }',
-  '{ key: "planning", label: "Planning", path: "/planning" }',
-  '{ key: "strategies", label: "Strategies", path: "/strategies" }',
-  '{ key: "history", label: "History", path: "/history" }',
-  '{ key: "log", label: "Log", path: "/log" }',
+  '{ key: "overview", label: "Overview", icon: "mdi:view-dashboard-outline", path: "/overview" }',
+  '{ key: "vehicles", label: "Vehicles", icon: "mdi:car-outline", path: "/dashboard" }',
+  '{ key: "chargers", label: "Chargers", icon: "mdi:ev-station", path: "/charger-maintenance" }',
+  '{ key: "charging", label: "Charging", icon: "mdi:lightning-bolt-outline", path: "/charging" }',
+  '{ key: "planning", label: "Planning", icon: "mdi:calendar-clock-outline", path: "/planning" }',
+  '{ key: "strategies", label: "Strategies", icon: "mdi:target", path: "/strategies" }',
+  '{ key: "history", label: "History", icon: "mdi:chart-timeline-variant", path: "/history" }',
+  '{ key: "log", label: "Log", icon: "mdi:format-list-bulleted", path: "/log" }',
   'class="hi-domain-shell"',
   'class="hi-module-tabs"',
+  'class="hi-product-area"',
   'class="hi-company-brand"',
-  'branding/robotix-logo.webp',
+  'branding/company-logo.svg',
   'class="hi-company-logo"',
+  'class="domain-tab-icon"',
+  '--rhi-company-logo-max-width',
   'font-family:Inter,ui-sans-serif'
 ];
 for (const needle of required) if (!header.includes(needle)) throw new Error(`navigation shell missing: ${needle}`);
@@ -47,4 +50,4 @@ for (const path of ['overview','dashboard','charger-maintenance','charging','pla
 
 if (!routes.includes('title: Overview\n    path: overview')) throw new Error('Overview must be additive on /overview');
 if (!routes.includes('title: Vehicles\n    path: dashboard')) throw new Error('legacy Vehicles route /dashboard must be preserved');
-console.log('PASS Energy-style Mobility header, official brand asset and additive grouped navigation');
+console.log('PASS unified RHI Mobility header, shared brand asset, compact secondary icons and additive grouped navigation');
