@@ -85,7 +85,7 @@ for(const forbidden of ['npm test','npm run build','npm run clean']){
   if(publishWorkflow.includes(forbidden)) throw new Error(`publication must not rebuild/retest candidate: ${forbidden}`);
   if(releaseWorkflow.includes(forbidden)) throw new Error(`stable promotion must not rebuild/retest candidate: ${forbidden}`);
 }
-if(!publishWorkflow.includes('node tools/verify-dist.mjs') || !publishWorkflow.includes('node tools/check-hacs-package.mjs') || !publishWorkflow.includes('Existing immutable tag package matches current dist')) throw new Error('publication must verify exact committed/idempotent HACS package');
+if(!publishWorkflow.includes('node tools/verify-dist.mjs') || !publishWorkflow.includes('node tools/check-hacs-package.mjs') || !publishWorkflow.includes('Existing immutable tag package and HACS metadata match current candidate')) throw new Error('publication must verify exact committed/idempotent HACS package and metadata');
 if(!publishWorkflow.includes('dist/PACKAGE_MANIFEST.json')) throw new Error('publication must attach package manifest evidence');
 if(/gh release create[\s\S]*dist\/rhi-mobility-ux\.js(?:\s|\\)/.test(publishWorkflow)) throw new Error('JS release asset would force HACS single-file mode');
 if(!releaseWorkflow.includes('git archive "${TAG}" dist')) throw new Error('stable promotion must compare complete immutable tag dist package');
