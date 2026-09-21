@@ -273,7 +273,7 @@ function hbMobilitySharedShellStyles() {
       overscroll-behavior-inline:contain;
     }
     .hi-module-tabs::-webkit-scrollbar,.domain-tabs::-webkit-scrollbar{display:none}
-    .hi-module-tabs{justify-content:flex-start;gap:14px;padding:0;background:transparent;border:0;border-radius:0;max-width:100%}
+    .hi-module-tabs{width:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding:0;background:transparent;border:0;border-radius:0;max-width:100%}
     .hi-module-tab{
       appearance:none;
       min-height:50px;
@@ -396,9 +396,9 @@ function hbMobilitySharedShellStyles() {
 
     @media(max-width:1180px){
       .hi-domain-shell{--rhi-company-area-min:220px;--rhi-company-area-max:250px;--rhi-company-logo-max-width:220px;--rhi-company-logo-max-height:94px;--rhi-company-logo-padding:8px 12px}
-      .hi-domain-shell-top{grid-template-columns:minmax(225px,.62fr) minmax(0,1.38fr);gap:14px;padding-inline:16px}
+      .hi-domain-shell-top{grid-template-columns:minmax(205px,.56fr) minmax(0,1.44fr);gap:12px;padding-inline:16px}
       .hi-module-tabs{gap:6px}
-      .hi-module-tab{padding:9px 14px;font-size:11.5px}
+      .hi-module-tab{padding:9px 8px;font-size:11.5px}
       .hi-domain-identity span{font-size:13.5px}
       .hi-domain-identity strong{font-size:21px}
       .hi-domain-shell-bottom{padding-inline:16px}
