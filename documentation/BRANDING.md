@@ -5,7 +5,6 @@ Mobility uses the same Robotix company mark and header-slot contract as the othe
 ## Canonical asset
 
 - Source of truth: `src/assets/branding/company-logo.svg`
-- Runtime copy: `assets/branding/company-logo.svg`
 - Distribution copy: `dist/assets/branding/company-logo.svg`
 - Background: transparent
 - Primary company/building colour: `#0B4C86`
