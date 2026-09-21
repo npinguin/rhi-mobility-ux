@@ -595,19 +595,64 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
   }
 
   renderVehiclesPage(rt, activeVehicles, inactiveVehicles, chargers, reco, plan, trust, activity, intelligenceSummary) {
+    const factory = new HomeBrainAssetFactory(rt);
+    const heroVehicle = activeVehicles[0] || null;
+    const heroModel = heroVehicle ? (factory.adapterFor(heroVehicle, this.config)?.build?.() || null) : null;
+    const heroImage = heroModel?.image || "";
+    const activeCount = activeVehicles.length;
+    const connectedCount = activeVehicles.filter((vehicle)=>{
+      const rel = rt.vehicleChargerRelationship(this.assetId(vehicle));
+      const connected = String(rel?.connected || "").trim().toLowerCase();
+      return !!connected && !["none","unknown","unavailable","null","undefined","—"].includes(connected);
+    }).length;
+    const assignedCount = activeVehicles.filter((vehicle)=>{
+      const adapter = new HomeBrainVehicleAdapter(rt, this.vehicleId(vehicle), { ...this.config, registry_entry:vehicle });
+      const assignment = adapter.chargerAssignmentModel();
+      const value = String(assignment?.editor_value ?? assignment?.value ?? "").trim().toLowerCase();
+      return !!value && !["none","unknown","unavailable","null","undefined","—"].includes(value);
+    }).length;
+    const attentionCount = activeVehicles.reduce((count, vehicle)=>{
+      const attention = String(rt.supervisorOutcome(this.assetId(vehicle), "attention", "") || "").trim().toLowerCase();
+      return count + (attention && !["none","ok","not applicable","unknown","unavailable"].includes(attention) ? 1 : 0);
+    }, 0);
+    const activeLabel = activeCount === 1 ? "1 active vehicle" : `${activeCount} active vehicles`;
+    const attentionLabel = attentionCount ? `${attentionCount} need attention` : "No published vehicle attention";
     return `
-      <section class="title"><h1>Vehicles</h1><p>Manage your vehicles and keep range, charge, security, comfort and maintenance visible.</p></section>
-      <section class="status-strip dashboard-status-strip">
-        <div class="metric tone-green"><ha-icon icon="mdi:check-circle-outline"></ha-icon><div><span>Status</span><b>${rt.escape(rt.supervisorOutcome("mobility", "status", "Unknown") || "Unknown")}</b></div></div>
-        <div class="metric tone-blue"><ha-icon icon="mdi:shield-check-outline"></ha-icon><div><span>Trust</span><b>${rt.escape(rt.supervisorOutcome("mobility", "trust", "Unknown") || "Unknown")}</b></div></div>
-        <div class="metric tone-orange"><ha-icon icon="mdi:alert-circle-outline"></ha-icon><div><span>Attention</span><b>${rt.escape(rt.supervisorOutcome("mobility", "attention", "Unknown") || "Unknown")}</b></div></div>
-        <div class="metric tone-green"><ha-icon icon="mdi:lightbulb-outline"></ha-icon><div><span>Opportunity</span><b>${rt.escape(rt.supervisorOutcome("mobility", "opportunity", "Unknown") || "Unknown")}</b></div></div>
-        <div class="metric tone-blue"><ha-icon icon="mdi:arrow-right-circle-outline"></ha-icon><div><span>Recommended action</span><b>${rt.escape(reco.action || "Unknown")}</b></div></div>
+      <section class="vehicles-hero">
+        <div class="vehicles-hero-copy">
+          <small>MOBILITY / VEHICLES</small>
+          <h1>Vehicles</h1>
+          <p>Manage each vehicle from one place: readiness, range and energy, security, comfort, maintenance, charger assignment and direct actions.</p>
+          <div class="vehicles-live-line"><strong>${rt.escape(activeLabel)}</strong><span>Backend-owned Mobility state</span></div>
+        </div>
+        ${heroImage ? `<div class="vehicles-hero-art"><img src="${rt.escape(rt.cache(heroImage))}" alt=""></div>` : ""}
       </section>
-      <section class="section-title"><h2>Active vehicles</h2><span>${activeVehicles.length} active</span></section>
-      <section class="vehicles">${activeVehicles.length ? activeVehicles.map((v)=>this.renderVehicle(rt,v,chargers)).join("") : `<div class="empty">No active vehicles.</div>`}</section>
-      ${inactiveVehicles.length ? `<section class="section-title compact-title"><h2>Inactive vehicles</h2><span>${inactiveVehicles.length} inactive</span></section><section class="inactive-list">${inactiveVehicles.map((v)=>this.renderInactiveVehicle(rt,v)).join("")}</section>` : `<section class="debt-strip"><ha-icon icon="mdi:information-outline"></ha-icon><b>Inactive vehicles (0)</b><span>Deactivated vehicles are hidden.</span></section>`}
-      <section class="bottom-grid"><div class="info"><h3><ha-icon icon="mdi:calendar-clock"></ha-icon>Charging Plan</h3><p>${rt.escape(plan)}</p></div><div class="info"><h3><ha-icon icon="mdi:shield-check-outline"></ha-icon>System Trust</h3><p>${rt.escape(intelligenceSummary ? (intelligenceSummary.message || intelligenceSummary.meaning || intelligenceSummary.value || intelligenceSummary.title || intelligenceSummary.insight_type) : trust)}</p></div><div class="info"><h3><ha-icon icon="mdi:history"></ha-icon>Current Activity</h3>${activity.length ? `<ul>${activity.map((a)=>`<li>${rt.escape(a)}</li>`).join("")}</ul>` : `<p>No current activity published.</p>`}</div></section>`;
+
+      <section class="vehicle-page-summary" aria-label="Vehicle fleet summary">
+        <div class="vehicle-page-summary-item"><ha-icon icon="mdi:car-electric"></ha-icon><span><small>Active</small><b>${activeCount}</b><em>${rt.escape(activeLabel)}</em></span></div>
+        <div class="vehicle-page-summary-item"><ha-icon icon="mdi:ev-station"></ha-icon><span><small>Assigned</small><b>${assignedCount}</b><em>Selected charger published</em></span></div>
+        <div class="vehicle-page-summary-item"><ha-icon icon="mdi:connection"></ha-icon><span><small>Connected now</small><b>${connectedCount}</b><em>Physical charger relationship</em></span></div>
+        <div class="vehicle-page-summary-item ${attentionCount ? "warn" : ""}"><ha-icon icon="mdi:alert-circle-outline"></ha-icon><span><small>Attention</small><b>${attentionCount}</b><em>${rt.escape(attentionLabel)}</em></span></div>
+      </section>
+
+      <section class="vehicle-workspace-head">
+        <div>
+          <h2>Active vehicles</h2>
+          <p>Extended vehicle cards keep all published status, charger controls and direct actions visible. Missing backend capability stays unavailable rather than being inferred.</p>
+        </div>
+        <span class="vehicle-count-pill">${activeCount} active</span>
+      </section>
+
+      <section class="vehicles vehicle-workspace-list">${activeVehicles.length ? activeVehicles.map((v)=>this.renderVehicle(rt,v,chargers)).join("") : `<div class="empty">No active vehicles.</div>`}</section>
+
+      ${inactiveVehicles.length ? `
+        <section class="vehicle-workspace-head inactive-head">
+          <div><h2>Inactive vehicles</h2><p>Deactivated vehicles remain visible for deliberate reactivation and detail access.</p></div>
+          <span class="vehicle-count-pill muted">${inactiveVehicles.length} inactive</span>
+        </section>
+        <section class="inactive-list">${inactiveVehicles.map((v)=>this.renderInactiveVehicle(rt,v)).join("")}</section>
+      ` : ""}
+    `;
   }
 
   versionBlock(rt) {
