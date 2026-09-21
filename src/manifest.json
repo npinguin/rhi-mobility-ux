@@ -2,6 +2,7 @@
   "schema_version": 1,
   "modules": [
     "app/asset-paths.js",
+    "app/asset-catalog.js",
     "app/header-and-navigation.js",
     "domain/adapters/intelligence-model-alignment.js",
     "runtime/ha-contract-runtime.js",
