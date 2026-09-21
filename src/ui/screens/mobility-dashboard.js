@@ -8,6 +8,8 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     this._sent = this._sent || new Map();
     this._selectedChargers = this._selectedChargers || new Map();
     this._currentOverrides = this._currentOverrides || new Map();
+    this._vehicleFilter = this._vehicleFilter || "all";
+    this._vehicleSort = this._vehicleSort || "default";
     this._lastDashboardRenderAt = this._lastDashboardRenderAt || 0;
     this._lastSignature = this._lastSignature || "";
     if (!this._viewPositionBound) {
@@ -312,7 +314,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     const subtitle = model?.subtitle || asset.profile || "Vehicle";
     const route = rt.assetDetailRoute(asset);
     const lifecycleLabel = this.lifecycleDisplay(rt, asset);
-    const activateButton = this.lifecycleToggleButton(rt, asset, "activate-soft icon-only");
+    const activateButton = this.lifecycleToggleButton(rt, asset, "activate-soft manage-lifecycle");
     return `<article class="inactive-row compact-present-row lifecycle-collapsed-row">
       <span class="inactive-state">${rt.escape(lifecycleLabel)}</span>
       <div class="inactive-copy"><h3>${rt.escape(display)}</h3><p>${rt.escape(subtitle)}</p></div>
@@ -343,7 +345,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     const activeChargerAsset = activeChargerId ? (rt.chargerById(activeChargerId) || rt.assetById(activeChargerId) || { asset_id: activeChargerId, asset_type: "charger" }) : null;
     const activeChargerRoute = activeChargerAsset ? rt.assetDetailRoute(activeChargerAsset) : "";
     const chargerImage = this.chargerImage(activeChargerId || "default");
-    const notPresentButton = this.lifecycleToggleButton(rt, asset, "presence-toggle icon-only");
+    const notPresentButton = this.lifecycleToggleButton(rt, asset, "presence-toggle manage-lifecycle");
     const vehicleCommands = this.dashboardVehicleCommands(rt, assetId);
     const chargingActivity = this.chargingActivityDisplay(rt, asset);
     return `<article class="vehicle-card premium-vehicle-card">
@@ -367,7 +369,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
         ${vehicleCommands.map((cmd, index)=>this.renderCommand(rt, cmd, cmd?.label || "Action", this.commandIcon(cmd), index === 0 ? "primary-charge" : "")).join("")}
         ${Array.from({length: Math.max(0, 3 - vehicleCommands.length)}).map(()=>`<span class="action-spacer"></span>`).join("")}
         <span class="action-spacer"></span>
-        ${notPresentButton ? notPresentButton.replace('class="action presence-toggle"', 'class="action presence-toggle icon-only"') : ""}
+        ${notPresentButton || ""}
       </div>
     </article>`;
   }
@@ -596,62 +598,91 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
 
   renderVehiclesPage(rt, activeVehicles, inactiveVehicles, chargers, reco, plan, trust, activity, intelligenceSummary) {
     const factory = new HomeBrainAssetFactory(rt);
-    const heroVehicle = activeVehicles[0] || null;
+    const vehicleLabel = (vehicle) => {
+      const model = factory.adapterFor(vehicle, this.config)?.build?.() || null;
+      return String(model?.display || vehicle?.display_name || rt.vehicleLabel(this.assetId(vehicle)) || this.assetId(vehicle));
+    };
+    const attentionRequired = (vehicle) => {
+      const value = String(rt.supervisorOutcome(this.assetId(vehicle), "attention", "") || "").trim().toLowerCase();
+      return !!value && !["none","ok","not applicable","unknown","unavailable"].includes(value);
+    };
+    const sortRows = (rows) => {
+      const copy = [...rows];
+      if (this._vehicleSort === "name") copy.sort((a,b)=>vehicleLabel(a).localeCompare(vehicleLabel(b)));
+      return copy;
+    };
+
+    const allActive = sortRows(activeVehicles);
+    const allInactive = sortRows(inactiveVehicles);
+    const filter = this._vehicleFilter || "all";
+    const visibleActive = filter === "disabled" ? [] : filter === "attention" ? allActive.filter(attentionRequired) : allActive;
+    const visibleInactive = filter === "active" ? [] : filter === "attention" ? allInactive.filter(attentionRequired) : allInactive;
+
+    const heroVehicle = allActive[0] || allInactive[0] || null;
     const heroModel = heroVehicle ? (factory.adapterFor(heroVehicle, this.config)?.build?.() || null) : null;
     const heroImage = heroModel?.image || "";
-    const activeCount = activeVehicles.length;
-    const connectedCount = activeVehicles.filter((vehicle)=>{
-      const rel = rt.vehicleChargerRelationship(this.assetId(vehicle));
-      const connected = String(rel?.connected || "").trim().toLowerCase();
-      return !!connected && !["none","unknown","unavailable","null","undefined","—"].includes(connected);
-    }).length;
-    const assignedCount = activeVehicles.filter((vehicle)=>{
+    const activeCount = allActive.length;
+    const inactiveCount = allInactive.length;
+    const attentionCount = [...allActive, ...allInactive].filter(attentionRequired).length;
+    const assignedCount = allActive.filter((vehicle)=>{
       const adapter = new HomeBrainVehicleAdapter(rt, this.vehicleId(vehicle), { ...this.config, registry_entry:vehicle });
       const assignment = adapter.chargerAssignmentModel();
       const value = String(assignment?.editor_value ?? assignment?.value ?? "").trim().toLowerCase();
       return !!value && !["none","unknown","unavailable","null","undefined","—"].includes(value);
     }).length;
-    const attentionCount = activeVehicles.reduce((count, vehicle)=>{
-      const attention = String(rt.supervisorOutcome(this.assetId(vehicle), "attention", "") || "").trim().toLowerCase();
-      return count + (attention && !["none","ok","not applicable","unknown","unavailable"].includes(attention) ? 1 : 0);
-    }, 0);
-    const activeLabel = activeCount === 1 ? "1 active vehicle" : `${activeCount} active vehicles`;
-    const attentionLabel = attentionCount ? `${attentionCount} need attention` : "No published vehicle attention";
+    const connectedCount = allActive.filter((vehicle)=>{
+      const rel = rt.vehicleChargerRelationship(this.assetId(vehicle));
+      const connected = String(rel?.connected || "").trim().toLowerCase();
+      return !!connected && !["none","unknown","unavailable","null","undefined","—"].includes(connected);
+    }).length;
+    const managementPath = "/config/integrations/integration/rhi_mobility";
+
     return `
       <section class="vehicles-hero">
         <div class="vehicles-hero-copy">
-          <small>MOBILITY / VEHICLES</small>
+          <small>MOBILITY / VEHICLE MANAGEMENT</small>
           <h1>Vehicles</h1>
-          <p>Manage each vehicle from one place: readiness, range and energy, security, comfort, maintenance, charger assignment and direct actions.</p>
-          <div class="vehicles-live-line"><strong>${rt.escape(activeLabel)}</strong><span>Backend-owned Mobility state</span></div>
+          <p>Manage the vehicles you use every day: readiness, charger assignment, charging controls, direct actions and lifecycle.</p>
+          <div class="vehicles-live-line"><strong>${activeCount} active</strong><span>${inactiveCount} inactive · ${attentionCount} requiring published attention</span></div>
         </div>
         ${heroImage ? `<div class="vehicles-hero-art"><img src="${rt.escape(rt.cache(heroImage))}" alt=""></div>` : ""}
       </section>
 
-      <section class="vehicle-page-summary" aria-label="Vehicle fleet summary">
-        <div class="vehicle-page-summary-item"><ha-icon icon="mdi:car-electric"></ha-icon><span><small>Active</small><b>${activeCount}</b><em>${rt.escape(activeLabel)}</em></span></div>
-        <div class="vehicle-page-summary-item"><ha-icon icon="mdi:ev-station"></ha-icon><span><small>Assigned</small><b>${assignedCount}</b><em>Selected charger published</em></span></div>
-        <div class="vehicle-page-summary-item"><ha-icon icon="mdi:connection"></ha-icon><span><small>Connected now</small><b>${connectedCount}</b><em>Physical charger relationship</em></span></div>
-        <div class="vehicle-page-summary-item ${attentionCount ? "warn" : ""}"><ha-icon icon="mdi:alert-circle-outline"></ha-icon><span><small>Attention</small><b>${attentionCount}</b><em>${rt.escape(attentionLabel)}</em></span></div>
-      </section>
-
-      <section class="vehicle-workspace-head">
-        <div>
-          <h2>Active vehicles</h2>
-          <p>Extended vehicle cards keep all published status, charger controls and direct actions visible. Missing backend capability stays unavailable rather than being inferred.</p>
+      <section class="vehicle-management-bar" aria-label="Vehicle management">
+        <div class="vehicle-filter-group" role="group" aria-label="Filter vehicles">
+          ${[
+            ["all","All",activeCount+inactiveCount],
+            ["active","Active",activeCount],
+            ["disabled","Disabled",inactiveCount],
+            ["attention","Attention",attentionCount]
+          ].map(([key,label,count])=>`<button class="${filter===key?"active":""}" data-vehicle-filter="${key}"><span>${label}</span><b>${count}</b></button>`).join("")}
         </div>
-        <span class="vehicle-count-pill">${activeCount} active</span>
+        <label class="vehicle-sort-control"><span>Sort</span><select data-vehicle-sort><option value="default" ${this._vehicleSort==="default"?"selected":""}>Configured order</option><option value="name" ${this._vehicleSort==="name"?"selected":""}>Name</option></select></label>
+        <button class="vehicle-manage-button" data-nav="${managementPath}" title="Open the Home Assistant Mobility integration options. Guest vehicles and vehicle profiles are managed there."><ha-icon icon="mdi:cog-outline"></ha-icon><span>Manage vehicles & profiles</span></button>
       </section>
 
-      <section class="vehicles vehicle-workspace-list">${activeVehicles.length ? activeVehicles.map((v)=>this.renderVehicle(rt,v,chargers)).join("") : `<div class="empty">No active vehicles.</div>`}</section>
+      <section class="vehicle-page-summary" aria-label="Vehicle fleet summary">
+        <div class="vehicle-page-summary-item"><ha-icon icon="mdi:car-electric"></ha-icon><span><small>Active</small><b>${activeCount}</b><em>Lifecycle active</em></span></div>
+        <div class="vehicle-page-summary-item"><ha-icon icon="mdi:ev-station"></ha-icon><span><small>Assigned</small><b>${assignedCount}</b><em>Selected charger</em></span></div>
+        <div class="vehicle-page-summary-item"><ha-icon icon="mdi:connection"></ha-icon><span><small>Connected now</small><b>${connectedCount}</b><em>Physical relationship</em></span></div>
+        <div class="vehicle-page-summary-item ${attentionCount ? "warn" : ""}"><ha-icon icon="mdi:alert-circle-outline"></ha-icon><span><small>Attention</small><b>${attentionCount}</b><em>Backend-published</em></span></div>
+      </section>
 
-      ${inactiveVehicles.length ? `
-        <section class="vehicle-workspace-head inactive-head">
-          <div><h2>Inactive vehicles</h2><p>Deactivated vehicles remain visible for deliberate reactivation and detail access.</p></div>
-          <span class="vehicle-count-pill muted">${inactiveVehicles.length} inactive</span>
+      ${visibleActive.length ? `
+        <section class="vehicle-workspace-head">
+          <div><h2>Active vehicles</h2><p>Readiness and actions first. Charger assignment and lifecycle remain Mobility-owned controls.</p></div>
+          <span class="vehicle-count-pill">${visibleActive.length} shown</span>
         </section>
-        <section class="inactive-list">${inactiveVehicles.map((v)=>this.renderInactiveVehicle(rt,v)).join("")}</section>
-      ` : ""}
+        <section class="vehicles vehicle-workspace-list">${visibleActive.map((v)=>this.renderVehicle(rt,v,chargers)).join("")}</section>
+      ` : (filter !== "disabled" && filter !== "all" ? `<div class="vehicle-filter-empty">No active vehicles match this filter.</div>` : "")}
+
+      ${visibleInactive.length ? `
+        <section class="vehicle-workspace-head inactive-head">
+          <div><h2>Inactive vehicles</h2><p>Disabled vehicles stay available for deliberate reactivation and detail access.</p></div>
+          <span class="vehicle-count-pill muted">${visibleInactive.length} shown</span>
+        </section>
+        <section class="inactive-list">${visibleInactive.map((v)=>this.renderInactiveVehicle(rt,v)).join("")}</section>
+      ` : (filter === "disabled" ? `<div class="vehicle-filter-empty">No disabled vehicles.</div>` : "")}
     `;
   }
 
@@ -824,6 +855,22 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
       this.rememberViewPosition();
       if (!target) return;
       rt.navigate(target);
+    }));
+    this.shadowRoot.querySelectorAll("button[data-vehicle-filter]").forEach((btn)=>btn.addEventListener("click",()=>{
+      const value = btn.getAttribute("data-vehicle-filter") || "all";
+      if (!["all","active","disabled","attention"].includes(value)) return;
+      this._vehicleFilter = value;
+      this._forceRender = true;
+      this._lastSignature = "";
+      this._restoredPositionKey = this.viewPositionKey();
+      if (this._hass) this.hass = this._hass;
+    }));
+    this.shadowRoot.querySelectorAll("select[data-vehicle-sort]").forEach((select)=>select.addEventListener("change",()=>{
+      this._vehicleSort = select.value === "name" ? "name" : "default";
+      this._forceRender = true;
+      this._lastSignature = "";
+      this._restoredPositionKey = this.viewPositionKey();
+      if (this._hass) this.hass = this._hass;
     }));
     this.shadowRoot.querySelectorAll("button[data-lifecycle-asset]").forEach((btn)=>btn.addEventListener("click",()=>{
       if (btn.disabled) return;
@@ -1494,6 +1541,15 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     .ov-small-panel{min-height:118px}.ov-activity-row,.ov-next-row{border:1px solid #E7EDF5;border-radius:12px;min-height:52px;display:flex;align-items:center;gap:9px;padding:7px 10px}.ov-activity-row>ha-icon,.ov-next-row>ha-icon{--mdc-icon-size:20px;color:#0B65EA}.ov-activity-row span,.ov-next-row span{display:grid;min-width:0}.ov-activity-row b,.ov-next-row b{font-size:11px;color:#172B47;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ov-activity-row small,.ov-next-row small{font-size:9.5px;color:#708098;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ov-next-row button{margin-left:auto;height:30px;border:1px solid #DDE7F2;background:#EAF3FF;color:#0B65EA;border-radius:9px;padding:0 10px;font-size:10px;font-weight:600;cursor:pointer}.ov-empty{border:1px dashed #DCE5F0;border-radius:11px;padding:14px;color:#718199;font-size:10.5px;text-align:center;background:#FAFCFF}
     @media(max-width:1280px){.ov-hero-copy{max-width:62%}.ov-vehicle-row{grid-template-columns:minmax(180px,1.5fr) repeat(3,minmax(80px,.7fr));grid-template-areas:"main security comfort maintenance" "charging charging charging charging" "assign assign actions actions"}.ov-two-col{grid-template-columns:1fr}.ov-hero-vehicle{width:38%}}
     @media(max-width:760px){.ov-hero{min-height:auto}.ov-hero-copy{max-width:100%;padding:18px}.ov-hero-vehicle,.ov-hero-time{display:none}.ov-kpis{grid-template-columns:1fr 1fr}.ov-quickbar{overflow-x:auto}.ov-quick-title{display:none}.ov-nav-action{flex:0 0 auto}.ov-nav-action.ov-more{margin-left:0}.ov-vehicle-row{grid-template-columns:1fr 1fr;grid-template-areas:"main main" "security comfort" "maintenance charging" "assign assign" "actions actions"}.ov-vehicle-main{grid-template-columns:58px 1fr}.ov-row-actions{justify-content:flex-start;overflow-x:auto}.ov-kpi b{font-size:18px}}
+
+    /* Vehicle management workspace */
+    .vehicles-hero{position:relative;overflow:hidden;min-height:150px;border:1px solid #dfe7f1;border-radius:18px;background:linear-gradient(135deg,#f8fbff 0%,#fff 58%,#edf5ff 100%);box-shadow:0 12px 30px rgba(15,35,80,.045);padding:18px 22px;display:flex;align-items:center}.vehicles-hero-copy{position:relative;z-index:2;max-width:760px}.vehicles-hero-copy>small{display:block;font-size:9px;letter-spacing:.14em;font-weight:750;color:#64748b}.vehicles-hero-copy h1{margin:4px 0 5px;font-size:30px;line-height:1.05;font-weight:650;letter-spacing:-.03em}.vehicles-hero-copy>p{margin:0 0 12px;max-width:700px;color:#64748b;font-size:11.5px;line-height:1.4}.vehicles-live-line{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}.vehicles-live-line strong{font-size:11px;color:#334155}.vehicles-live-line span{font-size:10px;color:#64748b}.vehicles-hero-art{position:absolute;right:20px;top:3px;width:min(36%,420px);height:145px;display:flex;align-items:center;justify-content:flex-end;pointer-events:none}.vehicles-hero-art:before{content:"";position:absolute;inset:18px 0 0 18%;background:radial-gradient(circle at center,rgba(37,99,235,.12),transparent 66%)}.vehicles-hero-art img{position:relative;z-index:1;max-width:100%;max-height:140px;object-fit:contain;filter:drop-shadow(0 14px 24px rgba(15,35,80,.16))}
+    .vehicle-management-bar{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:9px;align-items:center;border:1px solid #e2e8f0;border-radius:14px;background:#fff;padding:7px 8px;box-shadow:0 8px 24px rgba(15,35,80,.035)}.vehicle-filter-group{display:flex;gap:5px;min-width:0;overflow-x:auto}.vehicle-filter-group button{height:34px;border:1px solid #dde7f2;border-radius:9px;background:#fff;color:#334155;padding:0 9px;display:flex;align-items:center;gap:6px;font-size:10.5px;font-weight:600;white-space:nowrap;cursor:pointer}.vehicle-filter-group button b{min-width:20px;border-radius:999px;background:#f1f5f9;padding:2px 6px;font-size:9px;color:#64748b}.vehicle-filter-group button.active{background:#eaf3ff;border-color:#bfd6ff;color:#0b65ea}.vehicle-filter-group button.active b{background:#fff;color:#0b65ea}.vehicle-sort-control{height:34px;border:1px solid #dde7f2;border-radius:9px;display:flex;align-items:center;gap:6px;padding:0 8px;color:#64748b;font-size:9.5px;font-weight:600}.vehicle-sort-control select{border:0;background:transparent;color:#1e293b;font-size:10.5px;font-weight:600;outline:0}.vehicle-manage-button{height:34px;border:1px solid #bfd6ff;border-radius:9px;background:#eaf3ff;color:#0b65ea;padding:0 11px;display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:650;cursor:pointer}.vehicle-manage-button ha-icon{--mdc-icon-size:16px}
+    .vehicle-page-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.vehicle-page-summary-item{min-height:50px;border:1px solid #e2e8f0;border-radius:11px;background:#fff;padding:7px 9px;display:grid;grid-template-columns:28px minmax(0,1fr);gap:7px;align-items:center}.vehicle-page-summary-item>ha-icon{--mdc-icon-size:16px;width:28px;height:28px;border-radius:8px;background:#eff6ff;color:#2563eb;padding:6px;box-sizing:border-box}.vehicle-page-summary-item>span{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:6px;min-width:0}.vehicle-page-summary-item small{font-size:9px;color:#64748b}.vehicle-page-summary-item b{font-size:14px;color:#0f172a}.vehicle-page-summary-item em{grid-column:1/-1;margin-top:1px;font-size:8.5px;font-style:normal;color:#94a3b8}.vehicle-page-summary-item.warn>ha-icon{background:#fff7ed;color:#c2410c}
+    .vehicle-workspace-head{display:flex;align-items:end;justify-content:space-between;gap:12px;margin:3px 2px -2px}.vehicle-workspace-head h2{margin:0;font-size:18px;font-weight:650;color:#0f172a}.vehicle-workspace-head p{margin:2px 0 0;font-size:10px;color:#64748b}.vehicle-count-pill{border:1px solid #dbe5f0;border-radius:999px;background:#fff;color:#475569;padding:5px 9px;font-size:9.5px;font-weight:650;white-space:nowrap}.vehicle-count-pill.muted{background:#f8fafc}.vehicle-filter-empty{border:1px dashed #d9e3ef;border-radius:14px;background:#fbfdff;color:#64748b;padding:18px;text-align:center;font-size:11px;font-weight:600}
+    .vehicle-workspace-list.vehicles{grid-template-columns:1fr!important}.vehicle-workspace-list .vehicle-card{box-shadow:0 10px 28px rgba(15,35,80,.05)}.vehicle-workspace-list .hero-split-row{grid-template-columns:minmax(0,2.7fr) minmax(155px,.72fr)}.vehicle-workspace-list .vehicle-hero-panel{min-height:168px}.vehicle-workspace-list .charger-hero-panel{min-height:168px}.vehicle-workspace-list .vehicle-image img{max-height:220px;transform:scale(1.18)}.manage-lifecycle span{display:inline!important}.manage-lifecycle{padding-inline:12px!important}
+    @media(max-width:980px){.vehicle-management-bar{grid-template-columns:1fr auto}.vehicle-manage-button{grid-column:1/-1;justify-content:center}.vehicle-page-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.vehicles-hero-copy{padding-right:30%}}
+    @media(max-width:700px){.vehicles-hero{padding:16px;min-height:auto}.vehicles-hero-art{display:none}.vehicles-hero-copy{padding-right:0}.vehicle-management-bar{grid-template-columns:1fr}.vehicle-sort-control{justify-content:space-between}.vehicle-manage-button{grid-column:auto}.vehicle-page-summary{grid-template-columns:1fr 1fr}.vehicle-workspace-head{align-items:start}.vehicle-workspace-list .hero-split-row{grid-template-columns:1fr}}
 
     /* Energy-style Mobility Overview — calm hierarchy, Mobility-owned semantics */
     .ov-energy-hero{position:relative;overflow:hidden;min-height:172px;border:1px solid #dfe7f1;border-radius:18px;background:linear-gradient(135deg,#f8fbff 0%,#ffffff 58%,#edf5ff 100%);box-shadow:0 12px 30px rgba(15,35,80,.045);display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,.48fr);align-items:center;padding:20px 24px}
