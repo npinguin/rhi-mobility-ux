@@ -2,7 +2,7 @@
 
 ## Start here
 
-Current source candidate: **v1.0.0-rc.7**. Public contract: **MOBILITY_PUBLIC_RUNTIME_V1**. Minimum backend: **R43.2.60**. Current tested backend baseline: **R43.2.65**.
+Current source candidate: **v1.0.0-rc.8**. Public contract: **MOBILITY_PUBLIC_RUNTIME_V1**. Minimum backend: **R43.2.60**. Current tested backend baseline: **R43.2.65**.
 
 Read in this order:
 
