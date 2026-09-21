@@ -1,38 +1,32 @@
-# v1.0.0-rc.17 — HACS runtime install hardening TEST CANDIDATE
+# v1.0.0-rc.18 — HACS full-tree delivery correction TEST CANDIDATE
 
 ## Purpose
 
-Correct the HACS/dashboard installation path exposed by real Home Assistant qualification of rc.16.
+Correct the HACS release model using the behavior proven from current HACS source and clean Home Assistant reinstall evidence.
 
-## HACS packaging
+## Root cause
 
-- makes standard HACS plugin `dist/` semantics explicit through `content_in_root: false`;
-- keeps one generated package tree under `dist/` with no duplicate runtime/assets at repository root;
-- binds immutable candidate verification to `dist/`, `hacs.json` and `package.json`, so an existing tag can no longer pass while carrying stale HACS metadata;
-- preserves the canonical Home Assistant resource URL `/hacsfiles/rhi-mobility-ux/rhi-mobility-ux.js`.
+For tagged HACS plugins, GitHub Release assets are preferred as install payload when any assets exist. The previous RHI UX model attached checksum/manifest/qualification files as “evidence-only” assets. On a clean install HACS therefore installed only those files and never materialized the immutable tag's complete `dist/` tree, leaving `rhi-mobility-ux.js` and `assets/` absent.
 
-## Dashboard migration
+## Correction
 
-- Overview is the only visible Lovelace Mobility view;
-- Vehicles, Vehicle & Charger Detail, Chargers, Charging, Planning, Strategies, History and Log are internal `subview: true` routes;
-- RHI Mobility navigation remains the product navigation surface;
-- HACS installation and Lovelace dashboard migration are documented as separate required steps.
+- GitHub Release remains the HACS-visible version surface but contains **zero assets**.
+- The immutable Git tag owns the complete `dist/` package.
+- `content_in_root: false` keeps `dist/` as the remote plugin package root.
+- Candidate publication and stable promotion both fail if any GitHub Release asset exists.
+- HACS install simulation now models current tagged-release selection semantics before projecting the `dist/` tree.
+- Qualification remains repository-governed and is not uploaded as a release asset.
 
 ## Product behavior
 
-All rc.16 Overview behavior is preserved:
-- one Mobility model / one ownership;
-- URL-authoritative tab state and position restoration;
-- No charger as a first-class backend-owned assignment;
-- fail-closed N/A for missing backend semantics;
-- no mocked V2.x capabilities.
+No Mobility product semantics are changed from rc.17. Overview, Vehicles, Chargers, Charging, detail screens, No charger semantics, URL-authoritative routing and fail-closed behavior are preserved.
 
 ## Compatibility
 
-- Mobility UX: 1.0.0-rc.17
+- Mobility UX: 1.0.0-rc.18
 - Contract: `MOBILITY_PUBLIC_RUNTIME_V1`
 - Minimum backend: R43.2.60
 - Tested backend baseline: R43.2.65
-- Rollback: `v1.0.0-rc.16`
+- Rollback: `v1.0.0-rc.17`
 
-Target Home Assistant qualification must prove the installed HACS resource loads, expected custom elements register, Overview renders, internal routes remain subviews, refresh works, nested assets load, and rollback succeeds.
+Target Home Assistant qualification must use a clean HACS install and prove that `www/community/rhi-mobility-ux/` contains `rhi-mobility-ux.js` plus the packaged `assets/` tree before runtime promotion.

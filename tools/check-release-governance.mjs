@@ -86,10 +86,15 @@ for(const forbidden of ['npm test','npm run build','npm run clean']){
   if(releaseWorkflow.includes(forbidden)) throw new Error(`stable promotion must not rebuild/retest candidate: ${forbidden}`);
 }
 if(!publishWorkflow.includes('node tools/verify-dist.mjs') || !publishWorkflow.includes('node tools/check-hacs-package.mjs') || !publishWorkflow.includes('Existing immutable tag package and HACS metadata match current candidate')) throw new Error('publication must verify exact committed/idempotent HACS package and metadata');
-if(!publishWorkflow.includes('dist/PACKAGE_MANIFEST.json')) throw new Error('publication must attach package manifest evidence');
-if(/gh release create[\s\S]*dist\/rhi-mobility-ux\.js(?:\s|\\)/.test(publishWorkflow)) throw new Error('JS release asset would force HACS single-file mode');
+if(product.release_asset_policy!=='none') throw new Error('tagged HACS plugin release asset policy must be none');
+const publishCreateBlock=(publishWorkflow.match(/gh release create[\s\S]*?^\s*fi/m)||[''])[0];
+for(const forbidden of ['dist/','COMPATIBILITY.json','RELEASE_MANIFEST.json','QUALIFICATION.json','PACKAGE_MANIFEST.json','.sha256']){
+  if(publishCreateBlock.includes(forbidden)) throw new Error(`candidate publication must attach zero GitHub Release assets: ${forbidden}`);
+}
+if(publishWorkflow.includes('gh release upload')) throw new Error('candidate publication must not upload GitHub Release assets');
 if(!releaseWorkflow.includes('git archive "${TAG}" dist')) throw new Error('stable promotion must compare complete immutable tag dist package');
-if(!releaseWorkflow.includes('gh release upload "${TAG}" release/QUALIFICATION.json --clobber')) throw new Error('stable promotion must attach final qualification evidence');
+if(releaseWorkflow.includes('gh release upload')) throw new Error('stable promotion must not upload GitHub Release assets');
+if(!releaseWorkflow.includes("'.assets | length'")) throw new Error('stable promotion must verify zero GitHub Release assets');
 
 const workflowDir=path.join(root,'.github/workflows');
 const workflows=fs.readdirSync(workflowDir).filter(n=>/\.ya?ml$/.test(n)).sort();

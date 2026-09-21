@@ -44,21 +44,21 @@ jobs:
           RELEASE_SHA=$(gh release view "${TAG}" --json targetCommitish --jq '.targetCommitish')
           test "$RELEASE_SHA" = "$CANDIDATE_SHA"
           test "$(gh release view "${TAG}" --json isPrerelease --jq '.isPrerelease')" = false
-          test "$(gh release view "${TAG}" --json assets --jq '[.assets[].name] | index("rhi-mobility-ux.js")')" = null
+          test "$(gh release view "${TAG}" --json assets --jq '.assets | length')" = 0
 
           rm -rf /tmp/rhi-mobility-tag
           mkdir -p /tmp/rhi-mobility-tag
           git archive "${TAG}" dist | tar -x -C /tmp/rhi-mobility-tag
           diff -qr /tmp/rhi-mobility-tag/dist dist
           (cd /tmp/rhi-mobility-tag/dist && sha256sum -c rhi-mobility-ux.js.sha256)
-      - name: Attach final qualification and promote exact candidate
+      - name: Promote exact candidate without release assets
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           TAG=$(node -p "require('./release/QUALIFICATION.json').candidate_tag")
-          gh release upload "${TAG}" release/QUALIFICATION.json --clobber
+          test "$(gh release view "${TAG}" --json assets --jq '.assets | length')" = 0
           gh release edit "${TAG}" \
             --title "RHI Mobility UX ${TAG}" \
             --notes-file release/RELEASE_NOTES.md
