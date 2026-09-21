@@ -11,7 +11,7 @@ Category: **Dashboard**
 4. Confirm the Lovelace resource resolves to `/hacsfiles/rhi-mobility-ux/rhi-mobility-ux.js` as a JavaScript module.
 5. Refresh Home Assistant frontend resources/browser.
 
-No `/local/homebrain/...` Mobility resource or image copy is required by the HACS bundle.
+No `/local/homebrain/...` Mobility resource or image copy is required. The immutable release tag contains the complete `dist/` package and HACS installs its nested `assets/` tree beside the JS resource.
 
 ## Migrate an existing Mobility YAML dashboard
 
@@ -154,7 +154,7 @@ The same YAML is available as `documentation/homebrain_mobility.hacs.yaml`.
    - `/mobility-supervisor/planning` and `/strategies` render Intelligence screens;
    - `/mobility-supervisor/history` and `/log` render Insights screens;
    - charger detail navigation works;
-   - packaged images load from `/hacsfiles/rhi-mobility-ux/assets/...`;
+   - packaged images load from `/hacsfiles/rhi-mobility-ux/assets/...`;\n   - `/hacsfiles/rhi-mobility-ux/assets/vehicles/...` and `/assets/chargers/...` are physically present after install;
    - the footer reports the installed Mobility UX version;
    - browser refresh on overview and detail pages preserves rendering;
    - no `Custom element doesn't exist` or JavaScript runtime errors appear.
@@ -171,3 +171,20 @@ Do not overwrite an existing Git tag/release asset. A defective version is super
 ## Legacy retirement
 
 Do not delete the legacy `/local/homebrain/...` files until HACS install, refresh, navigation, rollback and runtime parity are proven. After proof, remove the old resource reference first, then retire the old files in a separate controlled cleanup.
+
+## Package layout verification
+
+The installed HACS directory must correspond to the generated `dist/` tree:
+
+```text
+www/community/rhi-mobility-ux/
+  rhi-mobility-ux.js
+  rhi-mobility-ux.js.sha256
+  PACKAGE_MANIFEST.json
+  assets/
+    branding/
+    vehicles/
+    chargers/
+```
+
+The GitHub Release intentionally does **not** contain an asset named `rhi-mobility-ux.js`. HACS therefore resolves the plugin from the immutable tag's `dist/` subtree rather than using single-file release-asset mode.
