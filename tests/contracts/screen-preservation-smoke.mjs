@@ -2,9 +2,9 @@ import fs from 'node:fs';
 
 const routes=fs.readFileSync(new URL('../../documentation/homebrain_mobility.hacs.yaml',import.meta.url),'utf8');
 const install=fs.readFileSync(new URL('../../documentation/HACS_INSTALLATION.md',import.meta.url),'utf8');
-const dashboard=fs.readFileSync(new URL('../../src/screens/90-mobility-dashboard-card.js',import.meta.url),'utf8');
-const charger=fs.readFileSync(new URL('../../src/screens/80-charger-maintenance-card.js',import.meta.url),'utf8');
-const detail=fs.readFileSync(new URL('../../src/screens/95-placeholder-and-router-cards.js',import.meta.url),'utf8');
+const dashboard=fs.readFileSync(new URL('../../src/ui/screens/mobility-dashboard.js',import.meta.url),'utf8');
+const charger=fs.readFileSync(new URL('../../src/ui/screens/charger-maintenance.js',import.meta.url),'utf8');
+const detail=fs.readFileSync(new URL('../../src/ui/screens/router.js',import.meta.url),'utf8');
 
 const expectedViews = [
   ['Overview','overview'],
