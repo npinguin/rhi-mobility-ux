@@ -1,23 +1,25 @@
-# v1.0.0-rc.12 — Readable footer and cache-safe company asset TEST CANDIDATE
+# v1.0.0-rc.13 — Mobility-first Energy-style Overview TEST CANDIDATE
 
 ## Scope
 
-Cross-package UX usability and browser-cache correction over rc.11. Existing Mobility routes, screens, actions, backend semantics, header geometry and company artwork remain intact.
+Product-level redesign of the Mobility Overview on top of rc.12. The shared header, readable/actionable footer, cache-safe company logo, existing routes, detail screens and backend contracts remain intact.
 
-- increases the shared footer to a readable 11px desktop / 10.5px phone with full opacity;
-- replaces hover-only issue disclosure with an expandable `issues · details` control;
-- expanded details show the concrete runtime/backend conditions plus backend release and contract context;
-- keeps one concise warning/error summary in the normal footer;
-- versions the company-logo request with the UX package version so Chrome cannot reuse a stale logo URL after a HACS update/reload;
-- keeps the canonical shared SVG unchanged;
-- keeps footer and asset-refresh behavior aligned with Energy.
+- adopts the calm Energy information hierarchy without importing Energy semantics;
+- makes Mobility purpose explicit: readiness, charging, security, comfort, maintenance and required action;
+- replaces the primary `Energy today` KPI with Mobility-owned `Attention`;
+- shows Vehicles, Charging now, Chargers and Attention as the four primary status signals;
+- keeps direct vehicle actions, charging plan, preconditioning and charger assignment close to the overview;
+- keeps vehicle rows contract-driven for range/charge, security, comfort, maintenance and commands;
+- treats chargers as supporting Mobility infrastructure;
+- adds backend-owned Next action, Recent activity and a concise conclusion;
+- preserves fail-closed rendering when canonical backend evidence is unavailable.
 
 ## Compatibility
 
-- Mobility UX: 1.0.0-rc.12
+- Mobility UX: 1.0.0-rc.13
 - Contract: `MOBILITY_PUBLIC_RUNTIME_V1`
 - Minimum backend: `R43.2.60`
 - Tested backend baseline: `R43.2.65`
-- Rollback release: `v1.0.0-rc.11`
+- Rollback release: `v1.0.0-rc.12`
 
 Stable promotion remains blocked until target Home Assistant runtime and rollback proof are PASS.
