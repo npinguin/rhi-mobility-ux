@@ -21,10 +21,10 @@ const required=[
   '.rhiUxFooterIssue.warning{color:#9a6700!important}',
   '.rhiUxFooterIssue.error{color:#b42318!important}',
   '.rhiUxFooter{font-size:10.5px!important;gap:4px 8px!important;',
-  'rhiMobilityAssetUrl(HB_MOBILITY_COMPANY_LOGO, UX_VERSION)'
+  'const HB_MOBILITY_COMPANY_LOGO_SVG = "__RHI_COMPANY_LOGO_INLINE__";'
 ];
 for(const token of required) if(!source.includes(token)) throw new Error('shared footer/asset contract missing: '+token);
 for(const forbidden of ['hi-release-footer','Source Mobility release contract']) if(source.includes(forbidden)) throw new Error('legacy Mobility-specific footer structure remains: '+forbidden);
 if(!doc.includes('Hover-only disclosure is not sufficient')) throw new Error('shared footer documentation missing disclosure rule');
-if(!doc.includes('package-versioned URL')) throw new Error('shared footer documentation missing asset refresh rule');
-console.log('PASS shared readable/actionable footer and versioned company asset');
+if(!doc.includes('inline bundle delivery')) throw new Error('shared footer documentation missing HACS-safe asset delivery rule');
+console.log('PASS shared readable/actionable footer and HACS-safe company asset delivery');
