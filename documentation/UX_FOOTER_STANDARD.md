@@ -35,10 +35,6 @@ Healthy footer styling is quiet but readable: `#64748b`, 11px, weight 520, opaci
 - Issue summary is presentation-only; concrete issue content must come from runtime/backend diagnostics already owned by that module.
 - Expanded details may add a generic verification instruction, but must not fabricate a remediation specific to a backend fault that is not known.
 
-## Asset refresh contract
-
-Shared brand assets must use **inline bundle delivery** when the UX package cannot guarantee that HACS will expose nested static asset paths. The inline content must be generated from the canonical source asset during build; it must not duplicate or fork the artwork in source code. If a package intentionally loads a shared asset externally, that URL must still be package-versioned.
-
 ## Drift rule
 
-Module packages may change the module name and module-owned issue text only. Footer geometry, colors, typography, disclosure behavior and asset-delivery behavior must change across every UX package in the same release cycle.
+Module packages may change the module name and module-owned issue text only. Footer geometry, colors, typography and disclosure behavior must change across every UX package in the same release cycle. Branding/asset delivery is owned by the branding contract, not by the footer standard.
