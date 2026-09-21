@@ -329,30 +329,7 @@ class HomeBrainAssetRuntime {
   }
 
   imageCatalog() {
-    // UX-owned image catalog. Backend owns image_key only; UX resolves packaged paths.
-    return [
-      { image_key:"vehicle_audi_q8", package_file:rhiMobilityAssetUrl("vehicles/vehicle_audi_q8.png"), fallback_image_key:"vehicle_fallback" },
-      { image_key:"vehicle_audi_q8_hero", package_file:rhiMobilityAssetUrl("vehicles/vehicle_audi_q8_hero.png"), fallback_image_key:"vehicle_audi_q8" },
-      { image_key:"vehicle_mercedes_gla", package_file:rhiMobilityAssetUrl("vehicles/vehicle_mercedes_gla.png"), fallback_image_key:"vehicle_fallback" },
-      { image_key:"vehicle_vw_id4", package_file:rhiMobilityAssetUrl("vehicles/vehicle_vw_id4.png"), fallback_image_key:"vehicle_fallback" },
-      { image_key:"vehicle_bmw_ix1_phev", package_file:rhiMobilityAssetUrl("vehicles/vehicle_bmw_ix1_phev.png"), fallback_image_key:"vehicle_unknown_profile" },
-      { image_key:"vehicle_bmw_x1", package_file:rhiMobilityAssetUrl("vehicles/vehicle_bmw_ix1_phev.png"), fallback_image_key:"vehicle_unknown_profile" },
-      { image_key:"vehicle_bmw_ix1_phev_hero", package_file:rhiMobilityAssetUrl("vehicles/vehicle_bmw_ix1_phev_hero.png"), fallback_image_key:"vehicle_bmw_ix1_phev" },
-      { image_key:"vehicle_renault_scenic_techno_ev", package_file:rhiMobilityAssetUrl("vehicles/vehicle_renault_scenic_techno_ev.png"), fallback_image_key:"vehicle_unknown_profile" },
-      { image_key:"vehicle_renault_scenic", package_file:rhiMobilityAssetUrl("vehicles/vehicle_renault_scenic_techno_ev.png"), fallback_image_key:"vehicle_unknown_profile" },
-      { image_key:"vehicle_renault_scenic_techno_ev_hero", package_file:rhiMobilityAssetUrl("vehicles/vehicle_renault_scenic_techno_ev_hero.png"), fallback_image_key:"vehicle_renault_scenic_techno_ev" },
-      { image_key:"vehicle_unknown_profile", package_file:rhiMobilityAssetUrl("vehicles/vehicle_unknown_profile.png"), fallback_image_key:"vehicle_fallback" },
-      { image_key:"vehicle_unknown_profile_hero", package_file:rhiMobilityAssetUrl("vehicles/vehicle_unknown_profile_hero.png"), fallback_image_key:"vehicle_unknown_profile" },
-      { image_key:"vehicle_guest", package_file:rhiMobilityAssetUrl("vehicles/vehicle_unknown_profile.png"), fallback_image_key:"vehicle_unknown_profile" },
-      { image_key:"vehicle_guest_generic", package_file:rhiMobilityAssetUrl("vehicles/vehicle_unknown_profile.png"), fallback_image_key:"vehicle_unknown_profile" },
-      { image_key:"vehicle_fallback", package_file:rhiMobilityAssetUrl("vehicles/vehicle_fallback.png"), fallback_image_key:"vehicle_fallback" },
-      { image_key:"charger_wallbox", package_file:rhiMobilityAssetUrl("chargers/charger_wallbox.png"), fallback_image_key:"charger_fallback" },
-      { image_key:"charger_wallbox_white", package_file:rhiMobilityAssetUrl("chargers/charger_wallbox_white.png"), fallback_image_key:"charger_wallbox" },
-      { image_key:"charger_wallbox_black", package_file:rhiMobilityAssetUrl("chargers/charger_wallbox_black.png"), fallback_image_key:"charger_wallbox" },
-      { image_key:"charger_peblar", package_file:rhiMobilityAssetUrl("chargers/charger_peblar.png"), fallback_image_key:"charger_fallback" },
-      { image_key:"charger_utility_plug", package_file:rhiMobilityAssetUrl("chargers/charger_utility_plug.png"), fallback_image_key:"charger_fallback" },
-      { image_key:"charger_fallback", package_file:rhiMobilityAssetUrl("chargers/charger_fallback.png"), fallback_image_key:"charger_fallback" }
-    ];
+    return rhiMobilityImageCatalog();
   }
 
   resolveImageCatalogEntry(imageKey = "") {
