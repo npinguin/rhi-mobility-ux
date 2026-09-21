@@ -40,7 +40,7 @@ Internal structure:
 - HomeBrainChargerAdapter: charger contract mapping
 */
 
-const UX_VERSION = "1.0.0-rc.11";
+const UX_VERSION = "1.0.0-rc.12";
 const HB_MOBILITY_COMPANY_LOGO = "branding/company-logo.svg";
 
 const HB_MOBILITY_BASE_PATH = "/mobility-supervisor";
@@ -96,7 +96,7 @@ function hbMobilityModuleFor(active = "overview") {
 
 function hbMobilityCompanyBrand() {
   return `<div class="hi-company-brand" aria-label="Robotix.be · DomotiX · Network · Security">
-    <img class="hi-company-logo" src="${rhiMobilityAssetUrl(HB_MOBILITY_COMPANY_LOGO)}" alt="Robotix.be — DomotiX · Network · Security" />
+    <img class="hi-company-logo" src="${rhiMobilityAssetUrl(HB_MOBILITY_COMPANY_LOGO, UX_VERSION)}" alt="Robotix.be — DomotiX · Network · Security" />
   </div>`;
 }
 
@@ -132,6 +132,7 @@ function hbMobilityReleaseFooter(rt) {
   const esc = (v) => rt && rt.escape ? rt.escape(v) : String(v ?? "").replace(/[&<>]/g, (ch) => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[ch]));
   const rel = rt && rt.releaseContract ? rt.releaseContract() : {};
   const backend = rel.backend_release || rel.backend_version || "Unknown";
+  const contract = rel.contract_version || "Unknown";
   const details = [];
   let severity = "";
   try {
@@ -158,25 +159,38 @@ function hbMobilityReleaseFooter(rt) {
       if (["NOT_PROVEN","PENDING","UNKNOWN"].includes(physical.toUpperCase())) {
         if (!severity) severity = "warning";
         details.push("Physical execution proof pending.");
+      } else if (physical !== "Unknown") {
+        details.push(`Physical acceptance: ${physical}.`);
       }
       if (["NOT_PROVEN","PENDING","UNKNOWN"].includes(releaseAcceptance.toUpperCase())) {
         if (!severity) severity = "warning";
         details.push("Release acceptance proof pending.");
+      } else if (releaseAcceptance !== "Unknown") {
+        details.push(`Release acceptance: ${releaseAcceptance}.`);
       }
       if (summary.diagnostic_bad_count) {
         if (!severity) severity = "warning";
-        const rows = (summary.diagnostics || []).filter((row) => row.bad).slice(0, 3);
-        details.push(`Diagnostics: ${esc(summary.diagnostic_status || "degraded")}${rows.length ? ` — ${rows.map((row) => `${esc(row.label)} ${esc(row.state)}`).join(", ")}` : ""}`);
+        const rows = (summary.diagnostics || []).filter((row) => row.bad).slice(0, 5);
+        details.push(`Diagnostics: ${summary.diagnostic_status || "degraded"}.`);
+        rows.forEach((row) => details.push(`${row.label || "Diagnostic"}: ${row.state || "Unknown"}.`));
       }
     }
   } catch (e) {
     if (!severity) severity = "warning";
     details.push("Runtime diagnostics unavailable.");
   }
-  const issue = details.length
-    ? `<span class="rhiUxFooterIssue ${severity || "warning"}" title="${esc(details.join("\n"))}">${severity === "error" ? "Runtime issue" : `${details.length} issue${details.length === 1 ? "" : "s"}`}</span>`
-    : "";
-  return `<footer class="rhiUxFooter" aria-label="RHI Mobility release information"><span>RHI Mobility UX ${esc(UX_VERSION)}</span><span>Backend ${esc(backend)}</span>${issue}</footer>`;
+
+  const issueDetails = details.length ? `
+    <details class="rhiUxFooterDetails">
+      <summary class="rhiUxFooterIssue ${severity || "warning"}">${severity === "error" ? "Runtime issue" : `${details.length} issue${details.length === 1 ? "" : "s"}`} · details</summary>
+      <div class="rhiUxFooterPanel" role="status">
+        <div class="rhiUxFooterPanelMeta">Backend ${esc(backend)} · Contract ${esc(contract)}</div>
+        ${details.map((line) => `<div class="rhiUxFooterProblem"><span class="rhiUxFooterProblemDot" aria-hidden="true"></span><span>${esc(line)}</span></div>`).join("")}
+        <div class="rhiUxFooterAction">Resolve the listed runtime/backend condition, then reload this view to verify recovery.</div>
+      </div>
+    </details>` : "";
+
+  return `<footer class="rhiUxFooter" aria-label="RHI Mobility release information"><span>RHI Mobility UX ${esc(UX_VERSION)}</span><span>Backend ${esc(backend)}</span>${issueDetails}</footer>`;
 }
 
 function hbMobilityOutcomeStrip(rt, contextId = "mobility", fallback = {}) {
@@ -361,11 +375,21 @@ function hbMobilitySharedShellStyles() {
     .status-strip .tone-green>ha-icon{color:#16A765!important}.status-strip .tone-blue>ha-icon{color:#1467F5!important}.status-strip .tone-orange>ha-icon{color:#F59E0B!important}
     .section-title{margin-top:4px!important;margin-bottom:8px!important}
     .hi-version-block{display:none!important}
-    .rhiUxFooter{display:flex!important;justify-content:center!important;align-items:center!important;flex-wrap:wrap!important;gap:4px 9px!important;margin:7px 3px 0!important;padding:4px 2px!important;border:0!important;background:transparent!important;color:#94a3b8!important;font-size:9px!important;font-weight:500!important;line-height:1.2!important;opacity:.82!important;white-space:normal!important;overflow:visible!important;text-overflow:clip!important}
-    .rhiUxFooter span+span:before{content:"·";margin-right:9px;color:#cbd5e1}
-    .rhiUxFooterIssue{font-weight:650!important}
-    .rhiUxFooterIssue.warning{color:#b7791f!important}
+    .rhiUxFooter{display:flex!important;justify-content:center!important;align-items:center!important;flex-wrap:wrap!important;gap:5px 10px!important;margin:10px 3px 0!important;padding:7px 4px!important;border:0!important;background:transparent!important;color:#64748b!important;font-size:11px!important;font-weight:520!important;line-height:1.35!important;opacity:1!important;white-space:normal!important;overflow:visible!important;text-overflow:clip!important}
+    .rhiUxFooter>span+span:before{content:"·";margin-right:10px;color:#cbd5e1}
+    .rhiUxFooterDetails{position:relative!important;margin:0!important}
+    .rhiUxFooterDetails>summary{list-style:none!important;cursor:pointer!important;display:inline-flex!important;align-items:center!important;gap:4px!important;white-space:nowrap!important}
+    .rhiUxFooterDetails>summary::-webkit-details-marker{display:none}
+    .rhiUxFooterDetails>summary:after{content:"▾";font-size:9px;color:currentColor}
+    .rhiUxFooterDetails[open]>summary:after{content:"▴"}
+    .rhiUxFooterIssue{font-weight:700!important}
+    .rhiUxFooterIssue.warning{color:#9a6700!important}
     .rhiUxFooterIssue.error{color:#b42318!important}
+    .rhiUxFooterPanel{flex-basis:100%;width:min(720px,calc(100vw - 48px));box-sizing:border-box;margin:7px auto 2px;padding:10px 12px;border:1px solid #dbe5f0;border-radius:10px;background:#fff;color:#334155;font-size:11px;line-height:1.4;box-shadow:0 8px 20px rgba(15,23,42,.06)}
+    .rhiUxFooterPanelMeta{font-size:10px;font-weight:650;color:#64748b;margin-bottom:6px}
+    .rhiUxFooterProblem{display:grid;grid-template-columns:8px minmax(0,1fr);gap:7px;align-items:start;padding:3px 0}
+    .rhiUxFooterProblemDot{width:6px;height:6px;margin-top:5px;border-radius:50%;background:#d97706}
+    .rhiUxFooterAction{margin-top:7px;padding-top:7px;border-top:1px solid #eef2f7;color:#475569;font-weight:600}
 
     @media(max-width:1180px){
       .hi-domain-shell{--rhi-company-area-min:220px;--rhi-company-area-max:250px;--rhi-company-logo-max-width:220px;--rhi-company-logo-max-height:94px;--rhi-company-logo-padding:8px 12px}
@@ -399,7 +423,7 @@ function hbMobilitySharedShellStyles() {
       .domain-tabs{display:flex;overflow-x:auto;white-space:nowrap;gap:4px;min-height:35px}
       .domain-tab{min-height:35px;padding:6px 11px;font-size:10.5px}
       .placeholder-grid{grid-template-columns:1fr}
-      .rhiUxFooter{font-size:8.5px!important;gap:3px 7px!important}.rhiUxFooter span+span:before{margin-right:7px!important}
+      .rhiUxFooter{font-size:10.5px!important;gap:4px 8px!important;padding:6px 3px!important}.rhiUxFooter>span+span:before{margin-right:8px!important}.rhiUxFooterPanel{width:min(100%,calc(100vw - 28px));font-size:10.5px}
     }
     @media(max-width:430px){
       .hi-domain-shell{--rhi-company-logo-max-width:102px;--rhi-company-logo-max-height:42px}
