@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.0.0-rc.20 — vehicle management workspace
+
+- Promotes Vehicles into the user-facing vehicle-management workspace.
+- Adds All / Active / Disabled / Attention filtering and configured-order / name sorting.
+- Adds a Home Assistant-native entry point to Mobility vehicle/profile configuration instead of duplicating the backend Options flow.
+- Makes lifecycle Activate / Disable explicit while preserving backend-owned charger assignment, controls and quick actions.
+- Removes generic supervisor emphasis from Vehicles and keeps inactive vehicles compact.
+- Preserves `MOBILITY_PUBLIC_RUNTIME_V1` and the R43.2.65 backend baseline.
+
 ## 1.0.0-rc.19 — shared top-navigation alignment
 
 - Aligns Mobility / Intelligence / Insights into three equal-width primary navigation columns.
