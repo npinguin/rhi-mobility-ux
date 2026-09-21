@@ -491,17 +491,17 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
 
       <section class="ov-quickbar energy-like" aria-label="Quick actions">
         <span class="ov-quick-title">Quick actions</span>
-        <button class="ov-nav-action primary" data-nav="${hbMobilityPath("/vehicles")}"><ha-icon icon="mdi:car-cog"></ha-icon>Vehicle actions</button>
+        <button class="ov-nav-action primary" data-nav="${hbMobilityPath("/dashboard")}"><ha-icon icon="mdi:car-cog"></ha-icon>Vehicle actions</button>
         <button class="ov-nav-action" data-nav="${hbMobilityPath("/planning")}"><ha-icon icon="mdi:calendar-clock"></ha-icon>Charging plan</button>
-        <button class="ov-nav-action" data-nav="${hbMobilityPath("/vehicles")}"><ha-icon icon="mdi:fan"></ha-icon>Precondition</button>
-        <button class="ov-nav-action" data-nav="${hbMobilityPath("/vehicles")}"><ha-icon icon="mdi:ev-station"></ha-icon>Change charger</button>
+        <button class="ov-nav-action" data-nav="${hbMobilityPath("/dashboard")}"><ha-icon icon="mdi:fan"></ha-icon>Precondition</button>
+        <button class="ov-nav-action" data-nav="${hbMobilityPath("/dashboard")}"><ha-icon icon="mdi:ev-station"></ha-icon>Change charger</button>
       </section>
 
       <section class="ov-core-grid">
         <section class="ov-panel ov-core-vehicles">
           <div class="ov-panel-head">
             <div><h2>Vehicles</h2><p>Range and charge first, with security, comfort, maintenance and direct actions alongside.</p></div>
-            <button data-nav="${hbMobilityPath("/vehicles")}">All vehicles <ha-icon icon="mdi:chevron-right"></ha-icon></button>
+            <button data-nav="${hbMobilityPath("/dashboard")}">All vehicles <ha-icon icon="mdi:chevron-right"></ha-icon></button>
           </div>
           <div class="ov-vehicle-list">${activeVehicles.length ? activeVehicles.map((vehicle)=>this.renderOverviewVehicleRow(rt,vehicle,chargers)).join("") : `<div class="ov-empty">No active vehicles.</div>`}</div>
         </section>
@@ -644,7 +644,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
           if (!forceRender && this._lastSignature === signature && this._lastRenderOk && !(activeElement && ["SELECT", "INPUT"].includes(activeElement.tagName))) return;
           this._lastSignature = signature;
           this._lastRenderOk = true;
-          const navActive = this.config?.nav_active || "vehicles";
+          const navActive = this._localNavActive || this.config?.nav_active || "vehicles";
           const pageContent = navActive === "overview"
             ? this.renderOverviewPage(rt, activeVehicles, chargers, activityRows, reco)
             : this.renderVehiclesPage(rt, activeVehicles, inactiveVehicles, chargers, reco, plan, trust, activity, intelligenceSummary);
@@ -713,7 +713,17 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
       rt.callCommand(command, { [parameter]: value });
       select.value = "";
     }));
-    this.shadowRoot.querySelectorAll("button[data-nav]").forEach((btn)=>btn.addEventListener("click",()=>rt.navigate(btn.getAttribute("data-nav"))));
+    this.shadowRoot.querySelectorAll("button[data-nav]").forEach((btn)=>btn.addEventListener("click",()=>{
+      const target = btn.getAttribute("data-nav") || "";
+      if (target === hbMobilityPath("/overview") || target === hbMobilityPath("/dashboard")) {
+        this._localNavActive = target.endsWith("/overview") ? "overview" : "vehicles";
+        this._forceRender = true;
+        this._lastSignature = "";
+        this.hass = this._hass;
+        return;
+      }
+      rt.navigate(target);
+    }));
     this.shadowRoot.querySelectorAll("button[data-lifecycle-asset]").forEach((btn)=>btn.addEventListener("click",()=>{
       if (btn.disabled) return;
       const assetId = btn.getAttribute("data-lifecycle-asset") || "";

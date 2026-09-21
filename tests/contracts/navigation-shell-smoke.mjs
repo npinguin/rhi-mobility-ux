@@ -23,7 +23,7 @@ const required = [
   'class="hi-module-tabs"',
   'class="hi-product-area"',
   'class="hi-company-brand"',
-  'branding/company-logo.svg',
+  'const HB_MOBILITY_COMPANY_LOGO_SVG = "__RHI_COMPANY_LOGO_INLINE__";',
   'class="hi-company-logo"',
   'class="domain-tab-icon"',
   '--rhi-company-logo-max-width',
@@ -40,7 +40,7 @@ if (!intelligenceBlock.includes('Planning') || !intelligenceBlock.includes('Stra
 const insightsBlock = header.slice(header.indexOf('key: "insights"'), header.indexOf('const HB_MOBILITY_NAV_ITEMS'));
 if (!insightsBlock.includes('History') || !insightsBlock.includes('Log')) throw new Error('Insights submenu drift');
 
-if (!dashboard.includes('const navActive = this.config?.nav_active || "vehicles"')) throw new Error('legacy dashboard mount does not default to Vehicles navigation');
+if (!dashboard.includes('const navActive = this._localNavActive || this.config?.nav_active || "vehicles"')) throw new Error('dashboard does not preserve local Overview/Vehicles switching');
 if (!dashboard.includes('hbMobilityNav(navActive)')) throw new Error('dashboard does not render canonical navigation from normalized active route');
 if (!chargers.includes('hbMobilityNav(this.config?.nav_active || "chargers")')) throw new Error('charger screen does not preserve grouped navigation');
 
@@ -48,6 +48,8 @@ for (const path of ['overview','dashboard','charger-maintenance','charging','pla
   if (!routes.includes(`path: ${path}`)) throw new Error(`dashboard route missing: ${path}`);
 }
 
-if (!routes.includes('title: Overview\n    path: overview')) throw new Error('Overview must be additive on /overview');
+if (!routes.includes('title: Overview\n    path: overview')) throw new Error('Overview route definition missing');
 if (!routes.includes('title: Vehicles\n    path: dashboard')) throw new Error('legacy Vehicles route /dashboard must be preserved');
-console.log('PASS unified RHI Mobility header, shared brand asset, compact secondary icons and additive grouped navigation');
+if (!dashboard.includes('target === hbMobilityPath("/overview") || target === hbMobilityPath("/dashboard")')) throw new Error('Overview/Vehicles local navigation fallback missing');
+if (dashboard.includes('hbMobilityPath("/vehicles")')) throw new Error('invalid /vehicles route leaked into dashboard');
+console.log('PASS unified RHI Mobility header, inline shared brand and resilient Overview/Vehicles navigation');

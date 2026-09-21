@@ -20,8 +20,8 @@ if(sourceText.includes('<rect') || /background/i.test(sourceText)) throw new Err
 
 const headerText=fs.readFileSync(header,'utf8');
 for(const token of [
-  'const HB_MOBILITY_COMPANY_LOGO = "branding/company-logo.svg";',
-  'rhiMobilityAssetUrl(HB_MOBILITY_COMPANY_LOGO, UX_VERSION)',
+  'const HB_MOBILITY_COMPANY_LOGO_SVG = "__RHI_COMPANY_LOGO_INLINE__";',
+  'HB_MOBILITY_COMPANY_LOGO_SVG',
   '--rhi-company-area-min',
   '--rhi-company-area-max',
   '--rhi-company-logo-max-width',
@@ -31,7 +31,10 @@ for(const token of [
   'object-fit:contain',
   'object-position:center'
 ]) if(!headerText.includes(token)) throw new Error('shared company-brand contract missing: '+token);
-for(const forbidden of ['robotix-logo.webp','filter:saturate','data:image/']) if(headerText.includes(forbidden)) throw new Error('company-brand drift: '+forbidden);
+for(const forbidden of ['robotix-logo.webp','filter:saturate','data:image/','rhiMobilityAssetUrl(HB_MOBILITY_COMPANY_LOGO']) if(headerText.includes(forbidden)) throw new Error('company-brand drift: '+forbidden);
 
-if(!headerText.includes('rhiMobilityAssetUrl(HB_MOBILITY_COMPANY_LOGO, UX_VERSION)')) throw new Error('company logo URL must be package-versioned');
-console.log('PASS shared Robotix company-brand asset, hash, source/generated parity, portable slot and versioned browser URL');
+const distText=fs.readFileSync(new URL('../dist/rhi-mobility-ux.js',import.meta.url),'utf8');
+if(distText.includes('__RHI_COMPANY_LOGO_INLINE__')) throw new Error('company logo inline placeholder leaked into runtime bundle');
+for(const token of ['Robotix.be','DomotiX · Network · Security','#0B4C86','#5B95C8']) if(!distText.includes(token)) throw new Error('runtime bundle missing inline canonical brand token: '+token);
+if(distText.includes('/assets/branding/company-logo.svg')) throw new Error('runtime bundle still depends on external company-logo asset URL');
+console.log('PASS shared Robotix company-brand asset, canonical hash, generated parity and inline HACS-safe runtime rendering');
