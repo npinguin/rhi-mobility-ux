@@ -24,6 +24,25 @@ Forbidden for screens/components:
 - property semantic fallback;
 - local component/family reconstruction.
 
+
+## One semantic model, multiple projections
+
+Mobility UX has one semantic ownership model. Tabs are projections, not independent interpreters.
+
+```text
+MOBILITY_PUBLIC_RUNTIME_V1
+        ↓
+runtime
+        ↓
+domain adapters / canonical UX models
+        ↓
+Overview | Vehicles | Chargers | Charging | Detail
+```
+
+No screen may independently redefine lifecycle, selected charger, readiness, attention, user relationship, permission or action semantics. Missing backend truth renders N/A/fail-closed and is tracked in `documentation/BACKEND_INTERFACE_BACKLOG.md`.
+
+`vehicle.selected_charger` unset semantics are normalized once in the vehicle adapter. **No charger** is shown only from backend-owned `allow_none` / `none_value` metadata; UX never manufactures an unset write option.
+
 ## Ownership invariants
 
 - Charger product state: `charger.operating_state`.
