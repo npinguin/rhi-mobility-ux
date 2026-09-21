@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.0-rc.18 — HACS full-tree delivery correction
+
+- Removes all GitHub Release assets from tagged HACS plugin releases.
+- Fixes clean-install behavior where evidence-only release assets displaced the immutable tag `dist/` package.
+- Makes zero release assets a hard publication and stable-promotion invariant.
+- Makes HACS install simulation model actual tagged-release selection before installing `dist/`.
+- Preserves rc.17 Mobility runtime behavior and `MOBILITY_PUBLIC_RUNTIME_V1`.
+
 ## 1.0.0-rc.17 — HACS runtime install hardening
 
 - Makes standard HACS `dist/` plugin semantics explicit with `content_in_root: false`.
