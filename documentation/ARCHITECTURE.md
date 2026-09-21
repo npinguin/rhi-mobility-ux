@@ -38,3 +38,23 @@ Forbidden for screens/components:
 ## Actual/readback
 
 Operational values render canonical actual/readback by default. Requested/setpoint values are interaction state only while editing or while backend write state is pending. The migration RC does not redesign existing controls; this invariant is preserved as the forward contract requirement.
+
+## Test architecture
+
+Test ownership mirrors runtime ownership.
+
+```text
+runtime/domain contract tests
+        ↓
+UX behavior owners
+        ↓
+shared shell owners
+        ↓
+package verification
+        ↓
+release/qualification gates
+```
+
+An invariant is asserted by exactly one owner. Other suites may rely on it but may not freeze its implementation. The normative mapping is `tests/OWNERSHIP.json`; see `documentation/TEST_GOVERNANCE.md`.
+
+This is an architectural boundary, not a testing preference. Cross-owner assertions are test technical debt because they make unrelated changes fail together and recreate the same drift that package ownership is intended to prevent.
