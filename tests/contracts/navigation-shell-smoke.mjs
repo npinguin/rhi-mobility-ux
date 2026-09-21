@@ -35,7 +35,8 @@ if (!intelligenceBlock.includes('Planning') || !intelligenceBlock.includes('Stra
 const insightsBlock = header.slice(header.indexOf('key: "insights"'), header.indexOf('const HB_MOBILITY_NAV_ITEMS'));
 if (!insightsBlock.includes('History') || !insightsBlock.includes('Log')) throw new Error('Insights submenu drift');
 
-if (!dashboard.includes('hbMobilityNav(this.config?.nav_active || "overview")')) throw new Error('dashboard does not default to Overview navigation');
+if (!dashboard.includes('const navActive = this.config?.nav_active || "overview"')) throw new Error('dashboard does not default to Overview navigation');
+if (!dashboard.includes('hbMobilityNav(navActive)')) throw new Error('dashboard does not render canonical navigation from normalized active route');
 if (!chargers.includes('hbMobilityNav(this.config?.nav_active || "chargers")')) throw new Error('charger screen does not preserve grouped navigation');
 
 for (const path of ['dashboard','vehicles','charger-maintenance','charging','planning','strategies','history','log']) {

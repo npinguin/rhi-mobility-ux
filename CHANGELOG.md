@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.0.0-rc.7 — canonical shell and action-first Overview
+
+- Implements the approved Mobility Overview composition with hero, four KPIs, quick actions, Vehicles, Chargers, Recent activity and Next actions.
+- Keeps range/energy, security, comfort, maintenance and charging context visible on Overview vehicle rows.
+- Allows inline assign/change charger using the existing backend-published selected-charger property.
+- Preserves backend-owned vehicle quick actions directly on Overview rows.
+- Moves canonical navigation above vehicle/charger detail heroes.
+- Normalizes desktop shell width across Overview, Chargers, detail and placeholder screens.
+- Prevents mock-only values from leaking into runtime presentation.
+- Adds canonical shell/Overview regression coverage.
+- Status: source candidate until immutable TEST CANDIDATE publication.
+
 ## 1.0.0-rc.6 — Energy-style header and grouped navigation
 
 - Aligns Mobility header typography, spacing and visual tokens with Energy.

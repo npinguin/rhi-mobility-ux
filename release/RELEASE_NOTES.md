@@ -1,29 +1,36 @@
-# v1.0.0-rc.6 — Energy-style Mobility header and grouped navigation TEST CANDIDATE
+# v1.0.0-rc.7 — canonical Mobility shell and action-first Overview TEST CANDIDATE
 
 ## Scope
 
-This candidate changes only the Mobility UX shell and navigation grouping. Existing Mobility runtime semantics, backend ownership, cards and command behavior are unchanged.
+This candidate implements the approved Mobility Overview and removes remaining shell drift across list/detail screens. It preserves `MOBILITY_PUBLIC_RUNTIME_V1`, backend semantic authority and existing command/property write contracts.
 
 ## Included
 
-- aligns Mobility typography, spacing, blue/gray tokens and two-level header structure with the Energy UX;
-- keeps the Home Intelligence / MOBILITY identity on the left;
-- adds top-level modules: Mobility, Intelligence and Insights;
-- groups Overview, Vehicles, Chargers and Charging under Mobility;
-- groups Planning and Strategies under Intelligence;
-- groups History and Log under Insights;
-- keeps Robotix.be branding isolated in one replaceable, right-aligned vector brand helper;
-- preserves existing dashboard and charger content by reusing the current cards for the new grouped routes;
-- uses neutral placeholder routes only where no dedicated current screen exists;
-- adds a regression test that guards the module/submenu ownership and route map.
+- one canonical two-level Mobility shell on Overview, Vehicles, Chargers, asset details and Intelligence/Insights placeholders;
+- asset detail navigation is moved above the hero instead of being embedded inside vehicle/charger content;
+- canonical 1560 px desktop shell width across Overview, Chargers, placeholders and asset detail screens;
+- new Overview matching the approved product direction:
+  - hero with Mobility identity and vehicle visual;
+  - Vehicles / Chargers / Charging / Energy today KPIs;
+  - action-first quick bar;
+  - Vehicles panel;
+  - Chargers panel;
+  - Recent activity;
+  - Next actions;
+- each Overview vehicle row keeps range/energy, security, comfort, maintenance and charging context visible from backend-owned contracts;
+- selected charger is editable inline per vehicle through the existing published `vehicle.selected_charger` property contract;
+- backend-owned per-vehicle quick actions remain available directly from the Overview;
+- charger rows consume canonical charger operating state and power;
+- mock-only numbers are never hardcoded: `Energy today` is unavailable unless explicitly published by Mobility;
+- new regression gate for canonical shell placement, Overview structure, assignment control and hardcoded mock-value prevention.
 
 ## Compatibility
 
 - Contract: `MOBILITY_PUBLIC_RUNTIME_V1`
 - Minimum backend: `R43.2.60`
 - Tested backend baseline: `R43.2.65`
-- Previous candidate: `v1.0.0-rc.5`
+- Previous candidate: `v1.0.0-rc.6`
 
 ## Qualification status
 
-Static validation and HACS validation are required before TEST CANDIDATE publication. Target Home Assistant desktop/tablet/mobile header rendering and route navigation must still be proven before stable promotion.
+Static validation and HACS validation are required before TEST CANDIDATE publication. Target Home Assistant proof must still confirm the Overview at desktop/tablet/mobile widths, inline charger assignment/readback, direct commands, detail navigation, and shell consistency before stable promotion.
