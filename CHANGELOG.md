@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.0.0-rc.6 — Energy-style header and grouped navigation
+
+- Aligns Mobility header typography, spacing and visual tokens with Energy.
+- Introduces top-level Mobility, Intelligence and Insights modules.
+- Groups Overview / Vehicles / Chargers / Charging under Mobility.
+- Groups Planning / Strategies under Intelligence.
+- Groups History / Log under Insights.
+- Keeps Robotix.be branding sharp, vector-based, replaceable and right aligned.
+- Reuses existing screens; no Mobility backend semantics or command behavior change.
+- Adds navigation-shell regression coverage.
+- Status: source candidate until immutable TEST CANDIDATE publication.
+
 ## 1.0.0-rc.5 — backend-owned supervisor semantics candidate
 
 - Removes frontend-derived global supervisor conclusions from the Mobility dashboard.
