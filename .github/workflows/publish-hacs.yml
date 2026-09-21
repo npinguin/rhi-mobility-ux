@@ -4,17 +4,11 @@ on:
   push:
     branches: [main]
     paths:
-      - 'src/**'
-      - 'dist/**'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'hacs.json'
+      - 'dist/rhi-mobility-ux.js'
+      - 'dist/rhi-mobility-ux.js.sha256'
       - 'COMPATIBILITY.json'
       - 'RELEASE_MANIFEST.json'
-      - 'CHANGELOG.md'
       - 'release/RELEASE_NOTES.md'
-      - 'tools/build.mjs'
-      - 'tools/verify-dist.mjs'
   workflow_dispatch:
 
 permissions:
@@ -25,10 +19,10 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  validate:
-    name: Validate candidate source and package
+  verify:
+    name: Verify validated candidate artifact
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 10
     steps:
       - name: Checkout exact main candidate
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
@@ -38,9 +32,6 @@ jobs:
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444
         with:
           node-version: '24'
-          cache: npm
-      - name: Install locked dependencies
-        run: npm ci
       - name: Reject immutable version republish
         shell: bash
         env:
@@ -50,35 +41,23 @@ jobs:
           VERSION=$(node -p "require('./package.json').version")
           TAG="v${VERSION}"
           git fetch --tags --force
-          if git rev-parse -q --verify "refs/tags/${TAG}" >/dev/null; then
-            echo "Refusing to republish immutable HACS candidate ${TAG}; create the next UX version." >&2
+          if git rev-parse -q --verify "refs/tags/${TAG}" >/dev/null || gh release view "${TAG}" >/dev/null 2>&1; then
+            echo "Immutable candidate ${TAG} already exists; refusing republish." >&2
             exit 1
           fi
-          if gh release view "${TAG}" >/dev/null 2>&1; then
-            echo "Refusing to republish immutable GitHub Release ${TAG}; create the next UX version." >&2
-            exit 1
-          fi
-      - name: Full validation
-        run: npm test
-      - name: Deterministic two-build proof
-        shell: bash
+      - name: Verify committed artifact and release metadata
         run: |
-          set -euo pipefail
-          cp dist/rhi-mobility-ux.js /tmp/rhi-ux-first.js
-          cp dist/rhi-mobility-ux.js.sha256 /tmp/rhi-ux-first.sha256
-          npm run clean
-          npm run build
-          cmp /tmp/rhi-ux-first.js dist/rhi-mobility-ux.js
-          cmp /tmp/rhi-ux-first.sha256 dist/rhi-mobility-ux.js.sha256
-          git diff --exit-code -- dist/rhi-mobility-ux.js dist/rhi-mobility-ux.js.sha256 dist/assets assets
+          node tools/verify-dist.mjs
+          node tools/check-release-governance.mjs
+          node tools/check-qualification.mjs
       - name: HACS validation
         uses: hacs/action@885037da508419fd08c13515967aec868dfdee2d
         with:
           category: plugin
 
   publish:
-    name: Publish immutable TEST CANDIDATE
-    needs: validate
+    name: Publish exact TEST CANDIDATE artifact
+    needs: verify
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -90,13 +69,8 @@ jobs:
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444
         with:
           node-version: '24'
-          cache: npm
-      - run: npm ci
-      - name: Rebuild exact runtime
-        run: |
-          npm run clean
-          npm run build
-          node tools/verify-dist.mjs
+      - name: Verify exact committed payload
+        run: node tools/verify-dist.mjs
       - name: Publish immutable version and rollback assets
         shell: bash
         env:
@@ -128,10 +102,9 @@ jobs:
           {
             echo '## RHI Mobility UX HACS publication'
             echo "- Version: v${VERSION}"
-            echo "- Source/package/tests: PASS"
-            echo "- Deterministic build: PASS"
+            echo "- Artifact: exact committed PR-validated dist"
+            echo "- Rebuild during publication: NO"
             echo "- HACS validation: PASS"
             echo "- Immutable HACS-visible TEST CANDIDATE: PUBLISHED"
             echo "- Runtime qualification: PENDING and recorded separately"
-            echo "- Stable promotion: BLOCKED until target HA qualification passes"
           } >> "$GITHUB_STEP_SUMMARY"

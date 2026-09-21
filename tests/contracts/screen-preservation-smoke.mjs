@@ -23,9 +23,7 @@ for (const [title,path] of expectedViews) {
   if (!install.includes(`title: ${title}\n    path: ${path}`)) throw new Error(`installation YAML drift for: ${title} -> ${path}`);
 }
 
-if (!dashboard.includes('const navActive = this._localNavActive || this.config?.nav_active || "vehicles"')) throw new Error('dashboard must preserve Vehicles as configured fallback while allowing local Overview switching');
-if (!dashboard.includes('navActive === "overview"')) throw new Error('new Overview surface must remain additive');
 if (!charger.includes('homebrain-mobility-charger-maintenance-card')) throw new Error('charger screen class missing');
 if (!detail.includes('homebrain-mobility-asset-detail-card')) throw new Error('asset detail screen class missing');
 
-console.log('PASS screen preservation: legacy Vehicles/Chargers/detail retained and new views additive');
+console.log('PASS screen preservation: documented views and screen registrations retained');

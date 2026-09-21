@@ -13,12 +13,15 @@
     "check:hygiene": "node tools/check-public-hygiene.mjs",
     "check:release-governance": "node tools/check-release-governance.mjs",
     "check:qualification": "node tools/check-qualification.mjs",
-    "test:contracts": "node tests/contracts/runtime-contract-smoke.mjs && node tests/contracts/command-placement-smoke.mjs && node tests/contracts/configuration-editables-smoke.mjs && node tests/contracts/release-qualification-lifecycle.mjs && node tests/contracts/supervisor-authority-smoke.mjs && node tests/contracts/navigation-shell-smoke.mjs && node tests/contracts/overview-shell-smoke.mjs && node tests/contracts/screen-preservation-smoke.mjs && node tests/contracts/layout-hardening-smoke.mjs",
-    "test:viewmodels": "node tests/view-models/charger-materialization.mjs",
-    "test:render": "node tests/render/bundle-load-smoke.mjs",
-    "test": "npm run clean && npm run build && node tools/check-version.mjs && npm run check:syntax && npm run check:architecture && npm run check:hygiene && npm run check:release-governance && npm run check:qualification && npm run check:branding && npm run check:footer && npm run test:contracts && npm run test:viewmodels && npm run test:render && node tools/verify-dist.mjs",
+    "test": "npm run clean && npm run build && npm run test:contract && npm run test:ux && npm run test:package && npm run test:release",
     "check:branding": "node tools/check-branding.mjs",
-    "check:footer": "node tools/check-footer.mjs"
+    "check:footer": "node tools/check-footer.mjs",
+    "release:sync": "node tools/sync-release-metadata.mjs",
+    "check:test-ownership": "node tools/check-test-ownership.mjs",
+    "test:contract": "node tests/contracts/runtime-contract-smoke.mjs && node tests/contracts/command-placement-smoke.mjs && node tests/contracts/configuration-editables-smoke.mjs && node tests/contracts/supervisor-authority-smoke.mjs",
+    "test:ux": "node tests/contracts/navigation-shell-smoke.mjs && node tests/contracts/overview-shell-smoke.mjs && node tests/contracts/screen-preservation-smoke.mjs && node tests/contracts/layout-hardening-smoke.mjs && node tests/view-models/charger-materialization.mjs",
+    "test:package": "node tools/check-version.mjs && npm run check:syntax && npm run check:architecture && npm run check:hygiene && npm run check:branding && npm run check:footer && npm run check:test-ownership && node tests/render/bundle-load-smoke.mjs && node tools/verify-dist.mjs",
+    "test:release": "npm run check:release-governance && npm run check:qualification && node tests/contracts/release-qualification-lifecycle.mjs"
   },
   "engines": {
     "node": ">=20"
