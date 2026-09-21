@@ -231,30 +231,17 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
 
   renderChargerAssignmentSelect(rt, vehicleAsset) {
     const assetId = this.assetId(vehicleAsset);
-    // R43.2.54: selected charger is an editable vehicle property. Relationship
-    // indexes describe topology; they are never used as write targets or option lists.
-    const prop = rt.propertyByCompoundKey(assetId, "vehicle.selected_charger");
-    if (!prop) {
-      return `<div class="mini-control charger-select readonly" title="vehicle.selected_charger is not published"><ha-icon icon="mdi:ev-station"></ha-icon><strong>—</strong></div>`;
+    const adapter = new HomeBrainVehicleAdapter(rt, this.vehicleId(vehicleAsset), { ...this.config, registry_entry: vehicleAsset });
+    const model = adapter.chargerAssignmentModel();
+    if (!model.resolved) {
+      return `<div class="mini-control charger-select readonly" title="vehicle.selected_charger is not published"><ha-icon icon="mdi:ev-station"></ha-icon><strong>N/A</strong></div>`;
     }
-    const current = String(prop.value ?? "").trim();
-    const rawChoices = rt.propertyEditorChoices(prop);
-    const choices = (rawChoices || []).map((choice)=>{
-      if (choice && typeof choice === "object") {
-        const value = String(choice.value ?? choice.id ?? choice.asset_id ?? "").trim();
-        const label = String(choice.label ?? choice.display_name ?? choice.name ?? (value ? rt.chargerLabel(value) : "")).trim();
-        return value ? { value, label: label || value } : null;
-      }
-      const value = String(choice ?? "").trim();
-      return value ? { value, label: rt.chargerLabel(value) || value } : null;
-    }).filter(Boolean);
-    const writable = rt.isWritableProperty(prop) && choices.length > 0;
-    const currentKnown = choices.some((choice)=>choice.value === current);
-    if (!writable) {
-      const display = current ? (rt.chargerLabel(current) || current) : "—";
-      return `<div class="mini-control charger-select readonly" title="Selected charger from vehicle property contract"><ha-icon icon="mdi:ev-station"></ha-icon><strong>${rt.escape(display)}</strong></div>`;
+    if (!model.writable) {
+      return `<div class="mini-control charger-select readonly" title="Selected charger from vehicle property contract"><ha-icon icon="mdi:ev-station"></ha-icon><strong>${rt.escape(model.display)}</strong></div>`;
     }
-    return `<div class="mini-control charger-select" title="Selected charger from vehicle property contract"><ha-icon icon="mdi:ev-station"></ha-icon><select data-property-asset="${rt.escape(assetId)}" data-property-key="vehicle.selected_charger" aria-label="Selected charger">${current && !currentKnown ? `<option value="${rt.escape(current)}" selected disabled>${rt.escape(rt.chargerLabel(current) || current)}</option>` : ""}${choices.map((choice)=>`<option value="${rt.escape(choice.value)}" ${choice.value === current ? "selected" : ""}>${rt.escape(choice.label)}</option>`).join("")}</select></div>`;
+    const current = String(model.editor_value ?? "");
+    const currentKnown = model.choices.some((choice)=>choice.value === current);
+    return `<div class="mini-control charger-select" title="Selected charger from vehicle property contract"><ha-icon icon="mdi:ev-station"></ha-icon><select data-property-asset="${rt.escape(assetId)}" data-property-key="vehicle.selected_charger" aria-label="Selected charger">${current && !currentKnown ? `<option value="${rt.escape(current)}" selected disabled>${rt.escape(model.display || current)}</option>` : ""}${model.choices.map((choice)=>`<option value="${rt.escape(choice.value)}" ${choice.value === current ? "selected" : ""}>${rt.escape(choice.label)}</option>`).join("")}</select></div>`;
   }
 
   renderVehicleControlRow(rt, vehicleAsset, chargers) {
@@ -385,7 +372,12 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
       energy: byLabel("Energy"),
       security: byLabel("Security"),
       maintenance: byLabel("Maintenance"),
-      climate: climate ? rt.propertyDisplayValue(climate) : "—"
+      climate: (() => {
+        if (!climate) return "N/A";
+        const display = String(rt.propertyDisplayValue(climate) || "").trim();
+        if (!display || /^-\d+(?:[.,]\d+)?\s*(?:s|sec|secs|seconds|min|mins|minutes|h|hr|hrs|hours)$/i.test(display)) return "N/A";
+        return display;
+      })()
     };
   }
 
@@ -439,24 +431,80 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     </article>`;
   }
 
+  dashboardTabFromRoute() {
+    const path = String(window.location?.pathname || "").replace(/\/+$/, "");
+    if (path.endsWith("/overview")) return "overview";
+    if (path.endsWith("/dashboard")) return "vehicles";
+    return this._localNavActive || this.config?.nav_active || "vehicles";
+  }
+
+  viewPositionKey() {
+    try {
+      const path = String(window.location?.pathname || "");
+      const search = String(window.location?.search || "");
+      return `rhi_mobility_scroll:${path}${search}`;
+    } catch (e) {
+      return "rhi_mobility_scroll:unknown";
+    }
+  }
+
+  rememberViewPosition() {
+    try { sessionStorage.setItem(this.viewPositionKey(), String(Math.max(0, window.scrollY || 0))); } catch (e) {}
+  }
+
+  restoreViewPositionOnce() {
+    const key = this.viewPositionKey();
+    if (this._restoredPositionKey === key) return;
+    this._restoredPositionKey = key;
+    let y = 0;
+    try { y = Number(sessionStorage.getItem(key) || 0); } catch (e) { y = 0; }
+    if (!Number.isFinite(y) || y <= 0) return;
+    requestAnimationFrame(()=>requestAnimationFrame(()=>window.scrollTo({ top:y, left:0, behavior:"auto" })));
+  }
+
+  overviewChargerSummary(rt, chargers) {
+    const buckets = { free:0, in_use:0, unavailable:0, disabled:0, unknown:0 };
+    for (const charger of chargers) {
+      const adapter = new HomeBrainChargerAdapter(rt, this.chargerId(charger), { ...this.config, registry_entry:charger });
+      const row = adapter.overviewAvailability();
+      const key = Object.prototype.hasOwnProperty.call(buckets, row.bucket) ? row.bucket : "unknown";
+      buckets[key] += 1;
+    }
+    const parts = [];
+    if (buckets.free) parts.push(`${buckets.free} free`);
+    if (buckets.in_use) parts.push(`${buckets.in_use} in use`);
+    if (buckets.unavailable) parts.push(`${buckets.unavailable} unavailable`);
+    if (buckets.disabled) parts.push(`${buckets.disabled} disabled`);
+    if (buckets.unknown) parts.push(`${buckets.unknown} N/A`);
+    return {
+      ...buckets,
+      total:chargers.length,
+      label:chargers.length ? (parts.join(" · ") || "State N/A") : "No chargers published"
+    };
+  }
+
+  activityDisplay(row = {}) {
+    const message = String(row?.message || "").trim();
+    return {
+      message: message || "N/A",
+      timestamp: String(row?.observed_at || row?.timestamp || "").trim()
+    };
+  }
+
   renderOverviewPage(rt, vehicles, chargers, activityRows, reco) {
     const activeVehicles = vehicles.filter((v)=>rt.lifecycleStatus(v) === "active");
     const heroVehicle = activeVehicles[0] || vehicles[0] || null;
     const heroModel = heroVehicle ? (new HomeBrainAssetFactory(rt).adapterFor(heroVehicle, this.config)?.build?.() || null) : null;
     const heroImage = heroModel?.image || "";
     const chargingCount = activeVehicles.filter((v)=>!!this.vehicleChargingInfo(rt, v)?.active).length;
-    const availableChargers = chargers.filter((c)=>{
-      const snapshot = rt.chargerProductSnapshot(c.asset_id);
-      const status = String(snapshot.operating?.display || "").toLowerCase();
-      return snapshot.operating?.resolved && !["fault","error","offline","unavailable"].some((token)=>status.includes(token));
-    }).length;
+    const chargerSummary = this.overviewChargerSummary(rt, chargers);
     const attention = rt.supervisorOutcome("mobility", "attention", "Unknown") || "Unknown";
     const attentionReason = rt.supervisorOutcome("mobility", "attention_reason", "") || "";
     const recent = (activityRows || []).slice(0,3);
     const recommended = reco?.action && reco.action !== "Unknown" ? reco : null;
     const fleetLabel = activeVehicles.length === 1 ? "1 active vehicle" : `${activeVehicles.length} active vehicles`;
     const chargingLabel = chargingCount === 1 ? "1 active session" : `${chargingCount} active sessions`;
-    const chargerLabel = chargers.length ? `${availableChargers} of ${chargers.length} available` : "No chargers published";
+    const chargerLabel = chargerSummary.label;
     const attentionTone = ["none","ok","not applicable"].includes(String(attention).toLowerCase()) ? "ok" : String(attention).toLowerCase() === "unknown" ? "muted" : "warn";
 
     return `
@@ -481,11 +529,11 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
         </div>
         <div class="ov-status-item">
           <span class="ov-status-icon"><ha-icon icon="mdi:ev-station"></ha-icon></span>
-          <div><small>Chargers</small><b>${availableChargers}/${chargers.length}</b><em>${rt.escape(chargerLabel)}</em></div>
+          <div><small>Chargers</small><b>${chargerSummary.total}</b><em>${rt.escape(chargerLabel)}</em></div>
         </div>
         <div class="ov-status-item ${attentionTone}">
           <span class="ov-status-icon"><ha-icon icon="mdi:alert-circle-outline"></ha-icon></span>
-          <div><small>Attention</small><b>${rt.escape(attention)}</b><em>${rt.escape(attentionReason || "Backend supervisor status")}</em></div>
+          <div><small>Attention</small><b>${rt.escape(attentionTone === "muted" ? "N/A" : attention)}</b><em>${rt.escape(attentionReason || (attentionTone === "muted" ? "Supervisor attention unavailable" : "Backend supervisor status"))}</em></div>
         </div>
       </section>
 
@@ -500,7 +548,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
       <section class="ov-core-grid">
         <section class="ov-panel ov-core-vehicles">
           <div class="ov-panel-head">
-            <div><h2>Vehicles</h2><p>Range and charge first, with security, comfort, maintenance and direct actions alongside.</p></div>
+            <div><h2>Vehicles</h2><p>Readiness first: range and energy, security, comfort, maintenance, charger relationship and direct actions.</p></div>
             <button data-nav="${hbMobilityPath("/dashboard")}">All vehicles <ha-icon icon="mdi:chevron-right"></ha-icon></button>
           </div>
           <div class="ov-vehicle-list">${activeVehicles.length ? activeVehicles.map((vehicle)=>this.renderOverviewVehicleRow(rt,vehicle,chargers)).join("") : `<div class="ov-empty">No active vehicles.</div>`}</div>
@@ -519,7 +567,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
 
           <section class="ov-panel ov-activity-panel">
             <div class="ov-panel-head"><div><h2>Recent activity</h2><p>Latest Mobility events.</p></div><button data-nav="${hbMobilityPath("/history")}">History <ha-icon icon="mdi:chevron-right"></ha-icon></button></div>
-            <div class="ov-activity-list">${recent.length ? recent.map((row)=>`<div class="ov-activity-row"><ha-icon icon="mdi:history"></ha-icon><span><b>${rt.escape(row.message || row.activity_state || row.activity_type || "Mobility activity")}</b><small>${rt.escape(row.observed_at || row.timestamp || "")}</small></span></div>`).join("") : `<div class="ov-empty">No recent activity published.</div>`}</div>
+            <div class="ov-activity-list">${recent.length ? recent.map((row)=>{ const activity=this.activityDisplay(row); return `<div class="ov-activity-row"><ha-icon icon="mdi:history"></ha-icon><span><b>${rt.escape(activity.message)}</b><small>${rt.escape(activity.timestamp)}</small></span></div>`; }).join("") : `<div class="ov-empty">No recent activity published.</div>`}</div>
           </section>
         </aside>
       </section>
@@ -644,7 +692,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
           if (!forceRender && this._lastSignature === signature && this._lastRenderOk && !(activeElement && ["SELECT", "INPUT"].includes(activeElement.tagName))) return;
           this._lastSignature = signature;
           this._lastRenderOk = true;
-          const navActive = this._localNavActive || this.config?.nav_active || "vehicles";
+          const navActive = this.dashboardTabFromRoute();
           const pageContent = navActive === "overview"
             ? this.renderOverviewPage(rt, activeVehicles, chargers, activityRows, reco)
             : this.renderVehiclesPage(rt, activeVehicles, inactiveVehicles, chargers, reco, plan, trust, activity, intelligenceSummary);
@@ -658,6 +706,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
             .action.enum-action select,.cmd.enum-command select{appearance:auto!important;min-width:0!important;max-width:170px!important;width:auto!important;border:0!important;background:transparent!important;color:inherit!important;font:inherit!important;font-size:12px!important;font-weight:600!important;padding:0 2px!important;box-shadow:none!important;cursor:pointer!important}
           </style></ha-card>`;
           this.wireEvents(rt);
+          this.restoreViewPositionOnce();
     } catch (err) {
       console.error("HomeBrain Mobility dashboard render failed", err);
       const message = String((err && (err.stack || err.message)) || err || "Unknown render error");
@@ -715,13 +764,8 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     }));
     this.shadowRoot.querySelectorAll("button[data-nav]").forEach((btn)=>btn.addEventListener("click",()=>{
       const target = btn.getAttribute("data-nav") || "";
-      if (target === hbMobilityPath("/overview") || target === hbMobilityPath("/dashboard")) {
-        this._localNavActive = target.endsWith("/overview") ? "overview" : "vehicles";
-        this._forceRender = true;
-        this._lastSignature = "";
-        this.hass = this._hass;
-        return;
-      }
+      this.rememberViewPosition();
+      if (!target) return;
       rt.navigate(target);
     }));
     this.shadowRoot.querySelectorAll("button[data-lifecycle-asset]").forEach((btn)=>btn.addEventListener("click",()=>{
