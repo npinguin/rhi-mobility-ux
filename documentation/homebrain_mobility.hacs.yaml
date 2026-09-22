@@ -59,20 +59,6 @@ views:
         command_source: mobility_command_index
         release_info_position: bottom
 
-  - title: Charging
-    path: charging
-    subview: true
-    panel: true
-    cards:
-      - type: custom:homebrain-mobility-charger-maintenance-card
-        dashboard_path: /mobility-supervisor/dashboard
-        nav_active: charging
-        contract_mode: external_only
-        show_contract_inspector: true
-        outcome_renderer: shared_asset_outcome
-        command_source: mobility_command_index
-        release_info_position: bottom
-
   - title: Planning
     path: planning
     subview: true
