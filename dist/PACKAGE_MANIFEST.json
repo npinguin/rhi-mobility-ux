@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "product": "rhi-mobility-ux",
-  "version": "1.0.0-rc.26",
+  "version": "1.0.0-rc.27",
   "source_manifest_schema": 1,
   "hacs_package_root": "dist",
   "hacs_filename": "rhi-mobility-ux.js",
@@ -11,7 +11,7 @@
     "chargers",
     "vehicles"
   ],
-  "runtime_sha256": "c63d8f80b20d4797be8b54001ec17853f9181aacc304baede44d4613e908f424",
+  "runtime_sha256": "00c49a904034debf4260031b48e758411fd56eeb84781583522515ee1efae16b",
   "files": [
     {
       "path": "assets/branding/company-logo.svg",
@@ -22,28 +22,20 @@
       "bytes": 132329
     },
     {
-      "path": "assets/chargers/charger_peblar.png",
-      "bytes": 84179
+      "path": "assets/chargers/charger_peblar.svg",
+      "bytes": 2252
     },
     {
-      "path": "assets/chargers/charger_utility_plug.png",
-      "bytes": 129658
+      "path": "assets/chargers/charger_utility_plug.svg",
+      "bytes": 2210
     },
     {
-      "path": "assets/chargers/charger_wallbox_black.png",
-      "bytes": 119449
+      "path": "assets/chargers/charger_wallbox_black.svg",
+      "bytes": 2453
     },
     {
-      "path": "assets/chargers/charger_wallbox_white.png",
-      "bytes": 132329
-    },
-    {
-      "path": "assets/chargers/charger_wallbox.png",
-      "bytes": 132329
-    },
-    {
-      "path": "assets/chargers/default_charger.png",
-      "bytes": 132329
+      "path": "assets/chargers/charger_wallbox_white.svg",
+      "bytes": 2453
     },
     {
       "path": "assets/vehicles/vehicle_audi_q8.png",
@@ -71,7 +63,7 @@
     },
     {
       "path": "rhi-mobility-ux.js",
-      "bytes": 595797
+      "bytes": 623860
     },
     {
       "path": "rhi-mobility-ux.js.sha256",
