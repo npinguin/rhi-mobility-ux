@@ -122,6 +122,15 @@
         "source/package terminology",
         "migration-sequence documentation"
       ]
+    },
+    "vehicle_management": {
+      "owner": "tests/contracts/vehicle-management-smoke.mjs",
+      "owns": [
+        "vehicle management workspace",
+        "vehicle picker behavior",
+        "verified selectable vehicle visuals",
+        "cross-screen vehicle visual rendering"
+      ]
     }
   }
 }
