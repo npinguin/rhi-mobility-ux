@@ -40,6 +40,7 @@ for(const forbidden of [
   if(dashboard.includes(forbidden)) throw new Error(`frontend-derived supervisor fallback remains: ${forbidden}`);
 }
 if(!dashboard.includes('Backend supervisor recommendation unavailable.')) throw new Error('missing fail-closed recommendation presentation');
-if(!dashboard.includes('rt.supervisorOutcome("mobility", "status", "Unknown")')) throw new Error('global status is not backend-owned/fail-closed');
+if(!dashboard.includes('rt.supervisorOutcome("mobility", "attention", "Unknown")')) throw new Error('overview attention is not backend-owned/fail-closed');
+if(!dashboard.includes('rt.supervisorOutcome("mobility", "recommended_action", "")')) throw new Error('overview recommendation is not backend-owned/fail-closed');
 
 console.log('PASS backend-owned global supervisor intelligence and fail-closed UX regression');
