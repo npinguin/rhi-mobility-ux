@@ -60,6 +60,7 @@ for(const row of visualRows){
 }
 
 const verified=visualRows.filter((row)=>row.selectable && row.visual_quality==="verified_model");
+if(verified.length < 3) throw new Error(`verified vehicle artwork gate parsed only ${verified.length} models; expected at least the current Audi/BMW/Mercedes package artwork`);
 const verifiedDigests=new Map();
 const fallbackDigest=crypto.createHash('sha256').update(fs.readFileSync(path.join(srcRoot,'vehicles/vehicle_fallback.png'))).digest('hex');
 for(const row of verified){
