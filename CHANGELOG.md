@@ -4,7 +4,7 @@
 
 - Adds a package-owned vehicle type and colour picker to Vehicles.
 - Persists one canonical visual key through backend-owned `vehicle.image_key`.
-- Adds structured model/color catalog entries for all vehicle visuals currently shipped by the package.
+- Adds structured model/color catalog entries with verified selectable artwork; legacy placeholder model keys remain backward-compatible but fail safe to the generic fallback.
 - Keeps old image keys as aliases and keeps visual assets/rendering UX-owned.
 - Requires Mobility backend M0.9.29 for picker persistence and readback.
 - Includes rc.19 navigation alignment and rc.20 vehicle-management improvements.
