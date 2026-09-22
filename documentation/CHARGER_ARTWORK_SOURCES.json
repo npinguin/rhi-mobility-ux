@@ -10,7 +10,7 @@
     "package_artwork_is_ux_owned": true,
     "no_device_specific_runtime_logic": true,
     "legacy_keys_are_aliases_only": true,
-    "minimum_runtime_long_edge_px": 900,
+    "minimum_runtime_long_edge_px": 1200,
     "maximum_runtime_bytes": 614400,
     "preferred_master_long_edge_px": 2000,
     "transparent_background_preferred": true,
