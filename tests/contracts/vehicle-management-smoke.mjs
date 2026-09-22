@@ -15,18 +15,24 @@ for(const needle of [
   '/config/integrations/integration/rhi_mobility',
   'manage-lifecycle',
   'vehicle.selected_charger',
-  'Choose vehicle & colour',
-  'data-vehicle-picker-type',
-  'data-vehicle-picker-color',
-  'data-vehicle-picker-save',
   'vehicle.image_key',
-  'Picker stays fail-closed',
-  'Current legacy visual has no verified model artwork',
   'rhiMobilitySelectableVehicleVisualCatalog()',
   'style="filter:${rt.escape(visualFilter)}"',
   'style="filter:${rt.escape(heroVisualFilter)}"'
 ]) {
   if(!dashboard.includes(needle)) throw new Error(`vehicle-management regression: missing ${needle}`);
+}
+
+for(const needle of [
+  'Choose vehicle & colour',
+  'data-vehicle-picker-type',
+  'data-vehicle-picker-color',
+  'data-vehicle-picker-save',
+  'Picker stays fail-closed',
+  'Current legacy visual has no verified model artwork',
+  'class HomeBrainVehicleVisualPicker'
+]) {
+  if(!picker.includes(needle)) throw new Error(`shared vehicle picker regression: missing ${needle}`);
 }
 
 for(const needle of [
