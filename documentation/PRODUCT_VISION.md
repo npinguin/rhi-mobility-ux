@@ -131,11 +131,22 @@ Within Mobility:
 - use extended management cards on Vehicles and Chargers;
 - remain desktop, tablet and mobile friendly.
 
-## Asset identity direction
+## Vehicle visual catalog rule
 
-Future management UX should support recognizable vehicle/charger families and profiles, including brand, model/family and color where backend contracts exist.
+Vehicle visuals are UX-owned package data; Mobility persists only the selected `vehicle.image_key`.
 
-Assets remain package data under `src/assets/<category>/`. Behavior and permissions never come from artwork selection.
+For the current release line:
+
+- the picker exposes only models with verified, model-specific base artwork;
+- one verified base image is reused for package-owned on-the-fly colour rendering;
+- a model with only fallback or duplicated artwork is not selectable as a new identity;
+- legacy keys may remain readable for backward compatibility, but must resolve fail-safe and must not create a false claim of supported model artwork;
+- verified production models may not share identical base-image bytes;
+- adding a model requires its own verified artwork and the asset-quality gate to pass.
+
+Current selectable model artwork is limited to Audi Q8, BMW iX1 and Mercedes-Benz GLA, plus the explicit generic guest vehicle. Renault Scenic and Volkswagen ID.4 legacy keys are compatibility-only until distinct verified artwork exists.
+
+Assets remain package data under `src/assets/<category>/`. Behavior, permissions and operational semantics never come from artwork selection.
 
 ## V1 vs V2.x
 
