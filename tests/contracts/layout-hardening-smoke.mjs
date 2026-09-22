@@ -27,7 +27,6 @@ for(const needle of [
   'mobility-overview.svg',
   'mobility-vehicles.svg',
   'mobility-chargers.svg',
-  'mobility-charging.svg',
   '--rhi-page-pad-x',
   '--rhi-font-display',
   '@media(max-width:760px)',
@@ -38,8 +37,9 @@ for(const needle of [
 if(!dashboard.includes('hbMobilityPageHero(rt, "overview"')) throw new Error('Overview no longer uses shared hero');
 if(!dashboard.includes('hbMobilityPageHero(rt, "vehicles"')) throw new Error('Vehicles no longer uses shared hero');
 if(!chargers.includes('hbMobilityPageHero(rt, "chargers"')) throw new Error('Chargers no longer uses shared hero');
-if(!router.includes('hbMobilityPageHero(rt, "charging"')) throw new Error('Charging no longer uses shared hero');
-console.log('PASS shared omni-device presentation grammar and all Mobility tab heroes');
+if(header.includes('key: "charging"')) throw new Error('non-existent Charging tab returned to Mobility navigation');
+if(presentation.includes('title:"Charging"')) throw new Error('non-existent Charging tab returned to shared hero contract');
+console.log('PASS shared omni-device presentation grammar for Overview, Vehicles and Chargers');
 
 
 if(presentation.includes('\\n')) throw new Error('shared presentation source contains escaped-newline serialization and would not execute as a real module');
@@ -52,3 +52,7 @@ if(typeof presentationApi.hbMobilityPresentationStyles !== 'function') throw new
 const renderedHero=presentationApi.hbMobilityPageHero({escape:(v)=>String(v)},'overview',{meta:'<strong>5 active</strong>'});
 if(!renderedHero.includes('Mobility Overview') || !renderedHero.includes('/assets/heroes/mobility-overview.svg')) throw new Error('shared Overview hero does not render executable package output');
 console.log('PASS shared presentation module executes, not only parses');
+
+for(const needle of ['--rhi-content-gap:10px','--rhi-control-h:40px','.vehicle-card,.charger-card','.section-title,.vehicle-workspace-head,.ov-panel-head']){
+  if(!presentation.includes(needle)) throw new Error(`Overview-reference shared style regression: missing ${needle}`);
+}
