@@ -532,41 +532,212 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     };
   }
 
+  overviewNumeric(value) {
+    if (value === null || value === undefined || value === "") return null;
+    const number = Number(String(value).replace(",", ".").replace(/[^0-9+.-]/g, ""));
+    return Number.isFinite(number) ? number : null;
+  }
+
+  overviewOutsideTemperature() {
+    const states = Object.values(this._hass?.states || {});
+    const weather = states.find((state) => String(state?.entity_id || "").startsWith("weather.") && Number.isFinite(Number(state?.attributes?.temperature)));
+    if (weather) {
+      const value = Number(weather.attributes.temperature);
+      const unit = String(weather.attributes.temperature_unit || this._hass?.config?.unit_system?.temperature || "°C");
+      return { resolved:true, display:`${Number.isInteger(value) ? value : value.toFixed(1)}${unit}`, source:weather.entity_id };
+    }
+    const outdoor = states.find((state) => {
+      const id = String(state?.entity_id || "").toLowerCase();
+      const attrs = state?.attributes || {};
+      const name = String(attrs.friendly_name || "").toLowerCase();
+      return attrs.device_class === "temperature"
+        && Number.isFinite(Number(state?.state))
+        && /(outside|outdoor|buiten|exterior|ambient)/.test(`${id} ${name}`);
+    });
+    if (outdoor) {
+      const value = Number(outdoor.state);
+      const unit = String(outdoor.attributes?.unit_of_measurement || this._hass?.config?.unit_system?.temperature || "°C");
+      return { resolved:true, display:`${Number.isInteger(value) ? value : value.toFixed(1)}${unit}`, source:outdoor.entity_id };
+    }
+    return { resolved:false, display:"N/A", source:"" };
+  }
+
+  overviewDepartureInstant(value) {
+    const raw = String(value ?? "").trim();
+    if (!raw) return null;
+    const absolute = Date.parse(raw);
+    if (Number.isFinite(absolute)) return absolute;
+    const match = raw.match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/);
+    if (!match) return null;
+    const now = new Date();
+    const candidate = new Date(now);
+    candidate.setHours(Number(match[1]), Number(match[2]), 0, 0);
+    if (candidate.getTime() < now.getTime() - 5 * 60 * 1000) candidate.setDate(candidate.getDate() + 1);
+    return candidate.getTime();
+  }
+
+  overviewNextDeparture(rt, vehicles = []) {
+    const now = Date.now();
+    const candidates = [];
+    for (const vehicle of vehicles) {
+      const assetId = this.assetId(vehicle);
+      const rows = rt.propertyRows(assetId) || [];
+      const departure = rows.find((row) => /(?:^|\.)(?:ready_by|departure_at|departure_time)$|ready_by|departure/i.test(String(row?.property_key || "")));
+      const instant = departure ? this.overviewDepartureInstant(departure.value ?? rt.propertyDisplayValue(departure)) : null;
+      if (instant === null || instant < now - 5 * 60 * 1000) continue;
+      candidates.push({ vehicle, assetId, rows, instant });
+    }
+    candidates.sort((a,b)=>a.instant-b.instant);
+    const next = candidates[0] || null;
+    if (!next) return { resolved:false, vehicle:null, vehicleName:"N/A", climate:"N/A", departure:"" };
+    const preferred = next.rows.find((row) => /climate.*(?:state|status)|precondition.*(?:state|status)|hvac.*(?:state|status)/i.test(String(row?.property_key || "")));
+    const fallback = next.rows.find((row) => {
+      if (rt.propertyFamily(row) !== "climate" || rt.propertyDetailLevel(row) === "technical") return false;
+      const display = String(rt.propertyDisplayValue(row) || "").trim();
+      return display && !/^-?\d+(?:[.,]\d+)?\s*(?:s|sec|secs|seconds|min|mins|minutes|h|hr|hrs|hours)$/i.test(display);
+    });
+    const climateRow = preferred || fallback || null;
+    const climate = climateRow ? String(rt.propertyDisplayValue(climateRow) || "N/A") : "N/A";
+    const vehicleName = String(next.vehicle?.display_name || rt.vehicleLabel(next.assetId) || next.assetId);
+    return { resolved:true, vehicle:next.vehicle, vehicleName, climate, departure:new Date(next.instant).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"}) };
+  }
+
+  overviewChargingStatus(rt, vehicles = [], chargers = []) {
+    const availability = this.overviewChargerSummary(rt, chargers);
+    let active = 0;
+    let totalPowerKw = 0;
+    let powerResolved = false;
+    for (const charger of chargers) {
+      const snapshot = rt.chargerProductSnapshot(this.assetId(charger));
+      if (snapshot?.operating?.resolved && String(snapshot.operating.value || "").toLowerCase() === "running") active += 1;
+      if (snapshot?.power?.resolved && Number.isFinite(Number(snapshot.power.value))) {
+        totalPowerKw += Math.max(0, Number(snapshot.power.value));
+        powerResolved = true;
+      }
+    }
+    let remainingKwh = 0;
+    let remainingResolved = false;
+    for (const vehicle of vehicles) {
+      for (const row of (rt.propertyRows(this.assetId(vehicle)) || [])) {
+        const key = String(row?.property_key || "").toLowerCase();
+        if (!/(remaining.*(?:charge|charging)|(?:charge|charging).*remaining|energy_to_(?:target|charge)|(?:required|needed).*energy)/.test(key)) continue;
+        const unit = String(row?.unit || "").toLowerCase();
+        if (unit && !unit.includes("kwh")) continue;
+        const value = this.overviewNumeric(row?.value);
+        if (value === null) continue;
+        remainingKwh += Math.max(0, value);
+        remainingResolved = true;
+      }
+    }
+    return {
+      free:availability.free,
+      active,
+      powerDisplay:powerResolved ? `${totalPowerKw.toFixed(1)} kW now` : "N/A power now",
+      remainingDisplay:remainingResolved ? `${remainingKwh.toFixed(1)} kWh still to charge` : "N/A still to charge"
+    };
+  }
+
+  overviewSecurityStatus(rt, vehicles = []) {
+    const vehicleIssues = [];
+    let evidenceCount = 0;
+    for (const vehicle of vehicles) {
+      const assetId = this.assetId(vehicle);
+      const name = String(vehicle?.display_name || rt.vehicleLabel(assetId) || assetId);
+      const rows = rt.propertyRows(assetId) || [];
+      const physicalIssues = rows.filter((row) => {
+        const key = String(row?.property_key || "").toLowerCase();
+        if (!/(lock|door|window)/.test(key)) return false;
+        const value = String(rt.propertyDisplayValue(row) || row?.value || "").trim().toLowerCase();
+        if (!value) return false;
+        return /(^|\b)(unlocked|open|ajar|not locked|not closed)(\b|$)/.test(value);
+      });
+      const tile = (rt.vehicleIntelligenceStatusTiles(assetId) || []).find((row)=>String(row?.label || "").toLowerCase() === "security") || null;
+      if (physicalIssues.length || tile) evidenceCount += 1;
+      if (physicalIssues.length) {
+        const detail = physicalIssues.slice(0,2).map((row)=>String(rt.propertyDisplayLabel?.(row) || row?.label || row?.property_key || "Security")).join(" / ");
+        vehicleIssues.push({ name, detail });
+        continue;
+      }
+      if (tile) {
+        const tone = String(tile.tone || "").toLowerCase();
+        const text = `${tile.value || ""} ${tile.subvalue || ""}`.trim();
+        if (["attention","error"].includes(tone) || /unlocked|\bopen\b|door|window|check vehicle/i.test(text)) vehicleIssues.push({ name, detail:text || "Security attention" });
+      }
+    }
+    if (vehicleIssues.length) return {
+      resolved:true,
+      count:vehicleIssues.length,
+      headline:`${vehicleIssues.length} needs attention`,
+      line1:`${vehicleIssues[0].name} ${vehicleIssues[0].detail}`,
+      line2:vehicleIssues.length > 1 ? `+${vehicleIssues.length - 1} other vehicle${vehicleIssues.length > 2 ? "s" : ""}` : "Check doors / windows"
+    };
+    if (evidenceCount) return { resolved:true, count:0, headline:"All secure", line1:"No open or unlocked vehicle", line2:"Doors / windows OK" };
+    return { resolved:false, count:null, headline:"N/A", line1:"Security status unavailable", line2:"No frontend inference" };
+  }
+
+  overviewMaintenanceStatus(rt, vehicles = []) {
+    const issues = [];
+    let evidenceCount = 0;
+    for (const vehicle of vehicles) {
+      const assetId = this.assetId(vehicle);
+      const name = String(vehicle?.display_name || rt.vehicleLabel(assetId) || assetId);
+      const tile = (rt.vehicleIntelligenceStatusTiles(assetId) || []).find((row)=>String(row?.label || "").toLowerCase() === "maintenance") || null;
+      if (!tile) continue;
+      evidenceCount += 1;
+      const tone = String(tile.tone || "").toLowerCase();
+      const text = `${tile.value || ""} ${tile.subvalue || ""}`.trim();
+      const benign = /no maintenance data|maintenance data available|no maintenance|none|ok/i.test(text);
+      const concerning = ["attention","error"].includes(tone) || (!benign && /tire|tyre|pressure|oil|inspection|service|maintenance.*due|overdue|check/i.test(text));
+      if (concerning) issues.push({ name, detail:text || "Maintenance attention" });
+    }
+    if (issues.length) return {
+      resolved:true,
+      count:issues.length,
+      headline:`${issues.length} vehicle${issues.length === 1 ? "" : "s"} need care`,
+      line1:`${issues[0].name}: ${issues[0].detail}`,
+      line2:issues.length > 1 ? `${issues[1].name}: ${issues[1].detail}` : "Open vehicle for details"
+    };
+    if (evidenceCount) return { resolved:true, count:0, headline:"No care due", line1:"No maintenance attention", line2:"Backend-published status" };
+    return { resolved:false, count:null, headline:"N/A", line1:"Maintenance unavailable", line2:"No frontend inference" };
+  }
+
+  overviewStatusModel(rt, vehicles = [], chargers = []) {
+    return {
+      charging:this.overviewChargingStatus(rt, vehicles, chargers),
+      outside:this.overviewOutsideTemperature(),
+      departure:this.overviewNextDeparture(rt, vehicles),
+      security:this.overviewSecurityStatus(rt, vehicles),
+      maintenance:this.overviewMaintenanceStatus(rt, vehicles)
+    };
+  }
+
   renderOverviewPage(rt, vehicles, chargers, activityRows, reco) {
     const activeVehicles = vehicles.filter((v)=>rt.lifecycleStatus(v) === "active");
-    const chargingCount = activeVehicles.filter((v)=>!!this.vehicleChargingInfo(rt, v)?.active).length;
-    const chargerSummary = this.overviewChargerSummary(rt, chargers);
-    const attention = rt.supervisorOutcome("mobility", "attention", "Unknown") || "Unknown";
-    const attentionReason = rt.supervisorOutcome("mobility", "attention_reason", "") || "";
-    const recent = (activityRows || []).slice(0,3);
-    const recommended = reco?.action && reco.action !== "Unknown" ? reco : null;
-    const fleetLabel = activeVehicles.length === 1 ? "1 active vehicle" : `${activeVehicles.length} active vehicles`;
-    const chargingLabel = chargingCount === 1 ? "1 active session" : `${chargingCount} active sessions`;
-    const chargerLabel = chargerSummary.label;
-    const attentionTone = ["none","ok","not applicable"].includes(String(attention).toLowerCase()) ? "ok" : String(attention).toLowerCase() === "unknown" ? "muted" : "warn";
+    const status = this.overviewStatusModel(rt, activeVehicles, chargers);
+    const climateHeadline = status.outside.resolved ? `${status.outside.display} outside` : "Outside N/A";
+    const climateVehicle = status.departure.resolved ? `Next departure: ${status.departure.vehicleName}` : "Next departure unavailable";
+    const climateState = status.departure.resolved ? `Climate ${status.departure.climate}` : "Climate N/A";
 
     return `
-      ${hbMobilityPageHero(rt, "overview", {
-        meta:`<strong>${rt.escape(fleetLabel)}</strong><span>${rt.escape(chargingLabel)} · ${rt.escape(chargerSummary.total)} chargers</span>`
-      })}
+      ${hbMobilityPageHero(rt, "overview")}
 
-      <section class="ov-status-grid" aria-label="Mobility status">
-        <div class="ov-status-item">
-          <span class="ov-status-icon"><ha-icon icon="mdi:car-electric"></ha-icon></span>
-          <div><small>Vehicles</small><b>${activeVehicles.length}</b><em>${rt.escape(fleetLabel)}</em></div>
-        </div>
-        <div class="ov-status-item">
+      <section class="ov-status-grid ov-domain-statusbar" aria-label="Mobility overview status">
+        <article class="ov-status-item charging">
           <span class="ov-status-icon"><ha-icon icon="mdi:lightning-bolt"></ha-icon></span>
-          <div><small>Charging now</small><b>${chargingCount}</b><em>${rt.escape(chargingLabel)}</em></div>
-        </div>
-        <div class="ov-status-item">
-          <span class="ov-status-icon"><ha-icon icon="mdi:ev-station"></ha-icon></span>
-          <div><small>Chargers</small><b>${chargerSummary.total}</b><em>${rt.escape(chargerLabel)}</em></div>
-        </div>
-        <div class="ov-status-item ${attentionTone}">
-          <span class="ov-status-icon"><ha-icon icon="mdi:alert-circle-outline"></ha-icon></span>
-          <div><small>Attention</small><b>${rt.escape(attentionTone === "muted" ? "N/A" : attention)}</b><em>${rt.escape(attentionReason || (attentionTone === "muted" ? "Supervisor attention unavailable" : "Backend supervisor status"))}</em></div>
-        </div>
+          <div><small>Charging</small><b>${rt.escape(`${status.charging.free} free · ${status.charging.active} active`)}</b><em>${rt.escape(status.charging.powerDisplay)}</em><em>${rt.escape(status.charging.remainingDisplay)}</em></div>
+        </article>
+        <article class="ov-status-item comfort">
+          <span class="ov-status-icon"><ha-icon icon="mdi:fan"></ha-icon></span>
+          <div><small>Climate / Comfort</small><b>${rt.escape(climateHeadline)}</b><em>${rt.escape(climateVehicle)}</em><em>${rt.escape(climateState)}</em></div>
+        </article>
+        <article class="ov-status-item security ${status.security.count ? "warn" : ""}">
+          <span class="ov-status-icon"><ha-icon icon="mdi:shield-alert-outline"></ha-icon></span>
+          <div><small>Security</small><b>${rt.escape(status.security.headline)}</b><em>${rt.escape(status.security.line1)}</em><em>${rt.escape(status.security.line2)}</em></div>
+        </article>
+        <article class="ov-status-item maintenance ${status.maintenance.count ? "warn" : ""}">
+          <span class="ov-status-icon"><ha-icon icon="mdi:wrench-outline"></ha-icon></span>
+          <div><small>Maintenance</small><b>${rt.escape(status.maintenance.headline)}</b><em>${rt.escape(status.maintenance.line1)}</em><em>${rt.escape(status.maintenance.line2)}</em></div>
+        </article>
       </section>
 
       <section class="ov-quickbar energy-like" aria-label="Quick actions">
@@ -577,40 +748,12 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
         <button class="ov-nav-action" data-nav="${hbMobilityPath("/dashboard")}"><ha-icon icon="mdi:ev-station"></ha-icon>Change charger</button>
       </section>
 
-      <section class="ov-core-grid">
-        <section class="ov-panel ov-core-vehicles">
-          <div class="ov-panel-head">
-            <div><h2>Vehicles</h2><p>Readiness first: range and energy, security, comfort, maintenance, charger relationship and direct actions.</p></div>
-            <button data-nav="${hbMobilityPath("/dashboard")}">All vehicles <ha-icon icon="mdi:chevron-right"></ha-icon></button>
-          </div>
-          <div class="ov-vehicle-list">${activeVehicles.length ? activeVehicles.map((vehicle)=>this.renderOverviewVehicleRow(rt,vehicle,chargers)).join("") : `<div class="ov-empty">No active vehicles.</div>`}</div>
-        </section>
-
-        <aside class="ov-core-aside">
-          <section class="ov-panel ov-focus-panel">
-            <div class="ov-panel-head"><div><h2>Next action</h2><p>Only backend-owned Mobility guidance.</p></div></div>
-            ${recommended ? `<div class="ov-next-row"><ha-icon icon="mdi:arrow-right-circle-outline"></ha-icon><span><b>${rt.escape(recommended.action)}</b><small>${rt.escape(recommended.reason || "")}</small></span><button data-nav="${hbMobilityPath("/planning")}">Open</button></div>` : `<div class="ov-empty">No action currently published.</div>`}
-          </section>
-
-          <section class="ov-panel">
-            <div class="ov-panel-head"><div><h2>Chargers</h2><p>Availability and current power.</p></div><button data-nav="${hbMobilityPath("/charger-maintenance")}">All chargers <ha-icon icon="mdi:chevron-right"></ha-icon></button></div>
-            <div class="ov-charger-list">${chargers.length ? chargers.map((charger)=>this.renderOverviewChargerRow(rt,charger)).join("") : `<div class="ov-empty">No chargers published.</div>`}</div>
-          </section>
-
-          <section class="ov-panel ov-activity-panel">
-            <div class="ov-panel-head"><div><h2>Recent activity</h2><p>Latest Mobility events.</p></div><button data-nav="${hbMobilityPath("/history")}">History <ha-icon icon="mdi:chevron-right"></ha-icon></button></div>
-            <div class="ov-activity-list">${recent.length ? recent.map((row)=>{ const activity=this.activityDisplay(row); return `<div class="ov-activity-row"><ha-icon icon="mdi:history"></ha-icon><span><b>${rt.escape(activity.message)}</b><small>${rt.escape(activity.timestamp)}</small></span></div>`; }).join("") : `<div class="ov-empty">No recent activity published.</div>`}</div>
-          </section>
-        </aside>
-      </section>
-
-      <section class="ov-conclusion">
-        <span class="ov-conclusion-icon">✦</span>
-        <div>
-          <small>Conclusion</small>
-          <h2>${rt.escape(attentionTone === "ok" ? "Mobility is ready for normal use." : attentionTone === "warn" ? `Mobility needs attention: ${attention}` : "Mobility status is partially unavailable.")}</h2>
-          <p>${rt.escape(recommended ? `Next recommended action: ${recommended.action}` : attentionReason || "Open vehicle or charger details for deeper evidence and controls.")}</p>
+      <section class="ov-panel ov-core-vehicles ov-overview-vehicles">
+        <div class="ov-panel-head">
+          <div><h2>Vehicles</h2><p>Readiness first: range and energy, security, comfort, maintenance, charger relationship and direct actions.</p></div>
+          <button data-nav="${hbMobilityPath("/dashboard")}">All vehicles <ha-icon icon="mdi:chevron-right"></ha-icon></button>
         </div>
+        <div class="ov-vehicle-list">${activeVehicles.length ? activeVehicles.map((vehicle)=>this.renderOverviewVehicleRow(rt,vehicle,chargers)).join("") : `<div class="ov-empty">No active vehicles.</div>`}</div>
       </section>`;
   }
 
@@ -796,7 +939,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
           this.shadowRoot.innerHTML = `<ha-card><div class="page">${this.versionBlock(rt)}
             ${hbMobilityNav(navActive)}
             ${pageContent}
-          </div>${hbMobilityReleaseFooter(rt)}<style>${this.styles()}
+          </div>${hbMobilityReleaseFooter(rt)}<style>${this.styles()}${navActive === "overview" ? this.overviewStyles() : ""}
             /* Canonical action sizing */
             .action.enum-action,.cmd.enum-command{height:40px!important;min-height:40px!important;max-height:40px!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:7px!important;padding:0 10px!important;box-sizing:border-box!important;overflow:hidden!important}
             .action.enum-action ha-icon,.cmd.enum-command ha-icon{flex:0 0 auto!important}
@@ -970,6 +1113,81 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
       });
     });
   }
+
+  overviewStyles() { return `
+    .rhi-page-hero-overview{position:relative!important;display:block!important;min-height:clamp(176px,16vw,218px)!important;border:0!important;border-radius:18px!important;background:linear-gradient(90deg,#fff 0%,#fff 30%,rgba(255,255,255,.94) 39%,rgba(255,255,255,.18) 60%,rgba(255,255,255,0) 76%)!important;box-shadow:none!important;overflow:hidden!important;margin:0!important}
+    .rhi-page-hero-overview:before{display:none!important}
+    .rhi-page-hero-overview .rhi-page-hero-copy{position:relative!important;z-index:4!important;width:min(48%,650px)!important;max-width:none!important;padding:32px 20px 28px 24px!important}
+    .rhi-page-hero-overview .rhi-page-hero-copy>small{font-size:10px!important;color:#214A86!important;letter-spacing:.16em!important}
+    .rhi-page-hero-overview .rhi-page-hero-copy h1{font-size:clamp(31px,3.1vw,48px)!important;line-height:.98!important;letter-spacing:-.048em!important;color:#08133A!important;margin:8px 0 10px!important}
+    .rhi-page-hero-overview .rhi-page-hero-copy p{max-width:510px!important;font-size:clamp(12px,1.15vw,16px)!important;line-height:1.42!important;color:#536A91!important;font-weight:500!important}
+    .rhi-page-hero-overview .rhi-page-hero-meta{display:none!important}
+    .rhi-page-hero-overview .rhi-page-hero-art{position:absolute!important;z-index:1!important;inset:0 0 0 27%!important;min-height:0!important;display:block!important;overflow:hidden!important}
+    .rhi-page-hero-overview .rhi-page-hero-art:before{content:""!important;display:block!important;position:absolute!important;z-index:2!important;inset:0!important;background:linear-gradient(90deg,#fff 0%,rgba(255,255,255,.96) 9%,rgba(255,255,255,.68) 19%,rgba(255,255,255,.13) 37%,rgba(255,255,255,0) 55%)!important}
+    .rhi-page-hero-overview .rhi-page-hero-art img{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;min-height:0!important;max-height:none!important;object-fit:cover!important;object-position:center 52%!important;transform:none!important}
+
+    .ov-domain-statusbar{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:8px!important;margin:0!important}
+    .ov-domain-statusbar .ov-status-item{min-width:0!important;min-height:94px!important;display:grid!important;grid-template-columns:52px minmax(0,1fr)!important;gap:11px!important;align-items:center!important;padding:12px 14px!important;border:1px solid #DBE6F3!important;border-radius:15px!important;background:rgba(255,255,255,.97)!important;box-shadow:0 8px 22px rgba(21,61,115,.045)!important}
+    .ov-domain-statusbar .ov-status-icon{width:46px!important;height:46px!important;border-radius:14px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:#EEF5FF!important;color:#1467F5!important}
+    .ov-domain-statusbar .ov-status-icon ha-icon{--mdc-icon-size:27px!important}
+    .ov-domain-statusbar .charging .ov-status-icon{background:#E8FBF5!important;color:#04A875!important}
+    .ov-domain-statusbar .security.warn .ov-status-icon{background:#FFF4E8!important;color:#FF7500!important}
+    .ov-domain-statusbar .maintenance.warn .ov-status-icon{background:#EEF3FF!important;color:#315FBA!important}
+    .ov-domain-statusbar .ov-status-item>div{min-width:0!important;display:block!important}
+    .ov-domain-statusbar small{display:block!important;margin:0 0 3px!important;color:#31558E!important;font-size:10px!important;font-weight:650!important}
+    .ov-domain-statusbar b{display:block!important;margin:0 0 3px!important;color:#0B173D!important;font-size:clamp(14px,1.25vw,18px)!important;font-weight:720!important;line-height:1.08!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+    .ov-domain-statusbar .security.warn b{color:#F05B0A!important}
+    .ov-domain-statusbar em{display:block!important;margin-top:2px!important;color:#55709B!important;font-size:10px!important;font-style:normal!important;font-weight:500!important;line-height:1.2!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+
+    .ov-quickbar{margin:0!important;min-height:52px!important;padding:6px 10px!important;border:1px solid #DBE6F3!important;border-radius:14px!important;background:#fff!important;box-shadow:0 5px 16px rgba(21,61,115,.03)!important}
+    .ov-quick-title{font-size:9.5px!important;letter-spacing:.13em!important;color:#31558E!important}
+    .ov-nav-action{height:40px!important;min-height:40px!important;border:1px solid #D8E4F1!important;background:#fff!important;color:#075FD8!important;box-shadow:none!important;font-size:11px!important;font-weight:660!important}
+    .ov-nav-action.primary{background:#0B66F6!important;border-color:#0B66F6!important;color:#fff!important}
+
+    .ov-overview-vehicles{margin:0!important;padding:14px 16px 12px!important;border:1px solid #DDE7F2!important;border-radius:18px!important;background:#fff!important;box-shadow:0 8px 24px rgba(21,61,115,.04)!important}
+    .ov-overview-vehicles .ov-panel-head{margin:0 0 8px!important}
+    .ov-overview-vehicles .ov-panel-head h2{font-size:24px!important;color:#08133A!important}
+    .ov-overview-vehicles .ov-panel-head p{font-size:11px!important;color:#56709A!important}
+    .ov-overview-vehicles .ov-panel-head button{height:38px!important;border:1px solid #DCE7F4!important;border-radius:11px!important;background:#fff!important;color:#075FD8!important;font-weight:650!important}
+    .ov-overview-vehicles .ov-vehicle-list{display:grid!important;gap:7px!important}
+    .ov-overview-vehicles .ov-vehicle-row{min-height:82px!important;border:1px solid #DFE8F3!important;border-radius:13px!important;background:#fff!important;box-shadow:none!important;padding:7px 9px!important}
+    .ov-overview-vehicles .ov-vehicle-image{width:74px!important;height:48px!important}
+    .ov-overview-vehicles .ov-vehicle-copy b{font-size:13px!important;color:#0A173B!important}
+    .ov-overview-vehicles .ov-vehicle-copy small,.ov-overview-vehicles .ov-signal span,.ov-overview-vehicles .ov-charging-state{font-size:9px!important;color:#6680A6!important}
+    .ov-overview-vehicles .ov-signal b{font-size:10.5px!important}
+    .ov-overview-vehicles .mini-control.charger-select{min-height:34px!important;border-radius:9px!important}
+    .ov-overview-vehicles .ov-row-actions .cmd,.ov-overview-vehicles .ov-row-actions .action{height:34px!important;min-height:34px!important;font-size:10px!important}
+
+    @media(max-width:1024px){
+      .rhi-page-hero-overview{min-height:188px!important}
+      .rhi-page-hero-overview .rhi-page-hero-copy{width:50%!important;padding:26px 16px 22px 18px!important}
+      .rhi-page-hero-overview .rhi-page-hero-art{inset:0 0 0 30%!important}
+      .ov-domain-statusbar .ov-status-item{grid-template-columns:42px minmax(0,1fr)!important;padding:10px!important;min-height:88px!important}
+      .ov-domain-statusbar .ov-status-icon{width:40px!important;height:40px!important}
+    }
+    @media(max-width:760px){
+      .rhi-page-hero-overview{min-height:164px!important;border-radius:15px!important}
+      .rhi-page-hero-overview .rhi-page-hero-copy{width:62%!important;padding:20px 12px 18px 13px!important}
+      .rhi-page-hero-overview .rhi-page-hero-copy h1{font-size:27px!important}
+      .rhi-page-hero-overview .rhi-page-hero-copy p{font-size:10.5px!important;max-width:360px!important}
+      .rhi-page-hero-overview .rhi-page-hero-art{inset:0 0 0 38%!important}
+      .rhi-page-hero-overview .rhi-page-hero-art:before{background:linear-gradient(90deg,#fff 0%,rgba(255,255,255,.92) 18%,rgba(255,255,255,.25) 47%,transparent 70%)!important}
+      .ov-domain-statusbar{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+      .ov-domain-statusbar .ov-status-item{min-height:82px!important}
+      .ov-quickbar{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important}
+      .ov-quick-title{grid-column:1/-1!important}
+    }
+    @media(max-width:430px){
+      .rhi-page-hero-overview{min-height:150px!important}
+      .rhi-page-hero-overview .rhi-page-hero-copy{width:70%!important;padding:17px 10px 14px!important}
+      .rhi-page-hero-overview .rhi-page-hero-copy h1{font-size:24px!important}
+      .rhi-page-hero-overview .rhi-page-hero-copy p{font-size:9.5px!important;-webkit-line-clamp:3!important}
+      .rhi-page-hero-overview .rhi-page-hero-art{inset:0 0 0 43%!important}
+      .ov-domain-statusbar{grid-template-columns:1fr!important}
+      .ov-domain-statusbar .ov-status-item{grid-template-columns:40px minmax(0,1fr)!important;min-height:72px!important}
+      .ov-overview-vehicles{padding:11px 9px!important}
+    }
+  `; }
 
   styles() { return `
     :host{--hb-blue:#1467F5;--hb-ink:#061226;--hb-muted:#63718A;--hb-line:#E4ECF7;--hb-soft:#F6FAFF;--hb-shadow:0 22px 60px rgba(15,35,80,.08);font-family:inherit;color:var(--hb-ink);user-select:text;-webkit-user-select:text}
