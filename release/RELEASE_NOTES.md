@@ -7,6 +7,7 @@
 - makes tab heroes more compact and responsive so desktop, tablet and phone portrait keep the same visual hierarchy;
 - replaces the old Planning/Strategies/History/Log placeholder presentation with the same shared premium card/fact grammar used by the current Mobility workspaces;
 - makes Mobility Planning a read-only projection of Energy public planning contracts rather than a future Mobility-owned placeholder;
+- projects Energy-owned Mobility-relevant strategy profiles and effective policies under Intelligence;
 - projects Energy-owned per-vehicle metering and financial value into Mobility Insights using exact canonical Mobility asset ids only;
 - keeps Mobility execution/activity/audit evidence separate from Energy metering/value semantics;
 - fails closed to N/A/unavailable when Energy does not publish planning, metering or value;
@@ -17,6 +18,10 @@
 Planning source:
 - `sensor.energy_planning_index`
 - `sensor.energy_planning_experience_index`
+
+Strategy source:
+- `sensor.energy_strategy_profile_index`
+- `sensor.energy_strategy_effective_index`
 
 Insights Energy source:
 - `sensor.energy_asset_metering_index`
