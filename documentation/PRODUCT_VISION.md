@@ -65,7 +65,7 @@ Tabs bring one shared model to the user:
 - **Vehicle detail** — deep vehicle projection.
 - **Charger detail** — deep charger projection.
 
-Charging remains a Mobility capability and is not a standalone Mobility workspace. Planning is presented under Mobility Intelligence, but planning semantics, schedules and totals are owned by the Energy backend and consumed through its public UX contracts.
+Charging remains a Mobility capability. It is not a standalone Mobility workspace. Planning is presented under Mobility Intelligence, but planning semantics, schedules and totals are owned by the Energy backend and consumed through its public UX contracts.
 
 Mobility Insights combines two authoritative domains without merging their ownership:
 - Energy provides per-vehicle/flexible-load metering and financial value attribution;
