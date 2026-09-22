@@ -15,12 +15,12 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
     const rt = new HomeBrainAssetRuntime(hass, this.config);
     const view = this.config.view || this.viewFromPath();
     const data = this.viewModel(view);
-    const heroMeta = view === "planning" ? this.planningHeroMeta(rt) : "";
+    const heroMeta = view === "planning" ? this.planningHeroMeta(rt) : view === "history" ? this.insightsHeroMeta(rt) : "";
     this.shadowRoot.innerHTML = `<ha-card><div class="page">
       ${hbMobilityNav(view)}
       ${hbMobilityPageHero(rt, view, { meta: heroMeta })}
       ${hbMobilityOutcomeStrip(rt, view, data.outcome)}
-      ${view === "planning" ? this.renderPlanning(rt) : this.renderContextCards(rt, data)}
+      ${view === "planning" ? this.renderPlanning(rt) : view === "history" ? this.renderInsights(rt) : this.renderContextCards(rt, data)}
       ${this.renderSupportFacts(rt, view)}
       ${hbMobilityReleaseFooter(rt)}
     </div><style>${this.styles()}</style></ha-card>`;
@@ -74,6 +74,10 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
     return new HomeBrainEnergyPlanningProjection(this._hass, rt).viewModel();
   }
 
+  energyInsights(rt) {
+    return new HomeBrainEnergyMobilityInsightsProjection(this._hass, rt).viewModel("today");
+  }
+
   fmtKwh(value) {
     return value === null || value === undefined ? "N/A" : `${Number(value).toFixed(1)} kWh`;
   }
@@ -84,6 +88,14 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
     const today = this.fmtKwh(plan.today.plannedKwh);
     const remaining = this.fmtKwh(plan.today.stillToPlanKwh);
     return `<strong>${rt.escape(source)}</strong><span>Planned today ${rt.escape(today)}</span><span>Still to plan ${rt.escape(remaining)}</span>`;
+  }
+
+  insightsHeroMeta(rt) {
+    const insights = this.energyInsights(rt);
+    const energy = this.fmtKwh(insights.totalVehicleEnergyKwh);
+    const value = insights.totalAttributedEur === null ? "N/A" : `€${Number(insights.totalAttributedEur).toFixed(2)}`;
+    const source = insights.meteringAvailable || insights.valueAvailable ? "Energy backend" : "Energy Insights unavailable";
+    return `<strong>${rt.escape(source)}</strong><span>Vehicle energy ${rt.escape(energy)}</span><span>Attributed value ${rt.escape(value)}</span>`;
   }
 
   renderPlanning(rt) {
@@ -129,6 +141,50 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
     </section>`;
   }
 
+  renderInsights(rt) {
+    const insights = this.energyInsights(rt);
+    const rows = insights.rows.map((row) => {
+      const energy = this.fmtKwh(row.energyKwh);
+      const value = row.attributedEur === null ? "N/A" : `€${Number(row.attributedEur).toFixed(2)}`;
+      const quality = row.measurementState || row.trustState || "UNAVAILABLE";
+      return `<article class="rhi-insight-vehicle">
+        <div class="rhi-insight-vehicle-head"><div><small>VEHICLE</small><h3>${rt.escape(row.name)}</h3></div><span>${rt.escape(quality)}</span></div>
+        <div class="rhi-insight-metrics">
+          <div><small>Measured energy</small><b>${rt.escape(energy)}</b></div>
+          <div><small>Attributed value</small><b>${rt.escape(value)}</b></div>
+        </div>
+      </article>`;
+    }).join("");
+    const gap = (!insights.meteringAvailable && !insights.valueAvailable)
+      ? "Energy metering and value contracts are unavailable. Mobility does not estimate vehicle energy or financial value."
+      : (!rows ? "Energy is available, but no published metering/value record currently matches a canonical Mobility vehicle id." : "");
+    return `<section class="rhi-fact-grid">
+      <div class="rhi-fact"><ha-icon icon="mdi:counter"></ha-icon><div><small>Vehicle energy</small><b>${rt.escape(this.fmtKwh(insights.totalVehicleEnergyKwh))}</b><span>Energy metering</span></div></div>
+      <div class="rhi-fact"><ha-icon icon="mdi:currency-eur"></ha-icon><div><small>Attributed value</small><b>${rt.escape(insights.totalAttributedEur === null ? "N/A" : `€${Number(insights.totalAttributedEur).toFixed(2)}`)}</b><span>Energy accounting</span></div></div>
+      <div class="rhi-fact"><ha-icon icon="mdi:car-multiple"></ha-icon><div><small>Vehicles with evidence</small><b>${rt.escape(String(insights.rows.length))}</b><span>Exact asset-id join</span></div></div>
+      <div class="rhi-fact"><ha-icon icon="mdi:database-check-outline"></ha-icon><div><small>Source</small><b>Energy</b><span>Metering + value</span></div></div>
+    </section>
+    <section class="rhi-context-grid insights-grid">
+      <article class="rhi-context-card rhi-insights-wide">
+        <div class="rhi-context-card-kicker"><ha-icon icon="mdi:chart-timeline-variant"></ha-icon>Measured Mobility</div>
+        <h3>Vehicle energy & value</h3>
+        <p>Per-vehicle energy and financial attribution come directly from Energy public UX contracts. Mobility only joins them by canonical asset id.</p>
+        ${rows ? `<div class="rhi-insight-vehicle-list">${rows}</div>` : ""}
+        ${gap ? `<div class="rhi-context-note">${rt.escape(gap)}</div>` : ""}
+      </article>
+      <article class="rhi-context-card">
+        <div class="rhi-context-card-kicker"><ha-icon icon="mdi:history"></ha-icon>Mobility evidence</div>
+        <h3>Execution history</h3>
+        <p>Commands, readiness transitions and vehicle/charger execution remain Mobility-owned. Energy measurements complement that history; they do not replace it.</p>
+        <div class="rhi-data-list">
+          <div class="rhi-data-row"><b>Metering contract</b><span>${rt.escape(insights.meteringContractVersion || (insights.meteringAvailable ? "Published" : "Unavailable"))}</span></div>
+          <div class="rhi-data-row"><b>Value contract</b><span>${rt.escape(insights.valueContractVersion || (insights.valueAvailable ? "Published" : "Unavailable"))}</span></div>
+          <div class="rhi-data-row"><b>Value state</b><span>${rt.escape(insights.valueState)}</span></div>
+        </div>
+      </article>
+    </section>`;
+  }
+
   renderContextCards(rt, data) {
     return `<section class="rhi-context-grid">
       ${data.cards.map((card) => `<article class="rhi-context-card"><div class="rhi-context-card-kicker"><ha-icon icon="${card.icon}"></ha-icon>${rt.escape(card.kicker)}</div><h3>${rt.escape(card.title)}</h3><p>${rt.escape(card.text)}</p></article>`).join("")}
@@ -153,6 +209,13 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
       .page{position:relative}
       .status-strip.dashboard-status-strip{margin:8px 0 10px!important}
       .support-facts{margin-top:8px!important}
+      .insights-grid{grid-template-columns:minmax(0,1.45fr) minmax(280px,.55fr)}
+      .rhi-insight-vehicle-list{display:grid;gap:7px;margin-top:10px}
+      .rhi-insight-vehicle{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;border:1px solid #edf1f6;border-radius:var(--rhi-radius-md);background:var(--rhi-soft);padding:10px 12px}
+      .rhi-insight-vehicle-head{min-width:0;display:flex;align-items:center;justify-content:space-between;gap:8px}.rhi-insight-vehicle-head small{font-size:8.5px;letter-spacing:.09em;color:#718096}.rhi-insight-vehicle-head h3{margin:1px 0 0;font-size:13px}.rhi-insight-vehicle-head>span{font-size:9px;color:#64748b}
+      .rhi-insight-metrics{display:grid;grid-template-columns:repeat(2,minmax(95px,1fr));gap:6px}.rhi-insight-metrics>div{padding:6px 8px;border-left:1px solid #e4eaf2}.rhi-insight-metrics small{display:block;font-size:8.5px;color:#718096}.rhi-insight-metrics b{display:block;margin-top:2px;font-size:12px;color:var(--rhi-ink)}
+      @media(max-width:900px){.insights-grid{grid-template-columns:1fr}.rhi-insight-vehicle{grid-template-columns:1fr}.rhi-insight-metrics>div:first-child{border-left:0}}
+      @media(max-width:520px){.rhi-insight-metrics{grid-template-columns:1fr 1fr}.rhi-insight-vehicle{padding:9px 10px}}
       @media(max-width:760px){.status-strip.dashboard-status-strip{grid-template-columns:repeat(5,minmax(150px,1fr))!important;overflow-x:auto!important}.status-strip.dashboard-status-strip .metric{min-width:150px!important}}
     `;
   }
