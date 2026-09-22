@@ -1,5 +1,66 @@
 # Engineer handover — RHI Mobility UX
 
+# Release-bound handover rule
+
+Every source candidate and published TEST CANDIDATE must update this handover **in the same release change set**. A candidate is not transferable when its current state exists only in chat history.
+
+For every release/candidate, this file must identify:
+- current working branch/candidate version;
+- exact known-good rollback release;
+- contract and tested backend baseline;
+- what changed in this candidate;
+- unresolved regressions/known defects;
+- target-runtime evidence still pending;
+- any explicit user freeze / do-not-touch scope;
+- next safe engineering action.
+
+`release/RELEASE_NOTES.md`, `release/QUALIFICATION.json`, `documentation/KNOWN_DEFECTS.md` / `documentation/UX_BACKLOG.md`, and this handover must remain mutually consistent. Validate should eventually fail when release identity changes without a corresponding handover update.
+
+# Current transfer state — 22 Sep 2026
+
+**State: STOP / analyse picker regressions before further UX or asset editing.**
+
+- Working branch: `refactor/rc30-shared-ux-picker`
+- Candidate: `1.0.0-rc.30`
+- Latest published rollback: `v1.0.0-rc.29`
+- Contract: `MOBILITY_PUBLIC_RUNTIME_V1`
+- Tested backend: `M0.9.29`
+- Last validated branch head before handover documentation update: `1e44ba365e173adb25a65388a3b266ee26897691`
+- Validate #210 / run `35756901963`: PASS
+- Branch relation to main at handover: 35 ahead / 1 behind; reconcile deliberately before PR.
+- No rc.30 PR is open.
+- rc.30 is not published.
+- Target HA qualification remains pending.
+
+## Critical regressions / facts
+
+1. **Vehicle picker regression is confirmed in source.** rc.30 renders Brand, Model and Variant disabled in `src/ui/components/vehicle-visual-picker.js`; only Colour remains interactive. This was introduced while trying to prevent cross-model draft/preview drift and is now reported by the user as broken behavior.
+
+2. **Stale vehicle draft behavior is a separate known issue.** `_vehiclePickerDraft` can outlive close/reopen unless explicitly cleared. Desired interaction must be specified and tested: open from persisted truth, close/cancel discards unsaved draft, save writes then clears draft, reopen reflects readback.
+
+3. **Charger picker is reported non-working in runtime.** Source diff rc.29→rc.30 does not show an equivalent picker rewrite. Frozen V1 may legitimately keep `charger.image_key` read-only, so distinguish interaction/preview failure from expected disabled persistence before changing code. Do not invent writability.
+
+4. **Validate coverage is insufficient.** #210 passed despite the Vehicle picker regression. Add interaction-level tests; string/source-presence checks are not enough.
+
+5. **There is no standalone Charging tab/page currently.** rc.30 removes the previously invented Charging tab/hero. Current Mobility presentation scope is Overview, Vehicles and Chargers.
+
+6. **Premium photorealistic hero concepts are not integrated.** The user explicitly froze further premium-image/styling work while picker regressions are unresolved. Do not touch hero imagery/assets until that freeze is lifted.
+
+7. **Overview is the design reference.** Vehicles and Chargers should eventually inherit its typography, spacing, section rhythm, property/status rows, controls and responsive density through shared presentation ownership. This design-system alignment should also be reusable by Energy, without sharing domain semantics.
+
+8. **Relationship-state illustrations/actions remain backlog only.** See `documentation/UX_BACKLOG.md`; do not opportunistically mix them into picker repair.
+
+## Next safe sequence
+
+- Read-only reproduce Vehicle and Charger picker behavior against rc.29 and rc.30.
+- Define the intended picker contract before editing.
+- Fix interaction semantics with owned regression tests.
+- Re-run full Validate.
+- Only after picker/runtime proof, resume shared design-language and premium hero work if explicitly approved.
+- Reconcile branch with main, then PR → Validate → immutable candidate publication.
+
+
+
 ## Start here
 
 Do not copy current release identity from this document. The authoritative sources are `package.json` for package version and `release/product.json` for contract/backend/release context. Published versions are authoritative in GitHub Releases.
