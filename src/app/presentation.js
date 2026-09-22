@@ -6,10 +6,10 @@ const HB_MOBILITY_PAGE_HEROES = Object.freeze({
   overview: { eyebrow:"MOBILITY", title:"Mobility Overview", description:"Know if your vehicles are ready, secure and comfortable, what is charging, and where action is needed.", asset:"heroes/mobility-overview.svg" },
   vehicles: { eyebrow:"MOBILITY / VEHICLE MANAGEMENT", title:"Vehicles", description:"Manage the vehicles you use every day: readiness, charger assignment, charging controls, direct actions and lifecycle.", asset:"heroes/mobility-vehicles.svg" },
   chargers: { eyebrow:"MOBILITY / CHARGER MANAGEMENT", title:"Chargers", description:"Manage charger availability, charging state, power, connected vehicles, controls and lifecycle from one compact workspace.", asset:"heroes/mobility-chargers.svg" },
-  planning: { eyebrow:"INTELLIGENCE / ENERGY PLANNING", title:"Planning", description:"See the Energy-owned charging plan, what is already planned and what still needs attention.", asset:"heroes/mobility-overview.svg" },
-  strategies: { eyebrow:"INTELLIGENCE / STRATEGIES", title:"Strategies", description:"Understand configured intent and effective energy policy without duplicating backend semantics.", asset:"heroes/mobility-vehicles.svg" },
-  history: { eyebrow:"INSIGHTS / ENERGY & MOBILITY", title:"History", description:"Review measured vehicle energy, value and Mobility outcomes from their authoritative backend domains.", asset:"heroes/mobility-overview.svg" },
-  log: { eyebrow:"INSIGHTS / LOG", title:"Log", description:"Inspect operational and audit evidence with backend-owned reasons and status.", asset:"heroes/mobility-chargers.svg" }
+  planning: { eyebrow:"INTELLIGENCE / ENERGY PLANNING", title:"Planning", description:"See the Energy-owned charging plan, what is already planned and what still needs attention.", asset:"heroes/mobility-planning.svg" },
+  strategies: { eyebrow:"INTELLIGENCE / STRATEGIES", title:"Strategies", description:"Understand configured intent and effective energy policy without duplicating backend semantics.", asset:"heroes/mobility-strategies.svg" },
+  history: { eyebrow:"INSIGHTS / ENERGY & MOBILITY", title:"History", description:"Review measured vehicle energy, value and Mobility outcomes from their authoritative backend domains.", asset:"heroes/mobility-history.svg" },
+  log: { eyebrow:"INSIGHTS / LOG", title:"Log", description:"Inspect operational and audit evidence with backend-owned reasons and status.", asset:"heroes/mobility-log.svg" }
 });
 
 function hbMobilityPageHero(rt, tab, options = {}) {
