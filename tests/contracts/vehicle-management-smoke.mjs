@@ -114,8 +114,8 @@ for(const needle of [
 }
 for(const needle of [
   'RHI_MOBILITY_CHARGER_VISUALS',
-  'wallbox.commander2.22kw',
-  'peblar.business.socket.22kw',
+  'wallbox.commander2',
+  'peblar.business.socket',
   'fibaro.wall-plug-2.zwave-plus.be-fr',
   'rhiMobilityResolveChargerVisual'
 ]) {
