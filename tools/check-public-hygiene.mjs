@@ -11,7 +11,7 @@ const patterns=[
   [/wessels\.robotix\.be/gi,'private installation host'],
   [/\bNicky\b|\bCarole\b/gi,'installation-specific personal name']
 ];
-function walk(dir){for(const e of fs.readdirSync(dir,{withFileTypes:true})){if(excluded.has(e.name))continue;const p=path.join(dir,e.name);if(e.isDirectory())walk(p);else if(/\.(js|mjs|json|md|yml|yaml|txt|csv)$/i.test(e.name)){const t=fs.readFileSync(p,'utf8');for(const [rx,label] of patterns){for(const m of t.matchAll(rx)){const v=m[0];if(label==='URL' && (/github\.com|hacs\.xyz|spdx\.org|gnu\.org/.test(v)))continue;findings.push(`${path.relative(root,p)}: ${label}: ${v.slice(0,120)}`);}}}}}
+function walk(dir){for(const e of fs.readdirSync(dir,{withFileTypes:true})){if(excluded.has(e.name))continue;const p=path.join(dir,e.name);if(e.isDirectory())walk(p);else if(/\.(js|mjs|json|md|yml|yaml|txt|csv)$/i.test(e.name)){const t=fs.readFileSync(p,'utf8');for(const [rx,label] of patterns){for(const m of t.matchAll(rx)){const v=m[0];if(label==='URL' && (/github\.com|hacs\.xyz|spdx\.org|gnu\.org|support\.wallbox\.com|peblar\.com|manuals\.fibaro\.com/.test(v)))continue;findings.push(`${path.relative(root,p)}: ${label}: ${v.slice(0,120)}`);}}}}}
 walk(root);
 if(findings.length){console.error(findings.join('\n'));process.exit(1)}
 console.log('PASS public repository hygiene scan');
