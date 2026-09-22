@@ -4482,7 +4482,7 @@ class HomeBrainChargerAdapter {
 }
 
 // ---- src/ui/components/vehicle-visual-picker.js ----
-// Shared vehicle visual picker model/presentation helper.
+// Shared hierarchical vehicle visual picker.
 // UX owns catalog + rendering; Mobility persists only vehicle.image_key.
 class HomeBrainVehicleVisualPicker {
   constructor(rt) { this.rt = rt; }
@@ -4493,6 +4493,26 @@ class HomeBrainVehicleVisualPicker {
       : [];
   }
 
+  brands(catalog = this.catalog()) {
+    return [...new Set(catalog.map((row)=>String(row.brand || "").trim()).filter(Boolean))]
+      .sort((a,b)=>a.localeCompare(b));
+  }
+
+  modelsForBrand(brand, catalog = this.catalog()) {
+    return [...new Set(catalog
+      .filter((row)=>row.brand === brand)
+      .map((row)=>String(row.model || "").trim())
+      .filter(Boolean))]
+      .sort((a,b)=>a.localeCompare(b));
+  }
+
+  variantsFor(brand, model, catalog = this.catalog()) {
+    return catalog
+      .filter((row)=>row.brand === brand && row.model === model)
+      .slice()
+      .sort((a,b)=>String(a.variant || "").localeCompare(String(b.variant || "")));
+  }
+
   selection(asset = {}, draft = {}) {
     const assetId = String(asset?.asset_id || asset || "").trim();
     const prop = assetId ? this.rt.propertyByCompoundKey(assetId, "vehicle.image_key") : null;
@@ -4501,28 +4521,37 @@ class HomeBrainVehicleVisualPicker {
       ? rhiMobilityParseVehicleVisualKey(raw)
       : null;
     const catalog = this.catalog();
-    const parsedSelectable = parsed?.vehicle
+    const currentVehicle = parsed?.vehicle
       ? catalog.find((row)=>row.id === parsed.vehicle.id) || null
       : null;
-    const vehicle = catalog.find((row)=>row.id === String(draft.vehicle_id || ""))
-      || parsedSelectable
-      || (parsed?.vehicle ? catalog.find((row)=>row.id === parsed.vehicle.id) : null)
+
+    const brand = String(draft.brand || currentVehicle?.brand || "");
+    const model = String(
+      draft.model
+      || (currentVehicle?.brand === brand ? currentVehicle?.model : "")
+      || ""
+    );
+    const variants = brand && model ? this.variantsFor(brand, model, catalog) : [];
+    const vehicle = variants.find((row)=>row.id === String(draft.variant_id || ""))
+      || (currentVehicle?.brand === brand && currentVehicle?.model === model ? currentVehicle : null)
       || null;
     const colors = vehicle?.colors || [];
-    const parsedColor = parsedSelectable?.id === vehicle?.id ? parsed?.color : null;
+    const parsedColor = currentVehicle?.id === vehicle?.id ? parsed?.color : null;
     const color = colors.find((row)=>row.id === String(draft.color_id || ""))
       || parsedColor
-      || colors[0]
-      || null;
+      || (vehicle ? colors[0] || null : null);
     const key = vehicle && color && typeof rhiMobilityVehicleVisualKey === "function"
       ? rhiMobilityVehicleVisualKey(vehicle.id, color.id)
       : "";
+
     return {
       asset_id: assetId,
       prop,
       raw: String(raw || ""),
       parsed,
-      parsed_selectable: !!parsedSelectable,
+      current_vehicle: currentVehicle,
+      brand,
+      model,
       vehicle,
       color,
       key,
@@ -4533,26 +4562,43 @@ class HomeBrainVehicleVisualPicker {
   render(asset = {}, options = {}) {
     const current = this.selection(asset, options.draft || {});
     const catalog = this.catalog();
-    const vehicle = current.vehicle;
-    const colors = vehicle?.colors || [];
-    const color = current.color;
+    const brands = this.brands(catalog);
+    const models = current.brand ? this.modelsForBrand(current.brand, catalog) : [];
+    const variants = current.brand && current.model ? this.variantsFor(current.brand, current.model, catalog) : [];
+    const colors = current.vehicle?.colors || [];
     const assetId = current.asset_id;
     const close = options.showClose === false ? "" :
       `<button class="vehicle-picker-close" data-vehicle-picker-close="${this.rt.escape(assetId)}" title="Close"><ha-icon icon="mdi:close"></ha-icon></button>`;
+
+    const placeholder = (label, selected) => `<option value="" ${selected ? "selected" : ""} disabled>${label}</option>`;
     return `<section class="vehicle-picker-panel ${options.context === "detail" ? "detail-vehicle-picker" : ""}" data-picker-panel="${this.rt.escape(assetId)}">
       <div class="vehicle-picker-head">
-        <div><small>APPEARANCE</small><h3>Choose vehicle & colour</h3><p>The UX catalog owns visuals. Mobility stores only the selected <code>vehicle.image_key</code>.</p></div>
+        <div><small>APPEARANCE</small><h3>Vehicle & colour</h3><p>Choose brand, model, variant and colour. The current vehicle is preserved until you explicitly save another selection.</p></div>
         ${close}
       </div>
-      <div class="vehicle-picker-grid">
-        <label><span>Vehicle</span><select data-vehicle-picker-type="${this.rt.escape(assetId)}"><option value="" ${vehicle ? "" : "selected"} disabled>Choose vehicle…</option>${catalog.map((row)=>`<option value="${this.rt.escape(row.id)}" ${row.id===vehicle?.id?"selected":""}>${this.rt.escape(row.label)} · ${this.rt.escape(row.variant)} · ${this.rt.escape(row.years)}</option>`).join("")}</select></label>
-        <label><span>Colour</span><select data-vehicle-picker-color="${this.rt.escape(assetId)}">${colors.map((row)=>`<option value="${this.rt.escape(row.id)}" ${row.id===color?.id?"selected":""}>${this.rt.escape(row.label)}</option>`).join("")}</select></label>
+      <div class="vehicle-picker-grid vehicle-picker-hierarchy">
+        <label><span>Brand</span><select data-vehicle-picker-brand="${this.rt.escape(assetId)}">
+          ${placeholder("Choose brand…", !current.brand)}
+          ${brands.map((brand)=>`<option value="${this.rt.escape(brand)}" ${brand===current.brand?"selected":""}>${this.rt.escape(brand)}</option>`).join("")}
+        </select></label>
+        <label><span>Model</span><select data-vehicle-picker-model="${this.rt.escape(assetId)}" ${!current.brand ? "disabled" : ""}>
+          ${placeholder("Choose model…", !current.model)}
+          ${models.map((model)=>`<option value="${this.rt.escape(model)}" ${model===current.model?"selected":""}>${this.rt.escape(model)}</option>`).join("")}
+        </select></label>
+        <label><span>Variant</span><select data-vehicle-picker-variant="${this.rt.escape(assetId)}" ${!current.model ? "disabled" : ""}>
+          ${placeholder("Choose variant…", !current.vehicle)}
+          ${variants.map((row)=>`<option value="${this.rt.escape(row.id)}" ${row.id===current.vehicle?.id?"selected":""}>${this.rt.escape(row.variant)} · ${this.rt.escape(row.years)}</option>`).join("")}
+        </select></label>
+        <label><span>Colour</span><select data-vehicle-picker-color="${this.rt.escape(assetId)}" ${!current.vehicle ? "disabled" : ""}>
+          ${placeholder("Choose colour…", !current.color)}
+          ${colors.map((row)=>`<option value="${this.rt.escape(row.id)}" ${row.id===current.color?.id?"selected":""}>${this.rt.escape(row.label)}</option>`).join("")}
+        </select></label>
         <div class="vehicle-picker-key"><span>Visual key</span><code>${this.rt.escape(current.key || "Unavailable")}</code></div>
         <button class="vehicle-picker-save" data-vehicle-picker-save="${this.rt.escape(assetId)}" data-vehicle-key="${this.rt.escape(current.key)}" ${!current.writable || !current.key ? "disabled" : ""}><ha-icon icon="mdi:check"></ha-icon><span>Use this vehicle</span></button>
       </div>
-      ${current.parsed?.vehicle?.visual_quality === "profile_source" ? `<div class="vehicle-picker-gap"><ha-icon icon="mdi:image-outline"></ha-icon><span>This vehicle keeps its current Mobility profile/source artwork; colour is still applied by the UX.</span></div>` : ""}
-      ${!current.parsed && current.raw ? `<div class="vehicle-picker-gap"><ha-icon icon="mdi:alert-outline"></ha-icon><span>The current visual key is unknown to this UX catalog. Choose a vehicle explicitly; no default is applied.</span></div>` : ""}
-      ${current.writable ? "" : `<div class="vehicle-picker-gap"><ha-icon icon="mdi:alert-outline"></ha-icon><span>Backend does not publish a writable vehicle.image_key yet. Picker stays fail-closed.</span></div>`}
+      ${current.vehicle?.visual_quality === "profile_source" ? `<div class="vehicle-picker-gap"><ha-icon icon="mdi:image-outline"></ha-icon><span>This model uses its Mobility profile/source artwork until dedicated package artwork is available.</span></div>` : ""}
+      ${!current.parsed && current.raw ? `<div class="vehicle-picker-gap"><ha-icon icon="mdi:alert-outline"></ha-icon><span>The current visual key is unknown. No replacement default is applied.</span></div>` : ""}
+      ${current.writable ? "" : `<div class="vehicle-picker-gap"><ha-icon icon="mdi:alert-outline"></ha-icon><span>Mobility does not publish a writable vehicle.image_key. Saving is disabled.</span></div>`}
     </section>`;
   }
 }
@@ -4862,32 +4908,69 @@ class HomeBrainAssetShell {
 
 
     this.root.querySelectorAll(".detail-vehicle-picker").forEach((panel) => {
-      const typeSelect = panel.querySelector("[data-vehicle-picker-type]");
+      const brandSelect = panel.querySelector("[data-vehicle-picker-brand]");
+      const modelSelect = panel.querySelector("[data-vehicle-picker-model]");
+      const variantSelect = panel.querySelector("[data-vehicle-picker-variant]");
       const colorSelect = panel.querySelector("[data-vehicle-picker-color]");
       const saveButton = panel.querySelector("[data-vehicle-picker-save]");
       const keyNode = panel.querySelector(".vehicle-picker-key code");
-      const assetId = typeSelect?.getAttribute("data-vehicle-picker-type") || "";
+      const assetId = brandSelect?.getAttribute("data-vehicle-picker-brand") || "";
       const picker = new HomeBrainVehicleVisualPicker(this.rt);
-      const updatePreview = (resetColor = false) => {
+      const placeholder = (label)=>`<option value="" selected disabled>${this.rt.escape(label)}</option>`;
+
+      const refreshHierarchy = (level) => {
         const catalog = picker.catalog();
-        const vehicle = catalog.find((row)=>row.id === String(typeSelect?.value || "")) || catalog[0] || null;
-        if (!vehicle || !colorSelect) return;
-        const priorColor = resetColor ? "" : colorSelect.value;
-        colorSelect.innerHTML = (vehicle.colors || []).map((color)=>`<option value="${this.rt.escape(color.id)}">${this.rt.escape(color.label)}</option>`).join("");
-        const color = (vehicle.colors || []).find((row)=>row.id === priorColor) || vehicle.colors?.[0] || null;
-        if (color) colorSelect.value = color.id;
+        const brand = String(brandSelect?.value || "");
+        if (level === "brand") {
+          const models = picker.modelsForBrand(brand, catalog);
+          if (modelSelect) {
+            modelSelect.disabled = !brand;
+            modelSelect.innerHTML = placeholder("Choose model…") + models.map((model)=>`<option value="${this.rt.escape(model)}">${this.rt.escape(model)}</option>`).join("");
+          }
+          if (variantSelect) { variantSelect.disabled = true; variantSelect.innerHTML = placeholder("Choose variant…"); }
+          if (colorSelect) { colorSelect.disabled = true; colorSelect.innerHTML = placeholder("Choose colour…"); }
+        }
+        if (level === "model") {
+          const model = String(modelSelect?.value || "");
+          const variants = picker.variantsFor(brand, model, catalog);
+          if (variantSelect) {
+            variantSelect.disabled = !model;
+            variantSelect.innerHTML = placeholder("Choose variant…") + variants.map((row)=>`<option value="${this.rt.escape(row.id)}">${this.rt.escape(row.variant)} · ${this.rt.escape(row.years)}</option>`).join("");
+          }
+          if (colorSelect) { colorSelect.disabled = true; colorSelect.innerHTML = placeholder("Choose colour…"); }
+        }
+        if (level === "variant") {
+          const vehicle = catalog.find((row)=>row.id === String(variantSelect?.value || "")) || null;
+          if (colorSelect) {
+            colorSelect.disabled = !vehicle;
+            colorSelect.innerHTML = placeholder("Choose colour…") + (vehicle?.colors || []).map((color)=>`<option value="${this.rt.escape(color.id)}">${this.rt.escape(color.label)}</option>`).join("");
+          }
+        }
+        updatePreview();
+      };
+
+      const updatePreview = () => {
+        const catalog = picker.catalog();
+        const vehicle = catalog.find((row)=>row.id === String(variantSelect?.value || "")) || null;
+        const color = vehicle?.colors?.find((row)=>row.id === String(colorSelect?.value || "")) || null;
         const key = vehicle && color ? rhiMobilityVehicleVisualKey(vehicle.id, color.id) : "";
         if (keyNode) keyNode.textContent = key || "Unavailable";
-        if (saveButton) saveButton.setAttribute("data-vehicle-key", key);
-        const hero = this.root.querySelector('.hero-image img[data-vehicle-visual-preview="1"]');
-        if (hero && vehicle?.package_file) {
-          hero.src = this.rt.cache(vehicle.package_file);
+        if (saveButton) {
+          saveButton.setAttribute("data-vehicle-key", key);
+          saveButton.disabled = !key;
+        }
+        const hero = this.root.querySelector('[data-vehicle-visual-preview="1"]');
+        if (hero && vehicle) {
+          if (vehicle.package_file) hero.src = this.rt.cache(vehicle.package_file);
           const gray = hero.getAttribute("data-image-gray") || "0";
           hero.style.filter = `grayscale(${gray}) ${color?.filter || "none"} drop-shadow(0 24px 30px rgba(15,35,80,.15))`;
         }
       };
-      typeSelect?.addEventListener("change", ()=>updatePreview(true));
-      colorSelect?.addEventListener("change", ()=>updatePreview(false));
+
+      brandSelect?.addEventListener("change", ()=>refreshHierarchy("brand"));
+      modelSelect?.addEventListener("change", ()=>refreshHierarchy("model"));
+      variantSelect?.addEventListener("change", ()=>refreshHierarchy("variant"));
+      colorSelect?.addEventListener("change", updatePreview);
       saveButton?.addEventListener("click", ()=>{
         if (saveButton.disabled) return;
         const key = saveButton.getAttribute("data-vehicle-key") || "";
@@ -4954,7 +5037,7 @@ class HomeBrainAssetShell {
       .action-cluster{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:8px 0 6px}.action-cluster .action{height:38px;min-width:116px;width:auto;padding:0 12px;border-radius:12px;font-size:13px;box-shadow:none}.action-cluster .action small{display:none}
       .unit-suffix{display:inline-flex;align-items:center;margin-left:6px;color:#66728B;font-size:12px;font-weight:600;white-space:nowrap}.row-subheader{margin:12px 0 4px;padding:7px 0 5px;border-bottom:1px solid #EDF2F8;color:#1467F5;font-size:11px;font-weight:650;text-transform:uppercase;letter-spacing:.08em}.row-subheader:first-child{margin-top:4px}.row-subheader-small{margin:7px 0 2px;color:#66728B;font-size:11px;font-weight:600}
       .row,.edit-row { display:grid;grid-template-columns:26px minmax(0,1fr) minmax(140px,auto);gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid #EDF2F8; }
-      .detail-vehicle-picker{margin:8px 0 12px;border:1px solid #cfe0f6;border-radius:14px;background:linear-gradient(135deg,#fbfdff,#f3f8ff);padding:12px 14px}.vehicle-picker-head{display:flex;justify-content:space-between;gap:14px;align-items:start}.vehicle-picker-head small{font-size:8.5px;letter-spacing:.13em;color:#64748b;font-weight:750}.vehicle-picker-head h3{margin:2px 0;font-size:15px;color:#0f172a}.vehicle-picker-head p{margin:0;font-size:9.5px;color:#64748b}.vehicle-picker-grid{display:grid;grid-template-columns:minmax(180px,1.3fr) minmax(140px,.8fr) minmax(220px,1.4fr) auto;gap:8px;align-items:end;margin-top:10px}.vehicle-picker-grid label,.vehicle-picker-key{display:flex;flex-direction:column;gap:4px}.vehicle-picker-grid label>span,.vehicle-picker-key>span{font-size:8.5px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.05em}.vehicle-picker-grid select{height:34px;border:1px solid #d7e2ef;border-radius:8px;background:#fff;color:#0f172a;padding:0 8px;font-size:10.5px;font-weight:600}.vehicle-picker-key code{height:34px;display:flex;align-items:center;border:1px solid #d7e2ef;border-radius:8px;background:#fff;padding:0 8px;font-size:8.5px;color:#475569;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.vehicle-picker-save{height:34px;border:1px solid #0b65ea;border-radius:8px;background:#0b65ea;color:#fff;padding:0 11px;display:flex;align-items:center;gap:6px;font-size:10px;font-weight:700;cursor:pointer}.vehicle-picker-save:disabled{background:#e2e8f0;border-color:#d5deea;color:#94a3b8;cursor:not-allowed}.vehicle-picker-gap{margin-top:8px;display:flex;align-items:center;gap:6px;color:#9a5a16;font-size:9.5px}.vehicle-picker-gap ha-icon{--mdc-icon-size:14px}
+      .detail-vehicle-picker{margin:8px 0 12px;border:1px solid #cfe0f6;border-radius:14px;background:linear-gradient(135deg,#fbfdff,#f3f8ff);padding:12px 14px}.vehicle-picker-head{display:flex;justify-content:space-between;gap:14px;align-items:start}.vehicle-picker-head small{font-size:8.5px;letter-spacing:.13em;color:#64748b;font-weight:750}.vehicle-picker-head h3{margin:2px 0;font-size:15px;color:#0f172a}.vehicle-picker-head p{margin:0;font-size:9.5px;color:#64748b}.vehicle-picker-grid{display:grid;grid-template-columns:repeat(4,minmax(120px,1fr));gap:8px;align-items:end;margin-top:10px}.vehicle-picker-hierarchy .vehicle-picker-key{grid-column:1/4}.vehicle-picker-hierarchy .vehicle-picker-save{grid-column:4}.vehicle-picker-grid label,.vehicle-picker-key{display:flex;flex-direction:column;gap:4px}.vehicle-picker-grid label>span,.vehicle-picker-key>span{font-size:8.5px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.05em}.vehicle-picker-grid select{height:34px;border:1px solid #d7e2ef;border-radius:8px;background:#fff;color:#0f172a;padding:0 8px;font-size:10.5px;font-weight:600}.vehicle-picker-key code{height:34px;display:flex;align-items:center;border:1px solid #d7e2ef;border-radius:8px;background:#fff;padding:0 8px;font-size:8.5px;color:#475569;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.vehicle-picker-save{height:34px;border:1px solid #0b65ea;border-radius:8px;background:#0b65ea;color:#fff;padding:0 11px;display:flex;align-items:center;gap:6px;font-size:10px;font-weight:700;cursor:pointer}.vehicle-picker-save:disabled{background:#e2e8f0;border-color:#d5deea;color:#94a3b8;cursor:not-allowed}.vehicle-picker-gap{margin-top:8px;display:flex;align-items:center;gap:6px;color:#9a5a16;font-size:9.5px}.vehicle-picker-gap ha-icon{--mdc-icon-size:14px}
       @media(max-width:900px){.detail-vehicle-picker .vehicle-picker-grid{grid-template-columns:1fr 1fr}.detail-vehicle-picker .vehicle-picker-key{grid-column:1/-1}.detail-vehicle-picker .vehicle-picker-save{justify-content:center}}
       .row:last-child,.edit-row:last-child { border-bottom:0; }.row ha-icon,.edit-row ha-icon { --mdc-icon-size:19px;color:var(--hb-blue); }
       .label { font-size:13px;font-weight:600;color:#26334F; }.help { color:var(--hb-muted);font-size:11px;font-weight:600;margin-top:2px; }.help.warn{color:#A15C00}.edit-row.is-disabled{opacity:.74}.value { font-size:13px;font-weight:650;color:var(--hb-ink);text-align:right;max-width:155px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
@@ -6681,10 +6764,23 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
       this._vehiclePickerAsset = ""; this._forceRender = true; this._lastSignature = "";
       if (this._hass) this.hass = this._hass;
     }));
-    this.shadowRoot.querySelectorAll("select[data-vehicle-picker-type]").forEach((select)=>select.addEventListener("change",()=>{
-      const assetId = select.getAttribute("data-vehicle-picker-type") || "";
+    this.shadowRoot.querySelectorAll("select[data-vehicle-picker-brand]").forEach((select)=>select.addEventListener("change",()=>{
+      const assetId = select.getAttribute("data-vehicle-picker-brand") || "";
+      this._vehiclePickerDraft.set(assetId,{brand:select.value,model:"",variant_id:"",color_id:""});
+      this._forceRender = true; this._lastSignature = "";
+      if (this._hass) this.hass = this._hass;
+    }));
+    this.shadowRoot.querySelectorAll("select[data-vehicle-picker-model]").forEach((select)=>select.addEventListener("change",()=>{
+      const assetId = select.getAttribute("data-vehicle-picker-model") || "";
       const current = this._vehiclePickerDraft.get(assetId) || {};
-      this._vehiclePickerDraft.set(assetId,{...current,vehicle_id:select.value,color_id:""});
+      this._vehiclePickerDraft.set(assetId,{...current,model:select.value,variant_id:"",color_id:""});
+      this._forceRender = true; this._lastSignature = "";
+      if (this._hass) this.hass = this._hass;
+    }));
+    this.shadowRoot.querySelectorAll("select[data-vehicle-picker-variant]").forEach((select)=>select.addEventListener("change",()=>{
+      const assetId = select.getAttribute("data-vehicle-picker-variant") || "";
+      const current = this._vehiclePickerDraft.get(assetId) || {};
+      this._vehiclePickerDraft.set(assetId,{...current,variant_id:select.value,color_id:""});
       this._forceRender = true; this._lastSignature = "";
       if (this._hass) this.hass = this._hass;
     }));
@@ -7380,7 +7476,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     .vehicle-page-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.vehicle-page-summary-item{min-height:50px;border:1px solid #e2e8f0;border-radius:11px;background:#fff;padding:7px 9px;display:grid;grid-template-columns:28px minmax(0,1fr);gap:7px;align-items:center}.vehicle-page-summary-item>ha-icon{--mdc-icon-size:16px;width:28px;height:28px;border-radius:8px;background:#eff6ff;color:#2563eb;padding:6px;box-sizing:border-box}.vehicle-page-summary-item>span{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:6px;min-width:0}.vehicle-page-summary-item small{font-size:9px;color:#64748b}.vehicle-page-summary-item b{font-size:14px;color:#0f172a}.vehicle-page-summary-item em{grid-column:1/-1;margin-top:1px;font-size:8.5px;font-style:normal;color:#94a3b8}.vehicle-page-summary-item.warn>ha-icon{background:#fff7ed;color:#c2410c}
     .vehicle-workspace-head{display:flex;align-items:end;justify-content:space-between;gap:12px;margin:3px 2px -2px}.vehicle-workspace-head h2{margin:0;font-size:18px;font-weight:650;color:#0f172a}.vehicle-workspace-head p{margin:2px 0 0;font-size:10px;color:#64748b}.vehicle-count-pill{border:1px solid #dbe5f0;border-radius:999px;background:#fff;color:#475569;padding:5px 9px;font-size:9.5px;font-weight:650;white-space:nowrap}.vehicle-count-pill.muted{background:#f8fafc}.vehicle-filter-empty{border:1px dashed #d9e3ef;border-radius:14px;background:#fbfdff;color:#64748b;padding:18px;text-align:center;font-size:11px;font-weight:600}
     .vehicle-workspace-list.vehicles{grid-template-columns:1fr!important}.vehicle-workspace-list .vehicle-card{box-shadow:0 10px 28px rgba(15,35,80,.05)}.vehicle-workspace-list .hero-split-row{grid-template-columns:minmax(0,2.7fr) minmax(155px,.72fr)}.vehicle-workspace-list .vehicle-hero-panel{min-height:168px}.vehicle-workspace-list .charger-hero-panel{min-height:168px}.vehicle-workspace-list .vehicle-image img{max-height:220px;transform:scale(1.18)}.manage-lifecycle span{display:inline!important}.manage-lifecycle{padding-inline:12px!important}
-    .vehicle-appearance-action{min-width:112px}.vehicle-picker-panel{margin:0 12px 10px;border:1px solid #cfe0f6;border-radius:14px;background:linear-gradient(135deg,#fbfdff,#f3f8ff);padding:12px 14px;box-shadow:inset 0 1px 0 rgba(255,255,255,.8)}.vehicle-picker-head{display:flex;justify-content:space-between;gap:14px;align-items:start}.vehicle-picker-head small{font-size:8.5px;letter-spacing:.13em;color:#64748b;font-weight:750}.vehicle-picker-head h3{margin:2px 0 2px;font-size:15px;color:#0f172a}.vehicle-picker-head p{margin:0;font-size:9.5px;color:#64748b}.vehicle-picker-head code{font-size:9px}.vehicle-picker-close{width:30px;height:30px;border:1px solid #dbe5f0;border-radius:8px;background:#fff;color:#64748b;cursor:pointer}.vehicle-picker-close ha-icon{--mdc-icon-size:16px}.vehicle-picker-grid{display:grid;grid-template-columns:minmax(180px,1.3fr) minmax(140px,.8fr) minmax(220px,1.4fr) auto;gap:8px;align-items:end;margin-top:10px}.vehicle-picker-grid label,.vehicle-picker-key{display:flex;flex-direction:column;gap:4px}.vehicle-picker-grid label>span,.vehicle-picker-key>span{font-size:8.5px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.05em}.vehicle-picker-grid select{height:34px;border:1px solid #d7e2ef;border-radius:8px;background:#fff;color:#0f172a;padding:0 8px;font-size:10.5px;font-weight:600}.vehicle-picker-key code{height:34px;display:flex;align-items:center;border:1px solid #d7e2ef;border-radius:8px;background:#fff;padding:0 8px;font-size:8.5px;color:#475569;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.vehicle-picker-save{height:34px;border:1px solid #0b65ea;border-radius:8px;background:#0b65ea;color:#fff;padding:0 11px;display:flex;align-items:center;gap:6px;font-size:10px;font-weight:700;cursor:pointer}.vehicle-picker-save:disabled{background:#e2e8f0;border-color:#d5deea;color:#94a3b8;cursor:not-allowed}.vehicle-picker-save ha-icon{--mdc-icon-size:15px}.vehicle-picker-gap{margin-top:8px;display:flex;align-items:center;gap:6px;color:#9a5a16;font-size:9.5px}.vehicle-picker-gap ha-icon{--mdc-icon-size:14px}
+    .vehicle-appearance-action{min-width:112px}.vehicle-picker-panel{margin:0 12px 10px;border:1px solid #cfe0f6;border-radius:14px;background:linear-gradient(135deg,#fbfdff,#f3f8ff);padding:12px 14px;box-shadow:inset 0 1px 0 rgba(255,255,255,.8)}.vehicle-picker-head{display:flex;justify-content:space-between;gap:14px;align-items:start}.vehicle-picker-head small{font-size:8.5px;letter-spacing:.13em;color:#64748b;font-weight:750}.vehicle-picker-head h3{margin:2px 0 2px;font-size:15px;color:#0f172a}.vehicle-picker-head p{margin:0;font-size:9.5px;color:#64748b}.vehicle-picker-head code{font-size:9px}.vehicle-picker-close{width:30px;height:30px;border:1px solid #dbe5f0;border-radius:8px;background:#fff;color:#64748b;cursor:pointer}.vehicle-picker-close ha-icon{--mdc-icon-size:16px}.vehicle-picker-grid{display:grid;grid-template-columns:repeat(4,minmax(120px,1fr));gap:8px;align-items:end;margin-top:10px}.vehicle-picker-hierarchy .vehicle-picker-key{grid-column:1/4}.vehicle-picker-hierarchy .vehicle-picker-save{grid-column:4}.vehicle-picker-grid label,.vehicle-picker-key{display:flex;flex-direction:column;gap:4px}.vehicle-picker-grid label>span,.vehicle-picker-key>span{font-size:8.5px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.05em}.vehicle-picker-grid select{height:34px;border:1px solid #d7e2ef;border-radius:8px;background:#fff;color:#0f172a;padding:0 8px;font-size:10.5px;font-weight:600}.vehicle-picker-key code{height:34px;display:flex;align-items:center;border:1px solid #d7e2ef;border-radius:8px;background:#fff;padding:0 8px;font-size:8.5px;color:#475569;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.vehicle-picker-save{height:34px;border:1px solid #0b65ea;border-radius:8px;background:#0b65ea;color:#fff;padding:0 11px;display:flex;align-items:center;gap:6px;font-size:10px;font-weight:700;cursor:pointer}.vehicle-picker-save:disabled{background:#e2e8f0;border-color:#d5deea;color:#94a3b8;cursor:not-allowed}.vehicle-picker-save ha-icon{--mdc-icon-size:15px}.vehicle-picker-gap{margin-top:8px;display:flex;align-items:center;gap:6px;color:#9a5a16;font-size:9.5px}.vehicle-picker-gap ha-icon{--mdc-icon-size:14px}
     @media(max-width:900px){.vehicle-picker-grid{grid-template-columns:1fr 1fr}.vehicle-picker-save{justify-content:center}.vehicle-picker-key{grid-column:1/-1}}
 
     @media(max-width:980px){.vehicle-management-bar{grid-template-columns:1fr auto}.vehicle-manage-button{grid-column:1/-1;justify-content:center}.vehicle-page-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.vehicles-hero-copy{padding-right:30%}}
