@@ -83,7 +83,7 @@ class HomeBrainChargerVisualPicker {
         </select></label>
         <label><span>Variant</span><select data-charger-picker-variant="${this.rt.escape(assetId)}" ${!current.model?"disabled":""}>
           ${placeholder("Choose variant…",!current.charger)}
-          ${variants.map((row)=>`<option value="${this.rt.escape(row.id)}" ${row.id===current.charger?.id?"selected":""}>${this.rt.escape(row.variant || "Standard")} · ${this.rt.escape(row.max_power_kw ? row.max_power_kw+" kW" : row.years)}</option>`).join("")}
+          ${variants.map((row)=>`<option value="${this.rt.escape(row.id)}" ${row.id===current.charger?.id?"selected":""}>${this.rt.escape(row.variant || "Standard")} · ${this.rt.escape(row.years)}</option>`).join("")}
         </select></label>
         <label><span>Colour</span><select data-charger-picker-appearance="${this.rt.escape(assetId)}" ${!current.charger?"disabled":""}>
           ${placeholder("Choose colour…",!current.appearance)}
