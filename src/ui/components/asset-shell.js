@@ -520,6 +520,38 @@ class HomeBrainAssetShell {
       @media (max-width:1200px) { .hero-left{width:100%;min-width:0}.hero{min-height:520px}.hero-image{position:relative;right:auto;top:auto;width:100%;height:240px;margin-top:12px}.hero-image img{height:240px}.hero-charger-image{right:30px;top:280px}.status-strip{margin-top:12px;max-width:100%}.footer-items{grid-template-columns:1fr 1fr}.footer-more{justify-content:center}.grid{grid-template-columns:repeat(2,minmax(0,1fr));} }
       @media (max-width:760px) { .page{padding:14px}.hero{min-height:0;padding:22px 16px 18px} h1{font-size:40px}.subtitle{font-size:15px}.hero-image{height:190px}.hero-image img{height:190px}.hero-charger-image{top:225px;right:18px;width:72px;height:112px}.hero-charger-image img{max-width:70px;max-height:110px}.status-strip{grid-template-columns:1fr}.metric{border-right:0;border-bottom:1px solid #E6ECF5}.metric:last-child{border-bottom:0}.actions,.grid,.footer-items{grid-template-columns:1fr}.footer-item{border-right:0;border-bottom:1px solid #EDF2F8;padding-bottom:10px}.footer-item:last-of-type{border-bottom:0}.actions-title{grid-column:auto} }
 
+      /* rc.23 mobile detail density + picker hardening */
+      @media (max-width:560px) {
+        .page{padding:8px!important;gap:8px!important}
+        .hero{padding:16px 12px 12px!important;border-radius:16px!important}
+        h1{font-size:30px!important}
+        .hero-image{height:145px!important;margin-top:6px!important}
+        .hero-image img{height:145px!important}
+        .hero-charger-image{top:170px!important;right:12px!important;width:60px!important;height:86px!important}
+        .hero-charger-image img{max-width:58px!important;max-height:82px!important}
+        .status-strip{margin-top:8px!important}
+        .metric{padding:9px 10px!important}
+        .actions{gap:6px!important}
+        .action{min-height:44px!important}
+        .section-card{border-radius:14px!important}
+        .section-head{padding:10px 12px!important}
+        .section-body{padding:0 12px 8px!important}
+
+        .detail-vehicle-picker{margin:6px 0 8px!important;padding:10px!important;border-radius:12px!important}
+        .detail-vehicle-picker .vehicle-picker-grid{grid-template-columns:1fr!important;gap:7px!important}
+        .detail-vehicle-picker .vehicle-picker-key{grid-column:auto!important}
+        .detail-vehicle-picker select,
+        .detail-vehicle-picker .vehicle-picker-key code,
+        .detail-vehicle-picker .vehicle-picker-save{
+          width:100%!important;height:44px!important;min-height:44px!important;box-sizing:border-box!important
+        }
+        .detail-vehicle-picker .vehicle-picker-save{justify-content:center!important}
+        .detail-vehicle-picker .vehicle-picker-head h3{font-size:14px!important}
+        .detail-vehicle-picker .vehicle-picker-head p{font-size:10px!important;line-height:1.25!important}
+        .detail-vehicle-picker .vehicle-picker-grid label>span,
+        .detail-vehicle-picker .vehicle-picker-key>span{font-size:9px!important}
+      }
+
 
       /* R22.12.11.24 calm detail statusbar polish — icons are semantic hints, color only for active/attention. */
       :host{font-family:inherit!important;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}

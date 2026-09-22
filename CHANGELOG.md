@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.0-rc.23 — compact mobile Vehicles
+
+- Rewrites phone Vehicle cards for compact density while preserving desktop/tablet behavior.
+- Compresses vehicle + charger presentation, metrics and controls into purpose-built mobile layouts.
+- Keeps inactive vehicle cards to one compact row with inline actions.
+- Makes management/detail Vehicle Pickers one-column with 44 px touch targets on phones.
+- Preserves rc.22 shared picker, verified-model gating and backend contracts.
+
 ## 1.0.0-rc.22 — shared Vehicle Detail picker
 
 - Reuses one verified Vehicle / Colour picker model on Vehicle Management and Vehicle Detail.
