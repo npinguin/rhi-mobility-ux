@@ -1,6 +1,6 @@
 {
-  "candidate_version": "1.0.0-rc.31",
-  "candidate_tag": "v1.0.0-rc.31",
+  "candidate_version": "1.0.0-rc.32",
+  "candidate_tag": "v1.0.0-rc.32",
   "candidate_sha": "pending",
   "target_home_assistant": "pending",
   "hacs_install": "pending",
@@ -60,5 +60,9 @@
   "premium_compact_hero_responsive": "pending",
   "energy_strategy_profile_projection": "pending",
   "energy_strategy_effective_projection": "pending",
-  "energy_strategy_exact_asset_join": "pending"
+  "energy_strategy_exact_asset_join": "pending",
+  "overview_pixel_perfect_layout": "pending",
+  "overview_domain_statusbar": "pending",
+  "overview_approved_hero": "pending",
+  "overview_responsive_runtime": "pending"
 }
