@@ -171,7 +171,9 @@ class HomeBrainEnergyMobilityInsightsProjection {
       valueCurrency: String(this._first(valueSummary.currency, valueAttrs.currency, "EUR") || "EUR"),
       valueState: String(this._first(valueProductStatus.state, valueAttrs.status, "UNAVAILABLE") || "UNAVAILABLE"),
       rows: byAsset,
-      totalVehicleEnergyKwh: byAsset.reduce((sum,row)=>sum+(row.energyKwh ?? 0),0),
+      totalVehicleEnergyKwh: byAsset.some((row)=>row.energyKwh!==null)
+        ? byAsset.reduce((sum,row)=>sum+(row.energyKwh ?? 0),0)
+        : null,
       totalAttributedEur: byAsset.some((row)=>row.attributedEur!==null)
         ? byAsset.reduce((sum,row)=>sum+(row.attributedEur ?? 0),0)
         : null,
