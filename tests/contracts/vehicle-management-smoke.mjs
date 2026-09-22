@@ -6,6 +6,8 @@ const runtime=fs.readFileSync(new URL('../../src/runtime/ha-contract-runtime.js'
 const adapter=fs.readFileSync(new URL('../../src/domain/adapters/vehicle-adapter.js',import.meta.url),'utf8');
 const shell=fs.readFileSync(new URL('../../src/ui/components/asset-shell.js',import.meta.url),'utf8');
 const picker=fs.readFileSync(new URL('../../src/ui/components/vehicle-visual-picker.js',import.meta.url),'utf8');
+const chargerPicker=fs.readFileSync(new URL('../../src/ui/components/charger-visual-picker.js',import.meta.url),'utf8');
+const chargerAdapter=fs.readFileSync(new URL('../../src/domain/adapters/charger-adapter.js',import.meta.url),'utf8');
 const artwork=fs.readFileSync(new URL('../../documentation/VEHICLE_ARTWORK_SOURCES.json',import.meta.url),'utf8');
 
 for(const needle of [
@@ -88,7 +90,8 @@ for(const dead of ['default_vehicle.png','vehicle_unknown_profile_hero.png','veh
 }
 if(!adapter.includes('imageFilter = visual?.color?.filter || "none"')) throw new Error('vehicle detail model no longer carries selected visual colour');
 if(!adapter.includes('const visualPackageFile = visual?.vehicle?.selectable !== false')) throw new Error('persisted vehicle visual no longer resolves to verified catalog artwork');
-if(!adapter.includes('const img = visualPackageFile ? this.rt.assetUrl(visualPackageFile) : profileImage')) throw new Error('vehicle adapter no longer prefers persisted picker artwork over profile/source fallback');
+if(!adapter.includes('const img = visualPackageFile || profileImage')) throw new Error('vehicle adapter no longer prefers the already-resolved package URL over profile/source fallback');
+if(adapter.includes('this.rt.assetUrl(visualPackageFile)')) throw new Error('vehicle adapter reintroduced double-prefix package URL resolution');
 if(!shell.includes('model.imageFilter || "none"')) throw new Error('vehicle detail shell no longer renders selected visual colour');
 if(!shell.includes('key === "vehicle.image_key"')) throw new Error('vehicle detail does not intercept vehicle.image_key for picker rendering');
 if(!shell.includes('new HomeBrainVehicleVisualPicker(this.rt).render')) throw new Error('vehicle detail is not using the shared picker');
@@ -97,6 +100,29 @@ if(!picker.includes('class HomeBrainVehicleVisualPicker')) throw new Error('shar
 if(picker.includes('|| catalog[0]')) throw new Error('picker must not silently default an unknown vehicle to the first catalog entry');
 if(!picker.includes('Choose brand…')) throw new Error('unknown current visual must require explicit brand selection');
 if(!picker.includes('Choose model…')) throw new Error('hierarchical picker model placeholder missing');
+
+for(const needle of [
+  'class HomeBrainChargerVisualPicker',
+  'Charger & colour',
+  'data-charger-picker-brand',
+  'data-charger-picker-model',
+  'data-charger-picker-variant',
+  'data-charger-picker-appearance',
+  'Frozen V1 publishes charger.image_key read-only'
+]) {
+  if(!chargerPicker.includes(needle)) throw new Error(`shared charger picker regression: missing ${needle}`);
+}
+for(const needle of [
+  'RHI_MOBILITY_CHARGER_VISUALS',
+  'wallbox.commander2.22kw',
+  'peblar.business.socket.22kw',
+  'fibaro.wall-plug-2.zwave-plus.be-fr',
+  'rhiMobilityResolveChargerVisual'
+]) {
+  if(!catalog.includes(needle)) throw new Error(`charger visual catalog regression: missing ${needle}`);
+}
+if(!chargerAdapter.includes('return packageFile || this.rt.visualImageUrl')) throw new Error('charger adapter no longer prefers resolved package artwork');
+if(chargerAdapter.includes('this.rt.assetUrl(packageFile)')) throw new Error('charger adapter reintroduced double-prefix package URL resolution');
 if(!picker.includes('Choose variant…')) throw new Error('hierarchical picker variant placeholder missing');
 if(!dashboard.includes('new HomeBrainVehicleVisualPicker(rt).selection')) throw new Error('vehicle management does not consume shared picker selection model');
 for(const needle of [
