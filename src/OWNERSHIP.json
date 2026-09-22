@@ -20,7 +20,8 @@
         "Home Assistant access",
         "MOBILITY_PUBLIC_RUNTIME_V1 access",
         "contract normalization",
-        "commands and readback boundary"
+        "commands and readback boundary",
+        "read-only Energy public planning projection for Mobility Intelligence"
       ]
     },
     "domain_adapters": {
@@ -50,7 +51,11 @@
         "Overview",
         "Vehicles",
         "Chargers",
-        "detail and route presentation"
+        "detail and route presentation",
+        "Planning projection",
+        "Strategies",
+        "History",
+        "Log"
       ]
     },
     "assets": {
