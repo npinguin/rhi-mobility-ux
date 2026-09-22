@@ -302,32 +302,69 @@ class HomeBrainAssetShell {
 
 
     this.root.querySelectorAll(".detail-vehicle-picker").forEach((panel) => {
-      const typeSelect = panel.querySelector("[data-vehicle-picker-type]");
+      const brandSelect = panel.querySelector("[data-vehicle-picker-brand]");
+      const modelSelect = panel.querySelector("[data-vehicle-picker-model]");
+      const variantSelect = panel.querySelector("[data-vehicle-picker-variant]");
       const colorSelect = panel.querySelector("[data-vehicle-picker-color]");
       const saveButton = panel.querySelector("[data-vehicle-picker-save]");
       const keyNode = panel.querySelector(".vehicle-picker-key code");
-      const assetId = typeSelect?.getAttribute("data-vehicle-picker-type") || "";
+      const assetId = brandSelect?.getAttribute("data-vehicle-picker-brand") || "";
       const picker = new HomeBrainVehicleVisualPicker(this.rt);
-      const updatePreview = (resetColor = false) => {
+      const placeholder = (label)=>`<option value="" selected disabled>${this.rt.escape(label)}</option>`;
+
+      const refreshHierarchy = (level) => {
         const catalog = picker.catalog();
-        const vehicle = catalog.find((row)=>row.id === String(typeSelect?.value || "")) || catalog[0] || null;
-        if (!vehicle || !colorSelect) return;
-        const priorColor = resetColor ? "" : colorSelect.value;
-        colorSelect.innerHTML = (vehicle.colors || []).map((color)=>`<option value="${this.rt.escape(color.id)}">${this.rt.escape(color.label)}</option>`).join("");
-        const color = (vehicle.colors || []).find((row)=>row.id === priorColor) || vehicle.colors?.[0] || null;
-        if (color) colorSelect.value = color.id;
+        const brand = String(brandSelect?.value || "");
+        if (level === "brand") {
+          const models = picker.modelsForBrand(brand, catalog);
+          if (modelSelect) {
+            modelSelect.disabled = !brand;
+            modelSelect.innerHTML = placeholder("Choose model…") + models.map((model)=>`<option value="${this.rt.escape(model)}">${this.rt.escape(model)}</option>`).join("");
+          }
+          if (variantSelect) { variantSelect.disabled = true; variantSelect.innerHTML = placeholder("Choose variant…"); }
+          if (colorSelect) { colorSelect.disabled = true; colorSelect.innerHTML = placeholder("Choose colour…"); }
+        }
+        if (level === "model") {
+          const model = String(modelSelect?.value || "");
+          const variants = picker.variantsFor(brand, model, catalog);
+          if (variantSelect) {
+            variantSelect.disabled = !model;
+            variantSelect.innerHTML = placeholder("Choose variant…") + variants.map((row)=>`<option value="${this.rt.escape(row.id)}">${this.rt.escape(row.variant)} · ${this.rt.escape(row.years)}</option>`).join("");
+          }
+          if (colorSelect) { colorSelect.disabled = true; colorSelect.innerHTML = placeholder("Choose colour…"); }
+        }
+        if (level === "variant") {
+          const vehicle = catalog.find((row)=>row.id === String(variantSelect?.value || "")) || null;
+          if (colorSelect) {
+            colorSelect.disabled = !vehicle;
+            colorSelect.innerHTML = placeholder("Choose colour…") + (vehicle?.colors || []).map((color)=>`<option value="${this.rt.escape(color.id)}">${this.rt.escape(color.label)}</option>`).join("");
+          }
+        }
+        updatePreview();
+      };
+
+      const updatePreview = () => {
+        const catalog = picker.catalog();
+        const vehicle = catalog.find((row)=>row.id === String(variantSelect?.value || "")) || null;
+        const color = vehicle?.colors?.find((row)=>row.id === String(colorSelect?.value || "")) || null;
         const key = vehicle && color ? rhiMobilityVehicleVisualKey(vehicle.id, color.id) : "";
         if (keyNode) keyNode.textContent = key || "Unavailable";
-        if (saveButton) saveButton.setAttribute("data-vehicle-key", key);
-        const hero = this.root.querySelector('.hero-image img[data-vehicle-visual-preview="1"]');
-        if (hero && vehicle?.package_file) {
-          hero.src = this.rt.cache(vehicle.package_file);
+        if (saveButton) {
+          saveButton.setAttribute("data-vehicle-key", key);
+          saveButton.disabled = !key;
+        }
+        const hero = this.root.querySelector('[data-vehicle-visual-preview="1"]');
+        if (hero && vehicle) {
+          if (vehicle.package_file) hero.src = this.rt.cache(vehicle.package_file);
           const gray = hero.getAttribute("data-image-gray") || "0";
           hero.style.filter = `grayscale(${gray}) ${color?.filter || "none"} drop-shadow(0 24px 30px rgba(15,35,80,.15))`;
         }
       };
-      typeSelect?.addEventListener("change", ()=>updatePreview(true));
-      colorSelect?.addEventListener("change", ()=>updatePreview(false));
+
+      brandSelect?.addEventListener("change", ()=>refreshHierarchy("brand"));
+      modelSelect?.addEventListener("change", ()=>refreshHierarchy("model"));
+      variantSelect?.addEventListener("change", ()=>refreshHierarchy("variant"));
+      colorSelect?.addEventListener("change", updatePreview);
       saveButton?.addEventListener("click", ()=>{
         if (saveButton.disabled) return;
         const key = saveButton.getAttribute("data-vehicle-key") || "";
