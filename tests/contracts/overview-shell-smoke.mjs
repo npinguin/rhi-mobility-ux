@@ -3,7 +3,7 @@ import fs from 'node:fs';
 const dashboard=fs.readFileSync(new URL('../../src/ui/screens/mobility-dashboard.js',import.meta.url),'utf8');
 
 for (const needle of [
-  'class="ov-energy-hero"',
+  'hbMobilityPageHero(rt, "overview"',
   'Mobility Overview',
   'Know if your vehicles are ready, secure and comfortable',
   'class="ov-status-grid"',
