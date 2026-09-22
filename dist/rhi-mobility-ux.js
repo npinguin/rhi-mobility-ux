@@ -1,5 +1,5 @@
 /**
- * Robotix Home Intelligence Mobility UX v1.0.0-rc.30
+ * Robotix Home Intelligence Mobility UX v1.0.0-rc.31
  * GENERATED FILE - DO NOT EDIT.
  * License: GPL-3.0-only
  */
@@ -300,7 +300,11 @@ function rhiMobilityResolveChargerVisual(asset = {}, rawKey = "") {
 const HB_MOBILITY_PAGE_HEROES = Object.freeze({
   overview: { eyebrow:"MOBILITY", title:"Mobility Overview", description:"Know if your vehicles are ready, secure and comfortable, what is charging, and where action is needed.", asset:"heroes/mobility-overview.svg" },
   vehicles: { eyebrow:"MOBILITY / VEHICLE MANAGEMENT", title:"Vehicles", description:"Manage the vehicles you use every day: readiness, charger assignment, charging controls, direct actions and lifecycle.", asset:"heroes/mobility-vehicles.svg" },
-  chargers: { eyebrow:"MOBILITY / CHARGER MANAGEMENT", title:"Chargers", description:"Manage charger availability, charging state, power, connected vehicles, controls and lifecycle from one compact workspace.", asset:"heroes/mobility-chargers.svg" }
+  chargers: { eyebrow:"MOBILITY / CHARGER MANAGEMENT", title:"Chargers", description:"Manage charger availability, charging state, power, connected vehicles, controls and lifecycle from one compact workspace.", asset:"heroes/mobility-chargers.svg" },
+  planning: { eyebrow:"INTELLIGENCE / ENERGY PLANNING", title:"Planning", description:"See the Energy-owned charging plan, what is already planned and what still needs attention.", asset:"heroes/mobility-overview.svg" },
+  strategies: { eyebrow:"INTELLIGENCE / STRATEGIES", title:"Strategies", description:"Understand configured intent and effective energy policy without duplicating backend semantics.", asset:"heroes/mobility-vehicles.svg" },
+  history: { eyebrow:"INSIGHTS / ENERGY & MOBILITY", title:"History", description:"Review measured vehicle energy, value and Mobility outcomes from their authoritative backend domains.", asset:"heroes/mobility-overview.svg" },
+  log: { eyebrow:"INSIGHTS / LOG", title:"Log", description:"Inspect operational and audit evidence with backend-owned reasons and status.", asset:"heroes/mobility-chargers.svg" }
 });
 
 function hbMobilityPageHero(rt, tab, options = {}) {
@@ -352,7 +356,7 @@ function hbMobilityPresentationStyles() {
     .vehicle-workspace-list .vehicle-card,.charger-card{box-shadow:0 10px 26px rgba(15,35,80,.045)!important}
     @media(max-width:1024px){.vehicle-management-bar{grid-template-columns:minmax(0,1fr) auto!important}.vehicle-manage-button{grid-column:1/-1!important;justify-content:center!important}.vehicle-page-summary{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
     @media(max-width:760px){.vehicle-management-bar{grid-template-columns:1fr!important}.vehicle-sort-control,.vehicle-manage-button{grid-column:auto!important}.vehicle-page-summary{grid-template-columns:repeat(2,minmax(0,1fr))!important}.vehicle-filter-group{overflow-x:auto!important}.vehicle-filter-group button{flex:0 0 auto!important}}
-    .rhi-page-hero{position:relative;min-height:148px;display:grid;grid-template-columns:minmax(0,1.28fr) minmax(280px,.72fr);align-items:center;gap:14px;overflow:hidden;border:1px solid #DDE6F0;border-radius:var(--rhi-radius-lg);background:linear-gradient(135deg,#F8FBFF 0%,#FFFFFF 52%,#EEF5FF 100%);box-shadow:var(--rhi-shadow);margin:0 0 10px}
+    .rhi-page-hero{position:relative;min-height:136px;display:grid;grid-template-columns:minmax(0,1.28fr) minmax(280px,.72fr);align-items:center;gap:14px;overflow:hidden;border:1px solid #DDE6F0;border-radius:var(--rhi-radius-lg);background:linear-gradient(135deg,#F8FBFF 0%,#FFFFFF 52%,#EEF5FF 100%);box-shadow:var(--rhi-shadow);margin:0 0 10px}
     .rhi-page-hero:before{content:"";position:absolute;inset:auto auto -90px -50px;width:310px;height:210px;border-radius:50%;background:radial-gradient(circle,rgba(20,103,245,.08),transparent 68%);pointer-events:none}
     .rhi-page-hero-copy{position:relative;z-index:2;padding:18px 0 18px 22px;min-width:0;max-width:820px}
     .rhi-page-hero-copy>small{display:block;margin:0 0 4px;font-size:9px;font-weight:760;letter-spacing:.13em;text-transform:uppercase;color:#5E6E84}
@@ -361,14 +365,35 @@ function hbMobilityPresentationStyles() {
     .rhi-page-hero-meta{margin-top:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-height:20px;color:#334155;font-size:10.5px;font-weight:620}
     .rhi-page-hero-meta strong{color:#0F172A;font-size:11px}.rhi-page-hero-meta span{color:#64748B}
     .rhi-page-hero-actions{margin-top:10px;display:flex;gap:7px;flex-wrap:wrap}
-    .rhi-page-hero-art{position:relative;align-self:stretch;min-height:148px;display:flex;align-items:center;justify-content:flex-end;overflow:hidden;pointer-events:none}
-    .rhi-page-hero-art:before{content:"";position:absolute;inset:10px 8px 10px 0;border-radius:20px;background:radial-gradient(circle at 68% 52%,rgba(20,103,245,.08),transparent 63%)}
-    .rhi-page-hero-art img{position:relative;z-index:1;width:100%;height:100%;min-height:148px;max-height:160px;object-fit:cover;object-position:center}
+    .rhi-page-hero-art{position:relative;align-self:stretch;min-height:136px;display:flex;align-items:center;justify-content:flex-end;overflow:hidden;pointer-events:none}
+    .rhi-page-hero-art:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(255,255,255,.15),rgba(238,245,255,.04) 36%,rgba(228,239,252,.10));pointer-events:none}
+    .rhi-page-hero-art img{position:relative;z-index:1;width:100%;height:100%;min-height:136px;max-height:148px;object-fit:cover;object-position:center 58%;transform:scale(1.015);transform-origin:center}
     .rhi-page-hero-badge{position:absolute;right:12px;bottom:10px;z-index:3;border:1px solid rgba(255,255,255,.72);border-radius:999px;background:rgba(255,255,255,.86);backdrop-filter:blur(8px);padding:5px 8px;font-size:9.5px;color:#41516A;box-shadow:0 7px 18px rgba(15,35,80,.08)}
     .section-title,.vehicle-workspace-head,.ov-panel-head{color:var(--rhi-ink)}
     .section-title h2,.vehicle-workspace-head h2,.ov-panel-head h2{font-size:var(--rhi-font-section)!important;line-height:1.08!important;letter-spacing:-.02em!important;font-weight:660!important}
     .section-title p,.vehicle-workspace-head p,.ov-panel-head p{color:var(--rhi-muted)!important;font-size:var(--rhi-font-small)!important;line-height:1.35!important}
     button,select,input{font-family:inherit}.action,.cmd,.vehicle-manage-button,.ov-nav-action{border-radius:var(--rhi-radius-sm)!important}
+
+    .rhi-context-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--rhi-card-gap);margin:0 0 var(--rhi-space-2)}
+    .rhi-context-card{min-width:0;background:rgba(255,255,255,.96);border:1px solid var(--rhi-line);border-radius:var(--rhi-radius-lg);box-shadow:0 8px 22px rgba(15,35,80,.04);padding:14px 16px}
+    .rhi-context-card-kicker{display:flex;align-items:center;gap:7px;margin-bottom:8px;color:var(--rhi-blue);font-size:9.5px;font-weight:760;letter-spacing:.09em;text-transform:uppercase}
+    .rhi-context-card-kicker ha-icon{--mdc-icon-size:17px}
+    .rhi-context-card h3{margin:0 0 5px;color:var(--rhi-ink);font-size:17px;line-height:1.15;font-weight:680;letter-spacing:-.02em}
+    .rhi-context-card p{margin:0;color:var(--rhi-muted);font-size:11.5px;line-height:1.45}
+    .rhi-fact-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--rhi-card-gap);margin:0 0 var(--rhi-space-3)}
+    .rhi-fact{min-width:0;display:grid;grid-template-columns:30px minmax(0,1fr);gap:8px;align-items:center;border:1px solid var(--rhi-line);border-radius:var(--rhi-radius-md);background:#fff;padding:10px 12px;box-shadow:0 6px 18px rgba(15,35,80,.03)}
+    .rhi-fact ha-icon{--mdc-icon-size:20px;color:var(--rhi-blue)}
+    .rhi-fact small,.rhi-fact span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .rhi-fact small{font-size:9.5px;color:#718096;font-weight:600}
+    .rhi-fact b{display:block;margin-top:2px;color:var(--rhi-ink);font-size:14px;font-weight:680;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .rhi-fact span{margin-top:2px;font-size:9.5px;color:var(--rhi-muted)}
+    .rhi-data-list{display:grid;gap:6px;margin-top:10px}
+    .rhi-data-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;padding:9px 10px;border:1px solid #edf1f6;border-radius:var(--rhi-radius-sm);background:var(--rhi-soft)}
+    .rhi-data-row b{font-size:11.5px;color:var(--rhi-ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .rhi-data-row span{font-size:10.5px;color:var(--rhi-muted);white-space:nowrap}
+    .rhi-context-note{margin:7px 2px 0;color:#718096;font-size:10px;line-height:1.4}
+    @media(max-width:760px){.rhi-context-grid{grid-template-columns:1fr}.rhi-fact-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.rhi-context-card{padding:12px}.rhi-fact{padding:9px 10px}}
+    @media(max-width:430px){.rhi-fact-grid{grid-template-columns:1fr 1fr}.rhi-fact{grid-template-columns:24px minmax(0,1fr);gap:6px}.rhi-fact ha-icon{--mdc-icon-size:17px}.rhi-context-card h3{font-size:16px}}
     @media(max-width:1024px){:host{--rhi-page-pad-x:18px;--rhi-page-pad-y:14px}.rhi-page-hero{grid-template-columns:minmax(0,1fr) minmax(240px,.62fr);min-height:142px}.rhi-page-hero-copy{padding:16px 0 16px 18px}.rhi-page-hero-art,.rhi-page-hero-art img{min-height:142px}}
     @media(max-width:760px){:host{--rhi-page-pad-x:10px;--rhi-page-pad-y:10px}.rhi-page-hero{min-height:126px;grid-template-columns:minmax(0,1fr) minmax(118px,.42fr);gap:2px;border-radius:16px;margin-bottom:8px}.rhi-page-hero-copy{padding:13px 0 13px 13px}.rhi-page-hero-copy>small{font-size:8px;margin-bottom:3px}.rhi-page-hero-copy h1{font-size:23px;margin-bottom:4px}.rhi-page-hero-copy p{font-size:10px;line-height:1.28;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}.rhi-page-hero-meta{margin-top:7px;font-size:9.5px;gap:6px}.rhi-page-hero-art,.rhi-page-hero-art img{min-height:126px;max-height:126px}.rhi-page-hero-art img{object-fit:cover;object-position:62% center}.rhi-page-hero-badge{display:none}}
     @media(max-width:430px){:host{--rhi-page-pad-x:8px;--rhi-page-pad-y:8px}.rhi-page-hero{min-height:118px;grid-template-columns:minmax(0,1fr) 110px}.rhi-page-hero-copy{padding:11px 0 11px 11px}.rhi-page-hero-copy h1{font-size:21px}.rhi-page-hero-copy p{-webkit-line-clamp:2;font-size:9.5px}.rhi-page-hero-meta{font-size:9px;margin-top:6px}.rhi-page-hero-art,.rhi-page-hero-art img{min-height:118px;max-height:118px}}
@@ -419,7 +444,7 @@ Internal structure:
 - HomeBrainChargerAdapter: charger contract mapping
 */
 
-const UX_VERSION = "1.0.0-rc.30";
+const UX_VERSION = "1.0.0-rc.31";
 const HB_MOBILITY_COMPANY_LOGO_SVG = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"75 116 1624 688\" role=\"img\" aria-labelledby=\"title desc\">\n<title id=\"title\">Robotix.be</title>\n<desc id=\"desc\">DomotiX · Network · Security</desc>\n<path fill=\"#0B4C86\" fill-rule=\"evenodd\" d=\"M536,549 L516,554 L512,556 L501,558 L497,560 L497,609 L512,608 L513,607 L525,606 L537,603 L537,551ZM1698,698 L1696,696 L1692,695 L1678,695 L1677,694 L1658,694 L1657,693 L1638,693 L1637,692 L1618,692 L1617,691 L1573,690 L1572,689 L1552,689 L1551,688 L1524,688 L1523,687 L1494,687 L1493,686 L1447,685 L1446,684 L1441,684 L1440,683 L1441,682 L1440,679 L1440,636 L1419,633 L1418,632 L1397,630 L1396,629 L1381,628 L1380,627 L1364,625 L1362,623 L1362,542 L1360,539 L1334,531 L1327,530 L1313,525 L1310,525 L1293,519 L1262,511 L1255,508 L1245,506 L1211,495 L1201,493 L1175,484 L1172,484 L1148,476 L1145,476 L1122,468 L1115,467 L1092,459 L1085,458 L1076,454 L1059,450 L1049,446 L1036,443 L1033,441 L1030,441 L1013,435 L1006,434 L997,430 L987,428 L964,420 L957,419 L944,414 L941,414 L928,409 L925,409 L909,403 L906,403 L890,397 L887,397 L867,404 L857,406 L848,410 L832,414 L819,419 L809,421 L784,430 L781,430 L771,434 L761,436 L752,440 L749,440 L721,450 L714,451 L683,462 L680,462 L639,476 L623,480 L620,482 L614,483 L601,488 L598,488 L595,490 L583,493 L573,497 L563,496 L562,495 L554,495 L547,499 L538,508 L343,571 L342,572 L342,638 L338,640 L332,640 L321,643 L315,643 L314,644 L309,644 L301,646 L300,648 L300,683 L296,685 L252,686 L251,687 L231,687 L230,688 L210,688 L209,689 L191,689 L190,690 L170,690 L169,691 L152,691 L151,692 L135,692 L134,693 L82,695 L81,696 L77,696 L76,700 L78,701 L121,701 L122,702 L299,704 L300,705 L300,729 L302,732 L306,733 L315,733 L316,734 L334,735 L335,736 L360,738 L361,739 L371,739 L372,740 L380,740 L381,741 L400,742 L401,743 L408,743 L409,744 L417,744 L418,745 L427,745 L428,746 L436,746 L437,747 L453,748 L454,749 L472,750 L473,751 L489,752 L490,753 L514,755 L515,756 L522,756 L523,757 L558,760 L559,761 L591,764 L599,766 L607,766 L608,767 L625,768 L632,770 L657,772 L665,774 L691,776 L692,777 L698,777 L706,779 L713,779 L714,780 L721,780 L729,782 L752,784 L753,785 L765,786 L766,787 L781,788 L789,790 L812,792 L813,793 L819,793 L820,794 L826,794 L827,795 L833,795 L841,797 L848,797 L849,798 L855,798 L856,799 L862,799 L870,801 L884,802 L885,801 L906,799 L907,798 L913,798 L914,797 L920,797 L921,796 L927,796 L928,795 L934,795 L935,794 L941,794 L942,793 L948,793 L949,792 L955,792 L956,791 L962,791 L970,789 L985,788 L986,787 L992,787 L999,785 L1006,785 L1007,784 L1035,781 L1036,780 L1042,780 L1050,778 L1057,778 L1058,777 L1065,777 L1066,776 L1072,776 L1080,774 L1103,772 L1104,771 L1112,771 L1113,770 L1127,769 L1128,768 L1149,766 L1150,765 L1157,765 L1165,763 L1173,763 L1174,762 L1190,761 L1191,760 L1205,759 L1213,757 L1223,757 L1224,756 L1256,753 L1257,752 L1264,752 L1265,751 L1272,751 L1273,750 L1316,746 L1324,744 L1332,744 L1333,743 L1341,743 L1342,742 L1350,742 L1351,741 L1359,741 L1360,740 L1369,740 L1370,739 L1378,739 L1379,738 L1387,738 L1388,737 L1398,737 L1399,736 L1416,735 L1417,734 L1424,734 L1425,733 L1434,733 L1440,731 L1440,708 L1441,707 L1440,706 L1442,704 L1513,704 L1514,703 L1524,703 L1527,704 L1528,703 L1657,702 L1658,701 L1695,701ZM1408,720 L1404,722 L1400,721 L1400,652 L1399,651 L1384,649 L1383,648 L1377,648 L1376,647 L1369,647 L1368,646 L1349,644 L1349,726 L1348,727 L1341,727 L1340,728 L1333,728 L1332,729 L1314,730 L1313,729 L1313,640 L1307,638 L1278,635 L1277,634 L1271,634 L1263,632 L1224,628 L1224,738 L1222,740 L1189,743 L1188,744 L1180,744 L1179,745 L1171,745 L1170,746 L1163,746 L1162,747 L1139,749 L1138,750 L1131,750 L1130,751 L1122,751 L1121,752 L1114,752 L1113,753 L1096,754 L1095,753 L1095,611 L1071,608 L1070,607 L1048,605 L1047,604 L1040,604 L1039,603 L1033,603 L1032,602 L1026,602 L1025,601 L1019,601 L1011,599 L1003,599 L995,597 L972,595 L971,594 L959,593 L958,592 L954,592 L953,593 L953,772 L951,774 L937,775 L936,776 L908,779 L900,781 L893,781 L885,783 L877,783 L876,782 L862,781 L861,780 L855,780 L847,778 L840,778 L839,777 L817,775 L816,774 L807,774 L806,773 L800,773 L799,772 L793,772 L785,770 L778,770 L777,769 L770,769 L769,768 L762,768 L761,767 L739,765 L738,764 L730,764 L729,763 L729,606 L714,607 L706,609 L676,612 L675,613 L661,614 L660,615 L646,616 L645,617 L631,618 L630,619 L623,619 L622,620 L622,750 L621,751 L588,748 L587,747 L571,746 L570,745 L562,745 L561,744 L552,744 L551,743 L544,743 L537,741 L537,631 L536,630 L507,633 L506,634 L500,634 L499,635 L485,636 L484,637 L476,638 L476,735 L475,736 L466,736 L465,735 L465,644 L464,643 L464,639 L402,648 L402,729 L401,730 L364,727 L361,725 L361,661 L364,659 L370,659 L371,658 L377,658 L378,657 L394,655 L395,654 L395,650 L394,649 L362,653 L361,654 L355,654 L354,655 L340,656 L339,657 L327,658 L326,659 L318,659 L317,660 L313,660 L312,659 L312,655 L322,652 L342,650 L355,647 L393,643 L406,640 L413,640 L414,639 L420,639 L421,638 L434,637 L435,636 L441,636 L449,634 L456,634 L457,633 L463,633 L471,631 L479,631 L480,630 L492,629 L493,628 L509,627 L510,626 L530,624 L536,622 L552,621 L553,620 L576,618 L583,616 L607,614 L608,613 L615,613 L616,612 L624,612 L632,610 L640,610 L648,608 L671,606 L672,605 L701,602 L702,601 L709,601 L710,600 L716,600 L717,599 L723,599 L731,597 L739,597 L747,595 L755,595 L762,593 L770,593 L771,592 L792,590 L800,588 L832,585 L833,584 L861,581 L862,580 L879,579 L880,578 L887,578 L888,577 L898,577 L906,579 L915,579 L916,580 L923,580 L924,581 L956,584 L963,586 L979,587 L986,589 L1002,590 L1003,591 L1031,594 L1039,596 L1046,596 L1054,598 L1062,598 L1063,599 L1069,599 L1076,601 L1083,601 L1084,602 L1090,602 L1098,604 L1106,604 L1107,605 L1113,605 L1114,606 L1120,606 L1121,607 L1127,607 L1135,609 L1143,609 L1144,610 L1166,612 L1167,613 L1181,614 L1189,616 L1197,616 L1198,617 L1210,618 L1211,619 L1218,619 L1219,620 L1233,621 L1234,622 L1242,622 L1243,623 L1272,626 L1273,627 L1279,627 L1287,629 L1312,631 L1313,632 L1319,632 L1320,633 L1339,635 L1340,636 L1347,636 L1354,638 L1362,638 L1363,639 L1369,639 L1376,641 L1404,644 L1408,646ZM885,440 L886,441 L886,560 L883,562 L875,562 L869,564 L861,564 L853,566 L846,566 L845,567 L817,570 L816,569 L816,460 L819,458 L822,458 L826,456 L829,456 L833,454 L836,454 L840,452 L843,452 L847,450 L858,448 L875,442ZM1339,551 L1339,612 L1338,613 L1338,620 L1337,621 L1332,620 L1330,617 L1330,589 L1331,588 L1331,578 L1330,577 L1331,559 L1330,558 L1330,554 L1316,549 L1283,541 L1276,538 L1269,537 L1251,531 L1248,531 L1248,606 L1246,608 L1238,608 L1237,607 L1230,607 L1222,605 L1215,605 L1214,604 L1208,604 L1207,603 L1201,603 L1200,602 L1194,602 L1193,601 L1187,601 L1186,600 L1180,600 L1172,598 L1149,596 L1142,594 L1135,594 L1128,592 L1086,587 L1085,586 L1066,584 L1065,583 L1058,583 L1057,582 L1035,580 L1034,579 L1021,578 L1020,577 L1014,577 L1013,576 L1007,576 L999,574 L992,574 L991,573 L985,573 L977,571 L963,570 L959,568 L959,524 L958,523 L958,509 L959,508 L959,455 L958,454 L958,448 L955,448 L941,443 L920,438 L891,429 L885,429 L860,437 L843,441 L823,448 L820,448 L813,451 L799,454 L786,459 L779,460 L766,465 L749,469 L743,472 L743,579 L741,581 L709,585 L708,586 L702,586 L701,587 L695,587 L694,588 L688,588 L687,589 L666,591 L665,592 L657,592 L656,593 L650,593 L649,594 L643,594 L635,596 L620,597 L612,599 L604,599 L603,598 L603,583 L602,582 L602,578 L603,577 L603,546 L602,545 L603,543 L603,523 L602,522 L602,513 L600,513 L556,527 L553,527 L543,531 L526,535 L488,548 L485,548 L482,550 L482,564 L480,566 L444,575 L440,577 L429,579 L425,581 L421,581 L414,584 L411,584 L395,589 L395,625 L396,626 L404,624 L416,623 L417,622 L423,622 L424,621 L451,618 L458,616 L464,616 L470,614 L478,614 L479,613 L489,612 L490,611 L490,556 L493,554 L522,547 L543,540 L545,547 L545,599 L544,600 L545,607 L543,609 L525,611 L518,613 L504,614 L503,615 L497,615 L496,616 L477,618 L476,619 L464,620 L463,621 L456,621 L455,622 L429,625 L428,626 L422,626 L421,627 L389,631 L388,632 L376,633 L375,634 L369,634 L362,636 L358,635 L358,583 L360,581 L372,578 L391,571 L394,571 L429,559 L432,559 L435,557 L444,555 L466,547 L469,547 L491,539 L494,539 L506,534 L509,534 L542,523 L545,523 L551,520 L564,517 L577,512 L580,512 L587,509 L590,509 L597,506 L610,503 L616,500 L636,495 L665,485 L679,482 L689,478 L692,478 L728,466 L735,465 L778,451 L785,450 L798,445 L818,440 L828,436 L848,431 L861,426 L870,424 L873,422 L884,420 L887,418 L913,426 L916,426 L926,430 L933,431 L936,433 L957,438 L999,451 L1006,452 L1023,458 L1030,459 L1033,461 L1065,469 L1085,476 L1092,477 L1099,480 L1120,485 L1130,489 L1141,491 L1147,494 L1182,503 L1212,513 L1231,517 L1265,528 L1268,528 L1272,530 L1303,538 L1309,541 L1316,542 L1326,546 L1336,548ZM1248,241 L1248,281 L1249,282 L1295,282 L1296,281 L1296,241 L1295,240 L1249,240ZM1493,178 L1490,184 L1487,195 L1487,246 L1488,247 L1489,255 L1493,263 L1498,270 L1503,274 L1515,280 L1523,282 L1533,282 L1534,283 L1640,282 L1641,280 L1641,250 L1640,246 L1549,246 L1546,245 L1541,240 L1540,237 L1541,234 L1639,234 L1641,226 L1641,198 L1640,197 L1640,191 L1635,178 L1625,167 L1618,163 L1602,159 L1526,159 L1525,160 L1517,161 L1505,166ZM1540,201 L1548,193 L1581,193 L1584,194 L1589,199 L1590,206 L1589,207 L1582,207 L1581,208 L1545,208 L1540,206ZM998,159 L995,161 L995,281 L996,282 L1049,282 L1049,160 L1048,159ZM1059,159 L1059,162 L1114,221 L1105,232 L1062,276 L1059,280 L1059,282 L1126,282 L1150,257 L1160,266 L1174,282 L1241,282 L1241,280 L1190,226 L1187,221 L1243,163 L1244,161 L1243,159 L1178,159 L1151,187 L1125,159 L1119,159 L1118,158 L1117,159ZM865,177 L852,165 L842,161 L834,160 L833,159 L819,159 L818,158 L815,159 L749,159 L748,160 L740,161 L728,166 L715,179 L712,185 L709,196 L709,245 L713,258 L718,266 L725,273 L737,279 L749,282 L831,282 L832,281 L841,280 L853,275 L866,262 L870,254 L872,246 L873,203 L872,202 L871,190ZM765,202 L770,198 L775,196 L805,196 L806,197 L810,197 L816,202 L819,211 L819,231 L816,239 L813,242 L804,245 L777,245 L768,242 L763,236 L763,230 L762,229 L762,211ZM514,177 L508,170 L499,164 L482,159 L456,159 L455,158 L446,158 L445,159 L392,159 L375,164 L365,171 L359,178 L353,193 L353,199 L352,200 L352,240 L353,241 L354,252 L358,261 L372,275 L385,280 L395,281 L396,282 L476,282 L477,281 L483,281 L491,279 L505,272 L513,264 L517,257 L520,248 L520,242 L521,241 L521,197 L520,196 L519,188ZM408,204 L414,198 L420,196 L450,196 L457,198 L463,204 L465,209 L465,232 L463,237 L457,243 L449,245 L422,245 L414,243 L409,239 L406,231 L406,210ZM894,134 L894,158 L893,159 L877,159 L876,160 L876,196 L893,196 L894,197 L894,247 L895,248 L896,257 L901,268 L911,277 L924,282 L929,282 L930,283 L965,283 L966,282 L980,281 L982,279 L982,245 L981,244 L959,245 L954,243 L951,240 L949,234 L949,197 L950,196 L979,196 L979,160 L978,159 L950,159 L949,158 L949,122 L948,121 L924,127 L920,127 L912,130 L899,132ZM134,122 L134,281 L135,282 L191,282 L192,281 L192,230 L193,229 L223,229 L272,282 L345,282 L343,277 L338,273 L295,227 L312,223 L323,217 L333,206 L336,199 L338,191 L338,155 L336,147 L332,139 L324,130 L315,125 L306,122 L289,121 L288,120 L137,120ZM192,163 L193,162 L266,162 L271,164 L275,168 L277,173 L277,178 L275,183 L271,187 L266,189 L193,189 L192,188ZM1311,117 L1310,118 L1310,260 L1311,261 L1310,263 L1310,280 L1311,282 L1358,282 L1362,272 L1372,279 L1383,282 L1435,282 L1448,279 L1458,274 L1467,265 L1471,258 L1474,247 L1474,240 L1475,239 L1474,193 L1471,183 L1465,173 L1458,167 L1451,163 L1435,159 L1390,159 L1375,163 L1366,169 L1365,168 L1365,118 L1364,117ZM1366,200 L1373,196 L1407,196 L1413,198 L1418,203 L1420,209 L1420,232 L1419,233 L1419,237 L1415,242 L1407,245 L1373,245 L1368,243 L1365,239 L1365,202ZM995,118 L995,151 L1049,151 L1049,117 L996,117ZM533,118 L533,281 L534,282 L582,282 L583,276 L585,272 L591,277 L597,280 L605,281 L606,282 L658,282 L674,278 L684,272 L690,266 L697,251 L698,239 L699,238 L699,229 L698,228 L698,193 L697,192 L697,188 L692,177 L684,168 L673,162 L661,159 L613,159 L600,162 L589,169 L588,168 L588,118 L587,117 L534,117ZM593,197 L596,196 L630,196 L638,199 L643,206 L643,234 L641,239 L638,242 L629,245 L598,245 L591,243 L588,239 L588,203Z\"/>\n<path fill=\"#5B95C8\" fill-rule=\"evenodd\" d=\"M1143,328 L1137,334 L1136,337 L1137,342 L1140,346 L1144,348 L1150,348 L1156,343 L1157,340 L1156,333 L1150,328ZM594,328 L588,334 L588,341 L593,347 L601,348 L607,344 L609,338 L608,334 L602,328ZM1591,313 L1590,314 L1609,341 L1609,360 L1617,360 L1618,359 L1618,341 L1635,317 L1636,313 L1635,312 L1628,312 L1614,331 L1612,330 L1605,319 L1599,312 L1598,313ZM1539,312 L1537,314 L1538,321 L1551,321 L1552,322 L1552,358 L1553,360 L1561,360 L1562,359 L1562,322 L1563,321 L1576,321 L1577,320 L1577,313 L1576,312ZM1519,312 L1512,313 L1512,360 L1520,360 L1521,358 L1521,314ZM1453,312 L1452,313 L1452,360 L1460,360 L1461,359 L1461,343 L1462,342 L1469,342 L1483,360 L1492,360 L1493,359 L1481,343 L1482,341 L1487,339 L1490,336 L1492,331 L1492,324 L1489,318 L1484,314 L1477,312ZM1461,322 L1462,321 L1478,321 L1482,324 L1483,329 L1478,334 L1462,334 L1461,333ZM1391,313 L1391,347 L1394,354 L1398,358 L1405,361 L1418,361 L1424,359 L1428,356 L1432,348 L1432,313 L1431,312 L1425,312 L1423,314 L1423,346 L1419,351 L1414,353 L1408,353 L1402,349 L1400,344 L1400,313 L1399,312ZM1273,313 L1273,359 L1274,360 L1308,360 L1308,352 L1283,352 L1282,351 L1282,341 L1283,340 L1305,340 L1306,339 L1306,332 L1283,332 L1282,331 L1282,322 L1283,321 L1306,321 L1308,319 L1308,314 L1306,312 L1275,312ZM1040,313 L1040,359 L1041,360 L1048,360 L1049,359 L1049,345 L1054,341 L1071,360 L1082,360 L1081,357 L1061,335 L1081,313 L1079,312 L1071,312 L1051,331 L1049,330 L1049,313 L1048,312ZM982,312 L981,313 L981,325 L980,326 L980,345 L981,346 L981,356 L980,358 L981,360 L989,360 L990,343 L991,342 L992,343 L993,342 L998,343 L1012,360 L1021,360 L1020,356 L1010,343 L1011,341 L1017,338 L1020,333 L1021,326 L1019,320 L1013,314 L1006,312ZM989,325 L991,321 L1007,321 L1011,324 L1012,328 L1006,334 L991,334 L990,333ZM832,313 L834,322 L838,332 L838,335 L847,360 L854,360 L856,358 L865,330 L867,332 L876,359 L877,360 L884,360 L885,359 L899,315 L898,312 L891,312 L890,313 L885,327 L883,337 L880,343 L870,313 L863,312 L861,314 L854,337 L851,342 L848,336 L841,313 L839,312ZM781,312 L780,313 L780,320 L781,321 L794,321 L795,322 L795,358 L796,360 L804,360 L804,329 L805,328 L805,322 L806,321 L818,321 L820,319 L820,314 L818,312ZM731,312 L729,314 L729,355 L730,356 L730,360 L765,360 L765,353 L764,352 L740,352 L739,351 L739,341 L740,340 L762,340 L763,339 L763,333 L762,332 L740,332 L739,331 L739,322 L740,321 L763,321 L765,319 L764,313 L763,312ZM664,313 L664,359 L665,360 L672,360 L673,359 L673,330 L674,329 L698,360 L707,360 L707,313 L706,312 L698,313 L698,342 L697,343 L673,312 L666,312ZM493,312 L492,314 L508,336 L491,359 L492,360 L501,360 L510,348 L515,344 L527,360 L536,360 L537,358 L521,337 L521,334 L536,315 L536,313 L535,312 L527,312 L514,328 L501,312ZM466,312 L465,313 L465,359 L466,360 L474,360 L474,312ZM410,312 L409,313 L409,319 L413,321 L423,321 L424,322 L424,359 L425,360 L432,360 L433,359 L433,322 L435,320 L436,321 L448,320 L449,319 L449,314 L448,312ZM274,313 L274,323 L273,324 L273,358 L275,360 L282,360 L283,359 L283,336 L284,335 L288,341 L296,358 L302,358 L307,350 L311,340 L313,338 L313,336 L315,334 L316,335 L316,359 L317,360 L324,360 L325,359 L325,313 L324,312 L315,312 L303,338 L299,343 L283,312 L275,312ZM139,312 L138,313 L138,359 L139,360 L161,360 L162,359 L166,359 L172,356 L179,349 L182,343 L182,330 L179,322 L172,315 L164,312ZM148,320 L163,321 L170,326 L173,333 L173,338 L171,344 L165,350 L162,351 L148,351 L147,350 L147,321ZM1344,312 L1339,314 L1330,322 L1326,332 L1327,345 L1330,351 L1338,358 L1346,361 L1357,361 L1368,356 L1371,353 L1371,351 L1366,346 L1361,350 L1354,353 L1349,353 L1343,351 L1338,346 L1336,342 L1336,331 L1338,327 L1343,322 L1348,320 L1358,321 L1365,326 L1368,325 L1371,320 L1366,315 L1359,312 L1354,312 L1353,311ZM1237,311 L1224,313 L1220,315 L1215,322 L1215,330 L1221,337 L1230,340 L1239,341 L1244,345 L1244,348 L1240,352 L1237,353 L1230,353 L1223,350 L1220,347 L1218,347 L1214,352 L1214,354 L1227,361 L1243,360 L1247,358 L1251,354 L1253,350 L1253,341 L1247,335 L1243,333 L1227,330 L1224,327 L1224,324 L1229,320 L1237,320 L1244,323 L1246,325 L1249,323 L1251,318 L1249,316ZM929,312 L922,315 L913,325 L911,331 L911,342 L915,351 L920,356 L927,360 L931,361 L946,360 L952,357 L959,350 L962,344 L962,329 L961,326 L954,317 L947,313 L939,311ZM930,321 L933,320 L944,321 L950,326 L953,333 L952,343 L943,352 L939,353 L930,352 L923,346 L920,339 L921,330 L924,325ZM355,315 L350,320 L345,330 L346,345 L352,354 L360,359 L367,361 L379,360 L387,356 L393,350 L397,340 L397,332 L394,323 L385,314 L377,311 L364,311ZM361,322 L365,320 L376,320 L381,322 L385,326 L387,330 L387,341 L385,345 L380,350 L375,352 L366,352 L358,347 L355,342 L354,333 L357,326ZM215,313 L205,322 L202,329 L201,338 L204,348 L211,356 L219,360 L230,361 L242,357 L249,351 L253,342 L253,336 L254,335 L253,334 L253,328 L250,322 L243,315 L234,311 L221,311ZM218,322 L222,320 L233,320 L237,322 L242,327 L244,332 L244,339 L241,346 L237,350 L232,352 L223,352 L217,349 L213,345 L211,340 L211,332 L213,327Z\"/>\n</svg>";
 
 const HB_MOBILITY_BASE_PATH = "/mobility-supervisor";
@@ -4410,6 +4435,467 @@ class HomeBrainAssetRuntime {
   }
 }
 
+// ---- src/runtime/energy-planning-projection.js ----
+// Read-only cross-domain Energy Planning projection for Mobility UX.
+// Energy remains the semantic owner. This adapter only reads explicitly public
+// Energy UX entities and joins planning rows to canonical Mobility asset ids.
+
+class HomeBrainEnergyPlanningProjection {
+  constructor(hass, mobilityRuntime = null) {
+    this.hass = hass || {};
+    this.mobilityRuntime = mobilityRuntime || null;
+  }
+
+  static get entities() {
+    return Object.freeze({
+      planning: "sensor.energy_planning_index",
+      planningExperience: "sensor.energy_planning_experience_index",
+      flexibleAssets: "sensor.energy_flexible_asset_index",
+      strategyProfiles: "sensor.energy_strategy_profile_index",
+      strategyEffective: "sensor.energy_strategy_effective_index"
+    });
+  }
+
+  _state(key) {
+    const id = HomeBrainEnergyPlanningProjection.entities[key];
+    return id ? (this.hass?.states?.[id] || null) : null;
+  }
+
+  _parse(value, fallback = null) {
+    if (value === undefined || value === null || value === "") return fallback;
+    if (typeof value === "object") return value;
+    try { return JSON.parse(value); } catch (_) { return fallback ?? value; }
+  }
+
+  _object(value) {
+    const parsed = this._parse(value, value);
+    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
+  }
+
+  _rows(value) {
+    const parsed = this._parse(value, value);
+    if (Array.isArray(parsed)) return parsed.filter(Boolean);
+    if (parsed && typeof parsed === "object") return Object.values(parsed).filter(Boolean);
+    return [];
+  }
+
+  _first(...values) {
+    for (const value of values) if (value !== undefined && value !== null && value !== "") return value;
+    return null;
+  }
+
+  _number(...values) {
+    const value = this._first(...values);
+    if (value === null) return null;
+    const number = Number(String(value).replace(",", "."));
+    return Number.isFinite(number) ? number : null;
+  }
+
+  _mobilityAssetIds() {
+    try {
+      const rows = this.mobilityRuntime?.mobilityRegistry?.() || [];
+      return new Set(rows.map((row) => String(row?.asset_id || "")).filter(Boolean));
+    } catch (_) {
+      return new Set();
+    }
+  }
+
+  _assetId(row = {}) {
+    return String(this._first(row.asset_id, row.target_asset_id, row.flexible_asset_id, row.consumer_asset_id, row.participant_id, "") || "");
+  }
+
+  _mobilityRows(rows = []) {
+    const ids = this._mobilityAssetIds();
+    if (!ids.size) return [];
+    return rows.filter((row) => ids.has(this._assetId(row)));
+  }
+
+  _totals(attrs, key) {
+    const named = key === "today"
+      ? this._first(attrs.planning_today_totals_json, attrs.planning_today_totals)
+      : key === "tomorrow"
+        ? this._first(attrs.planning_tomorrow_totals_json, attrs.planning_tomorrow_totals)
+        : this._first(attrs.planning_combined_totals_json, attrs.planning_combined_totals);
+    return this._object(named);
+  }
+
+  _totalsView(totals = {}) {
+    const consumers = this._object(totals.consumers);
+    return Object.freeze({
+      plannedKwh: this._number(
+        totals.planned_flexible_kwh,
+        totals.flexible_planned_kwh,
+        totals.managed_energy_kwh,
+        totals.planned_energy_kwh,
+        consumers.flexible_loads_kwh,
+        consumers.flexible_assets_kwh
+      ),
+      stillToPlanKwh: this._number(
+        totals.still_to_plan_kwh,
+        totals.unplanned_kwh,
+        totals.remaining_to_plan_kwh,
+        totals.flexible_remaining_kwh,
+        consumers.still_to_plan_kwh
+      ),
+      gridImportKwh: this._number(totals.grid_import_kwh, totals.grid_in_kwh),
+      solarKwh: this._number(totals.solar_kwh, totals.solar_production_kwh, totals.solar_total_kwh),
+      state: String(this._first(totals.state, totals.status, totals.planning_state, "") || ""),
+      raw: totals
+    });
+  }
+
+  viewModel() {
+    const planningState = this._state("planning");
+    const attrs = planningState?.attributes || {};
+    const planningRows = this._rows(this._first(attrs.planning_assets_json, attrs.planning_assets, []));
+    const experienceState = this._state("planningExperience");
+    const experienceAttrs = experienceState?.attributes || {};
+    const experienceRows = this._rows(this._first(
+      experienceAttrs.rows_json,
+      experienceAttrs.experiences_json,
+      experienceAttrs.asset_experiences_json,
+      experienceAttrs.rows,
+      experienceAttrs.experiences,
+      []
+    ));
+    const mobilityPlanningRows = this._mobilityRows(planningRows);
+    const mobilityExperienceRows = this._mobilityRows(experienceRows);
+    const currentIntent = this._object(this._first(attrs.current_action_intent_json, attrs.current_action_intent));
+    const today = this._totalsView(this._totals(attrs, "today"));
+    const tomorrow = this._totalsView(this._totals(attrs, "tomorrow"));
+    const combined = this._totalsView(this._totals(attrs, "combined"));
+    return Object.freeze({
+      available: !!planningState,
+      entityId: HomeBrainEnergyPlanningProjection.entities.planning,
+      contractVersion: String(this._first(attrs.contract_version, attrs.release, "") || ""),
+      state: String(planningState?.state || this._first(attrs.planning_state, attrs.status, "unavailable") || "unavailable"),
+      today,
+      tomorrow,
+      combined,
+      currentIntent,
+      planningRows,
+      experienceRows,
+      mobilityPlanningRows,
+      mobilityExperienceRows,
+      exactIdentityJoin: this._mobilityAssetIds().size > 0,
+      source: "Energy public UX contract"
+    });
+  }
+}
+
+// ---- src/runtime/energy-mobility-insights-projection.js ----
+// Read-only Energy metering/value projection for Mobility Insights.
+// Energy owns measurement and financial semantics. Mobility UX only filters
+// Energy's public per-asset records by exact canonical Mobility asset ids.
+
+class HomeBrainEnergyMobilityInsightsProjection {
+  constructor(hass, mobilityRuntime = null) {
+    this.hass = hass || {};
+    this.mobilityRuntime = mobilityRuntime || null;
+  }
+
+  static get entities() {
+    return Object.freeze({
+      metering: "sensor.energy_asset_metering_index",
+      value: "sensor.energy_value_accounting_index"
+    });
+  }
+
+  _state(key) {
+    const id = HomeBrainEnergyMobilityInsightsProjection.entities[key];
+    return id ? (this.hass?.states?.[id] || null) : null;
+  }
+
+  _parse(value, fallback = null) {
+    if (value === undefined || value === null || value === "") return fallback;
+    if (typeof value === "object") return value;
+    try { return JSON.parse(value); } catch (_) { return fallback ?? value; }
+  }
+
+  _object(value) {
+    const parsed = this._parse(value, value);
+    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
+  }
+
+  _rows(value) {
+    const parsed = this._parse(value, value);
+    if (Array.isArray(parsed)) return parsed.filter(Boolean);
+    if (parsed && typeof parsed === "object") return Object.values(parsed).filter(Boolean);
+    return [];
+  }
+
+  _first(...values) {
+    for (const value of values) if (value !== undefined && value !== null && value !== "") return value;
+    return null;
+  }
+
+  _number(...values) {
+    const value = this._first(...values);
+    if (value === null) return null;
+    const number = Number(String(value).replace(",", "."));
+    return Number.isFinite(number) ? number : null;
+  }
+
+  _mobilityAssets() {
+    try {
+      const rows = this.mobilityRuntime?.mobilityRegistry?.() || [];
+      return new Map(rows.map((row) => [String(row?.asset_id || ""), row]).filter(([id]) => id));
+    } catch (_) {
+      return new Map();
+    }
+  }
+
+  _assetId(row = {}) {
+    return String(this._first(
+      row.asset_id,
+      row.consumer_asset_id,
+      row.child_asset_id,
+      row.target_asset_id,
+      row.flexible_asset_id,
+      row.participant_id,
+      ""
+    ) || "");
+  }
+
+  _assetName(assetId, row = {}) {
+    const mobility = this._mobilityAssets().get(assetId) || {};
+    return String(this._first(
+      row.display_name,
+      row.asset_label,
+      row.label,
+      mobility.display_name,
+      mobility.name,
+      this.mobilityRuntime?.assetDisplayName?.(assetId),
+      assetId
+    ) || assetId);
+  }
+
+  _meteringRows(periodId = "today") {
+    const state = this._state("metering");
+    const attrs = state?.attributes || {};
+    const wanted = String(periodId || "today").toLowerCase() === "day" ? "today" : String(periodId || "today").toLowerCase();
+    const mobility = this._mobilityAssets();
+    const records = this._rows(attrs.records_json).map((row) => ({...row}));
+    return records.filter((row) => {
+      const period = String(this._first(row.period_id, row.period, row.context?.value, "") || "").toLowerCase();
+      const role = String(this._first(row.record_role, "") || "").toLowerCase();
+      const id = this._assetId(row);
+      return period === wanted
+        && row.ux_visible === true
+        && role === "flexible_load_detail"
+        && mobility.has(id);
+    }).map((row) => {
+      const assetId = this._assetId(row);
+      return Object.freeze({
+        assetId,
+        name: this._assetName(assetId, row),
+        periodId: wanted,
+        energyKwh: this._number(row.energy_kwh, row.value),
+        unit: String(this._first(row.unit, "kWh") || "kWh"),
+        measurementState: String(this._first(row.measurement_state, row.status, row.health, "UNAVAILABLE") || "UNAVAILABLE"),
+        attributionState: String(this._first(row.attribution_state, "") || ""),
+        trustState: String(this._first(row.trust_state, "") || ""),
+        sourceLabel: String(this._first(row.source_label, "") || ""),
+        raw: row
+      });
+    });
+  }
+
+  _valueRows(periodId = "today") {
+    const state = this._state("value");
+    const attrs = state?.attributes || {};
+    const summary = this._object(this._first(attrs.summary_json, attrs.summary, {}));
+    const selected = this._object(this._first(attrs.selected_context_json, attrs.selected_context, {}));
+    const selectedPeriod = String(this._first(selected.value, selected.period_id, periodId, "today") || "today").toLowerCase();
+    const mobility = this._mobilityAssets();
+    const consumers = this._rows(this._first(summary.consumer_allocation, attrs.consumer_allocation_json, attrs.flexible_asset_value_json, []));
+    return consumers.filter((row) => mobility.has(this._assetId(row))).map((row) => {
+      const assetId = this._assetId(row);
+      return Object.freeze({
+        assetId,
+        name: this._assetName(assetId, row),
+        periodId: selectedPeriod,
+        attributedEur: this._number(row.attributed_eur, row.attributed_value, row.net_value_eur, row.actual_energy_cost_eur),
+        energyKwh: this._number(row.energy_kwh, row.actual_energy_kwh, row.measured_energy_kwh),
+        state: String(this._first(row.state, row.status, row.attribution_state, "") || ""),
+        raw: row
+      });
+    });
+  }
+
+  viewModel(periodId = "today") {
+    const meteringState = this._state("metering");
+    const valueState = this._state("value");
+    const meteringAttrs = meteringState?.attributes || {};
+    const valueAttrs = valueState?.attributes || {};
+    const valueSummary = this._object(this._first(valueAttrs.summary_json, valueAttrs.summary, {}));
+    const valueProductStatus = this._object(this._first(valueAttrs.product_status_json, {}));
+    const meteringRows = this._meteringRows(periodId);
+    const valueRows = this._valueRows(periodId);
+    const ids = new Set([...meteringRows.map((row)=>row.assetId), ...valueRows.map((row)=>row.assetId)]);
+    const byAsset = [...ids].map((assetId) => {
+      const metering = meteringRows.find((row)=>row.assetId===assetId) || null;
+      const value = valueRows.find((row)=>row.assetId===assetId) || null;
+      return Object.freeze({
+        assetId,
+        name: metering?.name || value?.name || this._assetName(assetId),
+        energyKwh: metering?.energyKwh ?? value?.energyKwh ?? null,
+        measurementState: metering?.measurementState || "UNAVAILABLE",
+        trustState: metering?.trustState || "",
+        attributedEur: value?.attributedEur ?? null,
+        valueState: value?.state || "",
+        metering,
+        value
+      });
+    });
+    return Object.freeze({
+      periodId: String(periodId || "today").toLowerCase(),
+      meteringAvailable: !!meteringState,
+      valueAvailable: !!valueState,
+      meteringContractVersion: String(this._first(meteringAttrs.contract_version, meteringAttrs.release, "") || ""),
+      valueContractVersion: String(this._first(valueAttrs.contract_version, valueAttrs.release, "") || ""),
+      valueCurrency: String(this._first(valueSummary.currency, valueAttrs.currency, "EUR") || "EUR"),
+      valueState: String(this._first(valueProductStatus.state, valueAttrs.status, "UNAVAILABLE") || "UNAVAILABLE"),
+      rows: byAsset,
+      totalVehicleEnergyKwh: byAsset.some((row)=>row.energyKwh!==null)
+        ? byAsset.reduce((sum,row)=>sum+(row.energyKwh ?? 0),0)
+        : null,
+      totalAttributedEur: byAsset.some((row)=>row.attributedEur!==null)
+        ? byAsset.reduce((sum,row)=>sum+(row.attributedEur ?? 0),0)
+        : null,
+      source: "Energy public UX metering/value contracts"
+    });
+  }
+}
+
+// ---- src/runtime/energy-mobility-strategy-projection.js ----
+// Read-only Energy strategy projection for Mobility Intelligence.
+// Strategy semantics stay Energy-owned. Mobility only projects profiles relevant
+// to flexible/vehicle energy plus effective policies for exact Mobility asset ids.
+
+class HomeBrainEnergyMobilityStrategyProjection {
+  constructor(hass, mobilityRuntime = null) {
+    this.hass = hass || {};
+    this.mobilityRuntime = mobilityRuntime || null;
+  }
+
+  static get entities() {
+    return Object.freeze({
+      profiles: "sensor.energy_strategy_profile_index",
+      effective: "sensor.energy_strategy_effective_index"
+    });
+  }
+
+  _state(key) {
+    const id = HomeBrainEnergyMobilityStrategyProjection.entities[key];
+    return id ? (this.hass?.states?.[id] || null) : null;
+  }
+
+  _parse(value, fallback = null) {
+    if (value === undefined || value === null || value === "") return fallback;
+    if (typeof value === "object") return value;
+    try { return JSON.parse(value); } catch (_) { return fallback ?? value; }
+  }
+
+  _object(value) {
+    const parsed = this._parse(value, value);
+    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
+  }
+
+  _rows(value) {
+    const parsed = this._parse(value, value);
+    if (Array.isArray(parsed)) return parsed.filter(Boolean);
+    if (parsed && typeof parsed === "object") return Object.values(parsed).filter(Boolean);
+    return [];
+  }
+
+  _first(...values) {
+    for (const value of values) if (value !== undefined && value !== null && value !== "") return value;
+    return null;
+  }
+
+  _mobilityAssets() {
+    try {
+      const rows = this.mobilityRuntime?.mobilityRegistry?.() || [];
+      return new Map(rows.map((row) => [String(row?.asset_id || ""), row]).filter(([id]) => id));
+    } catch (_) {
+      return new Map();
+    }
+  }
+
+  _profileRows() {
+    const state = this._state("profiles");
+    const attrs = state?.attributes || {};
+    let rows = this._rows(this._first(
+      attrs.strategy_profiles_json,
+      attrs.strategy_profiles,
+      attrs.profiles_json,
+      attrs.profiles,
+      attrs.profile_rows_json,
+      attrs.profile_rows,
+      attrs.rows_json,
+      attrs.rows,
+      []
+    ));
+    const byId = this._object(this._first(attrs.profiles_by_id, attrs.strategy_profiles_by_id, {}));
+    if (!rows.length && Object.keys(byId).length) rows = Object.entries(byId).map(([profile_id,row])=>({profile_id,...this._object(row)}));
+    return rows.map((row,index)=>{
+      const nested=this._object(this._first(row.strategy_profile,row.profile,row.energy_strategy_profile,{}));
+      const id=String(this._first(row.profile_id,row.strategy_profile_id,row.id,row.type_id,row.profile_type,row.asset_type,nested.profile_id,nested.profile_type,`strategy_profile_${index+1}`)||"");
+      const label=String(this._first(row.profile_label,row.display_name,row.name,row.label,nested.profile_label,nested.display_name,nested.name,id)||id);
+      return {...row,...nested,profile_id:id,profile_label:label};
+    }).filter((row)=>{
+      const text=[row.profile_id,row.profile_label,row.profile_type,row.asset_type,row.domain_id,row.subdomain_id].filter(Boolean).join(" ").toLowerCase();
+      return /vehicle|charger|consumer|flexible|mobility/.test(text);
+    });
+  }
+
+  _effectiveRows() {
+    const state = this._state("effective");
+    const attrs = state?.attributes || {};
+    const mobility = this._mobilityAssets();
+    let rows = this._rows(this._first(
+      attrs.current_policies_json,
+      attrs.current_policies,
+      attrs.policies_json,
+      attrs.policies,
+      attrs.effective_strategies_json,
+      attrs.effective_strategies,
+      attrs.asset_strategies_json,
+      attrs.asset_strategies,
+      attrs.strategy_rows_json,
+      attrs.strategy_rows,
+      attrs.rows_json,
+      attrs.rows,
+      attrs.assets_json,
+      attrs.assets,
+      []
+    ));
+    return rows.map((row,index)=>{
+      const nested=this._object(this._first(row.effective_strategy,row.energy_strategy,row.strategy,{}));
+      const assetId=String(this._first(row.asset_id,row.target_asset_id,row.flexible_asset_id,nested.asset_id,"")||"");
+      const policyId=String(this._first(row.policy_id,nested.policy_id,row.strategy_id,row.id,`effective_strategy_${index+1}`)||"");
+      return {...row,...nested,asset_id:assetId,policy_id:policyId};
+    }).filter((row)=>row.asset_id && mobility.has(row.asset_id));
+  }
+
+  viewModel() {
+    const profileState=this._state("profiles");
+    const effectiveState=this._state("effective");
+    const profiles=this._profileRows();
+    const effective=this._effectiveRows();
+    return Object.freeze({
+      profilesAvailable:!!profileState,
+      effectiveAvailable:!!effectiveState,
+      profileContractVersion:String(this._first(profileState?.attributes?.contract_version,profileState?.attributes?.release,"")||""),
+      effectiveContractVersion:String(this._first(effectiveState?.attributes?.contract_version,effectiveState?.attributes?.release,"")||""),
+      profiles,
+      effective,
+      source:"Energy public UX strategy contracts"
+    });
+  }
+}
+
 // ---- src/domain/models/asset-factory.js ----
 // 20-asset-factory.js
 // Asset factory and common asset catalog shaping.
@@ -8150,7 +8636,7 @@ window.customCards.push({
 
 // ---- src/ui/screens/router.js ----
 // 95-placeholder-and-router-cards.js
-// Placeholder and generic routed asset detail cards plus custom element registration.
+// Routed Intelligence/Insights projections and generic asset detail cards.
 
 class HomeBrainMobilityPlaceholderCard extends HTMLElement {
   constructor() {
@@ -8160,25 +8646,24 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
   }
   setConfig(config = {}) { this.config = config; }
   getCardSize() { return 8; }
+
   set hass(hass) {
     this._hass = hass;
     const rt = new HomeBrainAssetRuntime(hass, this.config);
     const view = this.config.view || this.viewFromPath();
     const data = this.viewModel(view);
-    this.shadowRoot.innerHTML = `<ha-card><div class="page">${this.versionBlock(rt)}
+    const heroMeta = view === "planning" ? this.planningHeroMeta(rt) : view === "strategies" ? this.strategyHeroMeta(rt) : view === "history" ? this.insightsHeroMeta(rt) : "";
+    this.shadowRoot.innerHTML = `<ha-card><div class="page">
       ${hbMobilityNav(view)}
-      <section class="section-title"><h2>${rt.escape(data.title)}</h2><span>${rt.escape(data.subtitle)}</span></section>
+      ${hbMobilityPageHero(rt, view, { meta: heroMeta })}
       ${hbMobilityOutcomeStrip(rt, view, data.outcome)}
-      <section class="placeholder-grid">
-        ${data.cards.map((card) => `<article class="placeholder-card"><div class="placeholder-kicker"><ha-icon icon="${card.icon}"></ha-icon>${rt.escape(card.kicker)}</div><h3>${rt.escape(card.title)}</h3><p>${rt.escape(card.text)}</p></article>`).join("")}
-      </section>
-      <section class="bottom-grid"><div class="info"><h3><ha-icon icon="mdi:calendar-clock"></ha-icon>Charging Plan</h3><p>${rt.escape(rt.supervisorOutcome("mobility", "opportunity", "Supervised"))}</p></div><div class="info"><h3><ha-icon icon="mdi:shield-check-outline"></ha-icon>System Trust</h3><p>${rt.escape(rt.supervisorOutcome("mobility", "trust", "Unknown"))}</p></div><div class="info"><h3><ha-icon icon="mdi:history"></ha-icon>Recent Activity</h3><p>No recent activity requiring attention.</p></div></section>
-      <div class="footer-note">MVP placeholder — contract-backed content will appear here as backend indexes mature.</div>
+      ${view === "planning" ? this.renderPlanning(rt) : view === "strategies" ? this.renderStrategies(rt) : view === "history" ? this.renderInsights(rt) : this.renderContextCards(rt, data)}
+      ${this.renderSupportFacts(rt, view)}
       ${hbMobilityReleaseFooter(rt)}
     </div><style>${this.styles()}</style></ha-card>`;
     this.shadowRoot.querySelectorAll("button[data-nav]").forEach((btn)=>btn.addEventListener("click",()=>rt.navigate(btn.getAttribute("data-nav"))));
   }
-  versionBlock(rt) { return ``; }
+
   viewFromPath() {
     const path = String(window.location?.pathname || "").toLowerCase();
     if (path.includes("planning")) return "planning";
@@ -8187,48 +8672,246 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
     if (path.includes("/log")) return "log";
     return "planning";
   }
+
   viewModel(view) {
     const models = {
       planning: {
-        title: "Planning", subtitle: "Mobility planning stays under Intelligence.", outcome: { opportunity: "planning", recommended_action: "review_plan" },
+        outcome: { opportunity: "planning", recommended_action: "review_plan" },
         cards: [
-          { icon:"mdi:calendar-clock", kicker:"Planning", title:"Operational Planning", text:"Existing planning content can be mounted here without changing its product semantics." },
-          { icon:"mdi:car-clock", kicker:"Readiness", title:"Vehicle Readiness", text:"Departure readiness and charging needs remain backend-owned." }
+          { icon:"mdi:calendar-clock", kicker:"Planning", title:"Operational Planning", text:"Energy owns the planning truth. Mobility projects the published plan without recalculation." },
+          { icon:"mdi:car-clock", kicker:"Readiness", title:"Vehicle Readiness", text:"Vehicle readiness and charging execution remain Mobility-owned and are shown alongside, not merged into, Energy planning semantics." }
         ]
       },
       strategies: {
-        title: "Strategies", subtitle: "Mobility strategy belongs to Intelligence.", outcome: { opportunity: "strategy", recommended_action: "review_strategy" },
+        outcome: { opportunity: "strategy", recommended_action: "review_strategy" },
         cards: [
-          { icon:"mdi:tune-variant", kicker:"Strategy", title:"Strategy Profiles", text:"Existing Mobility strategy configuration can be mounted here without changing its contract ownership." },
-          { icon:"mdi:shield-check-outline", kicker:"Effective", title:"Effective Strategy", text:"Configured intent and effective runtime policy remain separate." }
+          { icon:"mdi:tune-variant", kicker:"Strategy", title:"Strategy Profiles", text:"Configured strategy intent is kept separate from the policy that is currently effective." },
+          { icon:"mdi:shield-check-outline", kicker:"Effective", title:"Effective Strategy", text:"Energy-owned strategy state can be projected here without recreating strategy rules in Mobility UX." }
         ]
       },
       history: {
-        title: "History", subtitle: "Historical Mobility outcomes and activity belong to Insights.", outcome: { status: "Unknown", opportunity: "history", recommended_action: "none" },
+        outcome: { status: "Unknown", opportunity: "history", recommended_action: "none" },
         cards: [
-          { icon:"mdi:history", kicker:"History", title:"Mobility History", text:"Historical executions, recommendations and outcomes can be presented here." },
-          { icon:"mdi:timeline-clock-outline", kicker:"Timeline", title:"Activity Timeline", text:"Time-ordered Mobility evidence remains read-only insight." }
+          { icon:"mdi:history", kicker:"History", title:"Mobility History", text:"Historical executions, recommendations and outcomes remain a read-only Mobility insight." },
+          { icon:"mdi:timeline-clock-outline", kicker:"Timeline", title:"Activity Timeline", text:"Time-ordered evidence stays backend-owned and is presented without frontend reinterpretation." }
         ]
       },
       log: {
-        title: "Log", subtitle: "Operational and audit logging belongs to Insights.", outcome: { status: "Unknown", opportunity: "audit", recommended_action: "none" },
+        outcome: { status: "Unknown", opportunity: "audit", recommended_action: "none" },
         cards: [
-          { icon:"mdi:text-box-search-outline", kicker:"Log", title:"Mobility Log", text:"Commands, runtime events and audit evidence can be presented here." },
-          { icon:"mdi:alert-outline", kicker:"Exceptions", title:"Exceptions", text:"Failed or rejected activity can be surfaced here with backend-owned reasons." }
+          { icon:"mdi:text-box-search-outline", kicker:"Log", title:"Mobility Log", text:"Commands, runtime events and audit evidence remain available in one operational view." },
+          { icon:"mdi:alert-outline", kicker:"Exceptions", title:"Exceptions", text:"Failed or rejected activity is surfaced with the backend-published reason when available." }
         ]
       }
     };
     return models[view] || models.planning;
   }
-  styles() { return `:host{display:block;width:100%;box-sizing:border-box;--hb-blue:#1467F5;--hb-ink:#06142D;--hb-muted:#66728B;--hb-line:#E8EEF7;font-family:inherit}ha-card{background:transparent;box-shadow:none;border:none}.page{position:relative;width:min(100%,1560px);margin:0 auto;padding:18px 26px 30px;box-sizing:border-box}.title h1{margin:2px 0 4px;font-size:38px;color:#06142D}.title p{margin:0;color:#66728B}.eyebrow{font-size:11px;font-weight:650;letter-spacing:.12em;color:#1467F5;text-transform:uppercase}.section-title{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin:10px 0 8px}.section-title h2{margin:0;font-size:24px;color:#06142D}.section-title span{color:#66728B;font-weight:600}.bottom-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:16px}.info{background:#fff;border:1px solid #E8EEF7;border-radius:18px;padding:16px;box-shadow:0 16px 38px rgba(15,35,80,.06)}.info h3{display:flex;align-items:center;gap:8px;margin:0 0 8px;color:#06142D}.info p{margin:0;color:#66728B}.status-strip.dashboard-status-strip{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;border:1px solid rgba(14,35,72,.11)!important;border-radius:17px!important;background:rgba(255,255,255,.96)!important;box-shadow:0 16px 32px rgba(15,35,80,.08)!important;overflow:hidden!important;max-width:none!important;width:100%!important;margin:8px 0 10px!important}.status-strip.dashboard-status-strip .metric{display:grid!important;grid-template-columns:34px minmax(0,1fr)!important;gap:8px!important;align-items:center!important;padding:14px 16px!important;border-right:1px solid #E6ECF5!important;min-width:0!important;background:transparent!important}.status-strip.dashboard-status-strip .metric:last-child{border-right:0!important}.status-strip.dashboard-status-strip .metric ha-icon{--mdc-icon-size:23px;color:#1467F5}.status-strip.dashboard-status-strip .metric.tone-green ha-icon{color:#18A957!important}.status-strip.dashboard-status-strip .metric.tone-orange ha-icon{color:#F59E0B!important}.status-strip.dashboard-status-strip .metric span{display:block;font-size:11px;font-weight:600;color:#66728B;line-height:1.1}.status-strip.dashboard-status-strip .metric b{display:block;font-size:16px;font-weight:650;color:#071327;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}${hbMobilitySharedShellStyles()}@media(max-width:760px){.bottom-grid{grid-template-columns:1fr}.status-strip.dashboard-status-strip{grid-template-columns:1fr!important;max-width:100%!important}}`; }
+
+  energyPlanning(rt) {
+    return new HomeBrainEnergyPlanningProjection(this._hass, rt).viewModel();
+  }
+
+  energyInsights(rt) {
+    return new HomeBrainEnergyMobilityInsightsProjection(this._hass, rt).viewModel("today");
+  }
+
+  energyStrategies(rt) {
+    return new HomeBrainEnergyMobilityStrategyProjection(this._hass, rt).viewModel();
+  }
+
+  fmtKwh(value) {
+    return value === null || value === undefined ? "N/A" : `${Number(value).toFixed(1)} kWh`;
+  }
+
+  planningHeroMeta(rt) {
+    const plan = this.energyPlanning(rt);
+    const source = plan.available ? "Energy backend" : "Energy planning unavailable";
+    const today = this.fmtKwh(plan.today.plannedKwh);
+    const remaining = this.fmtKwh(plan.today.stillToPlanKwh);
+    return `<strong>${rt.escape(source)}</strong><span>Planned today ${rt.escape(today)}</span><span>Still to plan ${rt.escape(remaining)}</span>`;
+  }
+
+  strategyHeroMeta(rt) {
+    const strategy = this.energyStrategies(rt);
+    const source = strategy.profilesAvailable || strategy.effectiveAvailable ? "Energy backend" : "Energy strategy unavailable";
+    return `<strong>${rt.escape(source)}</strong><span>${rt.escape(String(strategy.profiles.length))} Mobility profiles</span><span>${rt.escape(String(strategy.effective.length))} effective policies</span>`;
+  }
+
+  insightsHeroMeta(rt) {
+    const insights = this.energyInsights(rt);
+    const energy = this.fmtKwh(insights.totalVehicleEnergyKwh);
+    const value = insights.totalAttributedEur === null ? "N/A" : `€${Number(insights.totalAttributedEur).toFixed(2)}`;
+    const source = insights.meteringAvailable || insights.valueAvailable ? "Energy backend" : "Energy Insights unavailable";
+    return `<strong>${rt.escape(source)}</strong><span>Vehicle energy ${rt.escape(energy)}</span><span>Attributed value ${rt.escape(value)}</span>`;
+  }
+
+  renderPlanning(rt) {
+    const plan = this.energyPlanning(rt);
+    const mobilityRows = plan.mobilityPlanningRows.length ? plan.mobilityPlanningRows : plan.mobilityExperienceRows;
+    const facts = [
+      ["mdi:calendar-check-outline","Planned today",this.fmtKwh(plan.today.plannedKwh),plan.today.state || "Energy planning"],
+      ["mdi:calendar-alert-outline","Still to plan",this.fmtKwh(plan.today.stillToPlanKwh),"Published by Energy"],
+      ["mdi:weather-sunset-up","Tomorrow",this.fmtKwh(plan.tomorrow.plannedKwh),plan.tomorrow.state || "Next horizon"],
+      ["mdi:source-branch-check","Contract",plan.contractVersion || (plan.available ? "Published" : "Unavailable"),plan.source]
+    ];
+    const rows = mobilityRows.slice(0, 8).map((row) => {
+      const id = String(row.asset_id || row.target_asset_id || row.flexible_asset_id || row.consumer_asset_id || row.participant_id || "Mobility asset");
+      const name = String(row.display_name || row.name || row.label || rt.assetDisplayName?.(id) || id);
+      const state = String(row.planning_state || row.state || row.status || row.reason_label || "Published");
+      return `<div class="rhi-data-row"><b>${rt.escape(name)}</b><span>${rt.escape(state)}</span></div>`;
+    }).join("");
+    const contractGap = plan.available
+      ? (plan.exactIdentityJoin && !mobilityRows.length ? "Energy planning is available, but no published planning row currently matches a canonical Mobility asset id." : "")
+      : "The Energy public planning contract is not available. Mobility does not reconstruct or estimate a plan.";
+
+    return `<section class="rhi-fact-grid">
+      ${facts.map(([icon,label,value,sub])=>`<div class="rhi-fact"><ha-icon icon="${icon}"></ha-icon><div><small>${rt.escape(label)}</small><b>${rt.escape(value)}</b><span>${rt.escape(sub)}</span></div></div>`).join("")}
+    </section>
+    <section class="rhi-context-grid">
+      <article class="rhi-context-card">
+        <div class="rhi-context-card-kicker"><ha-icon icon="mdi:calendar-clock"></ha-icon>Energy-owned planning</div>
+        <h3>Operational charging plan</h3>
+        <p>Mobility shows Energy's public planning truth directly. No charging schedule, totals or feasibility is recalculated in the frontend.</p>
+        ${rows ? `<div class="rhi-data-list">${rows}</div>` : ""}
+        ${contractGap ? `<div class="rhi-context-note">${rt.escape(contractGap)}</div>` : ""}
+      </article>
+      <article class="rhi-context-card">
+        <div class="rhi-context-card-kicker"><ha-icon icon="mdi:car-clock"></ha-icon>Mobility execution context</div>
+        <h3>Vehicle readiness</h3>
+        <p>Readiness, charger assignment, connection state and Mobility commands remain Mobility-owned. Planning is shown next to that execution truth instead of being duplicated here.</p>
+        <div class="rhi-data-list">
+          <div class="rhi-data-row"><b>Planning source</b><span>${rt.escape(plan.source)}</span></div>
+          <div class="rhi-data-row"><b>Matched Mobility assets</b><span>${rt.escape(String(mobilityRows.length))}</span></div>
+          <div class="rhi-data-row"><b>Plan state</b><span>${rt.escape(plan.state || "Unavailable")}</span></div>
+        </div>
+      </article>
+    </section>`;
+  }
+
+  renderStrategies(rt) {
+    const strategy = this.energyStrategies(rt);
+    const profileRows = strategy.profiles.map((row) => {
+      const objective = String(row.objective_mode || row.mode || row.energy_control_mode || row.grid_policy || row.user_summary_label || "Configured");
+      return `<div class="rhi-data-row"><b>${rt.escape(row.profile_label || row.profile_id)}</b><span>${rt.escape(objective)}</span></div>`;
+    }).join("");
+    const effectiveRows = strategy.effective.map((row) => {
+      const assetId = String(row.asset_id || "");
+      const name = String(row.display_name || row.asset_label || rt.assetDisplayName?.(assetId) || assetId);
+      const state = String(row.effective_state || row.configured_state || row.influence_state || row.reason_label || row.policy_id || "Published");
+      return `<div class="rhi-data-row"><b>${rt.escape(name)}</b><span>${rt.escape(state)}</span></div>`;
+    }).join("");
+    const unavailable = !strategy.profilesAvailable && !strategy.effectiveAvailable
+      ? "Energy strategy contracts are unavailable. Mobility does not invent a strategy or infer one from charging behavior."
+      : "";
+    return `<section class="rhi-fact-grid">
+      <div class="rhi-fact"><ha-icon icon="mdi:tune-variant"></ha-icon><div><small>Profiles</small><b>${rt.escape(String(strategy.profiles.length))}</b><span>Energy strategy</span></div></div>
+      <div class="rhi-fact"><ha-icon icon="mdi:shield-check-outline"></ha-icon><div><small>Effective policies</small><b>${rt.escape(String(strategy.effective.length))}</b><span>Exact Mobility assets</span></div></div>
+      <div class="rhi-fact"><ha-icon icon="mdi:source-branch-check"></ha-icon><div><small>Profile contract</small><b>${rt.escape(strategy.profileContractVersion || (strategy.profilesAvailable ? "Published" : "Unavailable"))}</b><span>Energy-owned</span></div></div>
+      <div class="rhi-fact"><ha-icon icon="mdi:database-check-outline"></ha-icon><div><small>Policy contract</small><b>${rt.escape(strategy.effectiveContractVersion || (strategy.effectiveAvailable ? "Published" : "Unavailable"))}</b><span>Energy-owned</span></div></div>
+    </section>
+    <section class="rhi-context-grid">
+      <article class="rhi-context-card">
+        <div class="rhi-context-card-kicker"><ha-icon icon="mdi:tune-variant"></ha-icon>Configured intent</div>
+        <h3>Mobility energy profiles</h3>
+        <p>Relevant Energy strategy profiles are shown read-only here. Profile meaning and editable strategy settings remain owned by Energy.</p>
+        ${profileRows ? `<div class="rhi-data-list">${profileRows}</div>` : ""}
+        ${unavailable ? `<div class="rhi-context-note">${rt.escape(unavailable)}</div>` : ""}
+      </article>
+      <article class="rhi-context-card">
+        <div class="rhi-context-card-kicker"><ha-icon icon="mdi:shield-check-outline"></ha-icon>Effective strategy</div>
+        <h3>What is in effect</h3>
+        <p>Effective policy is filtered to exact Mobility asset ids so vehicle/charger behavior is not confused with unrelated Energy domains.</p>
+        ${effectiveRows ? `<div class="rhi-data-list">${effectiveRows}</div>` : `<div class="rhi-context-note">No effective Mobility policy is currently published by Energy.</div>`}
+      </article>
+    </section>`;
+  }
+
+  renderInsights(rt) {
+    const insights = this.energyInsights(rt);
+    const rows = insights.rows.map((row) => {
+      const energy = this.fmtKwh(row.energyKwh);
+      const value = row.attributedEur === null ? "N/A" : `€${Number(row.attributedEur).toFixed(2)}`;
+      const quality = row.measurementState || row.trustState || "UNAVAILABLE";
+      return `<article class="rhi-insight-vehicle">
+        <div class="rhi-insight-vehicle-head"><div><small>VEHICLE</small><h3>${rt.escape(row.name)}</h3></div><span>${rt.escape(quality)}</span></div>
+        <div class="rhi-insight-metrics">
+          <div><small>Measured energy</small><b>${rt.escape(energy)}</b></div>
+          <div><small>Attributed value</small><b>${rt.escape(value)}</b></div>
+        </div>
+      </article>`;
+    }).join("");
+    const gap = (!insights.meteringAvailable && !insights.valueAvailable)
+      ? "Energy metering and value contracts are unavailable. Mobility does not estimate vehicle energy or financial value."
+      : (!rows ? "Energy is available, but no published metering/value record currently matches a canonical Mobility vehicle id." : "");
+    return `<section class="rhi-fact-grid">
+      <div class="rhi-fact"><ha-icon icon="mdi:counter"></ha-icon><div><small>Vehicle energy</small><b>${rt.escape(this.fmtKwh(insights.totalVehicleEnergyKwh))}</b><span>Energy metering</span></div></div>
+      <div class="rhi-fact"><ha-icon icon="mdi:currency-eur"></ha-icon><div><small>Attributed value</small><b>${rt.escape(insights.totalAttributedEur === null ? "N/A" : `€${Number(insights.totalAttributedEur).toFixed(2)}`)}</b><span>Energy accounting</span></div></div>
+      <div class="rhi-fact"><ha-icon icon="mdi:car-multiple"></ha-icon><div><small>Vehicles with evidence</small><b>${rt.escape(String(insights.rows.length))}</b><span>Exact asset-id join</span></div></div>
+      <div class="rhi-fact"><ha-icon icon="mdi:database-check-outline"></ha-icon><div><small>Source</small><b>Energy</b><span>Metering + value</span></div></div>
+    </section>
+    <section class="rhi-context-grid insights-grid">
+      <article class="rhi-context-card rhi-insights-wide">
+        <div class="rhi-context-card-kicker"><ha-icon icon="mdi:chart-timeline-variant"></ha-icon>Measured Mobility</div>
+        <h3>Vehicle energy & value</h3>
+        <p>Per-vehicle energy and financial attribution come directly from Energy public UX contracts. Mobility only joins them by canonical asset id.</p>
+        ${rows ? `<div class="rhi-insight-vehicle-list">${rows}</div>` : ""}
+        ${gap ? `<div class="rhi-context-note">${rt.escape(gap)}</div>` : ""}
+      </article>
+      <article class="rhi-context-card">
+        <div class="rhi-context-card-kicker"><ha-icon icon="mdi:history"></ha-icon>Mobility evidence</div>
+        <h3>Execution history</h3>
+        <p>Commands, readiness transitions and vehicle/charger execution remain Mobility-owned. Energy measurements complement that history; they do not replace it.</p>
+        <div class="rhi-data-list">
+          <div class="rhi-data-row"><b>Metering contract</b><span>${rt.escape(insights.meteringContractVersion || (insights.meteringAvailable ? "Published" : "Unavailable"))}</span></div>
+          <div class="rhi-data-row"><b>Value contract</b><span>${rt.escape(insights.valueContractVersion || (insights.valueAvailable ? "Published" : "Unavailable"))}</span></div>
+          <div class="rhi-data-row"><b>Value state</b><span>${rt.escape(insights.valueState)}</span></div>
+        </div>
+      </article>
+    </section>`;
+  }
+
+  renderContextCards(rt, data) {
+    return `<section class="rhi-context-grid">
+      ${data.cards.map((card) => `<article class="rhi-context-card"><div class="rhi-context-card-kicker"><ha-icon icon="${card.icon}"></ha-icon>${rt.escape(card.kicker)}</div><h3>${rt.escape(card.title)}</h3><p>${rt.escape(card.text)}</p></article>`).join("")}
+    </section>`;
+  }
+
+  renderSupportFacts(rt, view) {
+    const plan = view === "planning" ? this.energyPlanning(rt) : null;
+    const chargingPlan = plan ? (plan.available ? (plan.today.state || "Published") : "Unavailable") : rt.supervisorOutcome("mobility", "opportunity", "Supervised");
+    return `<section class="rhi-fact-grid support-facts">
+      <div class="rhi-fact"><ha-icon icon="mdi:calendar-clock"></ha-icon><div><small>Charging plan</small><b>${rt.escape(chargingPlan)}</b><span>${view === "planning" ? "Energy backend" : "Mobility context"}</span></div></div>
+      <div class="rhi-fact"><ha-icon icon="mdi:shield-check-outline"></ha-icon><div><small>System trust</small><b>${rt.escape(rt.supervisorOutcome("mobility", "trust", "Unknown"))}</b><span>Mobility runtime</span></div></div>
+      <div class="rhi-fact"><ha-icon icon="mdi:history"></ha-icon><div><small>Recent activity</small><b>Read-only</b><span>No frontend inference</span></div></div>
+      <div class="rhi-fact"><ha-icon icon="mdi:database-check-outline"></ha-icon><div><small>Data policy</small><b>Contract-backed</b><span>Fail closed</span></div></div>
+    </section>`;
+  }
+
+  styles() {
+    return `:host{display:block;width:100%;box-sizing:border-box;font-family:inherit}ha-card{background:transparent;box-shadow:none;border:none}
+      ${hbMobilityPresentationStyles()}
+      ${hbMobilitySharedShellStyles()}
+      .page{position:relative}
+      .status-strip.dashboard-status-strip{margin:8px 0 10px!important}
+      .support-facts{margin-top:8px!important}
+      .insights-grid{grid-template-columns:minmax(0,1.45fr) minmax(280px,.55fr)}
+      .rhi-insight-vehicle-list{display:grid;gap:7px;margin-top:10px}
+      .rhi-insight-vehicle{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;border:1px solid #edf1f6;border-radius:var(--rhi-radius-md);background:var(--rhi-soft);padding:10px 12px}
+      .rhi-insight-vehicle-head{min-width:0;display:flex;align-items:center;justify-content:space-between;gap:8px}.rhi-insight-vehicle-head small{font-size:8.5px;letter-spacing:.09em;color:#718096}.rhi-insight-vehicle-head h3{margin:1px 0 0;font-size:13px}.rhi-insight-vehicle-head>span{font-size:9px;color:#64748b}
+      .rhi-insight-metrics{display:grid;grid-template-columns:repeat(2,minmax(95px,1fr));gap:6px}.rhi-insight-metrics>div{padding:6px 8px;border-left:1px solid #e4eaf2}.rhi-insight-metrics small{display:block;font-size:8.5px;color:#718096}.rhi-insight-metrics b{display:block;margin-top:2px;font-size:12px;color:var(--rhi-ink)}
+      @media(max-width:900px){.insights-grid{grid-template-columns:1fr}.rhi-insight-vehicle{grid-template-columns:1fr}.rhi-insight-metrics>div:first-child{border-left:0}}
+      @media(max-width:520px){.rhi-insight-metrics{grid-template-columns:1fr 1fr}.rhi-insight-vehicle{padding:9px 10px}}
+      @media(max-width:760px){.status-strip.dashboard-status-strip{grid-template-columns:repeat(5,minmax(150px,1fr))!important;overflow-x:auto!important}.status-strip.dashboard-status-strip .metric{min-width:150px!important}}
+    `;
+  }
 }
 if (!customElements.get("homebrain-mobility-placeholder-card")) {
   customElements.define("homebrain-mobility-placeholder-card", HomeBrainMobilityPlaceholderCard);
 }
 window.customCards.push({
   type: "homebrain-mobility-placeholder-card",
-  name: "Home Brain Mobility Placeholder Card",
-  description: "R22.10.3 navigation shell placeholder for Intelligence, Activity and Value."
+  name: "Home Brain Mobility Intelligence and Insights",
+  description: "Contract-backed Mobility Intelligence and Insights projections."
 });
 
 class HomeBrainMobilityAssetDetailCard extends HTMLElement {
