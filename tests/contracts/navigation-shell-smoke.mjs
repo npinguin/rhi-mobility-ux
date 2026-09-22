@@ -11,7 +11,6 @@ const required = [
   '{ key: "overview", label: "Overview", icon: "mdi:view-dashboard-outline", path: "/overview" }',
   '{ key: "vehicles", label: "Vehicles", icon: "mdi:car-outline", path: "/dashboard" }',
   '{ key: "chargers", label: "Chargers", icon: "mdi:ev-station", path: "/charger-maintenance" }',
-  '{ key: "charging", label: "Charging", icon: "mdi:lightning-bolt-outline", path: "/charging" }',
   '{ key: "planning", label: "Planning", icon: "mdi:calendar-clock-outline", path: "/planning" }',
   '{ key: "strategies", label: "Strategies", icon: "mdi:target", path: "/strategies" }',
   '{ key: "history", label: "History", icon: "mdi:chart-timeline-variant", path: "/history" }',
@@ -35,7 +34,7 @@ if (!dashboard.includes('const navActive = this.dashboardTabFromRoute()')) throw
 if (!dashboard.includes('hbMobilityNav(navActive)')) throw new Error('dashboard does not render canonical navigation from normalized active route');
 if (!chargers.includes('hbMobilityNav(this.config?.nav_active || "chargers")')) throw new Error('charger screen does not preserve grouped navigation');
 
-for (const path of ['overview','dashboard','charger-maintenance','charging','planning','strategies','history','log']) {
+for (const path of ['overview','dashboard','charger-maintenance','planning','strategies','history','log']) {
   if (!routes.includes(`path: ${path}`)) throw new Error(`dashboard route missing: ${path}`);
 }
 
@@ -45,3 +44,5 @@ if (!dashboard.includes('rt.navigate(target)')) throw new Error('Overview/Vehicl
 if (!dashboard.includes('rememberViewPosition()') || !dashboard.includes('restoreViewPositionOnce()') || !dashboard.includes('window.addEventListener("pagehide"')) throw new Error('Mobility route/refresh position persistence missing');
 if (dashboard.includes('hbMobilityPath("/vehicles")')) throw new Error('invalid /vehicles route leaked into dashboard');
 console.log('PASS Mobility route mapping, URL-authoritative tab state and refresh/position persistence');
+
+if(header.includes('key: "charging"') || routes.includes('path: charging')) throw new Error('synthetic Charging tab/route returned');
