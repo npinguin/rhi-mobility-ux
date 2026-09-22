@@ -1,3 +1,13 @@
+## 1.0.0-rc.30 — Mobility UX coherence + identity-safe picker
+
+- Promoted Overview spacing/density into the shared presentation layer for Overview, Vehicles and Chargers.
+- Removed the synthetic standalone Charging tab/page/hero.
+- Made Vehicle & colour appearance-only under frozen V1: backend/profile identity remains authoritative.
+- Cleared picker drafts on close/reopen and rejected cross-model image overrides.
+- Fixed no-charger fallback semantics.
+- Upgraded the three tab hero scenes to a premium home-mobility visual language.
+- Added a governed UX backlog for richer no-charger/disconnected/maintenance/ready/charging illustrations and actions.
+
 ## 1.0.0-rc.29 — shared presentation runtime hotfix
 
 - Supersedes broken rc.28 without mutating the published tag.
