@@ -399,7 +399,7 @@ class HomeBrainAssetShell {
           saveButton.disabled = !key || !picker.selection({asset_id:assetId}).writable;
         }
         const hero = this.root.querySelector('[data-charger-visual-preview="1"]');
-        if (hero && appearance?.package_file) hero.src = this.rt.cache(this.rt.assetUrl(appearance.package_file));
+        if (hero && appearance?.package_file) hero.src = this.rt.cache(appearance.package_file);
       };
 
       const refreshHierarchy = (level) => {
