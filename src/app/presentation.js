@@ -3,7 +3,7 @@
 // Domain screens keep their semantics, data ownership and actions.
 
 const HB_MOBILITY_PAGE_HEROES = Object.freeze({
-  overview: { eyebrow:"MOBILITY", title:"Mobility Overview", description:"Know if your vehicles are ready, secure and comfortable, what is charging, and where action is needed.", asset:"heroes/mobility-overview.svg" },
+  overview: { eyebrow:"MOBILITY", title:"Mobility Overview", description:"Know if your vehicles are ready, secure and comfortable, what is charging, and where action is needed.", asset:"heroes/mobility-overview-approved.webp" },
   vehicles: { eyebrow:"MOBILITY / VEHICLE MANAGEMENT", title:"Vehicles", description:"Manage the vehicles you use every day: readiness, charger assignment, charging controls, direct actions and lifecycle.", asset:"heroes/mobility-vehicles.svg" },
   chargers: { eyebrow:"MOBILITY / CHARGER MANAGEMENT", title:"Chargers", description:"Manage charger availability, charging state, power, connected vehicles, controls and lifecycle from one compact workspace.", asset:"heroes/mobility-chargers.svg" },
   planning: { eyebrow:"INTELLIGENCE / ENERGY PLANNING", title:"Planning", description:"See the Energy-owned charging plan, what is already planned and what still needs attention.", asset:"heroes/mobility-overview.svg" },
