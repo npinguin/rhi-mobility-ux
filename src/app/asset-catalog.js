@@ -40,7 +40,7 @@ function rhiMobilityImageCatalog() {
 const RHI_MOBILITY_VEHICLE_VISUALS = Object.freeze([
   {
     id:"audi.q8.4m.2024-2026.tfsi-e", label:"Audi Q8 TFSI-e", brand:"Audi", model:"Q8",
-    generation:"4M", years:"2024–2026", variant:"TFSI-e", image_key:"vehicle_audi_q8",
+    generation:"4M", years:"2024–2026", variant:"TFSI-e", image_key:"vehicle_audi_q8", selectable:true, visual_quality:"verified_model",
     colors:[
       { id:"daytona-grey", label:"Daytona Grey", filter:"none" },
       { id:"mythos-black", label:"Mythos Black", filter:"brightness(.42) contrast(1.14) saturate(.7)" },
@@ -51,7 +51,7 @@ const RHI_MOBILITY_VEHICLE_VISUALS = Object.freeze([
   },
   {
     id:"bmw.ix1.u11.2022-2026.ev", label:"BMW iX1", brand:"BMW", model:"iX1",
-    generation:"U11", years:"2022–2026", variant:"EV", image_key:"vehicle_bmw_ix1_phev",
+    generation:"U11", years:"2022–2026", variant:"EV", image_key:"vehicle_bmw_ix1_phev", selectable:true, visual_quality:"verified_model",
     colors:[
       { id:"mineral-white", label:"Mineral White", filter:"none" },
       { id:"black-sapphire", label:"Black Sapphire", filter:"brightness(.40) contrast(1.18) saturate(.7)" },
@@ -62,7 +62,7 @@ const RHI_MOBILITY_VEHICLE_VISUALS = Object.freeze([
   },
   {
     id:"mercedes.gla.h247.2023-2026.phev", label:"Mercedes-Benz GLA PHEV", brand:"Mercedes-Benz", model:"GLA",
-    generation:"H247", years:"2023–2026", variant:"PHEV", image_key:"vehicle_mercedes_gla",
+    generation:"H247", years:"2023–2026", variant:"PHEV", image_key:"vehicle_mercedes_gla", selectable:true, visual_quality:"verified_model",
     colors:[
       { id:"mountain-grey", label:"Mountain Grey", filter:"none" },
       { id:"night-black", label:"Night Black", filter:"brightness(.42) contrast(1.15) saturate(.7)" },
@@ -73,7 +73,7 @@ const RHI_MOBILITY_VEHICLE_VISUALS = Object.freeze([
   },
   {
     id:"renault.scenic.e-tech.2024-2026.techno", label:"Renault Scenic E-Tech", brand:"Renault", model:"Scenic",
-    generation:"E-Tech", years:"2024–2026", variant:"Techno EV", image_key:"vehicle_renault_scenic_techno_ev",
+    generation:"E-Tech", years:"2024–2026", variant:"Techno EV", image_key:"vehicle_fallback", selectable:false, visual_quality:"fallback_only",
     colors:[
       { id:"pearl-white", label:"Pearl White", filter:"none" },
       { id:"starry-black", label:"Starry Black", filter:"brightness(.42) contrast(1.16) saturate(.65)" },
@@ -84,7 +84,7 @@ const RHI_MOBILITY_VEHICLE_VISUALS = Object.freeze([
   },
   {
     id:"volkswagen.id4.2024-2026.ev", label:"Volkswagen ID.4", brand:"Volkswagen", model:"ID.4",
-    generation:"ID.4", years:"2024–2026", variant:"EV", image_key:"vehicle_vw_id4",
+    generation:"ID.4", years:"2024–2026", variant:"EV", image_key:"vehicle_fallback", selectable:false, visual_quality:"fallback_only",
     colors:[
       { id:"costa-azul", label:"Costa Azul", filter:"none" },
       { id:"moonstone-grey", label:"Moonstone Grey", filter:"grayscale(.65) brightness(.78)" },
@@ -95,7 +95,7 @@ const RHI_MOBILITY_VEHICLE_VISUALS = Object.freeze([
   },
   {
     id:"generic.guest.current.generic", label:"Guest vehicle", brand:"Generic", model:"Guest vehicle",
-    generation:"Current", years:"Any", variant:"Generic", image_key:"vehicle_guest",
+    generation:"Current", years:"Any", variant:"Generic", image_key:"vehicle_guest", selectable:true, visual_quality:"generic",
     colors:[
       { id:"slate-grey", label:"Slate Grey", filter:"none" },
       { id:"carbon-black", label:"Carbon Black", filter:"brightness(.42) contrast(1.16)" },
@@ -129,6 +129,10 @@ function rhiMobilityVehicleVisualCatalog() {
     colors: row.colors.map((color)=>({ ...color })),
     package_file: rhiMobilityImageCatalog().find((item)=>item.image_key===row.image_key)?.package_file || rhiMobilityAssetUrl("vehicles/vehicle_fallback.png")
   }));
+}
+
+function rhiMobilitySelectableVehicleVisualCatalog() {
+  return rhiMobilityVehicleVisualCatalog().filter((row)=>row.selectable !== false && row.visual_quality !== "fallback_only");
 }
 
 function rhiMobilityParseVehicleVisualKey(value = "") {
