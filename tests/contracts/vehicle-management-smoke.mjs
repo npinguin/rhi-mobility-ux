@@ -58,8 +58,10 @@ for(const needle of [
   'renault_scenic_techno_ev',
   'guest_phev',
   'guest_ev',
-  'visual_quality:"profile_source"',
-  'selectable:true, visual_quality:"verified_model"'
+  'selectable:true, visual_quality:"verified_model"',
+  'vehicles/vehicle_vw_id4.webp',
+  'vehicles/vehicle_renault_scenic_techno_ev.webp',
+  'vehicle_bmw_x1_phev'
 ]) {
   if(!catalog.includes(needle)) throw new Error(`vehicle visual catalog regression: missing ${needle}`);
 }
@@ -72,14 +74,18 @@ for(const needle of [
   'renault_scenic_techno_ev',
   'guest_phev_1phase',
   'guest_ev_3phase',
-  'CC0-1.0',
-  'CC-BY-2.0',
-  '"no_wrong_model_fallback": true'
+  '"current_scope_package_complete": true',
+  '"no_wrong_model_fallback": true',
+  '"legacy_runtime_artwork_paths": false'
 ]) {
   if(!artwork.includes(needle)) throw new Error(`vehicle artwork provenance regression: missing ${needle}`);
 }
 
 if(!runtime.includes('rhiMobilityParseVehicleVisualKey')) throw new Error('runtime no longer resolves structured vehicle visual keys');
+if(runtime.includes('profileImageCompatibilityKey')) throw new Error('legacy profile-name artwork inference returned');
+for(const dead of ['default_vehicle.png','vehicle_unknown_profile_hero.png','vehicle_audi_q8_hero.png','vehicle_bmw_ix1_phev_hero.png','vehicle_guest_hero.png']){
+  if(catalog.includes(dead)||runtime.includes(dead)||dashboard.includes(dead)||shell.includes(dead)) throw new Error(`legacy artwork path returned: ${dead}`);
+}
 if(!adapter.includes('imageFilter = visual?.color?.filter || "none"')) throw new Error('vehicle detail model no longer carries selected visual colour');
 if(!adapter.includes('const visualPackageFile = visual?.vehicle?.selectable !== false')) throw new Error('persisted vehicle visual no longer resolves to verified catalog artwork');
 if(!adapter.includes('const img = visualPackageFile ? this.rt.assetUrl(visualPackageFile) : profileImage')) throw new Error('vehicle adapter no longer prefers persisted picker artwork over profile/source fallback');
@@ -119,4 +125,4 @@ for(const needle of [
 if(!shell.includes('rc.23 mobile detail density + picker hardening')) throw new Error('mobile detail picker hardening missing');
 if(!shell.includes('.detail-vehicle-picker .vehicle-picker-grid{grid-template-columns:1fr!important')) throw new Error('detail picker is not one-column on phone');
 
-console.log('PASS vehicle management, hierarchical picker, full current profile coverage, artwork provenance and compact mobile composition');
+console.log('PASS vehicle management, hierarchical picker, complete canonical current artwork, zero legacy runtime path and compact mobile composition');
