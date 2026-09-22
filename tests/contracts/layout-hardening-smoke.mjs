@@ -40,3 +40,15 @@ if(!dashboard.includes('hbMobilityPageHero(rt, "vehicles"')) throw new Error('Ve
 if(!chargers.includes('hbMobilityPageHero(rt, "chargers"')) throw new Error('Chargers no longer uses shared hero');
 if(!router.includes('hbMobilityPageHero(rt, "charging"')) throw new Error('Charging no longer uses shared hero');
 console.log('PASS shared omni-device presentation grammar and all Mobility tab heroes');
+
+
+if(presentation.includes('\\n')) throw new Error('shared presentation source contains escaped-newline serialization and would not execute as a real module');
+const presentationApi = new Function(
+  'rhiMobilityAssetUrl',
+  presentation + '\nreturn { hbMobilityPageHero, hbMobilityPresentationStyles };'
+)((path)=>'/hacsfiles/rhi-mobility-ux/assets/'+path);
+if(typeof presentationApi.hbMobilityPageHero !== 'function') throw new Error('shared hero function is not executable');
+if(typeof presentationApi.hbMobilityPresentationStyles !== 'function') throw new Error('shared presentation styles are not executable');
+const renderedHero=presentationApi.hbMobilityPageHero({escape:(v)=>String(v)},'overview',{meta:'<strong>5 active</strong>'});
+if(!renderedHero.includes('Mobility Overview') || !renderedHero.includes('/assets/heroes/mobility-overview.svg')) throw new Error('shared Overview hero does not render executable package output');
+console.log('PASS shared presentation module executes, not only parses');
