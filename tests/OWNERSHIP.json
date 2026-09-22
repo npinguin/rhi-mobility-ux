@@ -151,6 +151,14 @@
         "exact Mobility asset identity join for Insights",
         "fail-closed Energy Insights projection"
       ]
+    },
+    "energy_mobility_strategy_projection": {
+      "owner": "tests/contracts/energy-mobility-strategy-projection-smoke.mjs",
+      "owns": [
+        "Energy strategy profile projection into Mobility Intelligence",
+        "Energy effective strategy projection for exact Mobility assets",
+        "fail-closed Energy strategy projection"
+      ]
     }
   }
 }
