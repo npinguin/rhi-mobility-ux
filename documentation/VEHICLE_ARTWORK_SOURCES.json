@@ -24,11 +24,12 @@
       "artwork_mode": "package_owned",
       "package_key": "vehicle_audi_q8",
       "candidate_source": {
-        "url": "https://commons.wikimedia.org/wiki/File:Audi_Q8_60_TFSI_e_(2023)_(54725113540).jpg",
         "resolution": "5822x3444",
         "license": "CC0-1.0",
         "author": "Charles / Flickr user usf1fan2",
-        "status": "approved_reference"
+        "status": "approved_reference",
+        "source_ref": "Wikimedia Commons — File:Audi Q8 60 TFSI e (2023) (54725113540).jpg",
+        "source_host": "commons.wikimedia.org"
       }
     },
     {
@@ -37,11 +38,12 @@
       "artwork_mode": "profile_source",
       "package_key": null,
       "candidate_source": {
-        "url": "https://commons.wikimedia.org/wiki/File:Volkswagen_ID.4_(2024)_(54724554737).jpg",
         "resolution": "5654x3754",
         "license": "CC0-1.0",
         "author": "Charles / Flickr user usf1fan2",
-        "status": "approved_for_artwork_pipeline"
+        "status": "approved_for_artwork_pipeline",
+        "source_ref": "Wikimedia Commons — File:Volkswagen ID.4 (2024) (54724554737).jpg",
+        "source_host": "commons.wikimedia.org"
       }
     },
     {
@@ -50,11 +52,12 @@
       "artwork_mode": "package_owned",
       "package_key": "vehicle_mercedes_gla",
       "candidate_source": {
-        "url": "https://commons.wikimedia.org/wiki/File:Mercedes-Benz_GLA_250_e_(H247,_2023)_(53939199394).jpg",
         "resolution": "5335x3546",
         "license": "CC-BY-2.0",
         "author": "Charles / Flickr user usf1fan2",
-        "status": "approved_reference_attribution_required"
+        "status": "approved_reference_attribution_required",
+        "source_ref": "Wikimedia Commons — File:Mercedes-Benz GLA 250 e (H247, 2023) (53939199394).jpg",
+        "source_host": "commons.wikimedia.org"
       }
     },
     {
@@ -63,11 +66,12 @@
       "artwork_mode": "package_owned",
       "package_key": "vehicle_bmw_ix1_phev",
       "candidate_source": {
-        "url": "https://commons.wikimedia.org/wiki/File:BMW_X1_xDrive25e_(U11,_2024)_(54533446437).jpg",
         "resolution": "5400x3600",
         "license": "CC-BY-2.0",
         "author": "Charles / Flickr user usf1fan2",
-        "status": "approved_reference_attribution_required"
+        "status": "approved_reference_attribution_required",
+        "source_ref": "Wikimedia Commons — File:BMW X1 xDrive25e (U11, 2024) (54533446437).jpg",
+        "source_host": "commons.wikimedia.org"
       }
     },
     {
@@ -76,11 +80,12 @@
       "artwork_mode": "profile_source",
       "package_key": null,
       "candidate_source": {
-        "url": "https://commons.wikimedia.org/wiki/File:Renault_Sc%C3%A9nic_E-Tech_(2025)_(54712552219).jpg",
         "resolution": "5810x3730",
         "license": "CC0-1.0",
         "author": "Charles / Flickr user usf1fan2",
-        "status": "approved_for_artwork_pipeline"
+        "status": "approved_for_artwork_pipeline",
+        "source_ref": "Wikimedia Commons — File:Renault Scénic E-Tech (2025) (54712552219).jpg",
+        "source_host": "commons.wikimedia.org"
       }
     },
     {
