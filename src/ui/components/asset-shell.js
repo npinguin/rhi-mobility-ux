@@ -375,6 +375,7 @@ class HomeBrainAssetShell {
         const key = saveButton.getAttribute("data-vehicle-key") || "";
         if (assetId && key) this.rt.writePublishedProperty(assetId, "vehicle.image_key", key);
       });
+    });
 
     this.root.querySelectorAll(".detail-charger-picker").forEach((panel) => {
       const brandSelect = panel.querySelector("[data-charger-picker-brand]");
@@ -441,8 +442,6 @@ class HomeBrainAssetShell {
         const key = saveButton.getAttribute("data-charger-key") || "";
         if (assetId && key) this.rt.writePublishedProperty(assetId, "charger.image_key", key);
       });
-    });
-
     });
 
     this.root.querySelectorAll("[data-write-asset][data-write-key]").forEach((el) => {
