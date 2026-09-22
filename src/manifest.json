@@ -9,6 +9,7 @@
     "domain/models/asset-factory.js",
     "domain/adapters/vehicle-adapter.js",
     "domain/adapters/charger-adapter.js",
+    "ui/components/vehicle-visual-picker.js",
     "ui/components/asset-shell.js",
     "ui/screens/vehicle-detail.js",
     "ui/screens/charger-detail.js",
