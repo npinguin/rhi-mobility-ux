@@ -2,7 +2,7 @@
 
 Public HACS Dashboard/plugin repository for Robotix Home Intelligence Mobility UX.
 
-![Robotix Home Intelligence Mobility UX](dist/assets/vehicles/vehicle_bmw_ix1_phev.png)
+![Robotix Home Intelligence Mobility UX](dist/assets/vehicles/vehicle_bmw_x1_phev.png)
 
 - License: GPL-3.0-only
 - HACS category: Dashboard
@@ -48,7 +48,7 @@ Screens and components may not access Home Assistant Mobility contract entities 
 
 ## Product vision and backend backlog
 
-Mobility UX has one semantic model behind all tabs. Overview, Vehicles, Chargers, Charging and detail views are projections of the same backend-owned truth.
+Mobility UX has one semantic model behind the current workspaces. Overview, Vehicles and Chargers are the three Mobility workspaces; detail views are projections of the same backend-owned truth. Charging remains a Mobility capability inside those projections, not a standalone workspace.
 
 Read:
 - `documentation/PRODUCT_VISION.md` for user focus, tab intent, No charger semantics, route persistence and V1/V2.x rules;
