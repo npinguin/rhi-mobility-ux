@@ -1,6 +1,6 @@
 {
-  "candidate_version": "1.0.0-rc.28",
-  "candidate_tag": "v1.0.0-rc.28",
+  "candidate_version": "1.0.0-rc.29",
+  "candidate_tag": "v1.0.0-rc.29",
   "candidate_sha": "pending",
   "target_home_assistant": "pending",
   "hacs_install": "pending",
@@ -45,5 +45,6 @@
   "overview_hero": "pending",
   "vehicles_hero": "pending",
   "chargers_hero": "pending",
-  "charging_hero": "pending"
+  "charging_hero": "pending",
+  "shared_presentation_runtime_load": "pending"
 }
