@@ -115,3 +115,29 @@ phone portrait / tablet / desktop
 ```
 
 `src/app/presentation.js` owns cross-screen visual tokens, responsive page geometry and the shared tab-hero composition. Screens remain owners of their semantics, actions and local composition. Common visual behavior must not be copied back into screen-local CSS unless it is a documented screen-specific exception.
+
+## Cross-domain Energy projections
+
+Mobility UX may present Energy-owned planning, metering and value when the data is explicitly published through Energy public UX contracts. This is a read-only cross-domain projection boundary; it does not make Mobility the semantic owner.
+
+```text
+Energy public UX contracts
+  ├─ sensor.energy_planning_index
+  ├─ sensor.energy_planning_experience_index
+  ├─ sensor.energy_asset_metering_index
+  └─ sensor.energy_value_accounting_index
+          ↓
+src/runtime/energy-*-projection.js
+          ↓ exact canonical asset-id join only
+Mobility Intelligence / Insights presentation
+```
+
+Rules:
+
+- Planning totals, schedule state and planning evidence remain Energy-owned.
+- Vehicle/flexible-load measured energy and financial attribution remain Energy-owned.
+- Mobility UX never recalculates planning, metering or value.
+- Mobility UX never joins cross-domain data by display name, order, integration name or artwork.
+- Cross-domain joins use exact canonical Mobility asset ids only.
+- Missing Energy truth renders unavailable/N/A; there is no Mobility fallback calculation.
+- Mobility remains owner of vehicle readiness, charger assignment, vehicle/charger execution, commands and Mobility activity/audit evidence.
