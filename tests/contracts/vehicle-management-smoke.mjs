@@ -31,7 +31,7 @@ for(const needle of [
   'data-vehicle-picker-variant',
   'data-vehicle-picker-color',
   'data-vehicle-picker-save',
-  'No replacement default is applied',
+  'Product identity remains backend/profile-owned',
   'class HomeBrainVehicleVisualPicker',
   'rhiMobilitySelectableVehicleVisualCatalog()',
   'modelsForBrand',
@@ -97,8 +97,6 @@ if(!shell.includes('new HomeBrainVehicleVisualPicker(this.rt).render')) throw ne
 if(!shell.includes('data-vehicle-visual-preview')) throw new Error('vehicle detail live picker preview is missing');
 if(!picker.includes('class HomeBrainVehicleVisualPicker')) throw new Error('shared vehicle picker helper missing');
 if(picker.includes('|| catalog[0]')) throw new Error('picker must not silently default an unknown vehicle to the first catalog entry');
-if(!picker.includes('Choose brand…')) throw new Error('unknown current visual must require explicit brand selection');
-if(!picker.includes('Choose model…')) throw new Error('hierarchical picker model placeholder missing');
 
 for(const needle of [
   'class HomeBrainChargerVisualPicker',
@@ -122,7 +120,6 @@ for(const needle of [
 }
 if(!chargerAdapter.includes('return packageFile || this.rt.visualImageUrl')) throw new Error('charger adapter no longer prefers resolved package artwork');
 if(chargerAdapter.includes('this.rt.assetUrl(packageFile)')) throw new Error('charger adapter reintroduced double-prefix package URL resolution');
-if(!picker.includes('Choose variant…')) throw new Error('hierarchical picker variant placeholder missing');
 if(!dashboard.includes('new HomeBrainVehicleVisualPicker(rt).selection')) throw new Error('vehicle management does not consume shared picker selection model');
 for(const needle of [
   'Vehicle & colour',
@@ -156,3 +153,19 @@ if(!presentation.includes('MOBILITY / VEHICLE MANAGEMENT')) throw new Error('veh
 if(!presentation.includes('Manage the vehicles you use every day')) throw new Error('vehicle-management hero purpose drifted from shared presentation owner');
 
 if(!presentation.includes('mobility-vehicles.svg')) throw new Error('Vehicle tab contextual hero asset missing from shared presentation owner');
+
+for(const needle of [
+  'const profile = this.rt.profileForAsset',
+  'Product identity never comes from a presentation override',
+  'identity_locked: true',
+  'cross_model_override_rejected',
+  'Use this colour',
+  'data-vehicle-picker-brand="${this.rt.escape(assetId)}" disabled',
+  'data-vehicle-picker-model="${this.rt.escape(assetId)}" disabled',
+  'data-vehicle-picker-variant="${this.rt.escape(assetId)}" disabled'
+]) if(!picker.includes(needle)) throw new Error(`appearance-only vehicle picker regression: missing ${needle}`);
+
+if(!dashboard.includes('this._vehiclePickerDraft.delete(assetId)')) throw new Error('vehicle picker cancel/close no longer clears unsaved draft');
+if(!dashboard.includes('this._vehiclePickerDraft.set(assetId,{})')) throw new Error('vehicle picker open no longer starts from canonical current selection');
+if(!dashboard.includes('No charger selected')) throw new Error('no-charger relationship no longer has explicit user-facing state');
+if(dashboard.includes('this.chargerImage(activeChargerId || "default")')) throw new Error('no-charger state may resolve through an unrelated default asset');
