@@ -904,10 +904,23 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
       this._vehiclePickerAsset = ""; this._forceRender = true; this._lastSignature = "";
       if (this._hass) this.hass = this._hass;
     }));
-    this.shadowRoot.querySelectorAll("select[data-vehicle-picker-type]").forEach((select)=>select.addEventListener("change",()=>{
-      const assetId = select.getAttribute("data-vehicle-picker-type") || "";
+    this.shadowRoot.querySelectorAll("select[data-vehicle-picker-brand]").forEach((select)=>select.addEventListener("change",()=>{
+      const assetId = select.getAttribute("data-vehicle-picker-brand") || "";
+      this._vehiclePickerDraft.set(assetId,{brand:select.value,model:"",variant_id:"",color_id:""});
+      this._forceRender = true; this._lastSignature = "";
+      if (this._hass) this.hass = this._hass;
+    }));
+    this.shadowRoot.querySelectorAll("select[data-vehicle-picker-model]").forEach((select)=>select.addEventListener("change",()=>{
+      const assetId = select.getAttribute("data-vehicle-picker-model") || "";
       const current = this._vehiclePickerDraft.get(assetId) || {};
-      this._vehiclePickerDraft.set(assetId,{...current,vehicle_id:select.value,color_id:""});
+      this._vehiclePickerDraft.set(assetId,{...current,model:select.value,variant_id:"",color_id:""});
+      this._forceRender = true; this._lastSignature = "";
+      if (this._hass) this.hass = this._hass;
+    }));
+    this.shadowRoot.querySelectorAll("select[data-vehicle-picker-variant]").forEach((select)=>select.addEventListener("change",()=>{
+      const assetId = select.getAttribute("data-vehicle-picker-variant") || "";
+      const current = this._vehiclePickerDraft.get(assetId) || {};
+      this._vehiclePickerDraft.set(assetId,{...current,variant_id:select.value,color_id:""});
       this._forceRender = true; this._lastSignature = "";
       if (this._hass) this.hass = this._hass;
     }));
