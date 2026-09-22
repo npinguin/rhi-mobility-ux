@@ -1,61 +1,25 @@
-# v1.0.0-rc.26 — zero-debt current vehicle artwork
+# v1.0.0-rc.27 — shared Vehicle and Charger visual library
 
-## Purpose
+## Scope
 
-Remove the remaining legacy/duplicate vehicle artwork paths and make the complete current real-vehicle scope package-owned, model-correct and fail-closed.
+- keeps Mobility UX on frozen `MOBILITY_PUBLIC_RUNTIME_V1`; no new V1 product, profile or intelligence semantics are introduced;
+- fixes package artwork URL resolution so selected Vehicle and Charger masters are rendered directly instead of being double-prefixed and falling back;
+- establishes one governed visual-library pattern for Vehicles and Chargers, designed for later reuse by other RHI domains;
+- adds the current Charger catalog: Wallbox Commander 2 (White/Black), Peblar Business Socket and Fibaro Wall Plug 2 Z-Wave Plus BE/FR;
+- replaces duplicate/placeholder Charger raster files with package-owned 1600×1600 scalable masters;
+- centralizes frozen-V1 Charger compatibility aliases in the catalog boundary;
+- integrates Charger visual resolution into Overview, linked-charger Vehicle presentation, Charger Management and Charger Detail;
+- adds the Charger & colour picker with preview now and persistence only when the active backend contract exposes a writable `charger.image_key`;
+- tightens phone composition for Vehicle heroes and Charger management;
+- enforces visual provenance, exact Charger asset inventory, minimum master dimensions and maximum runtime size.
 
-## What changed
+## Runtime contract
 
-- Volkswagen ID.4 and Renault Scenic E-Tech now have their own canonical package masters.
-- BMW artwork is canonically named X1 PHEV; old iX1 keys remain input aliases only.
-- Removes separate hero copies, default/unknown copies and duplicate guest asset files.
-- One real model now maps to exactly one package master.
-- Hero/detail/overview render the same master with presentation-specific crop/scale only.
-- Removes legacy profile-name artwork inference from runtime.
-- Existing persisted legacy visual keys normalize through aliases to canonical visual identities.
-- Generic Guest PHEV/EV deliberately share the one generic fallback master.
-
-## Current real-model package coverage
-
-1. Audi Q8 TFSI-e
-2. BMW X1 PHEV
-3. Mercedes-Benz GLA PHEV
-4. Renault Scenic E-Tech
-5. Volkswagen ID.4
-
-All five are required by CI to:
-- resolve to package artwork;
-- resolve to five different byte hashes;
-- never equal the fallback bytes;
-- exist in the exact canonical vehicle-file inventory.
-
-## Removed legacy artwork files
-
-- default_vehicle.png
-- vehicle_audi_q8_hero.png
-- vehicle_bmw_ix1_phev.png
-- vehicle_bmw_ix1_phev_hero.png
-- vehicle_guest.png
-- vehicle_guest_hero.png
-- vehicle_mercedes_gla_hero.png
-- vehicle_renault_scenic_techno_ev.png
-- vehicle_unknown_profile.png
-- vehicle_unknown_profile_hero.png
-- vehicle_vw_id4.png
-
-## Compatibility
-
-- Mobility UX: 1.0.0-rc.26
 - Contract: `MOBILITY_PUBLIC_RUNTIME_V1`
-- Required backend: M0.9.29
-- Tested backend baseline: M0.9.29
-- Rollback: `v1.0.0-rc.25`
+- Minimum backend: `M0.9.29`
+- Tested backend baseline: `M0.9.29`
+- V1 status for this scope: frozen compatibility input only
 
-## Target HA proof required
+## Qualification
 
-For ID.4 and Scenic in particular:
-- picker opens on the correct current identity;
-- hero/detail/overview all show the same correct model;
-- opening/closing picker without save changes nothing;
-- changing colour never changes model artwork;
-- refresh and HA restart preserve the selected key and model artwork.
+Static validation and HACS packaging are required before publication. Target Home Assistant runtime, mobile rendering, visual picker readback/persistence where writable, restart persistence and rollback remain qualification evidence and are not implied by CI.
