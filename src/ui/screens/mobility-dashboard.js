@@ -1814,7 +1814,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
       .vehicle-workspace-list .vehicle-image img,.vehicle-image img{
         width:100%!important;max-width:250px!important;height:142px!important;max-height:142px!important;
         object-fit:contain!important;object-position:right bottom!important;transform:none!important;opacity:1!important;
-        filter:var(--rhi-vehicle-visual-filter,none) drop-shadow(0 14px 18px rgba(15,35,80,.16))
+        drop-shadow:0 14px 18px rgba(15,35,80,.16)
       }
       .vehicle-appearance-action{
         position:absolute!important;z-index:4!important;left:10px!important;bottom:10px!important;
