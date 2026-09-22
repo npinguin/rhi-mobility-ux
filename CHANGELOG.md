@@ -4,6 +4,7 @@
 - Tightened hero height, spacing, card density and responsive behavior for desktop, tablet and phone portrait.
 - Replaced routed placeholder styling with the same shared hero/fact/card system.
 - Made Mobility Planning a read-only projection of Energy public planning truth.
+- Added Energy-owned Mobility-relevant strategy profiles and effective policies under Intelligence.
 - Added Energy-owned per-vehicle metering and financial value to Mobility Insights via exact canonical asset-id joins.
 - Kept Mobility execution/activity/audit ownership separate and fail-closed when Energy data is unavailable.
 - Added owned contract regressions for both cross-domain projections.
