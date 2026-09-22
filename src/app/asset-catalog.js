@@ -50,8 +50,8 @@ const RHI_MOBILITY_VEHICLE_VISUALS = Object.freeze([
     ]
   },
   {
-    id:"bmw.ix1.u11.2022-2026.ev", label:"BMW iX1", brand:"BMW", model:"iX1",
-    generation:"U11", years:"2022–2026", variant:"EV", image_key:"vehicle_bmw_ix1_phev", selectable:true, visual_quality:"verified_model",
+    id:"bmw.x1.u11.2025-2026.phev", label:"BMW X1 PHEV", brand:"BMW", model:"X1",
+    generation:"U11", years:"2025–2026", variant:"PHEV", image_key:"vehicle_bmw_ix1_phev", selectable:true, visual_quality:"verified_model",
     colors:[
       { id:"mineral-white", label:"Mineral White", filter:"none" },
       { id:"black-sapphire", label:"Black Sapphire", filter:"brightness(.40) contrast(1.18) saturate(.7)" },
@@ -73,7 +73,7 @@ const RHI_MOBILITY_VEHICLE_VISUALS = Object.freeze([
   },
   {
     id:"renault.scenic.e-tech.2024-2026.techno", label:"Renault Scenic E-Tech", brand:"Renault", model:"Scenic",
-    generation:"E-Tech", years:"2024–2026", variant:"Techno EV", image_key:"vehicle_fallback", selectable:false, visual_quality:"fallback_only",
+    generation:"E-Tech", years:"2024–2026", variant:"Techno EV", image_key:"", selectable:true, visual_quality:"profile_source",
     colors:[
       { id:"pearl-white", label:"Pearl White", filter:"none" },
       { id:"starry-black", label:"Starry Black", filter:"brightness(.42) contrast(1.16) saturate(.65)" },
@@ -84,7 +84,7 @@ const RHI_MOBILITY_VEHICLE_VISUALS = Object.freeze([
   },
   {
     id:"volkswagen.id4.2024-2026.ev", label:"Volkswagen ID.4", brand:"Volkswagen", model:"ID.4",
-    generation:"ID.4", years:"2024–2026", variant:"EV", image_key:"vehicle_fallback", selectable:false, visual_quality:"fallback_only",
+    generation:"ID.4", years:"2024–2026", variant:"EV", image_key:"", selectable:true, visual_quality:"profile_source",
     colors:[
       { id:"costa-azul", label:"Costa Azul", filter:"none" },
       { id:"moonstone-grey", label:"Moonstone Grey", filter:"grayscale(.65) brightness(.78)" },
@@ -94,8 +94,19 @@ const RHI_MOBILITY_VEHICLE_VISUALS = Object.freeze([
     ]
   },
   {
-    id:"generic.guest.current.generic", label:"Guest vehicle", brand:"Generic", model:"Guest vehicle",
-    generation:"Current", years:"Any", variant:"Generic", image_key:"vehicle_guest", selectable:true, visual_quality:"generic",
+    id:"generic.guest.current.phev-1phase", label:"Guest PHEV 1-phase", brand:"Generic", model:"Guest PHEV",
+    generation:"Current", years:"Any", variant:"PHEV 1-phase", image_key:"vehicle_guest", selectable:true, visual_quality:"generic",
+    colors:[
+      { id:"slate-grey", label:"Slate Grey", filter:"none" },
+      { id:"carbon-black", label:"Carbon Black", filter:"brightness(.42) contrast(1.16)" },
+      { id:"pearl-white", label:"Pearl White", filter:"brightness(1.32) saturate(.40)" },
+      { id:"deep-blue", label:"Deep Blue", filter:"sepia(.3) saturate(2.4) hue-rotate(170deg) brightness(.76)" },
+      { id:"urban-green", label:"Urban Green", filter:"sepia(.4) saturate(1.9) hue-rotate(70deg) brightness(.72)" }
+    ]
+  },
+  {
+    id:"generic.guest.current.ev-3phase", label:"Guest EV 3-phase", brand:"Generic", model:"Guest EV",
+    generation:"Current", years:"Any", variant:"EV 3-phase", image_key:"vehicle_guest", selectable:true, visual_quality:"generic",
     colors:[
       { id:"slate-grey", label:"Slate Grey", filter:"none" },
       { id:"carbon-black", label:"Carbon Black", filter:"brightness(.42) contrast(1.16)" },
@@ -107,32 +118,44 @@ const RHI_MOBILITY_VEHICLE_VISUALS = Object.freeze([
 ]);
 
 const RHI_MOBILITY_VEHICLE_VISUAL_ALIASES = Object.freeze({
+  // Current Mobility profile/source keys
+  audi_q8_daytona_grey_23:"audi.q8.4m.2024-2026.tfsi-e.daytona-grey",
+  vw_id4_business_pro_silver_grey:"volkswagen.id4.2024-2026.ev.scale-silver",
+  mercedes_gla_phev:"mercedes.gla.h247.2023-2026.phev.mountain-grey",
+  bmw_x1_phev:"bmw.x1.u11.2025-2026.phev.mineral-white",
+  renault_scenic_techno_ev:"renault.scenic.e-tech.2024-2026.techno.pearl-white",
+  guest_phev:"generic.guest.current.phev-1phase.slate-grey",
+  guest_ev:"generic.guest.current.ev-3phase.slate-grey",
+
+  // Existing UX/package aliases kept for backward compatibility
   vehicle_audi_q8:"audi.q8.4m.2024-2026.tfsi-e.daytona-grey",
   vehicle_audi_q8_hero:"audi.q8.4m.2024-2026.tfsi-e.daytona-grey",
-  vehicle_bmw_ix1_phev:"bmw.ix1.u11.2022-2026.ev.mineral-white",
-  vehicle_bmw_x1:"bmw.ix1.u11.2022-2026.ev.mineral-white",
-  vehicle_bmw_ix1_phev_hero:"bmw.ix1.u11.2022-2026.ev.mineral-white",
+  vehicle_bmw_ix1_phev:"bmw.x1.u11.2025-2026.phev.mineral-white",
+  vehicle_bmw_x1:"bmw.x1.u11.2025-2026.phev.mineral-white",
+  vehicle_bmw_ix1_phev_hero:"bmw.x1.u11.2025-2026.phev.mineral-white",
   vehicle_mercedes_gla:"mercedes.gla.h247.2023-2026.phev.mountain-grey",
   vehicle_mercedes_gla_hero:"mercedes.gla.h247.2023-2026.phev.mountain-grey",
   vehicle_renault_scenic_techno_ev:"renault.scenic.e-tech.2024-2026.techno.pearl-white",
   vehicle_renault_scenic:"renault.scenic.e-tech.2024-2026.techno.pearl-white",
   vehicle_renault_scenic_techno_ev_hero:"renault.scenic.e-tech.2024-2026.techno.pearl-white",
-  vehicle_vw_id4:"volkswagen.id4.2024-2026.ev.costa-azul",
-  vehicle_vw_id4_hero:"volkswagen.id4.2024-2026.ev.costa-azul",
-  vehicle_guest:"generic.guest.current.generic.slate-grey",
-  vehicle_guest_generic:"generic.guest.current.generic.slate-grey"
+  vehicle_vw_id4:"volkswagen.id4.2024-2026.ev.scale-silver",
+  vehicle_vw_id4_hero:"volkswagen.id4.2024-2026.ev.scale-silver",
+  vehicle_guest:"generic.guest.current.phev-1phase.slate-grey",
+  vehicle_guest_generic:"generic.guest.current.phev-1phase.slate-grey"
 });
 
 function rhiMobilityVehicleVisualCatalog() {
   return RHI_MOBILITY_VEHICLE_VISUALS.map((row)=>({
     ...row,
     colors: row.colors.map((color)=>({ ...color })),
-    package_file: rhiMobilityImageCatalog().find((item)=>item.image_key===row.image_key)?.package_file || rhiMobilityAssetUrl("vehicles/vehicle_fallback.png")
+    package_file: row.image_key
+      ? (rhiMobilityImageCatalog().find((item)=>item.image_key===row.image_key)?.package_file || "")
+      : ""
   }));
 }
 
 function rhiMobilitySelectableVehicleVisualCatalog() {
-  return rhiMobilityVehicleVisualCatalog().filter((row)=>row.selectable !== false && row.visual_quality !== "fallback_only");
+  return rhiMobilityVehicleVisualCatalog().filter((row)=>row.selectable !== false);
 }
 
 function rhiMobilityParseVehicleVisualKey(value = "") {
