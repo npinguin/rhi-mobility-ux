@@ -1,6 +1,6 @@
 {
-  "candidate_version": "1.0.0-rc.32",
-  "candidate_tag": "v1.0.0-rc.32",
+  "candidate_version": "1.0.0-rc.33",
+  "candidate_tag": "v1.0.0-rc.33",
   "candidate_sha": "pending",
   "target_home_assistant": "pending",
   "hacs_install": "pending",
@@ -64,5 +64,7 @@
   "overview_pixel_perfect_layout": "pending",
   "overview_domain_statusbar": "pending",
   "overview_approved_hero": "pending",
-  "overview_responsive_runtime": "pending"
+  "overview_responsive_runtime": "pending",
+  "overview_hero_binary_valid": "pending",
+  "overview_hero_runtime_render": "pending"
 }
