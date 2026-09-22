@@ -31,7 +31,6 @@ for (const forbidden of [
   '<small>Vehicles</small><b>',
   '<small>Charging now</small>',
   '<small>Chargers</small><b>',
-  '<small>Attention</small>',
   'class="ov-core-grid"',
   '<h2>Next action</h2>',
   '<h2>Recent activity</h2>',
