@@ -10,7 +10,7 @@ for(const needle of [
   '.outcome-header .metric',
   'grid-template-columns:28px minmax(0,1fr)!important',
   '--rhi-company-logo-max-width:286px',
-  'grid-template-columns:minmax(240px,.60fr) minmax(0,1.40fr)',
+  'grid-template-columns:minmax(270px,.72fr) minmax(430px,1.28fr)',
   '.hi-module-tabs{width:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px',
   'justify-content:center'
 ]) {
