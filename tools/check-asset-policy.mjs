@@ -111,6 +111,14 @@ function pngDimensions(file) {
   if(bytes.length<24 || bytes.toString('ascii',1,4)!=='PNG') return null;
   return { width:bytes.readUInt32BE(16), height:bytes.readUInt32BE(20) };
 }
+function svgDimensions(file) {
+  const text=fs.readFileSync(file,'utf8');
+  const width=Number(text.match(/<svg[^>]*\bwidth=["']([0-9.]+)/i)?.[1] || 0);
+  const height=Number(text.match(/<svg[^>]*\bheight=["']([0-9.]+)/i)?.[1] || 0);
+  if(width>0 && height>0) return {width,height};
+  const viewBox=text.match(/<svg[^>]*\bviewBox=["'][^"']*?([0-9.]+)\s+([0-9.]+)["']/i);
+  return viewBox ? {width:Number(viewBox[1]),height:Number(viewBox[2])} : null;
+}
 
 const expectedChargerIds=[
   'wallbox.commander2',
@@ -136,15 +144,26 @@ for(const row of chargerVisualRows){
     const absolute=path.join(srcRoot,rel);
     const stat=fs.statSync(absolute);
     if(stat.size>600*1024) throw new Error(`charger artwork too large (>600 KiB): ${rel} = ${stat.size} bytes`);
-    if(path.extname(rel).toLowerCase()==='.png'){
-      const dim=pngDimensions(absolute);
-      if(!dim) throw new Error(`cannot read PNG dimensions: ${rel}`);
-      const longEdge=Math.max(dim.width,dim.height);
-      if(longEdge<900) throw new Error(`charger artwork below 900 px minimum long edge: ${rel} = ${dim.width}x${dim.height}`);
-    }
+    const ext=path.extname(rel).toLowerCase();
+    const dim=ext==='.png' ? pngDimensions(absolute) : ext==='.svg' ? svgDimensions(absolute) : null;
+    if(!dim) throw new Error(`charger master must expose deterministic dimensions: ${rel}`);
+    const longEdge=Math.max(dim.width,dim.height);
+    if(longEdge<1200) throw new Error(`charger artwork below 1200 px/logical-unit minimum long edge: ${rel} = ${dim.width}x${dim.height}`);
   }
 }
 for(const key of ['charger_wallbox_white','charger_wallbox_black','charger_peblar','charger_utility_plug']){
   if(!verifiedChargerImageKeys.has(key)) throw new Error(`current charger artwork not governed by charger visual catalog: ${key}`);
 }
-console.log('PASS charger visual policy: 3 supported products, governed appearances, <=600 KiB and >=900 px PNG long edge');
+const chargerFiles=sourceFiles.filter((rel)=>rel.startsWith('chargers/'));
+const allowedChargerFiles=new Set([
+  'chargers/charger_fallback.png',
+  'chargers/charger_wallbox_white.svg',
+  'chargers/charger_wallbox_black.svg',
+  'chargers/charger_peblar.svg',
+  'chargers/charger_utility_plug.svg'
+]);
+for(const rel of chargerFiles){
+  if(!allowedChargerFiles.has(rel)) throw new Error(`legacy/dead charger artwork still packaged: ${rel}`);
+}
+if(chargerFiles.length!==allowedChargerFiles.size) throw new Error(`charger asset inventory drifted: ${chargerFiles.length}; expected ${allowedChargerFiles.size}`);
+console.log('PASS charger visual policy: 3 supported products, governed appearances, exact legacy-free inventory, <=600 KiB and >=1200 px/logical-unit master edge');
