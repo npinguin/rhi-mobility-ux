@@ -55,7 +55,8 @@ if(Object.prototype.hasOwnProperty.call(qualification,'charging_hero')) failures
 if(/\bcharging\s*:/.test(presentation)) failures.push('src/app/presentation.js: obsolete Charging hero returned');
 if(navigation.includes('key: "charging"')) failures.push('src/app/header-and-navigation.js: obsolete Charging navigation item returned');
 if(!readme.includes('Overview, Vehicles and Chargers are the three Mobility workspaces')) failures.push('README.md: canonical three-workspace statement missing');
-if(!fs.readFileSync(path.join(root,'documentation/PRODUCT_VISION.md'),'utf8').includes('They are not a standalone Mobility workspace.')) failures.push('PRODUCT_VISION missing Charging capability/workspace distinction');
+const productVision=fs.readFileSync(path.join(root,'documentation/PRODUCT_VISION.md'),'utf8');
+if(!productVision.includes('Charging remains a Mobility capability') || !productVision.includes('not a standalone Mobility workspace')) failures.push('PRODUCT_VISION missing Charging capability/workspace distinction');
 if(!architecture.includes('Overview | Vehicles | Chargers | Detail')) failures.push('ARCHITECTURE missing canonical Mobility projection set');
 if(readme.includes('vehicle_bmw_ix1_phev.png')) failures.push('README.md: obsolete BMW iX1 artwork path returned');
 
