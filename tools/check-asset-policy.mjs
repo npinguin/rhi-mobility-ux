@@ -26,6 +26,23 @@ const sourceFiles=walk(srcRoot,srcRoot);
 const distFiles=walk(distRoot,distRoot);
 if(JSON.stringify(sourceFiles)!==JSON.stringify(distFiles)) throw new Error('src/assets and dist/assets file inventories differ');
 
+const requiredHeroFiles=[
+  'heroes/mobility-overview.svg',
+  'heroes/mobility-vehicles.svg',
+  'heroes/mobility-chargers.svg',
+  'heroes/mobility-planning.svg',
+  'heroes/mobility-strategies.svg',
+  'heroes/mobility-history.svg',
+  'heroes/mobility-log.svg'
+];
+for(const rel of requiredHeroFiles){
+  if(!sourceFiles.includes(rel)) throw new Error(`Mobility design language hero missing: ${rel}`);
+  const svg=fs.readFileSync(path.join(srcRoot,rel),'utf8');
+  if(!/viewBox=["']0 0 1200 420["']/.test(svg)) throw new Error(`Mobility hero family geometry drifted: ${rel}`);
+  if(!svg.includes('#f8fbff') || !svg.includes('#dbe9f8')) throw new Error(`Mobility hero family palette drifted: ${rel}`);
+}
+console.log('PASS Mobility hero family: 7 canonical 1200x420 premium perspective assets share the governed light architectural palette');
+
 for(const rel of sourceFiles){
   const ext=path.extname(rel).toLowerCase();
   if(!allowedExt.has(ext)) throw new Error(`unsupported asset extension: ${rel}`);
