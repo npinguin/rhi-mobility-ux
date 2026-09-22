@@ -73,6 +73,15 @@ Configuration controls use backend V1 write metadata, options and write targets.
 
 Actual/readback is the normal operational truth. Requested intent is transient during editing/pending write and must not replace canonical actual state.
 
+### Vehicle visual ownership
+
+- Mobility persists only `vehicle.image_key`; UX owns catalog entries, base artwork and colour rendering.
+- The picker may expose only `selectable` verified models.
+- A fallback-only or byte-duplicated model asset is not a supported picker model.
+- Legacy Scenic/ID.4 keys remain readable only for compatibility and resolve to fallback until distinct verified artwork is supplied.
+- Do not expand the picker by adding labels first. New model support starts with verified distinct artwork, then catalog metadata, then tests.
+- Colour variants are rendered on the fly from one model base image; do not proliferate one image file per colour unless a future visual standard explicitly requires it.
+
 Global supervisor status, trust, attention, opportunity and recommendation are backend-owned. The UX may present factual charging information, but it may not turn those facts into a substitute recommendation. Missing supervisor intelligence fails closed as unavailable/Unknown.
 
 
