@@ -324,42 +324,14 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     </article>`;
   }
 
-  vehicleVisualSelection(rt, asset) {
-    const assetId = this.assetId(asset);
-    const prop = rt.propertyByCompoundKey(assetId, "vehicle.image_key");
-    const raw = prop?.value ?? rt.visualImageKey(asset, "image") ?? asset?.image_key ?? "";
-    const parsed = typeof rhiMobilityParseVehicleVisualKey === "function" ? rhiMobilityParseVehicleVisualKey(raw) : null;
-    const catalog = typeof rhiMobilityVehicleVisualCatalog === "function" ? rhiMobilityVehicleVisualCatalog() : [];
-    const fallbackVehicle = catalog[0] || null;
-    const vehicle = parsed?.vehicle || fallbackVehicle;
-    const color = parsed?.color || vehicle?.colors?.[0] || null;
-    return { prop, raw:String(raw || ""), parsed, vehicle, color, writable:!!(prop && rt.isWritableProperty(prop)) };
+  vehicleVisualSelection(rt, asset, draft = {}) {
+    return new HomeBrainVehicleVisualPicker(rt).selection(asset, draft);
   }
 
   renderVehiclePicker(rt, asset) {
     const assetId = this.assetId(asset);
-    const catalog = rhiMobilitySelectableVehicleVisualCatalog();
-    const current = this.vehicleVisualSelection(rt, asset);
     const draft = this._vehiclePickerDraft.get(assetId) || {};
-    const vehicle = catalog.find((row)=>row.id===draft.vehicle_id) || current.vehicle || catalog[0];
-    const colors = vehicle?.colors || [];
-    const color = colors.find((row)=>row.id===draft.color_id) || (current.vehicle?.id===vehicle?.id ? current.color : null) || colors[0];
-    const key = vehicle && color ? rhiMobilityVehicleVisualKey(vehicle.id, color.id) : "";
-    const currentSelectable = current.vehicle?.selectable !== false && current.vehicle?.visual_quality !== "fallback_only";
-    return `<section class="vehicle-picker-panel" data-picker-panel="${rt.escape(assetId)}">
-      <div class="vehicle-picker-head">
-        <div><small>APPEARANCE</small><h3>Choose vehicle & colour</h3><p>The UX catalog owns visuals. Mobility stores only the selected <code>vehicle.image_key</code>.</p></div>
-        <button class="vehicle-picker-close" data-vehicle-picker-close="${rt.escape(assetId)}" title="Close"><ha-icon icon="mdi:close"></ha-icon></button>
-      </div>
-      <div class="vehicle-picker-grid">
-        <label><span>Vehicle</span><select data-vehicle-picker-type="${rt.escape(assetId)}">${catalog.map((row)=>`<option value="${rt.escape(row.id)}" ${row.id===vehicle?.id?"selected":""}>${rt.escape(row.label)} · ${rt.escape(row.years)}</option>`).join("")}</select></label>
-        <label><span>Colour</span><select data-vehicle-picker-color="${rt.escape(assetId)}">${colors.map((row)=>`<option value="${rt.escape(row.id)}" ${row.id===color?.id?"selected":""}>${rt.escape(row.label)}</option>`).join("")}</select></label>
-        <div class="vehicle-picker-key"><span>Visual key</span><code>${rt.escape(key || "Unavailable")}</code></div>
-        <button class="vehicle-picker-save" data-vehicle-picker-save="${rt.escape(assetId)}" data-vehicle-key="${rt.escape(key)}" ${!current.writable || !key ? "disabled" : ""}><ha-icon icon="mdi:check"></ha-icon><span>Use this vehicle</span></button>
-      </div>
-      ${!currentSelectable ? `<div class="vehicle-picker-gap"><ha-icon icon="mdi:image-off-outline"></ha-icon><span>Current legacy visual has no verified model artwork. It remains readable, but is not offered as a new picker choice.</span></div>` : ""}
-      ${current.writable ? "" : `<div class="vehicle-picker-gap"><ha-icon icon="mdi:alert-outline"></ha-icon><span>Backend does not publish a writable vehicle.image_key yet. Picker stays fail-closed.</span></div>`}
-    </section>`;
+    return new HomeBrainVehicleVisualPicker(rt).render(asset, { draft, showClose:true, context:"management" });
   }
 
   renderVehicle(rt, asset, chargers) {
@@ -388,9 +360,11 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     const notPresentButton = this.lifecycleToggleButton(rt, asset, "presence-toggle manage-lifecycle");
     const vehicleCommands = this.dashboardVehicleCommands(rt, assetId);
     const chargingActivity = this.chargingActivityDisplay(rt, asset);
-    const visual = this.vehicleVisualSelection(rt, asset);
-    const visualFilter = visual?.color?.filter || "none";
     const pickerOpen = this._vehiclePickerAsset === assetId;
+    const pickerDraft = pickerOpen ? (this._vehiclePickerDraft.get(assetId) || {}) : {};
+    const visual = this.vehicleVisualSelection(rt, asset, pickerDraft);
+    const visualFilter = visual?.color?.filter || "none";
+    const visualImage = pickerOpen && visual?.vehicle?.package_file ? visual.vehicle.package_file : image;
     return `<article class="vehicle-card premium-vehicle-card">
       <div class="status-top-row vehicle-intelligence-strip">
         ${(Array.isArray(model?.status) ? model.status : rt.vehicleIntelligenceStatusTiles(assetId)).slice(0, 5).map((tile) => this.intelligenceStatusRow(rt, tile)).join("")}
@@ -398,7 +372,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
       <div class="hero-split-row">
         <div class="vehicle-hero-panel">
           <div class="vehicle-copy"><h2>${rt.escape(display)}</h2><p>${rt.escape(subtitle)}</p><p class="vehicle-activity-inline">${rt.escape(chargingActivity)}</p></div>
-          <div class="vehicle-image">${image ? `<img src="${rt.escape(rt.cache(image))}" alt="${rt.escape(display)}" style="filter:${rt.escape(visualFilter)}">` : `<ha-icon icon="mdi:car-estate"></ha-icon>`}</div>
+          <div class="vehicle-image">${visualImage ? `<img src="${rt.escape(rt.cache(visualImage))}" alt="${rt.escape(display)}" style="filter:${rt.escape(visualFilter)}">` : `<ha-icon icon="mdi:car-estate"></ha-icon>`}</div>
           <button class="mini-detail-button vehicle-detail-link" data-nav="${rt.escape(route)}" title="Open vehicle details"><ha-icon icon="mdi:plus"></ha-icon></button>
         </div>
         <div class="charger-hero-panel">
@@ -445,6 +419,8 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     const assetId = this.assetId(asset);
     const display = model?.display || asset.display_name || rt.vehicleLabel(assetId);
     const image = model?.image || "";
+    const visual = this.vehicleVisualSelection(rt, asset);
+    const visualFilter = visual?.color?.filter || "none";
     const route = rt.assetDetailRoute(asset);
     const signals = this.overviewVehicleSignals(rt, assetId);
     const charging = this.chargingActivityDisplay(rt, asset);
