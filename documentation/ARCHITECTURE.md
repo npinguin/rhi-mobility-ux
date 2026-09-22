@@ -124,6 +124,8 @@ Mobility UX may present Energy-owned planning, metering and value when the data 
 Energy public UX contracts
   ├─ sensor.energy_planning_index
   ├─ sensor.energy_planning_experience_index
+  ├─ sensor.energy_strategy_profile_index
+  ├─ sensor.energy_strategy_effective_index
   ├─ sensor.energy_asset_metering_index
   └─ sensor.energy_value_accounting_index
           ↓
@@ -135,6 +137,7 @@ Mobility Intelligence / Insights presentation
 Rules:
 
 - Planning totals, schedule state and planning evidence remain Energy-owned.
+- Strategy profiles and effective energy policy remain Energy-owned.
 - Vehicle/flexible-load measured energy and financial attribution remain Energy-owned.
 - Mobility UX never recalculates planning, metering or value.
 - Mobility UX never joins cross-domain data by display name, order, integration name or artwork.
