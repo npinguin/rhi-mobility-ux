@@ -26,7 +26,14 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
     const rt = this._hass ? new HomeBrainAssetRuntime(this._hass, this.config) : null;
     const assetId = String(id || "").startsWith("charger_") ? String(id) : `charger_${id}`;
     const asset = rt ? (rt.chargerById(assetId) || rt.assetById(assetId) || { asset_id: assetId }) : { asset_id: assetId };
-    return rt ? rt.visualImageUrl(asset, "charger", "image", "charger_fallback") : rhiMobilityAssetUrl("chargers/charger_fallback.png");
+    if (rt) {
+      const prop = rt.propertyByCompoundKey(assetId, "charger.image_key");
+      const raw = prop?.value ?? rt.visualImageKey(asset, "image") ?? asset?.image_key ?? "";
+      const visual = typeof rhiMobilityResolveChargerVisual === "function" ? rhiMobilityResolveChargerVisual(asset, raw) : null;
+      if (visual?.appearance?.package_file) return visual.appearance.package_file;
+      return rt.visualImageUrl(asset, "charger", "image", "charger_fallback");
+    }
+    return rhiMobilityAssetUrl("chargers/charger_fallback.png");
   }
 
 
