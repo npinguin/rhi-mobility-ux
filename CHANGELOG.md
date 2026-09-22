@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.0.0-rc.26 — zero-debt current vehicle artwork
+
+- Completes canonical package artwork for all five current real vehicle models.
+- Replaces the corrupted legacy ID.4/Scenic duplicate paths with distinct package masters.
+- Renames canonical BMW artwork from iX1 naming to X1 PHEV and retains old keys only as aliases.
+- Removes duplicate hero/default/unknown/guest artwork files.
+- Removes runtime profile-name artwork inference; one canonical visual resolver remains.
+- Strengthens asset-policy validation to require exact current-scope coverage, distinct hashes and an exact legacy-free vehicle file inventory.
+
 ## 1.0.0-rc.25 — hierarchical vehicle picker pilot
 
 - Replaces the flat vehicle dropdown with Brand → Model → Variant → Colour.
