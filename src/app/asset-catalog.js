@@ -180,7 +180,7 @@ function rhiMobilityVehicleVisualKey(vehicleId = "", colorId = "") {
 const RHI_MOBILITY_CHARGER_VISUALS = Object.freeze([
   {
     id:"wallbox.commander2.22kw", label:"Wallbox Commander 2", brand:"Wallbox", model:"Commander 2",
-    variant:"", years:"Current", max_power_kw:22, selectable:true, visual_quality:"verified_model",
+    variant:"", years:"Current", selectable:true, visual_quality:"verified_model",
     appearances:[
       { id:"white", label:"White", image_key:"charger_wallbox_white" },
       { id:"black", label:"Black", image_key:"charger_wallbox_black" }
@@ -188,14 +188,14 @@ const RHI_MOBILITY_CHARGER_VISUALS = Object.freeze([
   },
   {
     id:"peblar.business.socket.22kw", label:"Peblar Business", brand:"Peblar", model:"Business",
-    variant:"Socket", years:"Current", max_power_kw:22, selectable:true, visual_quality:"verified_model",
+    variant:"Socket", years:"Current", selectable:true, visual_quality:"verified_model",
     appearances:[
       { id:"factory", label:"Factory finish", image_key:"charger_peblar" }
     ]
   },
   {
     id:"fibaro.wall-plug-2.zwave-plus.be-fr", label:"Fibaro Wall Plug 2", brand:"Fibaro", model:"Wall Plug 2",
-    variant:"Z-Wave Plus BE/FR", years:"Current", max_power_kw:2.5, selectable:true, visual_quality:"verified_model",
+    variant:"Z-Wave Plus BE/FR", years:"Current", selectable:true, visual_quality:"verified_model",
     appearances:[
       { id:"white", label:"White", image_key:"charger_utility_plug" }
     ]
@@ -219,8 +219,7 @@ const RHI_MOBILITY_CHARGER_VISUAL_ALIASES = Object.freeze({
   // Frozen V1 instance compatibility only. V2 identity/color replaces these.
   charger_driveway_left:"wallbox.commander2.22kw.white",
   charger_driveway_right:"wallbox.commander2.22kw.black",
-  charger_sideway:"peblar.business.socket.22kw.factory",
-  charger_utility_plug:"fibaro.wall-plug-2.zwave-plus.be-fr.white"
+  charger_sideway:"peblar.business.socket.22kw.factory"
 });
 
 function rhiMobilityChargerVisualCatalog() {
