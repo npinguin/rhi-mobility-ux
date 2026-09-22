@@ -57,5 +57,8 @@
   "energy_insights_value_projection": "pending",
   "energy_insights_exact_asset_join": "pending",
   "intelligence_insights_premium_layout": "pending",
-  "premium_compact_hero_responsive": "pending"
+  "premium_compact_hero_responsive": "pending",
+  "energy_strategy_profile_projection": "pending",
+  "energy_strategy_effective_projection": "pending",
+  "energy_strategy_exact_asset_join": "pending"
 }
