@@ -7,7 +7,20 @@ class HomeBrainChargerAdapter {
   registryEntry() { return this.config.registry_entry || this.rt.chargerById(this.assetId()) || this.rt.assetById(this.assetId()) || null; }
   commandExists(commandId) { return this.rt.commandExists(this.assetId(), commandId) !== false; }
   displayName() { const reg = this.registryEntry(); return reg?.display_name || this.config.fallback_name || this.rt.titleize(this.assetId()); }
-  chargerImageFromId() { const reg = this.registryEntry(); return this.rt.visualImageUrl(reg, "charger", "image", "charger_fallback"); }
+  chargerVisual() {
+    const reg = this.registryEntry() || {};
+    const prop = this.rt.propertyByCompoundKey(this.assetId(), "charger.image_key");
+    const raw = prop?.value ?? this.rt.visualImageKey(reg, "image") ?? reg?.image_key ?? "";
+    return typeof rhiMobilityResolveChargerVisual === "function"
+      ? rhiMobilityResolveChargerVisual(reg.asset_id ? reg : { ...reg, asset_id:this.assetId() }, raw)
+      : null;
+  }
+  chargerImageFromId() {
+    const reg = this.registryEntry() || { asset_id:this.assetId() };
+    const visual = this.chargerVisual();
+    const packageFile = String(visual?.appearance?.package_file || "");
+    return packageFile ? this.rt.assetUrl(packageFile) : this.rt.visualImageUrl(reg, "charger", "image", "charger_fallback");
+  }
   profile() { const reg = this.registryEntry(); return reg?.profile_display_name || reg?.profile || this.config.fallback_profile || "Charger"; }
   status() { return this.rt.chargerOperationalStatus(this.assetId()); }
   can(capability) { return this.commandExists(capability); }
@@ -41,6 +54,7 @@ class HomeBrainChargerAdapter {
     const available = lifecycleState === "active";
     const name = this.displayName();
     const profile = this.profile();
+    const visual = this.chargerVisual();
     const chargerSnapshot = this.rt.chargerProductSnapshot(assetId);
     const status = chargerSnapshot.operating.display;
     const connectionState = chargerSnapshot.connection.display;
@@ -63,6 +77,7 @@ class HomeBrainChargerAdapter {
     return {
       type:"charger", id, present:available, display:name, subtitle:profile, readiness:status, iconHero:iconMap[id] || "mdi:ev-station",
       image:this.rt.cache(this.chargerImageFromId()), fallbackImage:this.rt.cache(this.rt.assetUrl("chargers/charger_fallback.png")), imageOpacity:available ? 1 : 0.34, imageGray:available ? 0 : 0.25,
+      visualKey:visual?.key || "", visualProduct:visual?.charger || null, visualAppearance:visual?.appearance || null,
       backPath:this.config.dashboard_path || "/mobility-supervisor/dashboard", backLabel:this.config.back_label || "← Back to Dashboard", detailRoute:this.rt.detailRoute(reg), lifecycle, registryEntry:reg, breadcrumb:["Home","Chargers",name],
       status:this.rt.chargerCanonicalStatusTiles(assetId, { detailRoute: physicalVehicle.detailRoute, detailTitle: physicalVehicle.displayName ? `Open ${physicalVehicle.displayName} details` : "Open vehicle details" }),
       actions:this.rt.commandActionsFor(assetId, "quick_actions").map((cmd,index)=>({ label:cmd.label || this.rt.titleize(cmd.command_id || cmd.command_key), icon:this.rt.commandIcon(cmd), entity:cmd.intent_entity, command:cmd, primary:index === 0, hide:cmd.frontend_allowed === false })),
