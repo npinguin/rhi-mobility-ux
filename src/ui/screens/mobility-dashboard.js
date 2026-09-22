@@ -373,6 +373,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
         <div class="vehicle-hero-panel">
           <div class="vehicle-copy"><h2>${rt.escape(display)}</h2><p>${rt.escape(subtitle)}</p><p class="vehicle-activity-inline">${rt.escape(chargingActivity)}</p></div>
           <div class="vehicle-image">${visualImage ? `<img src="${rt.escape(rt.cache(visualImage))}" alt="${rt.escape(display)}" style="filter:${rt.escape(visualFilter)}">` : `<ha-icon icon="mdi:car-estate"></ha-icon>`}</div>
+          <button class="vehicle-visual-edit vehicle-appearance-action" data-vehicle-picker="${rt.escape(assetId)}" title="Choose vehicle and colour"><ha-icon icon="mdi:palette-outline"></ha-icon><span>Vehicle & colour</span></button>
           <button class="mini-detail-button vehicle-detail-link" data-nav="${rt.escape(route)}" title="Open vehicle details"><ha-icon icon="mdi:plus"></ha-icon></button>
         </div>
         <div class="charger-hero-panel">
@@ -386,7 +387,6 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
       <div class="vehicle-actions clean-actions">
         ${vehicleCommands.map((cmd, index)=>this.renderCommand(rt, cmd, cmd?.label || "Action", this.commandIcon(cmd), index === 0 ? "primary-charge" : "")).join("")}
         ${Array.from({length: Math.max(0, 3 - vehicleCommands.length)}).map(()=>`<span class="action-spacer"></span>`).join("")}
-        <button class="action vehicle-appearance-action" data-vehicle-picker="${rt.escape(assetId)}" title="Choose vehicle appearance"><ha-icon icon="mdi:palette-outline"></ha-icon><span>Appearance</span></button>
         ${notPresentButton || ""}
       </div>
     </article>`;
@@ -1608,6 +1608,65 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
 
     @media(max-width:980px){.vehicle-management-bar{grid-template-columns:1fr auto}.vehicle-manage-button{grid-column:1/-1;justify-content:center}.vehicle-page-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.vehicles-hero-copy{padding-right:30%}}
     @media(max-width:700px){.vehicles-hero{padding:16px;min-height:auto}.vehicles-hero-art{display:none}.vehicles-hero-copy{padding-right:0}.vehicle-management-bar{grid-template-columns:1fr}.vehicle-sort-control{justify-content:space-between}.vehicle-manage-button{grid-column:auto}.vehicle-page-summary{grid-template-columns:1fr 1fr}.vehicle-workspace-head{align-items:start}.vehicle-workspace-list .hero-split-row{grid-template-columns:1fr}}
+
+    /* rc.24 mobile hero art + discoverable visual picker */
+    .vehicle-hero-panel{position:relative!important;isolation:isolate!important}
+    .vehicle-hero-panel:after{
+      content:"";position:absolute;inset:0;pointer-events:none;z-index:1;
+      background:linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.90) 34%,rgba(255,255,255,.18) 68%,rgba(255,255,255,0) 100%)
+    }
+    .vehicle-copy{position:relative;z-index:3}
+    .vehicle-image{position:absolute!important;z-index:0!important;right:-4%!important;bottom:-14%!important;width:70%!important;height:126%!important;min-height:0!important;background:transparent!important;overflow:visible!important;pointer-events:none}
+    .vehicle-image img{width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;object-fit:contain!important;object-position:right center!important;transform:none!important}
+    .vehicle-visual-edit{
+      position:absolute;z-index:4;left:12px;bottom:10px;height:34px;border:1px solid rgba(14,35,72,.11);
+      border-radius:10px;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+      color:var(--hb-ink);display:inline-flex;align-items:center;gap:6px;padding:0 10px;font-size:10px;font-weight:700;cursor:pointer
+    }
+    .vehicle-visual-edit ha-icon{--mdc-icon-size:15px;color:var(--hb-blue)}
+    .charger-hero-panel{position:relative!important;overflow:hidden!important;isolation:isolate!important}
+    .charger-hero-panel:after{
+      content:"";position:absolute;inset:0;pointer-events:none;z-index:1;
+      background:linear-gradient(90deg,rgba(255,255,255,.96) 0%,rgba(255,255,255,.82) 45%,rgba(255,255,255,.10) 100%)
+    }
+    .charger-mini-copy{position:relative;z-index:3}
+    .charger-mini-image{
+      position:absolute!important;z-index:0!important;right:-12%!important;bottom:-18%!important;
+      width:58%!important;height:138%!important;background:transparent!important;overflow:hidden!important;pointer-events:none
+    }
+    .charger-mini-image img{width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;object-fit:contain!important;object-position:right center!important;transform:scale(1.16)!important}
+    .charger-hero-panel .mini-detail-button{z-index:4!important}
+
+    @media(max-width:700px){
+      .vehicle-workspace-list .vehicle-hero-panel,.vehicle-hero-panel{
+        min-height:126px!important;height:126px!important;display:block!important;padding:12px 12px!important
+      }
+      .vehicle-copy{max-width:58%!important;padding-bottom:42px!important}
+      .vehicle-copy h2{font-size:19px!important;line-height:1.06!important}
+      .vehicle-copy p{font-size:10px!important}
+      .vehicle-image{right:-8%!important;bottom:-18%!important;width:76%!important;height:140%!important}
+      .vehicle-hero-panel:after{background:linear-gradient(90deg,rgba(255,255,255,.99) 0%,rgba(255,255,255,.93) 38%,rgba(255,255,255,.20) 68%,rgba(255,255,255,0) 100%)!important}
+      .vehicle-visual-edit{left:10px!important;bottom:8px!important;height:38px!important;font-size:10.5px!important;padding:0 11px!important}
+      .vehicle-visual-edit span{display:inline!important}
+
+      .charger-hero-panel{
+        height:64px!important;min-height:64px!important;display:block!important;padding:8px 10px!important
+      }
+      .charger-mini-copy{max-width:62%!important;display:flex!important;justify-content:center!important;height:100%!important}
+      .charger-mini-copy b{font-size:12px!important;align-self:center!important}
+      .charger-mini-image{right:-12%!important;bottom:-34%!important;width:45%!important;height:166%!important}
+      .charger-mini-image img{transform:scale(1.28)!important;object-position:right center!important}
+      .charger-hero-panel:after{background:linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.88) 48%,rgba(255,255,255,.08) 100%)!important}
+    }
+
+    @media(max-width:390px){
+      .vehicle-hero-panel{height:118px!important;min-height:118px!important}
+      .vehicle-copy{max-width:61%!important}
+      .vehicle-copy h2{font-size:17px!important}
+      .vehicle-image{width:78%!important;right:-12%!important}
+      .vehicle-visual-edit{height:36px!important;padding:0 9px!important}
+      .charger-hero-panel{height:60px!important;min-height:60px!important}
+    }
 
     /* Energy-style Mobility Overview — calm hierarchy, Mobility-owned semantics */
     .ov-energy-hero{position:relative;overflow:hidden;min-height:172px;border:1px solid #dfe7f1;border-radius:18px;background:linear-gradient(135deg,#f8fbff 0%,#ffffff 58%,#edf5ff 100%);box-shadow:0 12px 30px rgba(15,35,80,.045);display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,.48fr);align-items:center;padding:20px 24px}

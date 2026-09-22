@@ -54,12 +54,24 @@ for(const needle of [
 
 if(!runtime.includes('rhiMobilityParseVehicleVisualKey')) throw new Error('runtime no longer resolves structured vehicle visual keys');
 if(!adapter.includes('imageFilter = visual?.color?.filter || "none"')) throw new Error('vehicle detail model no longer carries selected visual colour');
+if(!adapter.includes('const visualPackageFile = visual?.vehicle?.selectable !== false')) throw new Error('persisted vehicle visual no longer resolves to verified catalog artwork');
+if(!adapter.includes('const img = visualPackageFile ? this.rt.assetUrl(visualPackageFile) : profileImage')) throw new Error('vehicle adapter no longer prefers persisted picker artwork over profile/source fallback');
 if(!shell.includes('model.imageFilter || "none"')) throw new Error('vehicle detail shell no longer renders selected visual colour');
 if(!shell.includes('key === "vehicle.image_key"')) throw new Error('vehicle detail does not intercept vehicle.image_key for picker rendering');
 if(!shell.includes('new HomeBrainVehicleVisualPicker(this.rt).render')) throw new Error('vehicle detail is not using the shared picker');
 if(!shell.includes('data-vehicle-visual-preview')) throw new Error('vehicle detail live picker preview is missing');
 if(!picker.includes('class HomeBrainVehicleVisualPicker')) throw new Error('shared vehicle picker helper missing');
 if(!dashboard.includes('new HomeBrainVehicleVisualPicker(rt).selection')) throw new Error('vehicle management does not consume shared picker selection model');
+for(const needle of [
+  'Vehicle & colour',
+  'vehicle-visual-edit',
+  'rc.24 mobile hero art + discoverable visual picker',
+  'background:linear-gradient(90deg',
+  '.charger-mini-image{',
+  'object-position:right center'
+]) {
+  if(!dashboard.includes(needle)) throw new Error(`hero-art/picker discoverability regression: missing ${needle}`);
+}
 
 for(const needle of [
   'rc.23 mobile density rewrite',
