@@ -19,7 +19,7 @@
   },
   "current_scope": [
     {
-      "catalog_id": "wallbox.commander2.22kw",
+      "catalog_id": "wallbox.commander2",
       "brand": "Wallbox",
       "model": "Commander 2",
       "variant": null,
@@ -35,7 +35,7 @@
       }
     },
     {
-      "catalog_id": "peblar.business.socket.22kw",
+      "catalog_id": "peblar.business.socket",
       "brand": "Peblar",
       "model": "Business",
       "variant": "Socket",
