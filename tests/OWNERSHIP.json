@@ -134,6 +134,14 @@
         "verified selectable vehicle visuals",
         "cross-screen vehicle visual rendering"
       ]
+    },
+    "energy_planning_projection": {
+      "owner": "tests/contracts/energy-planning-projection-smoke.mjs",
+      "owns": [
+        "read-only Energy planning contract access",
+        "exact Mobility asset identity join",
+        "fail-closed planning projection"
+      ]
     }
   }
 }
