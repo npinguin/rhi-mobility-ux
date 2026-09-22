@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 
 const dashboard=fs.readFileSync(new URL('../../src/ui/screens/mobility-dashboard.js',import.meta.url),'utf8');
+const presentation=fs.readFileSync(new URL('../../src/app/presentation.js',import.meta.url),'utf8');
 const catalog=fs.readFileSync(new URL('../../src/app/asset-catalog.js',import.meta.url),'utf8');
 const runtime=fs.readFileSync(new URL('../../src/runtime/ha-contract-runtime.js',import.meta.url),'utf8');
 const adapter=fs.readFileSync(new URL('../../src/domain/adapters/vehicle-adapter.js',import.meta.url),'utf8');
@@ -11,7 +12,6 @@ const chargerAdapter=fs.readFileSync(new URL('../../src/domain/adapters/charger-
 const artwork=fs.readFileSync(new URL('../../documentation/VEHICLE_ARTWORK_SOURCES.json',import.meta.url),'utf8');
 
 for(const needle of [
-  'MOBILITY / VEHICLE MANAGEMENT',
   'data-vehicle-filter',
   'data-vehicle-sort',
   'Manage vehicles & profiles',
@@ -152,3 +152,6 @@ if(!shell.includes('rc.23 mobile detail density + picker hardening')) throw new 
 if(!shell.includes('.detail-vehicle-picker .vehicle-picker-grid{grid-template-columns:1fr!important')) throw new Error('detail picker is not one-column on phone');
 
 console.log('PASS vehicle management, hierarchical picker, complete canonical current artwork, zero legacy runtime path and compact mobile composition');
+
+if(!presentation.includes('MOBILITY / VEHICLE MANAGEMENT')) throw new Error('vehicle-management hero eyebrow drifted from shared presentation owner');
+if(!presentation.includes('Manage the vehicles you use every day')) throw new Error('vehicle-management hero purpose drifted from shared presentation owner');
