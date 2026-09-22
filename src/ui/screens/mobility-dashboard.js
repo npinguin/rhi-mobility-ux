@@ -371,7 +371,6 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     const display = model?.display || asset.display_name || rt.vehicleLabel(assetId);
     const subtitle = this.displaySubtitle(asset, model);
     const image = model?.image || "";
-    const visualFilter = this.vehicleVisualSelection(rt, asset)?.color?.filter || "none";
     const route = rt.assetDetailRoute(asset);
     const ctx = this.chargingContext(rt, asset, chargers);
     const relLabels = rt.vehicleChargerRelationship(assetId);
