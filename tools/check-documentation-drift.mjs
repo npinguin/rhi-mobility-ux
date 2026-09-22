@@ -29,6 +29,10 @@ const readme=fs.readFileSync(path.join(root,'README.md'),'utf8');
 const branding=fs.readFileSync(path.join(root,'documentation/BRANDING.md'),'utf8');
 const architecture=fs.readFileSync(path.join(root,'documentation/ARCHITECTURE.md'),'utf8');
 const handover=fs.readFileSync(path.join(root,'documentation/ENGINEER_HANDOVER.md'),'utf8');
+const ownership=JSON.parse(fs.readFileSync(path.join(root,'src/OWNERSHIP.json'),'utf8'));
+const qualification=JSON.parse(fs.readFileSync(path.join(root,'release/QUALIFICATION.json'),'utf8'));
+const presentation=fs.readFileSync(path.join(root,'src/app/presentation.js'),'utf8');
+const navigation=fs.readFileSync(path.join(root,'src/app/header-and-navigation.js'),'utf8');
 
 for(const [rel,text] of [['README.md',readme],['documentation/BRANDING.md',branding]]){
   if(text.includes('src/assets/files/')) failures.push(`${rel}: obsolete canonical asset path`);
@@ -36,6 +40,24 @@ for(const [rel,text] of [['README.md',readme],['documentation/BRANDING.md',brand
 }
 if(architecture.includes('src/adapters/')) failures.push('documentation/ARCHITECTURE.md: obsolete adapter ownership path');
 if(handover.includes('→ UX runtime/adapters') || handover.includes('→ viewmodels') || handover.includes('→ screens/components')) failures.push('documentation/ENGINEER_HANDOVER.md: obsolete source ownership terminology');
+
+const obsoleteWorkspaceClaims=[
+  ['README.md',readme,'Overview, Vehicles, Chargers, Charging'],
+  ['documentation/PRODUCT_VISION.md',fs.readFileSync(path.join(root,'documentation/PRODUCT_VISION.md'),'utf8'),'Overview, Vehicles, Chargers, Charging'],
+  ['documentation/PRODUCT_VISION.md',fs.readFileSync(path.join(root,'documentation/PRODUCT_VISION.md'),'utf8'),'**Charging** —'],
+  ['documentation/ARCHITECTURE.md',architecture,'Overview | Vehicles | Chargers | Charging']
+];
+for(const [rel,text,needle] of obsoleteWorkspaceClaims){
+  if(text.includes(needle)) failures.push(`${rel}: obsolete standalone Charging workspace returned`);
+}
+if(ownership?.owners?.ui_screens?.owns?.includes('Charging')) failures.push('src/OWNERSHIP.json: obsolete Charging screen ownership returned');
+if(Object.prototype.hasOwnProperty.call(qualification,'charging_hero')) failures.push('release/QUALIFICATION.json: obsolete charging_hero qualification gate returned');
+if(/\bcharging\s*:/.test(presentation)) failures.push('src/app/presentation.js: obsolete Charging hero returned');
+if(navigation.includes('key: "charging"')) failures.push('src/app/header-and-navigation.js: obsolete Charging navigation item returned');
+if(!readme.includes('Overview, Vehicles and Chargers are the three Mobility workspaces')) failures.push('README.md: canonical three-workspace statement missing');
+if(!fs.readFileSync(path.join(root,'documentation/PRODUCT_VISION.md'),'utf8').includes('They are not a standalone Mobility workspace.')) failures.push('PRODUCT_VISION missing Charging capability/workspace distinction');
+if(!architecture.includes('Overview | Vehicles | Chargers | Detail')) failures.push('ARCHITECTURE missing canonical Mobility projection set');
+if(readme.includes('vehicle_bmw_ix1_phev.png')) failures.push('README.md: obsolete BMW iX1 artwork path returned');
 
 const vision=fs.readFileSync(path.join(root,'documentation/PRODUCT_VISION.md'),'utf8');
 const backlog=fs.readFileSync(path.join(root,'documentation/BACKEND_INTERFACE_BACKLOG.md'),'utf8');
