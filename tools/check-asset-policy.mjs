@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import vm from 'node:vm';
 import { fileURLToPath } from 'node:url';
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
@@ -33,8 +34,15 @@ for(const rel of sourceFiles){
   if(!sourceBytes.equals(distBytes)) throw new Error(`packaged asset differs from canonical source: ${rel}`);
 }
 
-const catalog=fs.readFileSync(path.join(root,'src/app/asset-catalog.js'),'utf8');
-const referenced=[...catalog.matchAll(/package_path:"([^"]+)"/g)].map(m=>m[1]);
+const catalogSource=fs.readFileSync(path.join(root,'src/app/asset-catalog.js'),'utf8');
+const sandbox={rhiMobilityAssetUrl:(p)=>String(p)};
+vm.createContext(sandbox);
+vm.runInContext(catalogSource,sandbox,{timeout:5000});
+const imageRows=vm.runInContext('rhiMobilityImageCatalog()',sandbox,{timeout:1000});
+const visualRows=vm.runInContext('rhiMobilityVehicleVisualCatalog()',sandbox,{timeout:1000});
+if(!Array.isArray(imageRows) || !Array.isArray(visualRows)) throw new Error('vehicle asset catalog did not evaluate to arrays');
+
+const referenced=imageRows.map((row)=>String(row.package_file || '')).filter(Boolean);
 for(const rel of referenced){
   if(!sourceFiles.includes(rel)) throw new Error(`package catalog references missing asset: ${rel}`);
 }
@@ -46,24 +54,23 @@ for(const rel of sourceFiles){
 }
 const duplicateGroups=[...duplicates.values()].filter(v=>v.length>1);
 
-const imageRows=[...catalog.matchAll(/image_key:"([^"]+)", package_path:"([^"]+)"/g)]
-  .map(([,image_key,package_path])=>({image_key,package_path}));
-const imagePathByKey=new Map(imageRows.map((row)=>[row.image_key,row.package_path]));
-const visualRows=[...catalog.matchAll(/id:"([^"]+)"[\\s\\S]*?image_key:"([^"]+)", selectable:(true|false), visual_quality:"([^"]+)"/g)]
-  .map(([,id,image_key,selectable,visual_quality])=>({id,image_key,selectable:selectable==="true",visual_quality}));
-
 for(const row of visualRows){
-  if(row.visual_quality==="fallback_only"){
-    if(row.selectable) throw new Error(`fallback-only vehicle visual must not be selectable: ${row.id}`);
-    if(row.image_key!=="vehicle_fallback") throw new Error(`fallback-only vehicle visual must resolve to vehicle_fallback: ${row.id}`);
+  if(row.visual_quality==='fallback_only' && row.selectable) {
+    throw new Error(`fallback-only vehicle visual must not be selectable: ${row.id}`);
+  }
+  if(row.visual_quality==='profile_source' && row.package_file) {
+    throw new Error(`profile-source vehicle must not silently claim package artwork: ${row.id}`);
   }
 }
 
-const verified=visualRows.filter((row)=>row.selectable && row.visual_quality==="verified_model");
+const imagePathByKey=new Map(imageRows.map((row)=>[String(row.image_key),String(row.package_file)]));
+const verified=visualRows.filter((row)=>row.selectable && row.visual_quality==='verified_model');
+if(verified.length < 3) throw new Error(`verified vehicle artwork gate parsed only ${verified.length} models; expected at least the current Audi/BMW/Mercedes package artwork`);
+
 const verifiedDigests=new Map();
 const fallbackDigest=crypto.createHash('sha256').update(fs.readFileSync(path.join(srcRoot,'vehicles/vehicle_fallback.png'))).digest('hex');
 for(const row of verified){
-  const rel=imagePathByKey.get(row.image_key);
+  const rel=imagePathByKey.get(String(row.image_key));
   if(!rel) throw new Error(`verified vehicle visual has no image catalog entry: ${row.id} -> ${row.image_key}`);
   const digest=crypto.createHash('sha256').update(fs.readFileSync(path.join(srcRoot,rel))).digest('hex');
   if(digest===fallbackDigest) throw new Error(`verified vehicle visual resolves to fallback bytes: ${row.id}`);

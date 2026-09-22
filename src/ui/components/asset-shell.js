@@ -302,32 +302,69 @@ class HomeBrainAssetShell {
 
 
     this.root.querySelectorAll(".detail-vehicle-picker").forEach((panel) => {
-      const typeSelect = panel.querySelector("[data-vehicle-picker-type]");
+      const brandSelect = panel.querySelector("[data-vehicle-picker-brand]");
+      const modelSelect = panel.querySelector("[data-vehicle-picker-model]");
+      const variantSelect = panel.querySelector("[data-vehicle-picker-variant]");
       const colorSelect = panel.querySelector("[data-vehicle-picker-color]");
       const saveButton = panel.querySelector("[data-vehicle-picker-save]");
       const keyNode = panel.querySelector(".vehicle-picker-key code");
-      const assetId = typeSelect?.getAttribute("data-vehicle-picker-type") || "";
+      const assetId = brandSelect?.getAttribute("data-vehicle-picker-brand") || "";
       const picker = new HomeBrainVehicleVisualPicker(this.rt);
-      const updatePreview = (resetColor = false) => {
+      const placeholder = (label)=>`<option value="" selected disabled>${this.rt.escape(label)}</option>`;
+
+      const refreshHierarchy = (level) => {
         const catalog = picker.catalog();
-        const vehicle = catalog.find((row)=>row.id === String(typeSelect?.value || "")) || catalog[0] || null;
-        if (!vehicle || !colorSelect) return;
-        const priorColor = resetColor ? "" : colorSelect.value;
-        colorSelect.innerHTML = (vehicle.colors || []).map((color)=>`<option value="${this.rt.escape(color.id)}">${this.rt.escape(color.label)}</option>`).join("");
-        const color = (vehicle.colors || []).find((row)=>row.id === priorColor) || vehicle.colors?.[0] || null;
-        if (color) colorSelect.value = color.id;
+        const brand = String(brandSelect?.value || "");
+        if (level === "brand") {
+          const models = picker.modelsForBrand(brand, catalog);
+          if (modelSelect) {
+            modelSelect.disabled = !brand;
+            modelSelect.innerHTML = placeholder("Choose model…") + models.map((model)=>`<option value="${this.rt.escape(model)}">${this.rt.escape(model)}</option>`).join("");
+          }
+          if (variantSelect) { variantSelect.disabled = true; variantSelect.innerHTML = placeholder("Choose variant…"); }
+          if (colorSelect) { colorSelect.disabled = true; colorSelect.innerHTML = placeholder("Choose colour…"); }
+        }
+        if (level === "model") {
+          const model = String(modelSelect?.value || "");
+          const variants = picker.variantsFor(brand, model, catalog);
+          if (variantSelect) {
+            variantSelect.disabled = !model;
+            variantSelect.innerHTML = placeholder("Choose variant…") + variants.map((row)=>`<option value="${this.rt.escape(row.id)}">${this.rt.escape(row.variant)} · ${this.rt.escape(row.years)}</option>`).join("");
+          }
+          if (colorSelect) { colorSelect.disabled = true; colorSelect.innerHTML = placeholder("Choose colour…"); }
+        }
+        if (level === "variant") {
+          const vehicle = catalog.find((row)=>row.id === String(variantSelect?.value || "")) || null;
+          if (colorSelect) {
+            colorSelect.disabled = !vehicle;
+            colorSelect.innerHTML = placeholder("Choose colour…") + (vehicle?.colors || []).map((color)=>`<option value="${this.rt.escape(color.id)}">${this.rt.escape(color.label)}</option>`).join("");
+          }
+        }
+        updatePreview();
+      };
+
+      const updatePreview = () => {
+        const catalog = picker.catalog();
+        const vehicle = catalog.find((row)=>row.id === String(variantSelect?.value || "")) || null;
+        const color = vehicle?.colors?.find((row)=>row.id === String(colorSelect?.value || "")) || null;
         const key = vehicle && color ? rhiMobilityVehicleVisualKey(vehicle.id, color.id) : "";
         if (keyNode) keyNode.textContent = key || "Unavailable";
-        if (saveButton) saveButton.setAttribute("data-vehicle-key", key);
-        const hero = this.root.querySelector('.hero-image img[data-vehicle-visual-preview="1"]');
-        if (hero && vehicle?.package_file) {
-          hero.src = this.rt.cache(vehicle.package_file);
+        if (saveButton) {
+          saveButton.setAttribute("data-vehicle-key", key);
+          saveButton.disabled = !key;
+        }
+        const hero = this.root.querySelector('[data-vehicle-visual-preview="1"]');
+        if (hero && vehicle) {
+          if (vehicle.package_file) hero.src = this.rt.cache(vehicle.package_file);
           const gray = hero.getAttribute("data-image-gray") || "0";
           hero.style.filter = `grayscale(${gray}) ${color?.filter || "none"} drop-shadow(0 24px 30px rgba(15,35,80,.15))`;
         }
       };
-      typeSelect?.addEventListener("change", ()=>updatePreview(true));
-      colorSelect?.addEventListener("change", ()=>updatePreview(false));
+
+      brandSelect?.addEventListener("change", ()=>refreshHierarchy("brand"));
+      modelSelect?.addEventListener("change", ()=>refreshHierarchy("model"));
+      variantSelect?.addEventListener("change", ()=>refreshHierarchy("variant"));
+      colorSelect?.addEventListener("change", updatePreview);
       saveButton?.addEventListener("click", ()=>{
         if (saveButton.disabled) return;
         const key = saveButton.getAttribute("data-vehicle-key") || "";
@@ -394,7 +431,7 @@ class HomeBrainAssetShell {
       .action-cluster{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:8px 0 6px}.action-cluster .action{height:38px;min-width:116px;width:auto;padding:0 12px;border-radius:12px;font-size:13px;box-shadow:none}.action-cluster .action small{display:none}
       .unit-suffix{display:inline-flex;align-items:center;margin-left:6px;color:#66728B;font-size:12px;font-weight:600;white-space:nowrap}.row-subheader{margin:12px 0 4px;padding:7px 0 5px;border-bottom:1px solid #EDF2F8;color:#1467F5;font-size:11px;font-weight:650;text-transform:uppercase;letter-spacing:.08em}.row-subheader:first-child{margin-top:4px}.row-subheader-small{margin:7px 0 2px;color:#66728B;font-size:11px;font-weight:600}
       .row,.edit-row { display:grid;grid-template-columns:26px minmax(0,1fr) minmax(140px,auto);gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid #EDF2F8; }
-      .detail-vehicle-picker{margin:8px 0 12px;border:1px solid #cfe0f6;border-radius:14px;background:linear-gradient(135deg,#fbfdff,#f3f8ff);padding:12px 14px}.vehicle-picker-head{display:flex;justify-content:space-between;gap:14px;align-items:start}.vehicle-picker-head small{font-size:8.5px;letter-spacing:.13em;color:#64748b;font-weight:750}.vehicle-picker-head h3{margin:2px 0;font-size:15px;color:#0f172a}.vehicle-picker-head p{margin:0;font-size:9.5px;color:#64748b}.vehicle-picker-grid{display:grid;grid-template-columns:minmax(180px,1.3fr) minmax(140px,.8fr) minmax(220px,1.4fr) auto;gap:8px;align-items:end;margin-top:10px}.vehicle-picker-grid label,.vehicle-picker-key{display:flex;flex-direction:column;gap:4px}.vehicle-picker-grid label>span,.vehicle-picker-key>span{font-size:8.5px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.05em}.vehicle-picker-grid select{height:34px;border:1px solid #d7e2ef;border-radius:8px;background:#fff;color:#0f172a;padding:0 8px;font-size:10.5px;font-weight:600}.vehicle-picker-key code{height:34px;display:flex;align-items:center;border:1px solid #d7e2ef;border-radius:8px;background:#fff;padding:0 8px;font-size:8.5px;color:#475569;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.vehicle-picker-save{height:34px;border:1px solid #0b65ea;border-radius:8px;background:#0b65ea;color:#fff;padding:0 11px;display:flex;align-items:center;gap:6px;font-size:10px;font-weight:700;cursor:pointer}.vehicle-picker-save:disabled{background:#e2e8f0;border-color:#d5deea;color:#94a3b8;cursor:not-allowed}.vehicle-picker-gap{margin-top:8px;display:flex;align-items:center;gap:6px;color:#9a5a16;font-size:9.5px}.vehicle-picker-gap ha-icon{--mdc-icon-size:14px}
+      .detail-vehicle-picker{margin:8px 0 12px;border:1px solid #cfe0f6;border-radius:14px;background:linear-gradient(135deg,#fbfdff,#f3f8ff);padding:12px 14px}.vehicle-picker-head{display:flex;justify-content:space-between;gap:14px;align-items:start}.vehicle-picker-head small{font-size:8.5px;letter-spacing:.13em;color:#64748b;font-weight:750}.vehicle-picker-head h3{margin:2px 0;font-size:15px;color:#0f172a}.vehicle-picker-head p{margin:0;font-size:9.5px;color:#64748b}.vehicle-picker-grid{display:grid;grid-template-columns:repeat(4,minmax(120px,1fr));gap:8px;align-items:end;margin-top:10px}.vehicle-picker-hierarchy .vehicle-picker-key{grid-column:1/4}.vehicle-picker-hierarchy .vehicle-picker-save{grid-column:4}.vehicle-picker-grid label,.vehicle-picker-key{display:flex;flex-direction:column;gap:4px}.vehicle-picker-grid label>span,.vehicle-picker-key>span{font-size:8.5px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.05em}.vehicle-picker-grid select{height:34px;border:1px solid #d7e2ef;border-radius:8px;background:#fff;color:#0f172a;padding:0 8px;font-size:10.5px;font-weight:600}.vehicle-picker-key code{height:34px;display:flex;align-items:center;border:1px solid #d7e2ef;border-radius:8px;background:#fff;padding:0 8px;font-size:8.5px;color:#475569;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.vehicle-picker-save{height:34px;border:1px solid #0b65ea;border-radius:8px;background:#0b65ea;color:#fff;padding:0 11px;display:flex;align-items:center;gap:6px;font-size:10px;font-weight:700;cursor:pointer}.vehicle-picker-save:disabled{background:#e2e8f0;border-color:#d5deea;color:#94a3b8;cursor:not-allowed}.vehicle-picker-gap{margin-top:8px;display:flex;align-items:center;gap:6px;color:#9a5a16;font-size:9.5px}.vehicle-picker-gap ha-icon{--mdc-icon-size:14px}
       @media(max-width:900px){.detail-vehicle-picker .vehicle-picker-grid{grid-template-columns:1fr 1fr}.detail-vehicle-picker .vehicle-picker-key{grid-column:1/-1}.detail-vehicle-picker .vehicle-picker-save{justify-content:center}}
       .row:last-child,.edit-row:last-child { border-bottom:0; }.row ha-icon,.edit-row ha-icon { --mdc-icon-size:19px;color:var(--hb-blue); }
       .label { font-size:13px;font-weight:600;color:#26334F; }.help { color:var(--hb-muted);font-size:11px;font-weight:600;margin-top:2px; }.help.warn{color:#A15C00}.edit-row.is-disabled{opacity:.74}.value { font-size:13px;font-weight:650;color:var(--hb-ink);text-align:right;max-width:155px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }

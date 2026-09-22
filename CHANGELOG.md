@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.0.0-rc.25 — hierarchical vehicle picker pilot
+
+- Replaces the flat vehicle dropdown with Brand → Model → Variant → Colour.
+- Preserves the current Mobility vehicle identity and removes all implicit first-row defaults.
+- Covers all seven current Mobility vehicle profiles and recognises their current source/profile image keys.
+- Keeps profile/source artwork for ID.4 and Scenic until dedicated package artwork is processed.
+- Adds a machine-readable artwork provenance registry and the 10-brand × 4-model expansion target.
+- Keeps one shared picker across Vehicle Management and Vehicle Detail.
+
 ## 1.0.0-rc.24 — hero artwork + visible Vehicle & colour
 
 - Uses vehicle artwork as large background-art within the hero surface.

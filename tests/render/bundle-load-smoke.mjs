@@ -51,7 +51,21 @@ const detailRt={
 };
 const shell=new Shell({},detailRt);
 const detailPicker=shell.renderEditableProperty({asset_id:'vehicle_test',property:{asset_id:'vehicle_test',property_key:'vehicle.image_key',value:'vehicle_audi_q8'},icon:'mdi:palette',label:'Vehicle visual'});
-if(!detailPicker.includes('data-vehicle-picker-type')) throw new Error('Vehicle Detail does not render the shared vehicle picker');
+for(const needle of ['data-vehicle-picker-brand','data-vehicle-picker-model','data-vehicle-picker-variant','data-vehicle-picker-color']) {
+  if(!detailPicker.includes(needle)) throw new Error(`Vehicle Detail hierarchical picker missing ${needle}`);
+}
+const Picker=vm.runInContext('HomeBrainVehicleVisualPicker',context);
+const id4Rt={
+  propertyByCompoundKey:()=>({asset_id:'vehicle_id4',property_key:'vehicle.image_key',value:'vw_id4_business_pro_silver_grey',editable:true}),
+  visualImageKey:()=> 'vw_id4_business_pro_silver_grey',
+  isWritableProperty:()=> true,
+  assetUrl:(p)=>'/assets/'+p,
+  escape:(v)=>String(v??'')
+};
+const id4Selection=new Picker(id4Rt).selection({asset_id:'vehicle_id4'});
+if(id4Selection.brand!=='Volkswagen') throw new Error(`ID.4 picker drifted brand to ${id4Selection.brand}`);
+if(id4Selection.model!=='ID.4') throw new Error(`ID.4 picker drifted model to ${id4Selection.model}`);
+if(id4Selection.vehicle?.id!=='volkswagen.id4.2024-2026.ev') throw new Error('ID.4 picker did not preserve current variant identity');
 if(detailPicker.includes('type="text"')) throw new Error('Vehicle Detail leaked raw vehicle.image_key text editor');
 
-console.log('PASS bundle load, Overview execution and shared Vehicle Detail picker smoke');
+console.log('PASS bundle load, Overview execution, hierarchical Vehicle Detail picker and ID.4 identity prefill');
