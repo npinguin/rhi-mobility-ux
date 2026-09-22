@@ -1,3 +1,9 @@
+## 1.0.0-rc.33 — Overview hero binary hotfix
+
+- Replaced the corrupt/truncated rc.32 Overview hero WebP with validated image bytes.
+- Added WebP RIFF size validation so truncated assets fail CI before release.
+- No other UX or semantic behavior changed from rc.32.
+
 ## 1.0.0-rc.32 — pixel-perfect Mobility Overview
 
 - Rebuilt Overview against the approved premium mock without removing existing Mobility data or controls.
