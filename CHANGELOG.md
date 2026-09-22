@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.0-rc.24 — hero artwork + visible Vehicle & colour
+
+- Uses vehicle artwork as large background-art within the hero surface.
+- Uses the same treatment for charger artwork at a smaller, cropped supporting scale.
+- Moves the Vehicle / Colour entrypoint into the vehicle hero as an explicit edit control.
+- Removes the duplicate bottom Appearance action.
+- Preserves rc.23 mobile density and rc.22 shared picker behavior.
+
 ## 1.0.0-rc.23 — compact mobile Vehicles
 
 - Rewrites phone Vehicle cards for compact density while preserving desktop/tablet behavior.
