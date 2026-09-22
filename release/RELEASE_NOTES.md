@@ -1,51 +1,61 @@
-# v1.0.0-rc.25 — hierarchical vehicle picker PILOT
+# v1.0.0-rc.26 — zero-debt current vehicle artwork
 
 ## Purpose
 
-Deliver a testable Vehicle / Colour pilot that preserves the current vehicle identity, covers every Mobility vehicle profile already present today, and scales to the future artwork library without a large flat picker.
+Remove the remaining legacy/duplicate vehicle artwork paths and make the complete current real-vehicle scope package-owned, model-correct and fail-closed.
 
-## Pilot behavior
+## What changed
 
-- compact hierarchy: Brand → Model → Variant → Colour;
-- current vehicle key prefills the hierarchy exactly where a known Mobility alias exists;
-- unknown keys never fall back to the first catalog row;
-- changing a higher level clears only the dependent lower levels;
-- save remains disabled until a complete valid visual key exists;
-- Vehicle Management and Vehicle Detail use the same shared picker;
-- the persisted Mobility `vehicle.image_key` remains the only durable visual selection truth;
-- package artwork is preferred when available; current profile/source artwork remains the deterministic fallback for models not yet carrying dedicated package artwork;
-- a different vehicle model is never used as fallback artwork.
+- Volkswagen ID.4 and Renault Scenic E-Tech now have their own canonical package masters.
+- BMW artwork is canonically named X1 PHEV; old iX1 keys remain input aliases only.
+- Removes separate hero copies, default/unknown copies and duplicate guest asset files.
+- One real model now maps to exactly one package master.
+- Hero/detail/overview render the same master with presentation-specific crop/scale only.
+- Removes legacy profile-name artwork inference from runtime.
+- Existing persisted legacy visual keys normalize through aliases to canonical visual identities.
+- Generic Guest PHEV/EV deliberately share the one generic fallback master.
 
-## Current Mobility profile coverage
+## Current real-model package coverage
 
-1. Audi Q8 TFSI e 55 PHEV
-2. Volkswagen ID.4 Business Pro 77 kWh
+1. Audi Q8 TFSI-e
+2. BMW X1 PHEV
 3. Mercedes-Benz GLA PHEV
-4. BMW X1 PHEV
-5. Renault Scenic Techno EV
-6. Guest PHEV 1-phase
-7. Guest EV 3-phase
+4. Renault Scenic E-Tech
+5. Volkswagen ID.4
 
-## Artwork pilot
+All five are required by CI to:
+- resolve to package artwork;
+- resolve to five different byte hashes;
+- never equal the fallback bytes;
+- exist in the exact canonical vehicle-file inventory.
 
-- adds `documentation/VEHICLE_ARTWORK_SOURCES.json` as the machine-readable provenance/source registry;
-- records high-resolution permissive source candidates for current real models;
-- keeps dedicated package artwork where already present;
-- keeps ID.4 and Scenic on profile/source artwork until their processed package masters land;
-- establishes the next expansion target as 10 Belgian fleet/leasing brands × 4 current models.
+## Removed legacy artwork files
+
+- default_vehicle.png
+- vehicle_audi_q8_hero.png
+- vehicle_bmw_ix1_phev.png
+- vehicle_bmw_ix1_phev_hero.png
+- vehicle_guest.png
+- vehicle_guest_hero.png
+- vehicle_mercedes_gla_hero.png
+- vehicle_renault_scenic_techno_ev.png
+- vehicle_unknown_profile.png
+- vehicle_unknown_profile_hero.png
+- vehicle_vw_id4.png
 
 ## Compatibility
 
-- Mobility UX: 1.0.0-rc.25
+- Mobility UX: 1.0.0-rc.26
 - Contract: `MOBILITY_PUBLIC_RUNTIME_V1`
 - Required backend: M0.9.29
 - Tested backend baseline: M0.9.29
-- Rollback: `v1.0.0-rc.24`
+- Rollback: `v1.0.0-rc.25`
 
-## Pilot qualification still required on target HA
+## Target HA proof required
 
-- ID.4 opens as Volkswagen → ID.4 → Business Pro 77 kWh, not another default vehicle;
-- opening and closing without save changes nothing;
-- explicit brand/model/variant/colour selection updates preview coherently;
-- save writes `vehicle.image_key`, reload preserves it, HA restart preserves it;
-- profile/source-only artwork remains the same vehicle model before/during/after picker use.
+For ID.4 and Scenic in particular:
+- picker opens on the correct current identity;
+- hero/detail/overview all show the same correct model;
+- opening/closing picker without save changes nothing;
+- changing colour never changes model artwork;
+- refresh and HA restart preserve the selected key and model artwork.
