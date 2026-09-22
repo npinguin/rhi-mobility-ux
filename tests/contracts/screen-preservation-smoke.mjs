@@ -11,7 +11,6 @@ const expectedViews = [
   ['Vehicles','dashboard'],
   ['Vehicle & Charger Detail','asset-detail'],
   ['Chargers','charger-maintenance'],
-  ['Charging','charging'],
   ['Planning','planning'],
   ['Strategies','strategies'],
   ['History','history'],
@@ -35,3 +34,5 @@ for (const [title,path] of expectedViews.filter(([title])=>title!=='Overview')) 
 }
 
 console.log('PASS screen preservation: documented views and screen registrations retained');
+
+if(routes.includes('title: Charging\n    path: charging') || install.includes('title: Charging\n    path: charging')) throw new Error('synthetic Charging view returned');
