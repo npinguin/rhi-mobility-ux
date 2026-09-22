@@ -15,12 +15,12 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
     const rt = new HomeBrainAssetRuntime(hass, this.config);
     const view = this.config.view || this.viewFromPath();
     const data = this.viewModel(view);
-    const heroMeta = view === "planning" ? this.planningHeroMeta(rt) : view === "history" ? this.insightsHeroMeta(rt) : "";
+    const heroMeta = view === "planning" ? this.planningHeroMeta(rt) : view === "strategies" ? this.strategyHeroMeta(rt) : view === "history" ? this.insightsHeroMeta(rt) : "";
     this.shadowRoot.innerHTML = `<ha-card><div class="page">
       ${hbMobilityNav(view)}
       ${hbMobilityPageHero(rt, view, { meta: heroMeta })}
       ${hbMobilityOutcomeStrip(rt, view, data.outcome)}
-      ${view === "planning" ? this.renderPlanning(rt) : view === "history" ? this.renderInsights(rt) : this.renderContextCards(rt, data)}
+      ${view === "planning" ? this.renderPlanning(rt) : view === "strategies" ? this.renderStrategies(rt) : view === "history" ? this.renderInsights(rt) : this.renderContextCards(rt, data)}
       ${this.renderSupportFacts(rt, view)}
       ${hbMobilityReleaseFooter(rt)}
     </div><style>${this.styles()}</style></ha-card>`;
@@ -78,6 +78,10 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
     return new HomeBrainEnergyMobilityInsightsProjection(this._hass, rt).viewModel("today");
   }
 
+  energyStrategies(rt) {
+    return new HomeBrainEnergyMobilityStrategyProjection(this._hass, rt).viewModel();
+  }
+
   fmtKwh(value) {
     return value === null || value === undefined ? "N/A" : `${Number(value).toFixed(1)} kWh`;
   }
@@ -88,6 +92,12 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
     const today = this.fmtKwh(plan.today.plannedKwh);
     const remaining = this.fmtKwh(plan.today.stillToPlanKwh);
     return `<strong>${rt.escape(source)}</strong><span>Planned today ${rt.escape(today)}</span><span>Still to plan ${rt.escape(remaining)}</span>`;
+  }
+
+  strategyHeroMeta(rt) {
+    const strategy = this.energyStrategies(rt);
+    const source = strategy.profilesAvailable || strategy.effectiveAvailable ? "Energy backend" : "Energy strategy unavailable";
+    return `<strong>${rt.escape(source)}</strong><span>${rt.escape(String(strategy.profiles.length))} Mobility profiles</span><span>${rt.escape(String(strategy.effective.length))} effective policies</span>`;
   }
 
   insightsHeroMeta(rt) {
@@ -137,6 +147,44 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
           <div class="rhi-data-row"><b>Matched Mobility assets</b><span>${rt.escape(String(mobilityRows.length))}</span></div>
           <div class="rhi-data-row"><b>Plan state</b><span>${rt.escape(plan.state || "Unavailable")}</span></div>
         </div>
+      </article>
+    </section>`;
+  }
+
+  renderStrategies(rt) {
+    const strategy = this.energyStrategies(rt);
+    const profileRows = strategy.profiles.map((row) => {
+      const objective = String(row.objective_mode || row.mode || row.energy_control_mode || row.grid_policy || row.user_summary_label || "Configured");
+      return `<div class="rhi-data-row"><b>${rt.escape(row.profile_label || row.profile_id)}</b><span>${rt.escape(objective)}</span></div>`;
+    }).join("");
+    const effectiveRows = strategy.effective.map((row) => {
+      const assetId = String(row.asset_id || "");
+      const name = String(row.display_name || row.asset_label || rt.assetDisplayName?.(assetId) || assetId);
+      const state = String(row.effective_state || row.configured_state || row.influence_state || row.reason_label || row.policy_id || "Published");
+      return `<div class="rhi-data-row"><b>${rt.escape(name)}</b><span>${rt.escape(state)}</span></div>`;
+    }).join("");
+    const unavailable = !strategy.profilesAvailable && !strategy.effectiveAvailable
+      ? "Energy strategy contracts are unavailable. Mobility does not invent a strategy or infer one from charging behavior."
+      : "";
+    return `<section class="rhi-fact-grid">
+      <div class="rhi-fact"><ha-icon icon="mdi:tune-variant"></ha-icon><div><small>Profiles</small><b>${rt.escape(String(strategy.profiles.length))}</b><span>Energy strategy</span></div></div>
+      <div class="rhi-fact"><ha-icon icon="mdi:shield-check-outline"></ha-icon><div><small>Effective policies</small><b>${rt.escape(String(strategy.effective.length))}</b><span>Exact Mobility assets</span></div></div>
+      <div class="rhi-fact"><ha-icon icon="mdi:source-branch-check"></ha-icon><div><small>Profile contract</small><b>${rt.escape(strategy.profileContractVersion || (strategy.profilesAvailable ? "Published" : "Unavailable"))}</b><span>Energy-owned</span></div></div>
+      <div class="rhi-fact"><ha-icon icon="mdi:database-check-outline"></ha-icon><div><small>Policy contract</small><b>${rt.escape(strategy.effectiveContractVersion || (strategy.effectiveAvailable ? "Published" : "Unavailable"))}</b><span>Energy-owned</span></div></div>
+    </section>
+    <section class="rhi-context-grid">
+      <article class="rhi-context-card">
+        <div class="rhi-context-card-kicker"><ha-icon icon="mdi:tune-variant"></ha-icon>Configured intent</div>
+        <h3>Mobility energy profiles</h3>
+        <p>Relevant Energy strategy profiles are shown read-only here. Profile meaning and editable strategy settings remain owned by Energy.</p>
+        ${profileRows ? `<div class="rhi-data-list">${profileRows}</div>` : ""}
+        ${unavailable ? `<div class="rhi-context-note">${rt.escape(unavailable)}</div>` : ""}
+      </article>
+      <article class="rhi-context-card">
+        <div class="rhi-context-card-kicker"><ha-icon icon="mdi:shield-check-outline"></ha-icon>Effective strategy</div>
+        <h3>What is in effect</h3>
+        <p>Effective policy is filtered to exact Mobility asset ids so vehicle/charger behavior is not confused with unrelated Energy domains.</p>
+        ${effectiveRows ? `<div class="rhi-data-list">${effectiveRows}</div>` : `<div class="rhi-context-note">No effective Mobility policy is currently published by Energy.</div>`}
       </article>
     </section>`;
   }
