@@ -22,7 +22,7 @@ class HomeBrainVehicleVisualPicker {
       : null;
     const vehicle = catalog.find((row)=>row.id === String(draft.vehicle_id || ""))
       || parsedSelectable
-      || catalog[0]
+      || (parsed?.vehicle ? catalog.find((row)=>row.id === parsed.vehicle.id) : null)
       || null;
     const colors = vehicle?.colors || [];
     const parsedColor = parsedSelectable?.id === vehicle?.id ? parsed?.color : null;
@@ -61,12 +61,13 @@ class HomeBrainVehicleVisualPicker {
         ${close}
       </div>
       <div class="vehicle-picker-grid">
-        <label><span>Vehicle</span><select data-vehicle-picker-type="${this.rt.escape(assetId)}">${catalog.map((row)=>`<option value="${this.rt.escape(row.id)}" ${row.id===vehicle?.id?"selected":""}>${this.rt.escape(row.label)} · ${this.rt.escape(row.years)}</option>`).join("")}</select></label>
+        <label><span>Vehicle</span><select data-vehicle-picker-type="${this.rt.escape(assetId)}"><option value="" ${vehicle ? "" : "selected"} disabled>Choose vehicle…</option>${catalog.map((row)=>`<option value="${this.rt.escape(row.id)}" ${row.id===vehicle?.id?"selected":""}>${this.rt.escape(row.label)} · ${this.rt.escape(row.variant)} · ${this.rt.escape(row.years)}</option>`).join("")}</select></label>
         <label><span>Colour</span><select data-vehicle-picker-color="${this.rt.escape(assetId)}">${colors.map((row)=>`<option value="${this.rt.escape(row.id)}" ${row.id===color?.id?"selected":""}>${this.rt.escape(row.label)}</option>`).join("")}</select></label>
         <div class="vehicle-picker-key"><span>Visual key</span><code>${this.rt.escape(current.key || "Unavailable")}</code></div>
         <button class="vehicle-picker-save" data-vehicle-picker-save="${this.rt.escape(assetId)}" data-vehicle-key="${this.rt.escape(current.key)}" ${!current.writable || !current.key ? "disabled" : ""}><ha-icon icon="mdi:check"></ha-icon><span>Use this vehicle</span></button>
       </div>
-      ${current.parsed && !current.parsed_selectable ? `<div class="vehicle-picker-gap"><ha-icon icon="mdi:image-off-outline"></ha-icon><span>Current legacy visual has no verified model artwork. It remains readable, but is not offered as a new picker choice.</span></div>` : ""}
+      ${current.parsed?.vehicle?.visual_quality === "profile_source" ? `<div class="vehicle-picker-gap"><ha-icon icon="mdi:image-outline"></ha-icon><span>This vehicle keeps its current Mobility profile/source artwork; colour is still applied by the UX.</span></div>` : ""}
+      ${!current.parsed && current.raw ? `<div class="vehicle-picker-gap"><ha-icon icon="mdi:alert-outline"></ha-icon><span>The current visual key is unknown to this UX catalog. Choose a vehicle explicitly; no default is applied.</span></div>` : ""}
       ${current.writable ? "" : `<div class="vehicle-picker-gap"><ha-icon icon="mdi:alert-outline"></ha-icon><span>Backend does not publish a writable vehicle.image_key yet. Picker stays fail-closed.</span></div>`}
     </section>`;
   }
