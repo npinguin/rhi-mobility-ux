@@ -155,6 +155,42 @@ The same Vehicle / Colour picker component is used wherever vehicle appearance i
 
 The picker hierarchy is Brand → Model → Variant → Colour. Opening a picker must preserve the current Mobility identity; unknown or future keys must never silently resolve to the first catalog entry. Artwork provenance and future expansion are governed by `documentation/VEHICLE_ARTWORK_SOURCES.json`.
 
+## Shared Vehicle and Charger visual library
+
+Vehicle and Charger presentation follows one governed UX-owned pattern. The current release line stays on frozen `MOBILITY_PUBLIC_RUNTIME_V1`; the visual library must not require new V1 product semantics.
+
+```text
+frozen V1 object
+      ↓
+runtime/domain adapter
+      ↓
+canonical UX view model
+      ↓
+UX visual catalog + resolver
+      ↓
+Overview / Management / Detail / relationship visuals
+```
+
+The same presentation pattern applies to both object types:
+
+- Brand → Model → Variant → Appearance/Colour;
+- one canonical artwork master per real model/physical appearance;
+- legacy keys are compatibility aliases only;
+- technical specifications do not become visual identity;
+- every screen uses the same resolver;
+- `image_key` is an explicit persisted presentation choice only when the backend contract supports writing it;
+- read-only V1 presentation properties may drive current rendering but UX never creates a browser-local second truth.
+
+Current Charger catalog coverage is:
+
+- Wallbox Commander 2 with White and Black appearances;
+- Peblar Business, Socket;
+- Fibaro Wall Plug 2, Z-Wave Plus BE/FR.
+
+Power/current/phase capabilities stay backend/profile/runtime facts and are intentionally absent from the visual identity catalog.
+
+The visual-library update workflow, quality gates and future cross-domain reuse are governed by `documentation/VISUAL_LIBRARY_GOVERNANCE.md`. Charger product/artwork provenance is tracked in `documentation/CHARGER_ARTWORK_SOURCES.json`.
+
 ## V1 vs V2.x
 
 V1 consumes only `MOBILITY_PUBLIC_RUNTIME_V1`.

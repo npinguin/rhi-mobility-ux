@@ -8,6 +8,8 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
     this._commandFeedback = this._commandFeedback || new Map();
     this._openPanels = this._openPanels || new Set();
     this._limitDrafts = this._limitDrafts || new Map();
+    this._chargerPickerAsset = this._chargerPickerAsset || "";
+    this._chargerPickerDraft = this._chargerPickerDraft || new Map();
     this._lastSignature = this._lastSignature || "";
     this._lastRenderAt = this._lastRenderAt || 0;
   }
@@ -26,7 +28,14 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
     const rt = this._hass ? new HomeBrainAssetRuntime(this._hass, this.config) : null;
     const assetId = String(id || "").startsWith("charger_") ? String(id) : `charger_${id}`;
     const asset = rt ? (rt.chargerById(assetId) || rt.assetById(assetId) || { asset_id: assetId }) : { asset_id: assetId };
-    return rt ? rt.visualImageUrl(asset, "charger", "image", "charger_fallback") : rhiMobilityAssetUrl("chargers/charger_fallback.png");
+    if (rt) {
+      const prop = rt.propertyByCompoundKey(assetId, "charger.image_key");
+      const raw = prop?.value ?? rt.visualImageKey(asset, "image") ?? asset?.image_key ?? "";
+      const visual = typeof rhiMobilityResolveChargerVisual === "function" ? rhiMobilityResolveChargerVisual(asset, raw) : null;
+      if (visual?.appearance?.package_file) return visual.appearance.package_file;
+      return rt.visualImageUrl(asset, "charger", "image", "charger_fallback");
+    }
+    return rhiMobilityAssetUrl("chargers/charger_fallback.png");
   }
 
 
@@ -38,6 +47,16 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
            onerror="this.onerror=null;this.classList.add('failed');this.closest('.charger-visual')?.classList.add('image-missing');" />
       <div class="charger-visual-fallback"><ha-icon icon="${id === 'utility_plug' ? 'mdi:power-socket-eu' : 'mdi:ev-station'}"></ha-icon></div>
     </div>`;
+  }
+
+  chargerVisualSelection(rt, charger, draft = {}) {
+    return new HomeBrainChargerVisualPicker(rt).selection(charger, draft);
+  }
+
+  renderChargerPicker(rt, charger) {
+    const assetId = this.assetId(charger);
+    const draft = this._chargerPickerDraft.get(assetId) || {};
+    return new HomeBrainChargerVisualPicker(rt).render(charger, { draft, showClose:true, context:"management" });
   }
 
   statusTone(status) {
@@ -241,6 +260,7 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
       this.detailField(rt, "Sort order", String(charger.sort_order ?? "—"))
     ].join("");
 
+    const pickerOpen = this._chargerPickerAsset === assetId;
     return `<article class="charger-card ${issue ? "attention" : ""}">
       <div class="charger-hero-card premium-image-hero">
         ${this.renderChargerHero(rt, id, name, status)}
@@ -248,8 +268,10 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
           <div class="charger-icon"><ha-icon icon="mdi:ev-station"></ha-icon></div>
           <div class="charger-title"><h3>${rt.escape(name)}</h3><p>${rt.escape(charger.location || charger.profile || assetId)}</p></div>
           <span class="status ${this.statusTone(status)}">${rt.escape(status)}</span>
+          <button class="charger-appearance-action" data-charger-picker="${rt.escape(assetId)}" title="Choose charger and colour"><ha-icon icon="mdi:palette-outline"></ha-icon><span>Charger & colour</span></button>
         </div>
       </div>
+      ${pickerOpen ? this.renderChargerPicker(rt, charger) : ""}
       <div class="charger-kpis">
         ${this.field(rt, "Power", power, "mdi:flash")}
         ${this.field(rt, "Actual", actualCurrent, "mdi:current-ac")}
@@ -411,6 +433,54 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
         setTimeout(()=>{ if (this.isConnected) this.hass = this._hass; }, 650);
       });
     });
+    this.shadowRoot.querySelectorAll("button[data-charger-picker]").forEach((btn) => {
+      btn.addEventListener("click", (ev) => {
+        ev.preventDefault(); ev.stopPropagation();
+        const assetId = btn.getAttribute("data-charger-picker") || "";
+        this._chargerPickerAsset = this._chargerPickerAsset === assetId ? "" : assetId;
+        if (!this._chargerPickerDraft.has(assetId)) this._chargerPickerDraft.set(assetId, {});
+        this._lastSignature = "";
+        if (this.isConnected) this.hass = this._hass;
+      });
+    });
+    this.shadowRoot.querySelectorAll("button[data-charger-picker-close]").forEach((btn) => {
+      btn.addEventListener("click", (ev) => {
+        ev.preventDefault(); ev.stopPropagation();
+        this._chargerPickerAsset = "";
+        this._lastSignature = "";
+        if (this.isConnected) this.hass = this._hass;
+      });
+    });
+    this.shadowRoot.querySelectorAll("[data-charger-picker-panel] select").forEach((select) => {
+      select.addEventListener("change", (ev) => {
+        ev.stopPropagation();
+        const panel = select.closest("[data-charger-picker-panel]");
+        const assetId = panel?.getAttribute("data-charger-picker-panel") || "";
+        const draft = { ...(this._chargerPickerDraft.get(assetId) || {}) };
+        if (select.hasAttribute("data-charger-picker-brand")) {
+          draft.brand = select.value; draft.model = ""; draft.variant_id = ""; draft.appearance_id = "";
+        } else if (select.hasAttribute("data-charger-picker-model")) {
+          draft.model = select.value; draft.variant_id = ""; draft.appearance_id = "";
+        } else if (select.hasAttribute("data-charger-picker-variant")) {
+          draft.variant_id = select.value; draft.appearance_id = "";
+        } else if (select.hasAttribute("data-charger-picker-appearance")) {
+          draft.appearance_id = select.value;
+        }
+        this._chargerPickerDraft.set(assetId, draft);
+        this._lastSignature = "";
+        if (this.isConnected) this.hass = this._hass;
+      });
+    });
+    this.shadowRoot.querySelectorAll("button[data-charger-picker-save]").forEach((btn) => {
+      btn.addEventListener("click", (ev) => {
+        ev.preventDefault(); ev.stopPropagation();
+        if (btn.disabled) return;
+        const assetId = btn.getAttribute("data-charger-picker-save") || "";
+        const key = btn.getAttribute("data-charger-key") || "";
+        if (assetId && key) rt.writePublishedProperty(assetId, "charger.image_key", key);
+      });
+    });
+
     this.shadowRoot.querySelectorAll("button[data-nav]").forEach((btn) => {
       btn.addEventListener("click", (ev) => {
         ev.preventDefault();
@@ -466,6 +536,37 @@ ${hbMobilitySharedShellStyles()}
       .vehicle-actions.clean-actions .presence-toggle.icon-only,.vehicle-actions.clean-actions .details-action.icon-only{justify-self:end!important;background:#fff!important;color:#1467F5!important;border-color:var(--hb-line)!important}
       .vehicle-actions.clean-actions .presence-toggle.icon-only ha-icon,.vehicle-actions.clean-actions .details-action.icon-only ha-icon{color:#1467F5!important}
       @media(max-width:880px){.charge-mini-strip.mock-controls{height:auto!important;flex-wrap:wrap!important}.mini-current-stepper.compact-current{flex:1 1 150px!important}.vehicle-actions.clean-actions{grid-template-columns:1fr 1fr 1fr 42px 42px!important}.action-spacer{display:none!important}}
+
+      /* rc.27 shared visual-library management + mobile density. */
+      .charger-appearance-action{height:34px;border-radius:10px;border:1px solid rgba(14,35,72,.10);background:#fff;color:#1467F5;display:inline-flex;align-items:center;gap:6px;padding:0 10px;font-size:11px;font-weight:600;cursor:pointer;grid-column:2/4;justify-self:start}
+      .charger-appearance-action ha-icon{--mdc-icon-size:16px}
+      .charger-picker-panel{margin:0;padding:10px;border:1px solid var(--hb-line);border-radius:14px;background:#fbfdff}
+      .charger-picker-panel .vehicle-picker-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+      .charger-picker-panel .vehicle-picker-head{display:flex;justify-content:space-between;gap:10px}
+      .charger-picker-panel .vehicle-picker-head small{font-size:9px;color:var(--hb-blue);font-weight:650;letter-spacing:.08em}
+      .charger-picker-panel .vehicle-picker-head h3{margin:2px 0 3px;font-size:15px}
+      .charger-picker-panel .vehicle-picker-head p{font-size:10.5px;line-height:1.3}
+      .charger-picker-panel label{display:grid;gap:4px}
+      .charger-picker-panel label>span,.charger-picker-panel .vehicle-picker-key>span{font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:var(--hb-muted)}
+      .charger-picker-panel select,.charger-picker-panel code,.charger-picker-panel .vehicle-picker-save{min-height:40px;border:1px solid var(--hb-line);border-radius:10px;background:#fff;padding:0 10px}
+      .charger-picker-panel .vehicle-picker-key{display:grid;gap:4px}
+      .charger-picker-panel .vehicle-picker-save{display:flex;align-items:center;justify-content:center;gap:7px;font-weight:600}
+      .charger-picker-panel .vehicle-picker-close{width:34px;height:34px;border-radius:10px;border:1px solid var(--hb-line);background:#fff}
+      .charger-picker-panel .vehicle-picker-gap{grid-column:1/-1;margin-top:8px;font-size:10.5px;color:var(--hb-muted);display:flex;gap:7px;align-items:flex-start}
+      @media(max-width:560px){
+        .page{padding:8px 8px 18px!important;gap:8px!important}
+        .charger-card{padding:10px!important;gap:8px!important;border-radius:16px!important}
+        .charger-hero-card{grid-template-columns:minmax(0,1fr) 96px!important;min-height:116px!important;padding:10px!important;border-radius:14px!important}
+        .charger-visual{height:96px!important}.charger-visual img{max-width:90px!important;max-height:90px!important}
+        .charger-head{grid-template-columns:38px minmax(0,1fr) auto!important;gap:8px!important}
+        .charger-icon{width:38px!important;height:38px!important;border-radius:12px!important}
+        .charger-title h3{font-size:15px!important}.charger-title p{font-size:10px!important}
+        .charger-kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important}
+        .soft-line{gap:6px!important;flex-wrap:wrap!important}
+        .charger-picker-panel .vehicle-picker-grid{grid-template-columns:1fr!important}
+        .charger-appearance-action{grid-column:2/4!important;height:32px!important;padding:0 8px!important}
+        .grid{grid-template-columns:1fr!important;gap:10px!important}
+      }
 
       /* R22.12.11.24 Energy typography alignment — charger maintenance. */
       :host{font-family:inherit!important;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}

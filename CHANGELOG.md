@@ -1,3 +1,14 @@
+## 1.0.0-rc.27 — shared Vehicle and Charger visual library
+
+- Introduced one governed UX-owned visual catalog/resolver pattern for Vehicles and Chargers on frozen V1.
+- Added Wallbox Commander 2 White/Black, Peblar Business Socket and Fibaro Wall Plug 2 to the managed Charger library.
+- Replaced duplicate Charger placeholders with package-owned premium scalable masters and enforced asset quality/inventory gates.
+- Integrated Charger artwork into Overview, linked Vehicle relationships, Charger Management and Charger Detail.
+- Added a hierarchical Charger & colour picker; frozen-V1 read-only persistence remains fail-closed.
+- Fixed double-prefixed package artwork URLs that could force selected Vehicle/Charger visuals to fallback art.
+- Reworked phone Vehicle hero and Charger management density without changing Mobility semantics.
+- Added cross-domain visual-library and provenance governance for later Energy reuse.
+
 # Changelog
 
 ## 1.0.0-rc.26 — zero-debt current vehicle artwork

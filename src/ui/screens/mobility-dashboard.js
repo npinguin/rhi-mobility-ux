@@ -41,7 +41,14 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     const asset = typeof assetOrId === "object"
       ? assetOrId
       : (rt && typeof rt.chargerById === "function" ? (rt.chargerById(assetOrId) || rt.assetById(assetOrId) || { asset_id: assetOrId }) : { asset_id: assetOrId });
-    if (rt && typeof rt.visualImageUrl === "function") return rt.visualImageUrl(asset, "charger", "image", "charger_fallback");
+    if (rt) {
+      const assetId = String(asset?.asset_id || assetOrId || "");
+      const prop = assetId ? rt.propertyByCompoundKey(assetId, "charger.image_key") : null;
+      const raw = prop?.value ?? rt.visualImageKey(asset || {}, "image") ?? asset?.image_key ?? "";
+      const visual = typeof rhiMobilityResolveChargerVisual === "function" ? rhiMobilityResolveChargerVisual(asset, raw) : null;
+      if (visual?.appearance?.package_file) return visual.appearance.package_file;
+      if (typeof rt.visualImageUrl === "function") return rt.visualImageUrl(asset, "charger", "image", "charger_fallback");
+    }
     return rhiMobilityAssetUrl("chargers/charger_fallback.png");
   }
 
@@ -1784,6 +1791,46 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
       .vehicle-picker-grid select,.vehicle-picker-key code,.vehicle-picker-save{height:44px!important;min-height:44px!important}
       .vehicle-picker-grid label>span,.vehicle-picker-key>span{font-size:9px!important}
       .vehicle-picker-save{width:100%!important;justify-content:center!important}
+    }
+
+    /* rc.27 premium phone composition: artwork becomes the hero background
+       instead of a small image floating in a large empty card. */
+    @media(max-width:560px){
+      .vehicle-card{border-radius:16px!important;overflow:hidden!important}
+      .status-top-row.vehicle-intelligence-strip{padding:7px 8px 4px!important;gap:4px!important}
+      .status-top-row.vehicle-intelligence-strip .pill{min-height:28px!important;display:flex!important;align-items:center!important}
+      .vehicle-workspace-list .vehicle-hero-panel,.vehicle-hero-panel{
+        position:relative!important;display:block!important;min-height:154px!important;height:154px!important;
+        padding:12px 10px!important;overflow:hidden!important;background:linear-gradient(135deg,#fff 0%,#f8fbff 58%,#eef5ff 100%)!important
+      }
+      .vehicle-copy{position:relative!important;z-index:3!important;width:58%!important;max-width:220px!important;padding-right:4px!important}
+      .vehicle-copy h2{font-size:19px!important;line-height:1.05!important;margin-bottom:4px!important}
+      .vehicle-copy p{font-size:10px!important;line-height:1.2!important}
+      .vehicle-image{
+        position:absolute!important;z-index:1!important;right:-4px!important;left:auto!important;top:8px!important;bottom:2px!important;
+        width:66%!important;height:auto!important;display:flex!important;align-items:flex-end!important;justify-content:flex-end!important;
+        overflow:visible!important;pointer-events:none!important
+      }
+      .vehicle-workspace-list .vehicle-image img,.vehicle-image img{
+        width:100%!important;max-width:250px!important;height:142px!important;max-height:142px!important;
+        object-fit:contain!important;object-position:right bottom!important;transform:none!important;opacity:1!important;
+      }
+      .vehicle-appearance-action{
+        position:absolute!important;z-index:4!important;left:10px!important;bottom:10px!important;
+        width:auto!important;height:34px!important;min-height:34px!important;border-radius:10px!important;padding:0 9px!important;
+        background:rgba(255,255,255,.94)!important;backdrop-filter:blur(7px)!important
+      }
+      .vehicle-appearance-action span{font-size:10.5px!important}
+      .vehicle-hero-panel .mini-detail-button{z-index:4!important;right:8px!important;bottom:8px!important}
+      .charger-hero-panel{
+        height:78px!important;min-height:78px!important;grid-template-columns:minmax(0,1fr) 86px!important;
+        padding:8px 9px!important;background:linear-gradient(135deg,#fff,#f7faff)!important
+      }
+      .charger-mini-image{width:80px!important;height:62px!important}
+      .charger-mini-image img{max-width:72px!important;max-height:60px!important;filter:drop-shadow(0 8px 12px rgba(15,35,80,.12))!important}
+      .vehicle-picker-panel{margin:0 8px 7px!important}
+      .vehicle-picker-head{align-items:flex-start!important}
+      .vehicle-picker-head p{max-width:270px!important}
     }
 
     @media(max-width:390px){

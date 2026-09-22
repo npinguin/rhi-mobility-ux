@@ -10,7 +10,13 @@ class HomeBrainVehicleAdapter {
   profile() { const reg = this.registryEntry(); return reg?.profile_display_name || reg?.profile || reg?.raw?.profile_display_name || this.config.fallback_profile || "Vehicle"; }
   displayName() { const reg = this.registryEntry(); return reg?.display_name || this.config.fallback_name || "Vehicle"; }
   imageFromProfile() { const reg = this.registryEntry() || {}; return this.rt.visualImageUrl(reg, "vehicle", "hero", "vehicle_fallback"); }
-  chargerImage(assetId="") { const reg = assetId ? (this.rt.chargerById(assetId) || this.rt.assetById(assetId) || { asset_id: assetId }) : {}; return this.rt.visualImageUrl(reg, "charger", "image", "charger_fallback"); }
+  chargerImage(assetId="") {
+    const reg = assetId ? (this.rt.chargerById(assetId) || this.rt.assetById(assetId) || { asset_id: assetId }) : {};
+    const prop = assetId ? this.rt.propertyByCompoundKey(assetId, "charger.image_key") : null;
+    const raw = prop?.value ?? this.rt.visualImageKey(reg, "image") ?? reg?.image_key ?? "";
+    const visual = typeof rhiMobilityResolveChargerVisual === "function" ? rhiMobilityResolveChargerVisual(reg, raw) : null;
+    return visual?.appearance?.package_file || this.rt.visualImageUrl(reg, "charger", "image", "charger_fallback");
+  }
 
   chargerAssignmentModel() {
     const assetId = this.assetId();
@@ -94,7 +100,7 @@ class HomeBrainVehicleAdapter {
     const visualPackageFile = visual?.vehicle?.selectable !== false && visual?.vehicle?.visual_quality !== "fallback_only"
       ? String(visual?.vehicle?.package_file || "")
       : "";
-    const img = visualPackageFile ? this.rt.assetUrl(visualPackageFile) : profileImage;
+    const img = visualPackageFile || profileImage;
     const imageFilter = visual?.color?.filter || "none";
     const actions = this.rt.commandActionsFor(assetId, "quick_actions").map((cmd, index) => ({
       label: cmd.label || this.rt.titleize(cmd.command_id || cmd.command_key),

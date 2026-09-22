@@ -7,11 +7,11 @@ const RHI_MOBILITY_IMAGE_CATALOG = Object.freeze([
   { image_key:"vehicle_renault_scenic_techno_ev", package_path:"vehicles/vehicle_renault_scenic_techno_ev.webp", fallback_image_key:"vehicle_fallback" },
   { image_key:"vehicle_guest", package_path:"vehicles/vehicle_fallback.png", fallback_image_key:"vehicle_fallback" },
   { image_key:"vehicle_fallback", package_path:"vehicles/vehicle_fallback.png", fallback_image_key:"vehicle_fallback" },
-  { image_key:"charger_wallbox", package_path:"chargers/charger_wallbox.png", fallback_image_key:"charger_fallback" },
-  { image_key:"charger_wallbox_white", package_path:"chargers/charger_wallbox_white.png", fallback_image_key:"charger_wallbox" },
-  { image_key:"charger_wallbox_black", package_path:"chargers/charger_wallbox_black.png", fallback_image_key:"charger_wallbox" },
-  { image_key:"charger_peblar", package_path:"chargers/charger_peblar.png", fallback_image_key:"charger_fallback" },
-  { image_key:"charger_utility_plug", package_path:"chargers/charger_utility_plug.png", fallback_image_key:"charger_fallback" },
+  { image_key:"charger_wallbox", package_path:"chargers/charger_wallbox_white.svg", fallback_image_key:"charger_fallback" },
+  { image_key:"charger_wallbox_white", package_path:"chargers/charger_wallbox_white.svg", fallback_image_key:"charger_wallbox" },
+  { image_key:"charger_wallbox_black", package_path:"chargers/charger_wallbox_black.svg", fallback_image_key:"charger_wallbox" },
+  { image_key:"charger_peblar", package_path:"chargers/charger_peblar.svg", fallback_image_key:"charger_fallback" },
+  { image_key:"charger_utility_plug", package_path:"chargers/charger_utility_plug.svg", fallback_image_key:"charger_fallback" },
   { image_key:"charger_fallback", package_path:"chargers/charger_fallback.png", fallback_image_key:"charger_fallback" }
 ]);
 
@@ -167,4 +167,100 @@ function rhiMobilityVehicleVisualKey(vehicleId = "", colorId = "") {
   if (!vehicle) return "";
   const color = vehicle.colors.find((row)=>row.id===String(colorId)) || vehicle.colors[0];
   return vehicle.id + "." + color.id;
+}
+
+
+/**
+ * Package-owned charger visual catalog.
+ * Same contract shape as vehicle visuals: one product identity, explicit
+ * appearances, one central alias surface and package-owned rendering.
+ * Frozen V1 may only provide a readonly charger.image_key; the catalog remains
+ * the presentation authority so V2 can replace only the runtime adapter.
+ */
+const RHI_MOBILITY_CHARGER_VISUALS = Object.freeze([
+  {
+    id:"wallbox.commander2", label:"Wallbox Commander 2", brand:"Wallbox", model:"Commander 2",
+    variant:"", years:"Current", selectable:true, visual_quality:"verified_model",
+    appearances:[
+      { id:"white", label:"White", image_key:"charger_wallbox_white" },
+      { id:"black", label:"Black", image_key:"charger_wallbox_black" }
+    ]
+  },
+  {
+    id:"peblar.business.socket", label:"Peblar Business", brand:"Peblar", model:"Business",
+    variant:"Socket", years:"Current", selectable:true, visual_quality:"verified_model",
+    appearances:[
+      { id:"factory", label:"Factory finish", image_key:"charger_peblar" }
+    ]
+  },
+  {
+    id:"fibaro.wall-plug-2.zwave-plus.be-fr", label:"Fibaro Wall Plug 2", brand:"Fibaro", model:"Wall Plug 2",
+    variant:"Z-Wave Plus BE/FR", years:"Current", selectable:true, visual_quality:"verified_model",
+    appearances:[
+      { id:"white", label:"White", image_key:"charger_utility_plug" }
+    ]
+  }
+]);
+
+const RHI_MOBILITY_CHARGER_VISUAL_ALIASES = Object.freeze({
+  // Frozen V1 profile image keys.
+  wallbox_ocpp:"wallbox.commander2.white",
+  peblar_22kw:"peblar.business.socket.factory",
+  fibaro_utility_plug:"fibaro.wall-plug-2.zwave-plus.be-fr.white",
+  utility_plug:"fibaro.wall-plug-2.zwave-plus.be-fr.white",
+
+  // Existing package keys.
+  charger_wallbox:"wallbox.commander2.white",
+  charger_wallbox_white:"wallbox.commander2.white",
+  charger_wallbox_black:"wallbox.commander2.black",
+  charger_peblar:"peblar.business.socket.factory",
+  charger_utility_plug:"fibaro.wall-plug-2.zwave-plus.be-fr.white",
+
+  // Frozen V1 instance compatibility only. V2 identity/color replaces these.
+  charger_driveway_left:"wallbox.commander2.white",
+  charger_driveway_right:"wallbox.commander2.black",
+  charger_sideway:"peblar.business.socket.factory"
+});
+
+function rhiMobilityChargerVisualCatalog() {
+  const images = rhiMobilityImageCatalog();
+  return RHI_MOBILITY_CHARGER_VISUALS.map((row)=>({
+    ...row,
+    appearances: row.appearances.map((appearance)=>({
+      ...appearance,
+      package_file: images.find((item)=>item.image_key===appearance.image_key)?.package_file || ""
+    }))
+  }));
+}
+
+function rhiMobilitySelectableChargerVisualCatalog() {
+  return rhiMobilityChargerVisualCatalog().filter((row)=>row.selectable !== false);
+}
+
+function rhiMobilityParseChargerVisualKey(value = "", assetId = "") {
+  const raw = String(value || "").trim();
+  const instanceAlias = RHI_MOBILITY_CHARGER_VISUAL_ALIASES[String(assetId || "").trim()];
+  const canonical = instanceAlias || RHI_MOBILITY_CHARGER_VISUAL_ALIASES[raw] || raw;
+  for (const charger of rhiMobilityChargerVisualCatalog()) {
+    const prefix = charger.id + ".";
+    if (!canonical.startsWith(prefix)) continue;
+    const appearanceId = canonical.slice(prefix.length);
+    const appearance = charger.appearances.find((row)=>row.id===appearanceId) || charger.appearances[0] || null;
+    return appearance ? { key:charger.id + "." + appearance.id, charger, appearance } : null;
+  }
+  return null;
+}
+
+function rhiMobilityChargerVisualKey(chargerId = "", appearanceId = "") {
+  const charger = rhiMobilityChargerVisualCatalog().find((row)=>row.id===String(chargerId));
+  if (!charger) return "";
+  const appearance = charger.appearances.find((row)=>row.id===String(appearanceId)) || charger.appearances[0];
+  return appearance ? charger.id + "." + appearance.id : "";
+}
+
+function rhiMobilityResolveChargerVisual(asset = {}, rawKey = "") {
+  const assetId = String(asset?.asset_id || asset || "").trim();
+  const parsed = rhiMobilityParseChargerVisualKey(rawKey || asset?.image_key || asset?.raw?.image_key || "", assetId);
+  if (parsed?.appearance?.package_file) return parsed;
+  return null;
 }
