@@ -1,3 +1,10 @@
+## 1.0.0-rc.29 — shared presentation runtime hotfix
+
+- Supersedes broken rc.28 without mutating the published tag.
+- Fixed escaped-newline source serialization that turned `src/app/presentation.js` into a non-executing comment block.
+- Added an execution-level regression test so shared presentation code must actually define and render its public functions.
+- Preserved the rc.28 shared premium Mobility presentation scope and all existing product functionality.
+
 ## 1.0.0-rc.28 — shared premium Mobility presentation
 
 - Added one shared Mobility presentation layer for typography, spacing, density, page geometry and responsive behavior.
