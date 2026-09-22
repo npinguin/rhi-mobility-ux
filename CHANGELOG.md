@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.0.0-rc.22 — shared Vehicle Detail picker
+
+- Reuses one verified Vehicle / Colour picker model on Vehicle Management and Vehicle Detail.
+- Replaces the raw `vehicle.image_key` detail editor with the catalog picker.
+- Adds live type/colour preview on management cards and the Vehicle Detail hero.
+- Fixes the Overview vehicle-row undeclared `visualFilter` runtime regression.
+- Adds execution-level rendering regression coverage.
+- Keeps rc.21 Option A asset-quality rules unchanged.
+
 ## 1.0.0-rc.21 — vehicle picker
 
 - Adds a package-owned vehicle type and colour picker to Vehicles.
