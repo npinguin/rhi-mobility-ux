@@ -1,3 +1,13 @@
+## 1.0.0-rc.31 — premium Mobility cleanup + Energy projections
+
+- Extended the shared premium Mobility grammar across Mobility, Intelligence and Insights without removing existing data, actions or controls.
+- Tightened hero height, spacing, card density and responsive behavior for desktop, tablet and phone portrait.
+- Replaced routed placeholder styling with the same shared hero/fact/card system.
+- Made Mobility Planning a read-only projection of Energy public planning truth.
+- Added Energy-owned per-vehicle metering and financial value to Mobility Insights via exact canonical asset-id joins.
+- Kept Mobility execution/activity/audit ownership separate and fail-closed when Energy data is unavailable.
+- Added owned contract regressions for both cross-domain projections.
+
 ## 1.0.0-rc.30 — Mobility UX coherence + identity-safe picker
 
 - Promoted Overview spacing/density into the shared presentation layer for Overview, Vehicles and Chargers.
