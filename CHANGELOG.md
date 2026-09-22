@@ -1,5 +1,31 @@
 # Changelog
 
+## 1.0.0-rc.21 — vehicle picker
+
+- Adds a package-owned vehicle type and colour picker to Vehicles.
+- Persists one canonical visual key through backend-owned `vehicle.image_key`.
+- Adds structured model/color catalog entries with verified selectable artwork; legacy placeholder model keys remain backward-compatible but fail safe to the generic fallback.
+- Keeps old image keys as aliases and keeps visual assets/rendering UX-owned.
+- Requires Mobility backend M0.9.29 for picker persistence and readback.
+- Includes rc.19 navigation alignment and rc.20 vehicle-management improvements.
+
+
+## 1.0.0-rc.20 — vehicle management workspace
+
+- Promotes Vehicles into the user-facing vehicle-management workspace.
+- Adds All / Active / Disabled / Attention filtering and configured-order / name sorting.
+- Adds a Home Assistant-native entry point to Mobility vehicle/profile configuration instead of duplicating the backend Options flow.
+- Makes lifecycle Activate / Disable explicit while preserving backend-owned charger assignment, controls and quick actions.
+- Removes generic supervisor emphasis from Vehicles and keeps inactive vehicles compact.
+- Preserves `MOBILITY_PUBLIC_RUNTIME_V1` and the R43.2.65 backend baseline.
+
+## 1.0.0-rc.19 — shared top-navigation alignment
+
+- Aligns Mobility / Intelligence / Insights into three equal-width primary navigation columns.
+- Centers top-level navigation actions and prevents tablet-width clipping into the Robotix brand area.
+- Uses the same primary-row geometry as Energy.
+- Preserves all routes, second-level tabs, product semantics and backend contracts.
+
 ## 1.0.0-rc.18 — HACS full-tree delivery correction
 
 - Removes all GitHub Release assets from tagged HACS plugin releases.

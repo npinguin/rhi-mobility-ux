@@ -1,32 +1,28 @@
-# v1.0.0-rc.18 — HACS full-tree delivery correction TEST CANDIDATE
+# v1.0.0-rc.21 — vehicle picker TEST CANDIDATE
 
 ## Purpose
 
-Correct the HACS release model using the behavior proven from current HACS source and clean Home Assistant reinstall evidence.
+Complete the Vehicles management flow with one package-owned vehicle picker for vehicle type and colour while Mobility persists only the selected `vehicle.image_key`.
 
-## Root cause
+## Changes
 
-For tagged HACS plugins, GitHub Release assets are preferred as install payload when any assets exist. The previous RHI UX model attached checksum/manifest/qualification files as “evidence-only” assets. On a clean install HACS therefore installed only those files and never materialized the immutable tag's complete `dist/` tree, leaving `rhi-mobility-ux.js` and `assets/` absent.
-
-## Correction
-
-- GitHub Release remains the HACS-visible version surface but contains **zero assets**.
-- The immutable Git tag owns the complete `dist/` package.
-- `content_in_root: false` keeps `dist/` as the remote plugin package root.
-- Candidate publication and stable promotion both fail if any GitHub Release asset exists.
-- HACS install simulation now models current tagged-release selection semantics before projecting the `dist/` tree.
-- Qualification remains repository-governed and is not uploaded as a release asset.
-
-## Product behavior
-
-No Mobility product semantics are changed from rc.17. Overview, Vehicles, Chargers, Charging, detail screens, No charger semantics, URL-authoritative routing and fail-closed behavior are preserved.
+- adds a structured UX-owned vehicle visual catalog with verified selectable artwork for Audi Q8, BMW iX1 and Mercedes-Benz GLA plus the generic guest vehicle;
+- adds a Vehicle / Colour picker directly on each vehicle card;
+- stores one canonical visual key through the backend-published `vehicle.image_key` write surface;
+- preserves legacy image keys through deterministic aliases;
+- resolves canonical keys to packaged imagery, while legacy Renault Scenic / Volkswagen ID.4 placeholder keys fail safe to the generic vehicle fallback until distinct verified artwork exists;
+- applies package-owned colour rendering consistently across Overview, Vehicle Management and vehicle detail without moving paint/catalog semantics into backend;
+- keeps picker fail-closed when the backend does not publish the required writable property;
+- includes the rc.19 top-navigation alignment and rc.20 vehicle-management workspace.
 
 ## Compatibility
 
-- Mobility UX: 1.0.0-rc.18
+- Mobility UX: 1.0.0-rc.21
 - Contract: `MOBILITY_PUBLIC_RUNTIME_V1`
-- Minimum backend: R43.2.60
-- Tested backend baseline: R43.2.65
-- Rollback: `v1.0.0-rc.17`
+- Required backend: M0.9.29
+- Tested backend baseline: M0.9.29
+- Rollback: `v1.0.0-rc.18`
 
-Target Home Assistant qualification must use a clean HACS install and prove that `www/community/rhi-mobility-ux/` contains `rhi-mobility-ux.js` plus the packaged `assets/` tree before runtime promotion.
+## Asset-quality guard
+
+Model-specific visuals may only be offered by the picker when their packaged artwork is verified and byte-distinct from the generic fallback and from other verified models. Placeholder/aliased visuals remain readable for backward compatibility but are not selectable as new visual identities.

@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "product": "rhi-mobility-ux",
-  "version": "1.0.0-rc.18",
+  "version": "1.0.0-rc.21",
   "source_manifest_schema": 1,
   "hacs_package_root": "dist",
   "hacs_filename": "rhi-mobility-ux.js",
@@ -11,7 +11,7 @@
     "chargers",
     "vehicles"
   ],
-  "runtime_sha256": "2083d409db06efbfdd7109dc2fdd38b441d0d04e66d0b59d67362d78fa544048",
+  "runtime_sha256": "a2fe94cdb7353b77bcbd72ff18d9972b27fbcd5f39eff4ec8fd0cb2c4937f320",
   "files": [
     {
       "path": "assets/branding/company-logo.svg",
@@ -86,14 +86,6 @@
       "bytes": 238575
     },
     {
-      "path": "assets/vehicles/vehicle_renault_scenic_techno_ev_hero.png",
-      "bytes": 113622
-    },
-    {
-      "path": "assets/vehicles/vehicle_renault_scenic_techno_ev.png",
-      "bytes": 113622
-    },
-    {
       "path": "assets/vehicles/vehicle_unknown_profile_hero.png",
       "bytes": 113622
     },
@@ -102,16 +94,8 @@
       "bytes": 113622
     },
     {
-      "path": "assets/vehicles/vehicle_vw_id4_hero.png",
-      "bytes": 238575
-    },
-    {
-      "path": "assets/vehicles/vehicle_vw_id4.png",
-      "bytes": 238575
-    },
-    {
       "path": "rhi-mobility-ux.js",
-      "bytes": 544534
+      "bytes": 571377
     },
     {
       "path": "rhi-mobility-ux.js.sha256",

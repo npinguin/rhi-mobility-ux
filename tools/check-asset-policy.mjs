@@ -45,4 +45,30 @@ for(const rel of sourceFiles){
   duplicates.set(digest,[...(duplicates.get(digest)||[]),rel]);
 }
 const duplicateGroups=[...duplicates.values()].filter(v=>v.length>1);
-console.log(`PASS asset policy: ${sourceFiles.length} safe canonical assets, ${referenced.length} catalog references, ${duplicateGroups.length} duplicate-byte groups reported only`);
+
+const imageRows=[...catalog.matchAll(/image_key:"([^"]+)", package_path:"([^"]+)"/g)]
+  .map(([,image_key,package_path])=>({image_key,package_path}));
+const imagePathByKey=new Map(imageRows.map((row)=>[row.image_key,row.package_path]));
+const visualRows=[...catalog.matchAll(/id:"([^"]+)"[\\s\\S]*?image_key:"([^"]+)", selectable:(true|false), visual_quality:"([^"]+)"/g)]
+  .map(([,id,image_key,selectable,visual_quality])=>({id,image_key,selectable:selectable==="true",visual_quality}));
+
+for(const row of visualRows){
+  if(row.visual_quality==="fallback_only"){
+    if(row.selectable) throw new Error(`fallback-only vehicle visual must not be selectable: ${row.id}`);
+    if(row.image_key!=="vehicle_fallback") throw new Error(`fallback-only vehicle visual must resolve to vehicle_fallback: ${row.id}`);
+  }
+}
+
+const verified=visualRows.filter((row)=>row.selectable && row.visual_quality==="verified_model");
+const verifiedDigests=new Map();
+const fallbackDigest=crypto.createHash('sha256').update(fs.readFileSync(path.join(srcRoot,'vehicles/vehicle_fallback.png'))).digest('hex');
+for(const row of verified){
+  const rel=imagePathByKey.get(row.image_key);
+  if(!rel) throw new Error(`verified vehicle visual has no image catalog entry: ${row.id} -> ${row.image_key}`);
+  const digest=crypto.createHash('sha256').update(fs.readFileSync(path.join(srcRoot,rel))).digest('hex');
+  if(digest===fallbackDigest) throw new Error(`verified vehicle visual resolves to fallback bytes: ${row.id}`);
+  if(verifiedDigests.has(digest)) throw new Error(`verified vehicle visuals share identical artwork: ${verifiedDigests.get(digest)} and ${row.id}`);
+  verifiedDigests.set(digest,row.id);
+}
+
+console.log(`PASS asset policy: ${sourceFiles.length} safe canonical assets, ${referenced.length} catalog references, ${verified.length} verified model visuals are distinct; ${duplicateGroups.length} duplicate-byte groups are limited to non-verified/alias assets`);
