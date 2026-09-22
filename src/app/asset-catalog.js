@@ -7,11 +7,11 @@ const RHI_MOBILITY_IMAGE_CATALOG = Object.freeze([
   { image_key:"vehicle_renault_scenic_techno_ev", package_path:"vehicles/vehicle_renault_scenic_techno_ev.webp", fallback_image_key:"vehicle_fallback" },
   { image_key:"vehicle_guest", package_path:"vehicles/vehicle_fallback.png", fallback_image_key:"vehicle_fallback" },
   { image_key:"vehicle_fallback", package_path:"vehicles/vehicle_fallback.png", fallback_image_key:"vehicle_fallback" },
-  { image_key:"charger_wallbox", package_path:"chargers/charger_wallbox.png", fallback_image_key:"charger_fallback" },
-  { image_key:"charger_wallbox_white", package_path:"chargers/charger_wallbox_white.png", fallback_image_key:"charger_wallbox" },
-  { image_key:"charger_wallbox_black", package_path:"chargers/charger_wallbox_black.png", fallback_image_key:"charger_wallbox" },
-  { image_key:"charger_peblar", package_path:"chargers/charger_peblar.png", fallback_image_key:"charger_fallback" },
-  { image_key:"charger_utility_plug", package_path:"chargers/charger_utility_plug.png", fallback_image_key:"charger_fallback" },
+  { image_key:"charger_wallbox", package_path:"chargers/charger_wallbox_white.svg", fallback_image_key:"charger_fallback" },
+  { image_key:"charger_wallbox_white", package_path:"chargers/charger_wallbox_white.svg", fallback_image_key:"charger_wallbox" },
+  { image_key:"charger_wallbox_black", package_path:"chargers/charger_wallbox_black.svg", fallback_image_key:"charger_wallbox" },
+  { image_key:"charger_peblar", package_path:"chargers/charger_peblar.svg", fallback_image_key:"charger_fallback" },
+  { image_key:"charger_utility_plug", package_path:"chargers/charger_utility_plug.svg", fallback_image_key:"charger_fallback" },
   { image_key:"charger_fallback", package_path:"chargers/charger_fallback.png", fallback_image_key:"charger_fallback" }
 ]);
 
@@ -179,7 +179,7 @@ function rhiMobilityVehicleVisualKey(vehicleId = "", colorId = "") {
  */
 const RHI_MOBILITY_CHARGER_VISUALS = Object.freeze([
   {
-    id:"wallbox.commander2.22kw", label:"Wallbox Commander 2", brand:"Wallbox", model:"Commander 2",
+    id:"wallbox.commander2", label:"Wallbox Commander 2", brand:"Wallbox", model:"Commander 2",
     variant:"", years:"Current", selectable:true, visual_quality:"verified_model",
     appearances:[
       { id:"white", label:"White", image_key:"charger_wallbox_white" },
@@ -187,7 +187,7 @@ const RHI_MOBILITY_CHARGER_VISUALS = Object.freeze([
     ]
   },
   {
-    id:"peblar.business.socket.22kw", label:"Peblar Business", brand:"Peblar", model:"Business",
+    id:"peblar.business.socket", label:"Peblar Business", brand:"Peblar", model:"Business",
     variant:"Socket", years:"Current", selectable:true, visual_quality:"verified_model",
     appearances:[
       { id:"factory", label:"Factory finish", image_key:"charger_peblar" }
@@ -204,22 +204,22 @@ const RHI_MOBILITY_CHARGER_VISUALS = Object.freeze([
 
 const RHI_MOBILITY_CHARGER_VISUAL_ALIASES = Object.freeze({
   // Frozen V1 profile image keys.
-  wallbox_ocpp:"wallbox.commander2.22kw.white",
-  peblar_22kw:"peblar.business.socket.22kw.factory",
+  wallbox_ocpp:"wallbox.commander2.white",
+  peblar_22kw:"peblar.business.socket.factory",
   fibaro_utility_plug:"fibaro.wall-plug-2.zwave-plus.be-fr.white",
   utility_plug:"fibaro.wall-plug-2.zwave-plus.be-fr.white",
 
   // Existing package keys.
-  charger_wallbox:"wallbox.commander2.22kw.white",
-  charger_wallbox_white:"wallbox.commander2.22kw.white",
-  charger_wallbox_black:"wallbox.commander2.22kw.black",
-  charger_peblar:"peblar.business.socket.22kw.factory",
+  charger_wallbox:"wallbox.commander2.white",
+  charger_wallbox_white:"wallbox.commander2.white",
+  charger_wallbox_black:"wallbox.commander2.black",
+  charger_peblar:"peblar.business.socket.factory",
   charger_utility_plug:"fibaro.wall-plug-2.zwave-plus.be-fr.white",
 
   // Frozen V1 instance compatibility only. V2 identity/color replaces these.
-  charger_driveway_left:"wallbox.commander2.22kw.white",
-  charger_driveway_right:"wallbox.commander2.22kw.black",
-  charger_sideway:"peblar.business.socket.22kw.factory"
+  charger_driveway_left:"wallbox.commander2.white",
+  charger_driveway_right:"wallbox.commander2.black",
+  charger_sideway:"peblar.business.socket.factory"
 });
 
 function rhiMobilityChargerVisualCatalog() {
