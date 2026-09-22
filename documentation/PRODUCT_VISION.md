@@ -150,6 +150,8 @@ Assets remain package data under `src/assets/<category>/`. Behavior, permissions
 
 The same Vehicle / Colour picker component is used wherever vehicle appearance is editable. Vehicle Management and Vehicle Detail may present it differently, but neither may expose a raw `vehicle.image_key` editor or maintain a second catalog.
 
+The picker hierarchy is Brand → Model → Variant → Colour. Opening a picker must preserve the current Mobility identity; unknown or future keys must never silently resolve to the first catalog entry. Artwork provenance and future expansion are governed by `documentation/VEHICLE_ARTWORK_SOURCES.json`.
+
 ## V1 vs V2.x
 
 V1 consumes only `MOBILITY_PUBLIC_RUNTIME_V1`.
