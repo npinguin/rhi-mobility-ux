@@ -102,6 +102,35 @@ function hbMobilityPresentationStyles() {
     @media(max-width:1024px){:host{--rhi-page-pad-x:18px;--rhi-page-pad-y:14px}.rhi-page-hero{grid-template-columns:minmax(0,1fr) minmax(240px,.62fr);min-height:142px}.rhi-page-hero-copy{padding:16px 0 16px 18px}.rhi-page-hero-art,.rhi-page-hero-art img{min-height:142px}}
     @media(max-width:760px){:host{--rhi-page-pad-x:10px;--rhi-page-pad-y:10px}.rhi-page-hero{min-height:126px;grid-template-columns:minmax(0,1fr) minmax(118px,.42fr);gap:2px;border-radius:16px;margin-bottom:8px}.rhi-page-hero-copy{padding:13px 0 13px 13px}.rhi-page-hero-copy>small{font-size:8px;margin-bottom:3px}.rhi-page-hero-copy h1{font-size:23px;margin-bottom:4px}.rhi-page-hero-copy p{font-size:10px;line-height:1.28;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}.rhi-page-hero-meta{margin-top:7px;font-size:9.5px;gap:6px}.rhi-page-hero-art,.rhi-page-hero-art img{min-height:126px;max-height:126px}.rhi-page-hero-art img{object-fit:cover;object-position:62% center}.rhi-page-hero-badge{display:none}}
     @media(max-width:430px){:host{--rhi-page-pad-x:8px;--rhi-page-pad-y:8px}.rhi-page-hero{min-height:118px;grid-template-columns:minmax(0,1fr) 110px}.rhi-page-hero-copy{padding:11px 0 11px 11px}.rhi-page-hero-copy h1{font-size:21px}.rhi-page-hero-copy p{-webkit-line-clamp:2;font-size:9.5px}.rhi-page-hero-meta{font-size:9px;margin-top:6px}.rhi-page-hero-art,.rhi-page-hero-art img{min-height:118px;max-height:118px}}
+    /* rc31: shared premium hierarchy across Overview, Vehicles, Chargers and detail/maintenance views */
+    .vehicle-card,.charger-card,.ov-panel,.info,.summary{border:1px solid var(--rhi-line)!important;background:rgba(255,255,255,.985)!important;box-shadow:0 8px 24px rgba(15,35,80,.045)!important}
+    .vehicle-card,.charger-card{overflow:hidden!important}
+    .vehicle-card h3,.charger-card h3{color:var(--rhi-ink)!important;font-weight:680!important;letter-spacing:-.02em!important}
+    .vehicle-card p,.charger-card p{color:var(--rhi-muted)!important}
+    .vehicle-page-summary,.charger-kpis{gap:var(--rhi-card-gap)!important}
+    .vehicle-page-summary-item,.charger-kpis .field,.field{border:1px solid #E8EDF4!important;background:linear-gradient(180deg,#fff,#FBFCFE)!important;box-shadow:none!important}
+    .soft-line{background:var(--rhi-soft)!important;border:1px solid #E8EDF4!important;border-radius:var(--rhi-radius-md)!important;padding:8px 10px!important;gap:8px!important}
+    .command-row,.charge-mini-strip,.vehicle-actions,.quick-actions{display:flex!important;align-items:center!important;gap:7px!important;flex-wrap:wrap!important}
+    .cmd,.action,.vehicle-manage-button,.charger-appearance-action,.mini-detail-link,.ov-nav-action{min-height:36px!important;border-radius:10px!important;font-size:11px!important;font-weight:650!important;box-shadow:none!important}
+    .cmd:disabled,.action:disabled,.vehicle-manage-button:disabled,.charger-appearance-action:disabled{opacity:.46!important;cursor:not-allowed!important}
+    .charger-hero-card,.vehicle-hero-card,.premium-image-hero{border-radius:var(--rhi-radius-lg)!important;background:linear-gradient(135deg,#F8FBFF,#F4F8FE)!important}
+    .charger-visual,.vehicle-visual{border-radius:var(--rhi-radius-md)!important;overflow:hidden!important}
+    .charger-visual img,.vehicle-visual img{object-fit:contain!important}
+    .fold-section{margin-top:8px!important;border:1px solid #E8EDF4!important;border-radius:var(--rhi-radius-md)!important;background:#fff!important;overflow:hidden!important}
+    .fold-toggle{width:100%!important;min-height:38px!important;display:flex!important;align-items:center!important;gap:7px!important;padding:8px 10px!important;background:transparent!important;border:0!important;color:#334155!important;font-size:10.5px!important;font-weight:650!important;text-align:left!important}
+    .fold-panel{padding:0 10px 10px!important}
+    .detail-grid{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:6px!important}
+    .detail-field{min-width:0!important;padding:8px 9px!important;border:1px solid #EDF1F6!important;border-radius:9px!important;background:var(--rhi-soft)!important}
+    .detail-field span{display:block!important;font-size:8.5px!important;color:#7A8799!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+    .detail-field b{display:block!important;margin-top:2px!important;font-size:10.5px!important;color:#1E293B!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+    .vehicle-management-bar{background:rgba(255,255,255,.96)!important;border:1px solid var(--rhi-line)!important}
+    .vehicle-filter-group button,.vehicle-sort-control{background:#fff!important;border:1px solid #E2E8F0!important;color:#475569!important}
+    .vehicle-filter-group button.active{background:#EEF5FF!important;border-color:#BCD3FA!important;color:#0F5FD3!important}
+    .inactive-row{border:1px solid #E8EDF4!important;border-radius:var(--rhi-radius-md)!important;background:#FBFCFE!important;padding:9px 11px!important}
+    .empty-actions,.empty{color:#7A8799!important;font-size:10px!important;line-height:1.4!important}
+    @media(max-width:1024px){.detail-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+    @media(max-width:760px){.vehicle-card,.charger-card{border-radius:16px!important}.command-row,.charge-mini-strip,.vehicle-actions,.quick-actions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important}.cmd,.action,.vehicle-manage-button,.charger-appearance-action,.mini-detail-link,.ov-nav-action{width:100%!important;justify-content:center!important}.soft-line{overflow-x:auto!important;flex-wrap:nowrap!important}.soft-line>span{white-space:nowrap!important}}
+    @media(max-width:430px){.detail-grid{grid-template-columns:1fr!important}.command-row,.charge-mini-strip,.vehicle-actions,.quick-actions{grid-template-columns:1fr!important}.vehicle-page-summary,.charger-kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
     @media(min-width:1440px){.rhi-page-hero{grid-template-columns:minmax(0,1.36fr) minmax(360px,.64fr)}.rhi-page-hero-art img{object-position:55% center}}
   `;
 }
