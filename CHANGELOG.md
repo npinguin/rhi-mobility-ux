@@ -1,12 +1,13 @@
 # Changelog
 
-## 1.0.0-rc.25 — full current vehicle picker catalog
+## 1.0.0-rc.25 — hierarchical vehicle picker pilot
 
-- Preserves the current vehicle identity when opening the picker; no implicit first-row default.
-- Aligns picker identities with all seven current Mobility vehicle profiles.
-- Recognises backend profile/source image-key aliases for deterministic initial selection.
-- Keeps ID.4 and Scenic profile/source artwork until dedicated package artwork exists.
-- Corrects BMW identity to X1 PHEV and splits Guest PHEV / Guest EV.
+- Replaces the flat vehicle dropdown with Brand → Model → Variant → Colour.
+- Preserves the current Mobility vehicle identity and removes all implicit first-row defaults.
+- Covers all seven current Mobility vehicle profiles and recognises their current source/profile image keys.
+- Keeps profile/source artwork for ID.4 and Scenic until dedicated package artwork is processed.
+- Adds a machine-readable artwork provenance registry and the 10-brand × 4-model expansion target.
+- Keeps one shared picker across Vehicle Management and Vehicle Detail.
 
 ## 1.0.0-rc.24 — hero artwork + visible Vehicle & colour
 
