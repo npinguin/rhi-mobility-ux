@@ -1,21 +1,22 @@
 {
   "kind": "RHI_MOBILITY_VEHICLE_ARTWORK_SOURCES",
   "schema_version": "1.0.0",
-  "pilot": "v1.0.0-rc.25",
+  "pilot": "v1.0.0-rc.26",
   "policy": {
     "preferred_source_order": [
       "package_owned",
       "CC0",
       "CC_BY",
-      "CC_BY_SA",
-      "profile_source"
+      "CC_BY_SA"
     ],
     "minimum_master_width_px": 3000,
     "target_view": "front_three_quarter",
     "no_wrong_model_fallback": true,
     "one_master_per_model": true,
     "colour_rendering": "runtime_filter",
-    "attribution_manifest_required": true
+    "attribution_manifest_required": true,
+    "current_scope_package_complete": true,
+    "legacy_runtime_artwork_paths": false
   },
   "current_scope": [
     {
@@ -35,15 +36,13 @@
     {
       "catalog_id": "volkswagen.id4.2024-2026.ev",
       "mobility_profile": "vw_id4_business_pro_77kwh",
-      "artwork_mode": "profile_source",
-      "package_key": null,
+      "artwork_mode": "package_owned",
+      "package_key": "vehicle_vw_id4",
       "candidate_source": {
-        "resolution": "5654x3754",
-        "license": "CC0-1.0",
-        "author": "Charles / Flickr user usf1fan2",
-        "status": "approved_for_artwork_pipeline",
+        "status": "reference_only_after_canonical_package_art",
         "source_ref": "Wikimedia Commons — File:Volkswagen ID.4 (2024) (54724554737).jpg",
-        "source_host": "commons.wikimedia.org"
+        "source_host": "commons.wikimedia.org",
+        "license": "CC0-1.0"
       }
     },
     {
@@ -64,7 +63,7 @@
       "catalog_id": "bmw.x1.u11.2025-2026.phev",
       "mobility_profile": "bmw_x1_2025_phev",
       "artwork_mode": "package_owned",
-      "package_key": "vehicle_bmw_ix1_phev",
+      "package_key": "vehicle_bmw_x1_phev",
       "candidate_source": {
         "resolution": "5400x3600",
         "license": "CC-BY-2.0",
@@ -77,28 +76,26 @@
     {
       "catalog_id": "renault.scenic.e-tech.2024-2026.techno",
       "mobility_profile": "renault_scenic_techno_ev",
-      "artwork_mode": "profile_source",
-      "package_key": null,
+      "artwork_mode": "package_owned",
+      "package_key": "vehicle_renault_scenic_techno_ev",
       "candidate_source": {
-        "resolution": "5810x3730",
-        "license": "CC0-1.0",
-        "author": "Charles / Flickr user usf1fan2",
-        "status": "approved_for_artwork_pipeline",
+        "status": "reference_only_after_canonical_package_art",
         "source_ref": "Wikimedia Commons — File:Renault Scénic E-Tech (2025) (54712552219).jpg",
-        "source_host": "commons.wikimedia.org"
+        "source_host": "commons.wikimedia.org",
+        "license": "CC0-1.0"
       }
     },
     {
       "catalog_id": "generic.guest.current.phev-1phase",
       "mobility_profile": "guest_phev_1phase",
-      "artwork_mode": "generic",
+      "artwork_mode": "generic_fallback",
       "package_key": "vehicle_guest",
       "candidate_source": null
     },
     {
       "catalog_id": "generic.guest.current.ev-3phase",
       "mobility_profile": "guest_ev_3phase",
-      "artwork_mode": "generic",
+      "artwork_mode": "generic_fallback",
       "package_key": "vehicle_guest",
       "candidate_source": null
     }
@@ -119,5 +116,30 @@
     ],
     "models_per_brand": 4,
     "status": "backlog_after_pilot"
+  },
+  "cleanup": {
+    "one_master_per_real_model": true,
+    "real_model_count": 5,
+    "canonical_vehicle_files": [
+      "vehicle_audi_q8.png",
+      "vehicle_bmw_x1_phev.png",
+      "vehicle_mercedes_gla.png",
+      "vehicle_renault_scenic_techno_ev.webp",
+      "vehicle_vw_id4.webp"
+    ],
+    "fallback_file": "vehicle_fallback.png",
+    "removed_legacy_files": [
+      "default_vehicle.png",
+      "vehicle_audi_q8_hero.png",
+      "vehicle_bmw_ix1_phev.png",
+      "vehicle_bmw_ix1_phev_hero.png",
+      "vehicle_guest.png",
+      "vehicle_guest_hero.png",
+      "vehicle_mercedes_gla_hero.png",
+      "vehicle_renault_scenic_techno_ev.png",
+      "vehicle_unknown_profile.png",
+      "vehicle_unknown_profile_hero.png",
+      "vehicle_vw_id4.png"
+    ]
   }
 }

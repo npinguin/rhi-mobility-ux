@@ -65,7 +65,18 @@ for(const row of visualRows){
 
 const imagePathByKey=new Map(imageRows.map((row)=>[String(row.image_key),String(row.package_file)]));
 const verified=visualRows.filter((row)=>row.selectable && row.visual_quality==='verified_model');
-if(verified.length < 3) throw new Error(`verified vehicle artwork gate parsed only ${verified.length} models; expected at least the current Audi/BMW/Mercedes package artwork`);
+const expectedVerifiedIds=[
+  'audi.q8.4m.2024-2026.tfsi-e',
+  'bmw.x1.u11.2025-2026.phev',
+  'mercedes.gla.h247.2023-2026.phev',
+  'renault.scenic.e-tech.2024-2026.techno',
+  'volkswagen.id4.2024-2026.ev'
+];
+const verifiedIds=new Set(verified.map((row)=>row.id));
+for(const id of expectedVerifiedIds){
+  if(!verifiedIds.has(id)) throw new Error(`current supported vehicle lacks verified package artwork: ${id}`);
+}
+if(verified.length !== expectedVerifiedIds.length) throw new Error(`verified current-model artwork count drifted: ${verified.length}; expected exactly ${expectedVerifiedIds.length}`);
 
 const verifiedDigests=new Map();
 const fallbackDigest=crypto.createHash('sha256').update(fs.readFileSync(path.join(srcRoot,'vehicles/vehicle_fallback.png'))).digest('hex');
@@ -78,4 +89,17 @@ for(const row of verified){
   verifiedDigests.set(digest,row.id);
 }
 
-console.log(`PASS asset policy: ${sourceFiles.length} safe canonical assets, ${referenced.length} catalog references, ${verified.length} verified model visuals are distinct; ${duplicateGroups.length} duplicate-byte groups are limited to non-verified/alias assets`);
+const vehicleFiles=sourceFiles.filter((rel)=>rel.startsWith('vehicles/'));
+const allowedVehicleFiles=new Set([
+  'vehicles/vehicle_audi_q8.png',
+  'vehicles/vehicle_bmw_x1_phev.png',
+  'vehicles/vehicle_fallback.png',
+  'vehicles/vehicle_mercedes_gla.png',
+  'vehicles/vehicle_renault_scenic_techno_ev.webp',
+  'vehicles/vehicle_vw_id4.webp'
+]);
+for(const rel of vehicleFiles){
+  if(!allowedVehicleFiles.has(rel)) throw new Error(`legacy/dead vehicle artwork still packaged: ${rel}`);
+}
+if(vehicleFiles.length!==allowedVehicleFiles.size) throw new Error(`vehicle asset inventory drifted: ${vehicleFiles.length}; expected ${allowedVehicleFiles.size}`);
+console.log(`PASS asset policy: 5 current real vehicles have distinct canonical package artwork; vehicle inventory is legacy-free and one-master-per-model`);

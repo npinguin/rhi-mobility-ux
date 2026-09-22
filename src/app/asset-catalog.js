@@ -1,19 +1,11 @@
 // Package-owned visual catalog. Backend owns image_key; this layer maps keys to immutable package assets.
 const RHI_MOBILITY_IMAGE_CATALOG = Object.freeze([
   { image_key:"vehicle_audi_q8", package_path:"vehicles/vehicle_audi_q8.png", fallback_image_key:"vehicle_fallback" },
-  { image_key:"vehicle_audi_q8_hero", package_path:"vehicles/vehicle_audi_q8_hero.png", fallback_image_key:"vehicle_audi_q8" },
+  { image_key:"vehicle_bmw_x1_phev", package_path:"vehicles/vehicle_bmw_x1_phev.png", fallback_image_key:"vehicle_fallback" },
   { image_key:"vehicle_mercedes_gla", package_path:"vehicles/vehicle_mercedes_gla.png", fallback_image_key:"vehicle_fallback" },
-  { image_key:"vehicle_vw_id4", package_path:"vehicles/vehicle_fallback.png", fallback_image_key:"vehicle_fallback" },
-  { image_key:"vehicle_bmw_ix1_phev", package_path:"vehicles/vehicle_bmw_ix1_phev.png", fallback_image_key:"vehicle_unknown_profile" },
-  { image_key:"vehicle_bmw_x1", package_path:"vehicles/vehicle_bmw_ix1_phev.png", fallback_image_key:"vehicle_unknown_profile" },
-  { image_key:"vehicle_bmw_ix1_phev_hero", package_path:"vehicles/vehicle_bmw_ix1_phev_hero.png", fallback_image_key:"vehicle_bmw_ix1_phev" },
-  { image_key:"vehicle_renault_scenic_techno_ev", package_path:"vehicles/vehicle_fallback.png", fallback_image_key:"vehicle_fallback" },
-  { image_key:"vehicle_renault_scenic", package_path:"vehicles/vehicle_fallback.png", fallback_image_key:"vehicle_fallback" },
-  { image_key:"vehicle_renault_scenic_techno_ev_hero", package_path:"vehicles/vehicle_fallback.png", fallback_image_key:"vehicle_fallback" },
-  { image_key:"vehicle_unknown_profile", package_path:"vehicles/vehicle_unknown_profile.png", fallback_image_key:"vehicle_fallback" },
-  { image_key:"vehicle_unknown_profile_hero", package_path:"vehicles/vehicle_unknown_profile_hero.png", fallback_image_key:"vehicle_unknown_profile" },
-  { image_key:"vehicle_guest", package_path:"vehicles/vehicle_unknown_profile.png", fallback_image_key:"vehicle_unknown_profile" },
-  { image_key:"vehicle_guest_generic", package_path:"vehicles/vehicle_unknown_profile.png", fallback_image_key:"vehicle_unknown_profile" },
+  { image_key:"vehicle_vw_id4", package_path:"vehicles/vehicle_vw_id4.webp", fallback_image_key:"vehicle_fallback" },
+  { image_key:"vehicle_renault_scenic_techno_ev", package_path:"vehicles/vehicle_renault_scenic_techno_ev.webp", fallback_image_key:"vehicle_fallback" },
+  { image_key:"vehicle_guest", package_path:"vehicles/vehicle_fallback.png", fallback_image_key:"vehicle_fallback" },
   { image_key:"vehicle_fallback", package_path:"vehicles/vehicle_fallback.png", fallback_image_key:"vehicle_fallback" },
   { image_key:"charger_wallbox", package_path:"chargers/charger_wallbox.png", fallback_image_key:"charger_fallback" },
   { image_key:"charger_wallbox_white", package_path:"chargers/charger_wallbox_white.png", fallback_image_key:"charger_wallbox" },
@@ -51,7 +43,7 @@ const RHI_MOBILITY_VEHICLE_VISUALS = Object.freeze([
   },
   {
     id:"bmw.x1.u11.2025-2026.phev", label:"BMW X1 PHEV", brand:"BMW", model:"X1",
-    generation:"U11", years:"2025–2026", variant:"PHEV", image_key:"vehicle_bmw_ix1_phev", selectable:true, visual_quality:"verified_model",
+    generation:"U11", years:"2025–2026", variant:"PHEV", image_key:"vehicle_bmw_x1_phev", selectable:true, visual_quality:"verified_model",
     colors:[
       { id:"mineral-white", label:"Mineral White", filter:"none" },
       { id:"black-sapphire", label:"Black Sapphire", filter:"brightness(.40) contrast(1.18) saturate(.7)" },
@@ -73,7 +65,7 @@ const RHI_MOBILITY_VEHICLE_VISUALS = Object.freeze([
   },
   {
     id:"renault.scenic.e-tech.2024-2026.techno", label:"Renault Scenic E-Tech", brand:"Renault", model:"Scenic",
-    generation:"E-Tech", years:"2024–2026", variant:"Techno EV", image_key:"", selectable:true, visual_quality:"profile_source",
+    generation:"E-Tech", years:"2024–2026", variant:"Techno EV", image_key:"vehicle_renault_scenic_techno_ev", selectable:true, visual_quality:"verified_model",
     colors:[
       { id:"pearl-white", label:"Pearl White", filter:"none" },
       { id:"starry-black", label:"Starry Black", filter:"brightness(.42) contrast(1.16) saturate(.65)" },
@@ -84,7 +76,7 @@ const RHI_MOBILITY_VEHICLE_VISUALS = Object.freeze([
   },
   {
     id:"volkswagen.id4.2024-2026.ev", label:"Volkswagen ID.4", brand:"Volkswagen", model:"ID.4",
-    generation:"ID.4", years:"2024–2026", variant:"EV", image_key:"", selectable:true, visual_quality:"profile_source",
+    generation:"ID.4", years:"2024–2026", variant:"EV", image_key:"vehicle_vw_id4", selectable:true, visual_quality:"verified_model",
     colors:[
       { id:"costa-azul", label:"Costa Azul", filter:"none" },
       { id:"moonstone-grey", label:"Moonstone Grey", filter:"grayscale(.65) brightness(.78)" },
@@ -130,6 +122,7 @@ const RHI_MOBILITY_VEHICLE_VISUAL_ALIASES = Object.freeze({
   // Existing UX/package aliases kept for backward compatibility
   vehicle_audi_q8:"audi.q8.4m.2024-2026.tfsi-e.daytona-grey",
   vehicle_audi_q8_hero:"audi.q8.4m.2024-2026.tfsi-e.daytona-grey",
+  vehicle_bmw_x1_phev:"bmw.x1.u11.2025-2026.phev.mineral-white",
   vehicle_bmw_ix1_phev:"bmw.x1.u11.2025-2026.phev.mineral-white",
   vehicle_bmw_x1:"bmw.x1.u11.2025-2026.phev.mineral-white",
   vehicle_bmw_ix1_phev_hero:"bmw.x1.u11.2025-2026.phev.mineral-white",
@@ -148,9 +141,7 @@ function rhiMobilityVehicleVisualCatalog() {
   return RHI_MOBILITY_VEHICLE_VISUALS.map((row)=>({
     ...row,
     colors: row.colors.map((color)=>({ ...color })),
-    package_file: row.image_key
-      ? (rhiMobilityImageCatalog().find((item)=>item.image_key===row.image_key)?.package_file || "")
-      : ""
+    package_file: rhiMobilityImageCatalog().find((item)=>item.image_key===row.image_key)?.package_file || ""
   }));
 }
 

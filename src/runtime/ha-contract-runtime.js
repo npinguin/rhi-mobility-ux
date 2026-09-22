@@ -307,23 +307,6 @@ class HomeBrainAssetRuntime {
     return this.profileRows().find((p) => String(p.profile_id || p.id || "") === profileId) || null;
   }
 
-  profileImageCompatibilityKey(asset = {}, role = "image") {
-    // R22.12.11.24: package-owned visual mapping for known guest profiles.
-    // Future profile-editor additions should publish explicit image_key/hero_image_key.
-    // Unknown profiles intentionally resolve to a neutral image, never to a specific car.
-    const profileId = String(asset?.profile_id || asset?.raw?.profile_id || "").trim().toLowerCase();
-    const profileName = String(asset?.profile || asset?.profile_display_name || asset?.raw?.profile || asset?.raw?.profile_display_name || "").trim().toLowerCase();
-    const haystack = `${profileId} ${profileName}`;
-    const hero = role === "hero";
-    if (profileId === "bmw_x1_2025_phev" || profileId === "bmw_ix1_2025_phev" || (haystack.includes("bmw") && (haystack.includes("x1") || haystack.includes("ix1")))) {
-      return hero ? "vehicle_bmw_ix1_phev_hero" : "vehicle_bmw_ix1_phev";
-    }
-    if (profileId === "renault_scenic_techno_ev" || (haystack.includes("renault") && haystack.includes("scenic"))) {
-      return hero ? "vehicle_renault_scenic_techno_ev_hero" : "vehicle_renault_scenic_techno_ev";
-    }
-    return "";
-  }
-
   isGenericVehicleImageKey(imageKey = "") {
     return ["vehicle_guest", "vehicle_guest_generic", "vehicle_fallback", "vehicle_unknown_profile", "vehicle_unknown_profile_hero", "default_vehicle"].includes(String(imageKey || "").trim());
   }
@@ -352,16 +335,14 @@ class HomeBrainAssetRuntime {
 
   visualImageKey(asset = {}, role = "image") {
     const profile = this.profileForAsset(asset) || {};
-    const compatibilityKey = this.profileImageCompatibilityKey(asset, role);
-    const candidates = [];
-    if (role === "hero") candidates.push(asset.hero_image_key, asset.raw?.hero_image_key, profile.hero_image_key);
-    if (role === "thumbnail") candidates.push(asset.thumbnail_image_key, asset.raw?.thumbnail_image_key, profile.thumbnail_image_key);
-    candidates.push(asset.image_key, asset.raw?.image_key, profile.image_key);
+    // One visual authority: explicit/persisted image key, then current profile image key.
+    // Hero/thumbnail are presentation roles over the same canonical model artwork.
+    const candidates = [asset.image_key, asset.raw?.image_key, profile.image_key];
     const explicit = String(candidates.find((v) => v !== undefined && v !== null && String(v).trim() && !this.isGenericVehicleImageKey(v)) || "").trim();
     if (explicit) return explicit;
-    if (compatibilityKey) return compatibilityKey;
-    candidates.push(asset.fallback_image_key, asset.raw?.fallback_image_key, profile.fallback_image_key);
-    return String(candidates.find((v) => v !== undefined && v !== null && String(v).trim()) || "vehicle_unknown_profile").trim();
+    const fallback = [asset.fallback_image_key, asset.raw?.fallback_image_key, profile.fallback_image_key]
+      .find((v) => v !== undefined && v !== null && String(v).trim());
+    return String(fallback || "vehicle_fallback").trim();
   }
 
   visualImageUrl(asset = {}, kind = "vehicle", role = "image", fallback = "") {

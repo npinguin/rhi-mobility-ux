@@ -76,13 +76,15 @@ Actual/readback is the normal operational truth. Requested intent is transient d
 ### Vehicle visual ownership
 
 - Mobility persists only `vehicle.image_key`; UX owns catalog entries, base artwork and colour rendering.
-- The picker may expose only `selectable` verified models.
-- A fallback-only or byte-duplicated model asset is not a supported picker model.
-- Legacy Scenic/ID.4 keys remain readable only for compatibility and resolve to fallback until distinct verified artwork is supplied.
-- Do not expand the picker by adding labels first. New model support starts with verified distinct artwork, then catalog metadata, then tests.
-- Colour variants are rendered on the fly from one model base image; do not proliferate one image file per colour unless a future visual standard explicitly requires it.
-- Picker navigation is hierarchical (Brand → Model → Variant → Colour) and must preserve the current identity on open. Never introduce a first-row/default vehicle fallback.
-- Asset source/licence/provenance is tracked in `documentation/VEHICLE_ARTWORK_SOURCES.json`; new package artwork must update that registry.
+- Every current supported real model has exactly one canonical package master.
+- Audi Q8, BMW X1 PHEV, Mercedes GLA PHEV, Renault Scenic E-Tech and VW ID.4 must all resolve to distinct package artwork.
+- Hero/detail/overview may crop or scale the master differently but may not own separate hero artwork.
+- Legacy keys are compatibility input aliases only. Do not add legacy asset files or a second runtime resolver.
+- Generic Guest PHEV/EV intentionally share the one generic fallback master.
+- Colour variants are rendered on the fly; do not proliferate one image file per colour.
+- Picker navigation is hierarchical (Brand → Model → Variant → Colour) and must preserve the current identity on open.
+- Asset source/licence/provenance is tracked in `documentation/VEHICLE_ARTWORK_SOURCES.json`.
+- `tools/check-asset-policy.mjs` is fail-closed on current-scope completeness, distinct bytes and the exact canonical vehicle-file inventory.
 
 Global supervisor status, trust, attention, opportunity and recommendation are backend-owned. The UX may present factual charging information, but it may not turn those facts into a substitute recommendation. Missing supervisor intelligence fails closed as unavailable/Unknown.
 
