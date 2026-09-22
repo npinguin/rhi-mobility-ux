@@ -137,14 +137,17 @@ Vehicle visuals are UX-owned package data; Mobility persists only the selected `
 
 For the current release line:
 
-- the picker exposes only models with verified, model-specific base artwork;
-- one verified base image is reused for package-owned on-the-fly colour rendering;
-- a model with only fallback or duplicated artwork is not selectable as a new identity;
-- legacy keys may remain readable for backward compatibility, but must resolve fail-safe and must not create a false claim of supported model artwork;
-- verified production models may not share identical base-image bytes;
-- adding a model requires its own verified artwork and the asset-quality gate to pass.
+- every supported real vehicle in the current Mobility scope has its own canonical package artwork;
+- one real model maps to exactly one base artwork master; hero/detail/overview are presentation crops over that same master;
+- verified production models may not share identical artwork bytes;
+- no current supported model may resolve through another model, generic guest art, profile-source artwork or a legacy hero asset;
+- legacy persisted keys are accepted only as input aliases and normalize immediately to the canonical vehicle visual identity;
+- generic guest vehicles deliberately use the single generic fallback master;
+- colour variants are rendered on the fly; separate image files per colour are forbidden unless a later visual contract explicitly requires them.
 
-Current selectable model artwork is limited to Audi Q8, BMW iX1 and Mercedes-Benz GLA, plus the explicit generic guest vehicle. Renault Scenic and Volkswagen ID.4 legacy keys are compatibility-only until distinct verified artwork exists.
+Current real-model package coverage is Audi Q8, BMW X1 PHEV, Mercedes-Benz GLA PHEV, Renault Scenic E-Tech and Volkswagen ID.4. Guest PHEV/EV share the explicit generic vehicle fallback.
+
+The canonical vehicle file inventory is enforced by `tools/check-asset-policy.mjs`; dead hero/default/unknown duplicate files fail validation.
 
 Assets remain package data under `src/assets/<category>/`. Behavior, permissions and operational semantics never come from artwork selection.
 
