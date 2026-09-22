@@ -46,8 +46,17 @@ function hbMobilityPresentationStyles() {
     .vehicle-card,.charger-card,.info,.summary,.vehicle-management-controls,.ov-panel{border-radius:var(--rhi-radius-lg)!important}
     .status-strip.dashboard-status-strip,.status-strip.ops-status-strip{margin:var(--rhi-space-2) 0 var(--rhi-space-3)!important;border-radius:var(--rhi-radius-lg)!important;box-shadow:var(--rhi-shadow)!important}
     .section-title,.vehicle-workspace-head,.ov-panel-head{margin-top:var(--rhi-space-2)!important;margin-bottom:var(--rhi-space-2)!important}
+    .vehicle-management-bar{padding:var(--rhi-space-2)!important;gap:var(--rhi-space-2)!important;border-radius:var(--rhi-radius-md)!important;box-shadow:0 8px 22px rgba(15,35,80,.035)!important}
+    .vehicle-filter-group{gap:var(--rhi-space-1)!important}
+    .vehicle-filter-group button,.vehicle-sort-control,.vehicle-manage-button{height:36px!important;min-height:36px!important;border-radius:var(--rhi-radius-sm)!important}
+    .vehicle-page-summary{gap:var(--rhi-space-2)!important}
+    .vehicle-page-summary-item{min-height:52px!important;border-radius:var(--rhi-radius-md)!important;padding:var(--rhi-space-2) var(--rhi-space-3)!important}
     .vehicle-management-controls,.charger-picker-panel{margin-top:0!important}
     .action,.cmd,.vehicle-manage-button,.ov-nav-action,.charger-appearance-action{min-height:var(--rhi-control-h)!important}
+    .vehicle-workspace-list,.inactive-list,.grid{gap:var(--rhi-card-gap)!important}
+    .vehicle-workspace-list .vehicle-card,.charger-card{box-shadow:0 10px 26px rgba(15,35,80,.045)!important}
+    @media(max-width:1024px){.vehicle-management-bar{grid-template-columns:minmax(0,1fr) auto!important}.vehicle-manage-button{grid-column:1/-1!important;justify-content:center!important}.vehicle-page-summary{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+    @media(max-width:760px){.vehicle-management-bar{grid-template-columns:1fr!important}.vehicle-sort-control,.vehicle-manage-button{grid-column:auto!important}.vehicle-page-summary{grid-template-columns:repeat(2,minmax(0,1fr))!important}.vehicle-filter-group{overflow-x:auto!important}.vehicle-filter-group button{flex:0 0 auto!important}}
     .rhi-page-hero{position:relative;min-height:148px;display:grid;grid-template-columns:minmax(0,1.28fr) minmax(280px,.72fr);align-items:center;gap:14px;overflow:hidden;border:1px solid #DDE6F0;border-radius:var(--rhi-radius-lg);background:linear-gradient(135deg,#F8FBFF 0%,#FFFFFF 52%,#EEF5FF 100%);box-shadow:var(--rhi-shadow);margin:0 0 10px}
     .rhi-page-hero:before{content:"";position:absolute;inset:auto auto -90px -50px;width:310px;height:210px;border-radius:50%;background:radial-gradient(circle,rgba(20,103,245,.08),transparent 68%);pointer-events:none}
     .rhi-page-hero-copy{position:relative;z-index:2;padding:18px 0 18px 22px;min-width:0;max-width:820px}
