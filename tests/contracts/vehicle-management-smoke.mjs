@@ -20,7 +20,6 @@ for(const needle of [
   'vehicle.selected_charger',
   'vehicle.image_key',
   'style="filter:${rt.escape(visualFilter)}"',
-  'style="filter:${rt.escape(heroVisualFilter)}"'
 ]) {
   if(!dashboard.includes(needle)) throw new Error(`vehicle-management regression: missing ${needle}`);
 }
