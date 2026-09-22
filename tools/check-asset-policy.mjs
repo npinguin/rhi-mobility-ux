@@ -113,8 +113,8 @@ function pngDimensions(file) {
 }
 
 const expectedChargerIds=[
-  'wallbox.commander2.22kw',
-  'peblar.business.socket.22kw',
+  'wallbox.commander2',
+  'peblar.business.socket',
   'fibaro.wall-plug-2.zwave-plus.be-fr'
 ];
 const chargerIds=new Set(chargerVisualRows.map((row)=>row.id));
