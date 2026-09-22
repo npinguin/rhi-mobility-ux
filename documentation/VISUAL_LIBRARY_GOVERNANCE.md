@@ -60,7 +60,7 @@ Technical values such as charging power, current, battery capacity or phase coun
 6. Generic fallback art is explicit and may not masquerade as verified product art.
 7. External media requires recorded provenance and verified redistribution rights before import.
 8. Package artwork is validated for inventory, dimensions, duplicate bytes and package equality.
-9. Current charger runtime assets target at least 900 px on the longest edge and at most 600 KiB. Higher-resolution source masters may be retained externally or regenerated when needed.
+9. Current charger runtime assets target at least 1200 px on the longest edge and at most 600 KiB. Higher-resolution source masters may be retained externally or regenerated when needed.
 10. Visual quality gates are not reduced to make existing weak assets pass.
 
 ## Picker rules
