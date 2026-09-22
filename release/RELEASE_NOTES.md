@@ -1,19 +1,38 @@
-# v1.0.0-rc.25 — full current vehicle picker catalog TEST CANDIDATE
+# v1.0.0-rc.25 — hierarchical vehicle picker PILOT
 
 ## Purpose
 
-Make the Vehicle / Colour picker preserve the current vehicle identity and cover the complete set of Mobility vehicle profiles already present today.
+Deliver a testable Vehicle / Colour pilot that preserves the current vehicle identity, covers every Mobility vehicle profile already present today, and scales to the future artwork library without a large flat picker.
 
-## Changes
+## Pilot behavior
 
-- removes implicit fallback to the first picker row when the current visual key is unknown;
-- recognises current Mobility profile/source image keys so the picker opens on the actual vehicle;
-- aligns picker catalog with current Mobility vehicle profiles: Audi Q8 TFSI e, VW ID.4 Business Pro 77 kWh, Mercedes GLA PHEV, BMW X1 PHEV, Renault Scenic Techno EV, Guest PHEV 1-phase and Guest EV 3-phase;
-- replaces the incorrect BMW iX1 UX identity with the Mobility-owned BMW X1 PHEV identity while retaining old UX aliases for compatibility;
-- splits generic Guest into the two current Mobility guest profiles;
-- keeps ID.4 and Scenic source/profile artwork instead of forcing a wrong package fallback;
-- applies UX colour treatment on top of profile/source artwork where package-specific artwork is not yet available;
-- unknown future visual keys now require explicit user selection and never silently become Audi/Mercedes/another first catalog entry.
+- compact hierarchy: Brand → Model → Variant → Colour;
+- current vehicle key prefills the hierarchy exactly where a known Mobility alias exists;
+- unknown keys never fall back to the first catalog row;
+- changing a higher level clears only the dependent lower levels;
+- save remains disabled until a complete valid visual key exists;
+- Vehicle Management and Vehicle Detail use the same shared picker;
+- the persisted Mobility `vehicle.image_key` remains the only durable visual selection truth;
+- package artwork is preferred when available; current profile/source artwork remains the deterministic fallback for models not yet carrying dedicated package artwork;
+- a different vehicle model is never used as fallback artwork.
+
+## Current Mobility profile coverage
+
+1. Audi Q8 TFSI e 55 PHEV
+2. Volkswagen ID.4 Business Pro 77 kWh
+3. Mercedes-Benz GLA PHEV
+4. BMW X1 PHEV
+5. Renault Scenic Techno EV
+6. Guest PHEV 1-phase
+7. Guest EV 3-phase
+
+## Artwork pilot
+
+- adds `documentation/VEHICLE_ARTWORK_SOURCES.json` as the machine-readable provenance/source registry;
+- records high-resolution permissive source candidates for current real models;
+- keeps dedicated package artwork where already present;
+- keeps ID.4 and Scenic on profile/source artwork until their processed package masters land;
+- establishes the next expansion target as 10 Belgian fleet/leasing brands × 4 current models.
 
 ## Compatibility
 
@@ -22,3 +41,11 @@ Make the Vehicle / Colour picker preserve the current vehicle identity and cover
 - Required backend: M0.9.29
 - Tested backend baseline: M0.9.29
 - Rollback: `v1.0.0-rc.24`
+
+## Pilot qualification still required on target HA
+
+- ID.4 opens as Volkswagen → ID.4 → Business Pro 77 kWh, not another default vehicle;
+- opening and closing without save changes nothing;
+- explicit brand/model/variant/colour selection updates preview coherently;
+- save writes `vehicle.image_key`, reload preserves it, HA restart preserves it;
+- profile/source-only artwork remains the same vehicle model before/during/after picker use.
