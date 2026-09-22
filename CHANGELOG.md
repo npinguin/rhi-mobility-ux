@@ -1,3 +1,13 @@
+## 1.0.0-rc.28 — shared premium Mobility presentation
+
+- Added one shared Mobility presentation layer for typography, spacing, density, page geometry and responsive behavior.
+- Added compact premium tab heroes for Overview, Vehicles, Chargers and Charging.
+- Added package-owned contextual home/mobility hero scenes without treating generated visuals as product truth.
+- Moved Overview, Vehicles and Chargers onto one hero grammar while preserving all existing content and actions.
+- Added Charging to the same hero pattern and route-aware placeholder presentation where applicable.
+- Added phone portrait, tablet and desktop responsive rules to the shared presentation layer.
+- Preserved frozen V1 semantics and screen/domain ownership.
+
 ## 1.0.0-rc.27 — shared Vehicle and Charger visual library
 
 - Introduced one governed UX-owned visual catalog/resolver pattern for Vehicles and Chargers on frozen V1.

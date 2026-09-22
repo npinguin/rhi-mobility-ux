@@ -1,11 +1,11 @@
 import fs from 'node:fs';
 
 const dashboard=fs.readFileSync(new URL('../../src/ui/screens/mobility-dashboard.js',import.meta.url),'utf8');
+const presentation=fs.readFileSync(new URL('../../src/app/presentation.js',import.meta.url),'utf8');
 
 for (const needle of [
-  'class="ov-energy-hero"',
+  'hbMobilityPageHero(rt, "overview"',
   'Mobility Overview',
-  'Know if your vehicles are ready, secure and comfortable',
   'class="ov-status-grid"',
   'Charging now',
   'class="ov-quickbar energy-like"',
@@ -32,3 +32,5 @@ for (const forbidden of [
 ]) if (dashboard.includes(forbidden)) throw new Error(`mock-only hardcoded runtime value leaked into product: ${forbidden}`);
 
 console.log('PASS Mobility-first action-oriented Overview contract');
+
+if(!presentation.includes('Know if your vehicles are ready, secure and comfortable')) throw new Error('Overview hero product purpose drifted from shared presentation contract');

@@ -93,3 +93,25 @@ src/assets/<category>
 ```
 
 `src/manifest.json` owns build order. `src/OWNERSHIP.json` owns source responsibilities. `dist/` is the complete generated HACS package and mirrors `src/assets/` under `dist/assets/`. See `documentation/SOURCE_PACKAGE_GOVERNANCE.md`.
+
+
+## Shared presentation glue
+
+Mobility keeps domain/screen ownership separate while sharing one presentation grammar.
+
+```text
+runtime/domain truth
+      ↓
+screen-specific view composition
+      ↓
+shared presentation glue
+  - typography
+  - spacing/density
+  - page geometry
+  - shared tab hero
+  - responsive modes
+      ↓
+phone portrait / tablet / desktop
+```
+
+`src/app/presentation.js` owns cross-screen visual tokens, responsive page geometry and the shared tab-hero composition. Screens remain owners of their semantics, actions and local composition. Common visual behavior must not be copied back into screen-local CSS unless it is a documented screen-specific exception.

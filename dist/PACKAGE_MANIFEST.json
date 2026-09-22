@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "product": "rhi-mobility-ux",
-  "version": "1.0.0-rc.27",
+  "version": "1.0.0-rc.28",
   "source_manifest_schema": 1,
   "hacs_package_root": "dist",
   "hacs_filename": "rhi-mobility-ux.js",
@@ -9,9 +9,10 @@
   "asset_categories": [
     "branding",
     "chargers",
+    "heroes",
     "vehicles"
   ],
-  "runtime_sha256": "00c49a904034debf4260031b48e758411fd56eeb84781583522515ee1efae16b",
+  "runtime_sha256": "890fc19bec3a891ab7ab90952b7ce889748c98124945cf3ac8c96167d4c394d7",
   "files": [
     {
       "path": "assets/branding/company-logo.svg",
@@ -36,6 +37,22 @@
     {
       "path": "assets/chargers/charger_wallbox_white.svg",
       "bytes": 2453
+    },
+    {
+      "path": "assets/heroes/mobility-chargers.svg",
+      "bytes": 1888
+    },
+    {
+      "path": "assets/heroes/mobility-charging.svg",
+      "bytes": 1900
+    },
+    {
+      "path": "assets/heroes/mobility-overview.svg",
+      "bytes": 2199
+    },
+    {
+      "path": "assets/heroes/mobility-vehicles.svg",
+      "bytes": 1772
     },
     {
       "path": "assets/vehicles/vehicle_audi_q8.png",
@@ -63,7 +80,7 @@
     },
     {
       "path": "rhi-mobility-ux.js",
-      "bytes": 623860
+      "bytes": 630802
     },
     {
       "path": "rhi-mobility-ux.js.sha256",

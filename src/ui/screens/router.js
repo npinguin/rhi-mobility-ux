@@ -16,8 +16,8 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
     const data = this.viewModel(view);
     this.shadowRoot.innerHTML = `<ha-card><div class="page">${this.versionBlock(rt)}
       ${hbMobilityNav(view)}
+      ${view === "charging" ? hbMobilityPageHero(rt, "charging", { meta:`<strong>Charging workspace</strong><span>Live sessions · relationships · planning</span>` }) : `<section class="section-title"><h2>${rt.escape(data.title)}</h2><span>${rt.escape(data.subtitle)}</span></section>`}
       ${hbMobilityOutcomeStrip(rt, view, data.outcome)}
-      <section class="section-title"><h2>${rt.escape(data.title)}</h2><span>${rt.escape(data.subtitle)}</span></section>
       <section class="placeholder-grid">
         ${data.cards.map((card) => `<article class="placeholder-card"><div class="placeholder-kicker"><ha-icon icon="${card.icon}"></ha-icon>${rt.escape(card.kicker)}</div><h3>${rt.escape(card.title)}</h3><p>${rt.escape(card.text)}</p></article>`).join("")}
       </section>
@@ -30,6 +30,7 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
   versionBlock(rt) { return ``; }
   viewFromPath() {
     const path = String(window.location?.pathname || "").toLowerCase();
+    if (path.includes("/charging")) return "charging";
     if (path.includes("planning")) return "planning";
     if (path.includes("strategies")) return "strategies";
     if (path.includes("history")) return "history";
@@ -38,6 +39,13 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
   }
   viewModel(view) {
     const models = {
+      charging: {
+        title: "Charging", subtitle: "Charging activity and planning stay part of Mobility.", outcome: { opportunity: "charging", recommended_action: "review_charging" },
+        cards: [
+          { icon:"mdi:lightning-bolt", kicker:"Charging", title:"Active Charging", text:"Current sessions and vehicle-to-charger relationships remain contract-backed Mobility truth." },
+          { icon:"mdi:calendar-clock", kicker:"Planning", title:"Charging Plan", text:"Planning remains visible without moving charging semantics into the presentation layer." }
+        ]
+      },
       planning: {
         title: "Planning", subtitle: "Mobility planning stays under Intelligence.", outcome: { opportunity: "planning", recommended_action: "review_plan" },
         cards: [

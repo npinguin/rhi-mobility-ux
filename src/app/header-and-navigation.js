@@ -436,5 +436,5 @@ function hbMobilitySharedShellStyles() {
       .hi-module-tab{font-size:10px}
       .domain-tab{padding:6px 9px;font-size:10px}
     }
-  `;
+  ${typeof hbMobilityPresentationStyles === "function" ? hbMobilityPresentationStyles() : ""}\n  `;
 }

@@ -149,3 +149,8 @@ Use this order when aligning another RHI UX package, including Energy:
 8. **Only then perform target Home Assistant qualification**.
 
 Never combine this migration with unrelated product/semantic redesign. Structural migration must be reviewable and reversible on its own.
+
+
+### Shared presentation source
+
+`src/app/presentation.js` is the single source owner for cross-screen Mobility presentation tokens, omni-device page geometry and shared tab hero composition. Package-owned hero scenes live under `src/assets/heroes/` and are copied into the immutable HACS `dist/assets/heroes/` tree by the normal build.

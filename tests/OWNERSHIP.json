@@ -77,7 +77,10 @@
       "owns": [
         "shared shell geometry",
         "status rail geometry",
-        "responsive sizing invariants"
+        "responsive sizing invariants",
+        "shared presentation tokens",
+        "omni-device hero geometry",
+        "cross-tab visual grammar"
       ]
     },
     "release": {

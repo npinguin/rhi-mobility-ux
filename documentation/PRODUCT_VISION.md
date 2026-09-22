@@ -198,3 +198,12 @@ V1 consumes only `MOBILITY_PUBLIC_RUNTIME_V1`.
 Features requiring new backend truth are not mocked in V1. They render N/A/empty where appropriate and are tracked in `documentation/BACKEND_INTERFACE_BACKLOG.md`.
 
 A later V2.x may adopt new backend contracts explicitly. V1 and V2.x must never be silently mixed.
+
+
+## Mobility presentation principle
+
+**Compact + premium + usable** is the cross-screen presentation rule.
+
+Overview is the current reference for visual maturity, but improvements must be promoted into shared presentation primitives rather than copied screen by screen. Overview, Vehicles, Chargers and Charging use one page/hero grammar across phone portrait, tablet and desktop. Existing information and controls are preserved; presentation refactors may regroup or resize them but must not silently remove product capability.
+
+Contextual hero artwork explains the purpose of a tab and the premium home setting. Hero artwork is presentation-only and must never be used as product/device truth.
