@@ -418,7 +418,7 @@ class HomeBrainAssetShell {
           const variants = picker.variantsFor(brand, model, catalog);
           if (variantSelect) {
             variantSelect.disabled = !model;
-            variantSelect.innerHTML = placeholder("Choose variant…") + variants.map((row)=>`<option value="${this.rt.escape(row.id)}">${this.rt.escape(row.variant || "Standard")} · ${this.rt.escape(row.max_power_kw ? row.max_power_kw+" kW" : row.years)}</option>`).join("");
+            variantSelect.innerHTML = placeholder("Choose variant…") + variants.map((row)=>`<option value="${this.rt.escape(row.id)}">${this.rt.escape(row.variant || "Standard")} · ${this.rt.escape(row.years)}</option>`).join("");
           }
           if (appearanceSelect) { appearanceSelect.disabled = true; appearanceSelect.innerHTML = placeholder("Choose colour…"); }
         }
