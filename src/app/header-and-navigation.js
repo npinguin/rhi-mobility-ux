@@ -54,8 +54,7 @@ const HB_MOBILITY_MODULES = [
     items: [
       { key: "overview", label: "Overview", icon: "mdi:view-dashboard-outline", path: "/overview" },
       { key: "vehicles", label: "Vehicles", icon: "mdi:car-outline", path: "/dashboard" },
-      { key: "chargers", label: "Chargers", icon: "mdi:ev-station", path: "/charger-maintenance" },
-      { key: "charging", label: "Charging", icon: "mdi:lightning-bolt-outline", path: "/charging" }
+      { key: "chargers", label: "Chargers", icon: "mdi:ev-station", path: "/charger-maintenance" }
     ]
   },
   {
