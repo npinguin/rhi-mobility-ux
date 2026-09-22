@@ -30,13 +30,13 @@ const RHI_MOBILITY_IMAGE_CATALOG = Object.freeze([
   { image_key:"vehicle_audi_q8", package_path:"vehicles/vehicle_audi_q8.png", fallback_image_key:"vehicle_fallback" },
   { image_key:"vehicle_audi_q8_hero", package_path:"vehicles/vehicle_audi_q8_hero.png", fallback_image_key:"vehicle_audi_q8" },
   { image_key:"vehicle_mercedes_gla", package_path:"vehicles/vehicle_mercedes_gla.png", fallback_image_key:"vehicle_fallback" },
-  { image_key:"vehicle_vw_id4", package_path:"vehicles/vehicle_vw_id4.png", fallback_image_key:"vehicle_fallback" },
+  { image_key:"vehicle_vw_id4", package_path:"vehicles/vehicle_fallback.png", fallback_image_key:"vehicle_fallback" },
   { image_key:"vehicle_bmw_ix1_phev", package_path:"vehicles/vehicle_bmw_ix1_phev.png", fallback_image_key:"vehicle_unknown_profile" },
   { image_key:"vehicle_bmw_x1", package_path:"vehicles/vehicle_bmw_ix1_phev.png", fallback_image_key:"vehicle_unknown_profile" },
   { image_key:"vehicle_bmw_ix1_phev_hero", package_path:"vehicles/vehicle_bmw_ix1_phev_hero.png", fallback_image_key:"vehicle_bmw_ix1_phev" },
-  { image_key:"vehicle_renault_scenic_techno_ev", package_path:"vehicles/vehicle_renault_scenic_techno_ev.png", fallback_image_key:"vehicle_unknown_profile" },
+  { image_key:"vehicle_renault_scenic_techno_ev", package_path:"vehicles/vehicle_fallback.png", fallback_image_key:"vehicle_fallback" },
   { image_key:"vehicle_renault_scenic", package_path:"vehicles/vehicle_renault_scenic_techno_ev.png", fallback_image_key:"vehicle_unknown_profile" },
-  { image_key:"vehicle_renault_scenic_techno_ev_hero", package_path:"vehicles/vehicle_renault_scenic_techno_ev_hero.png", fallback_image_key:"vehicle_renault_scenic_techno_ev" },
+  { image_key:"vehicle_renault_scenic_techno_ev_hero", package_path:"vehicles/vehicle_fallback.png", fallback_image_key:"vehicle_fallback" },
   { image_key:"vehicle_unknown_profile", package_path:"vehicles/vehicle_unknown_profile.png", fallback_image_key:"vehicle_fallback" },
   { image_key:"vehicle_unknown_profile_hero", package_path:"vehicles/vehicle_unknown_profile_hero.png", fallback_image_key:"vehicle_unknown_profile" },
   { image_key:"vehicle_guest", package_path:"vehicles/vehicle_unknown_profile.png", fallback_image_key:"vehicle_unknown_profile" },
@@ -67,7 +67,7 @@ function rhiMobilityImageCatalog() {
 const RHI_MOBILITY_VEHICLE_VISUALS = Object.freeze([
   {
     id:"audi.q8.4m.2024-2026.tfsi-e", label:"Audi Q8 TFSI-e", brand:"Audi", model:"Q8",
-    generation:"4M", years:"2024–2026", variant:"TFSI-e", image_key:"vehicle_audi_q8",
+    generation:"4M", years:"2024–2026", variant:"TFSI-e", image_key:"vehicle_audi_q8", selectable:true, visual_quality:"verified_model",
     colors:[
       { id:"daytona-grey", label:"Daytona Grey", filter:"none" },
       { id:"mythos-black", label:"Mythos Black", filter:"brightness(.42) contrast(1.14) saturate(.7)" },
@@ -78,7 +78,7 @@ const RHI_MOBILITY_VEHICLE_VISUALS = Object.freeze([
   },
   {
     id:"bmw.ix1.u11.2022-2026.ev", label:"BMW iX1", brand:"BMW", model:"iX1",
-    generation:"U11", years:"2022–2026", variant:"EV", image_key:"vehicle_bmw_ix1_phev",
+    generation:"U11", years:"2022–2026", variant:"EV", image_key:"vehicle_bmw_ix1_phev", selectable:true, visual_quality:"verified_model",
     colors:[
       { id:"mineral-white", label:"Mineral White", filter:"none" },
       { id:"black-sapphire", label:"Black Sapphire", filter:"brightness(.40) contrast(1.18) saturate(.7)" },
@@ -89,7 +89,7 @@ const RHI_MOBILITY_VEHICLE_VISUALS = Object.freeze([
   },
   {
     id:"mercedes.gla.h247.2023-2026.phev", label:"Mercedes-Benz GLA PHEV", brand:"Mercedes-Benz", model:"GLA",
-    generation:"H247", years:"2023–2026", variant:"PHEV", image_key:"vehicle_mercedes_gla",
+    generation:"H247", years:"2023–2026", variant:"PHEV", image_key:"vehicle_mercedes_gla", selectable:true, visual_quality:"verified_model",
     colors:[
       { id:"mountain-grey", label:"Mountain Grey", filter:"none" },
       { id:"night-black", label:"Night Black", filter:"brightness(.42) contrast(1.15) saturate(.7)" },
@@ -100,7 +100,7 @@ const RHI_MOBILITY_VEHICLE_VISUALS = Object.freeze([
   },
   {
     id:"renault.scenic.e-tech.2024-2026.techno", label:"Renault Scenic E-Tech", brand:"Renault", model:"Scenic",
-    generation:"E-Tech", years:"2024–2026", variant:"Techno EV", image_key:"vehicle_renault_scenic_techno_ev",
+    generation:"E-Tech", years:"2024–2026", variant:"Techno EV", image_key:"vehicle_fallback", selectable:false, visual_quality:"fallback_only",
     colors:[
       { id:"pearl-white", label:"Pearl White", filter:"none" },
       { id:"starry-black", label:"Starry Black", filter:"brightness(.42) contrast(1.16) saturate(.65)" },
@@ -111,7 +111,7 @@ const RHI_MOBILITY_VEHICLE_VISUALS = Object.freeze([
   },
   {
     id:"volkswagen.id4.2024-2026.ev", label:"Volkswagen ID.4", brand:"Volkswagen", model:"ID.4",
-    generation:"ID.4", years:"2024–2026", variant:"EV", image_key:"vehicle_vw_id4",
+    generation:"ID.4", years:"2024–2026", variant:"EV", image_key:"vehicle_fallback", selectable:false, visual_quality:"fallback_only",
     colors:[
       { id:"costa-azul", label:"Costa Azul", filter:"none" },
       { id:"moonstone-grey", label:"Moonstone Grey", filter:"grayscale(.65) brightness(.78)" },
@@ -122,7 +122,7 @@ const RHI_MOBILITY_VEHICLE_VISUALS = Object.freeze([
   },
   {
     id:"generic.guest.current.generic", label:"Guest vehicle", brand:"Generic", model:"Guest vehicle",
-    generation:"Current", years:"Any", variant:"Generic", image_key:"vehicle_guest",
+    generation:"Current", years:"Any", variant:"Generic", image_key:"vehicle_guest", selectable:true, visual_quality:"generic",
     colors:[
       { id:"slate-grey", label:"Slate Grey", filter:"none" },
       { id:"carbon-black", label:"Carbon Black", filter:"brightness(.42) contrast(1.16)" },
@@ -156,6 +156,10 @@ function rhiMobilityVehicleVisualCatalog() {
     colors: row.colors.map((color)=>({ ...color })),
     package_file: rhiMobilityImageCatalog().find((item)=>item.image_key===row.image_key)?.package_file || rhiMobilityAssetUrl("vehicles/vehicle_fallback.png")
   }));
+}
+
+function rhiMobilitySelectableVehicleVisualCatalog() {
+  return rhiMobilityVehicleVisualCatalog().filter((row)=>row.selectable !== false && row.visual_quality !== "fallback_only");
 }
 
 function rhiMobilityParseVehicleVisualKey(value = "") {
@@ -4336,6 +4340,10 @@ class HomeBrainVehicleAdapter {
     const chargerDetailRoute = chargerContextId ? this.rt.assetDetailRoute(chargerEntry || chargerContextId) : "";
 
     const img = this.imageFromProfile();
+    const imageKeyProp = this.rt.propertyByCompoundKey(assetId, "vehicle.image_key");
+    const imageKey = imageKeyProp?.value ?? this.rt.visualImageKey(reg, "image") ?? reg?.image_key ?? "";
+    const visual = typeof rhiMobilityParseVehicleVisualKey === "function" ? rhiMobilityParseVehicleVisualKey(imageKey) : null;
+    const imageFilter = visual?.color?.filter || "none";
     const actions = this.rt.commandActionsFor(assetId, "quick_actions").map((cmd, index) => ({
       label: cmd.label || this.rt.titleize(cmd.command_id || cmd.command_key),
       icon: this.rt.commandIcon(cmd), entity: cmd.intent_entity, command: cmd,
@@ -4348,7 +4356,7 @@ class HomeBrainVehicleAdapter {
 
     return {
       type:"vehicle", id, present, display, subtitle:profile, readiness:lifecycle,
-      image:this.rt.cache(img), fallbackImage:this.rt.cache(this.rt.assetUrl("vehicles/vehicle_fallback.png")), imageOpacity:present ? 1 : 0.34, imageGray:present ? 0 : 0.25,
+      image:this.rt.cache(img), fallbackImage:this.rt.cache(this.rt.assetUrl("vehicles/vehicle_fallback.png")), imageOpacity:present ? 1 : 0.34, imageGray:present ? 0 : 0.25, imageFilter,
       chargerImage:this.rt.cache(this.chargerImage(chargerContextId)), chargerFallbackImage:this.rt.cache(this.rt.assetUrl("chargers/charger_fallback.png")),
       chargerDisplay, chargerDetailRoute,
       backPath:this.config.dashboard_path || "/mobility-supervisor/dashboard", backLabel:this.config.back_label || "← Back to Dashboard", detailRoute:this.rt.detailRoute(reg), lifecycle, registryEntry:reg,
@@ -4623,7 +4631,7 @@ class HomeBrainAssetShell {
     if (model.image) {
       return `<img src="${this.rt.escape(model.image)}"
                    onerror="this.onerror=null;this.src='${this.rt.escape(model.fallbackImage || "")}';this.classList.add('image-fallback');"
-                   style="opacity:${model.imageOpacity ?? 1};filter:grayscale(${model.imageGray ?? 0}) drop-shadow(0 24px 30px rgba(15,35,80,.15));" />`;
+                   style="opacity:${model.imageOpacity ?? 1};filter:grayscale(${model.imageGray ?? 0}) ${this.rt.escape(model.imageFilter || "none")} drop-shadow(0 24px 30px rgba(15,35,80,.15));" />`;
     }
     return `<div class="hero-icon" style="opacity:${model.imageOpacity ?? 1};filter:grayscale(${model.imageGray ?? 0});"><ha-icon icon="${model.iconHero || "mdi:cube-outline"}"></ha-icon></div>`;
   }
@@ -5927,13 +5935,14 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
 
   renderVehiclePicker(rt, asset) {
     const assetId = this.assetId(asset);
-    const catalog = rhiMobilityVehicleVisualCatalog();
+    const catalog = rhiMobilitySelectableVehicleVisualCatalog();
     const current = this.vehicleVisualSelection(rt, asset);
     const draft = this._vehiclePickerDraft.get(assetId) || {};
     const vehicle = catalog.find((row)=>row.id===draft.vehicle_id) || current.vehicle || catalog[0];
     const colors = vehicle?.colors || [];
     const color = colors.find((row)=>row.id===draft.color_id) || (current.vehicle?.id===vehicle?.id ? current.color : null) || colors[0];
     const key = vehicle && color ? rhiMobilityVehicleVisualKey(vehicle.id, color.id) : "";
+    const currentSelectable = current.vehicle?.selectable !== false && current.vehicle?.visual_quality !== "fallback_only";
     return `<section class="vehicle-picker-panel" data-picker-panel="${rt.escape(assetId)}">
       <div class="vehicle-picker-head">
         <div><small>APPEARANCE</small><h3>Choose vehicle & colour</h3><p>The UX catalog owns visuals. Mobility stores only the selected <code>vehicle.image_key</code>.</p></div>
@@ -5945,6 +5954,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
         <div class="vehicle-picker-key"><span>Visual key</span><code>${rt.escape(key || "Unavailable")}</code></div>
         <button class="vehicle-picker-save" data-vehicle-picker-save="${rt.escape(assetId)}" data-vehicle-key="${rt.escape(key)}" ${!current.writable || !key ? "disabled" : ""}><ha-icon icon="mdi:check"></ha-icon><span>Use this vehicle</span></button>
       </div>
+      ${!currentSelectable ? `<div class="vehicle-picker-gap"><ha-icon icon="mdi:image-off-outline"></ha-icon><span>Current legacy visual has no verified model artwork. It remains readable, but is not offered as a new picker choice.</span></div>` : ""}
       ${current.writable ? "" : `<div class="vehicle-picker-gap"><ha-icon icon="mdi:alert-outline"></ha-icon><span>Backend does not publish a writable vehicle.image_key yet. Picker stays fail-closed.</span></div>`}
     </section>`;
   }
@@ -5958,6 +5968,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     const display = model?.display || asset.display_name || rt.vehicleLabel(assetId);
     const subtitle = this.displaySubtitle(asset, model);
     const image = model?.image || "";
+    const visualFilter = this.vehicleVisualSelection(rt, asset)?.color?.filter || "none";
     const route = rt.assetDetailRoute(asset);
     const ctx = this.chargingContext(rt, asset, chargers);
     const relLabels = rt.vehicleChargerRelationship(assetId);
@@ -6045,7 +6056,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     };
     return `<article class="ov-vehicle-row">
       <button class="ov-vehicle-main" data-nav="${rt.escape(route)}" title="Open vehicle details">
-        <span class="ov-vehicle-image">${image ? `<img src="${rt.escape(rt.cache(image))}" alt="${rt.escape(display)}">` : `<ha-icon icon="mdi:car-electric"></ha-icon>`}</span>
+        <span class="ov-vehicle-image">${image ? `<img src="${rt.escape(rt.cache(image))}" alt="${rt.escape(display)}" style="filter:${rt.escape(visualFilter)}">` : `<ha-icon icon="mdi:car-electric"></ha-icon>`}</span>
         <span class="ov-vehicle-copy"><b>${rt.escape(display)}</b><small>${rt.escape(signalValue(signals.energy))} · ${rt.escape(signalValue(signals.range))}</small></span>
       </button>
       <div class="ov-signal ${signalTone(signals.security)}" title="${rt.escape(signals.security?.subvalue || "")}"><ha-icon icon="mdi:lock-outline"></ha-icon><span>Security</span><b>${rt.escape(signalValue(signals.security, "Unknown"))}</b></div>
@@ -6141,6 +6152,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     const heroVehicle = activeVehicles[0] || vehicles[0] || null;
     const heroModel = heroVehicle ? (new HomeBrainAssetFactory(rt).adapterFor(heroVehicle, this.config)?.build?.() || null) : null;
     const heroImage = heroModel?.image || "";
+    const heroVisualFilter = heroVehicle ? (this.vehicleVisualSelection(rt, heroVehicle)?.color?.filter || "none") : "none";
     const chargingCount = activeVehicles.filter((v)=>!!this.vehicleChargingInfo(rt, v)?.active).length;
     const chargerSummary = this.overviewChargerSummary(rt, chargers);
     const attention = rt.supervisorOutcome("mobility", "attention", "Unknown") || "Unknown";
@@ -6160,7 +6172,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
           <p>Know if your vehicles are ready, secure and comfortable, what is charging, and where action is needed.</p>
           <div class="ov-energy-live-line"><strong>${rt.escape(fleetLabel)}</strong><span>Live Mobility status</span></div>
         </div>
-        ${heroImage ? `<div class="ov-energy-hero-art"><img src="${rt.escape(rt.cache(heroImage))}" alt=""></div>` : ""}
+        ${heroImage ? `<div class="ov-energy-hero-art"><img src="${rt.escape(rt.cache(heroImage))}" alt="" style="filter:${rt.escape(heroVisualFilter)}"></div>` : ""}
       </section>
 
       <section class="ov-status-grid" aria-label="Mobility status">
@@ -6252,6 +6264,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     const heroVehicle = allActive[0] || allInactive[0] || null;
     const heroModel = heroVehicle ? (factory.adapterFor(heroVehicle, this.config)?.build?.() || null) : null;
     const heroImage = heroModel?.image || "";
+    const heroVisualFilter = heroVehicle ? (this.vehicleVisualSelection(rt, heroVehicle)?.color?.filter || "none") : "none";
     const activeCount = allActive.length;
     const inactiveCount = allInactive.length;
     const attentionCount = [...allActive, ...allInactive].filter(attentionRequired).length;
@@ -6276,7 +6289,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
           <p>Manage the vehicles you use every day: readiness, charger assignment, charging controls, direct actions and lifecycle.</p>
           <div class="vehicles-live-line"><strong>${activeCount} active</strong><span>${inactiveCount} inactive · ${attentionCount} requiring published attention</span></div>
         </div>
-        ${heroImage ? `<div class="vehicles-hero-art"><img src="${rt.escape(rt.cache(heroImage))}" alt=""></div>` : ""}
+        ${heroImage ? `<div class="vehicles-hero-art"><img src="${rt.escape(rt.cache(heroImage))}" alt="" style="filter:${rt.escape(heroVisualFilter)}"></div>` : ""}
       </section>
 
       <section class="vehicle-management-bar" aria-label="Vehicle management">
