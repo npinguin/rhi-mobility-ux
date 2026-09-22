@@ -41,7 +41,14 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     const asset = typeof assetOrId === "object"
       ? assetOrId
       : (rt && typeof rt.chargerById === "function" ? (rt.chargerById(assetOrId) || rt.assetById(assetOrId) || { asset_id: assetOrId }) : { asset_id: assetOrId });
-    if (rt && typeof rt.visualImageUrl === "function") return rt.visualImageUrl(asset, "charger", "image", "charger_fallback");
+    if (rt) {
+      const assetId = String(asset?.asset_id || assetOrId || "");
+      const prop = assetId ? rt.propertyByCompoundKey(assetId, "charger.image_key") : null;
+      const raw = prop?.value ?? rt.visualImageKey(asset || {}, "image") ?? asset?.image_key ?? "";
+      const visual = typeof rhiMobilityResolveChargerVisual === "function" ? rhiMobilityResolveChargerVisual(asset, raw) : null;
+      if (visual?.appearance?.package_file) return visual.appearance.package_file;
+      if (typeof rt.visualImageUrl === "function") return rt.visualImageUrl(asset, "charger", "image", "charger_fallback");
+    }
     return rhiMobilityAssetUrl("chargers/charger_fallback.png");
   }
 
