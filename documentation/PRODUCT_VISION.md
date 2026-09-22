@@ -55,16 +55,17 @@ domain adapters / canonical UX models
 tab-specific projections
 ```
 
-Overview, Vehicles, Chargers, Charging and detail views may not independently redefine the meaning of lifecycle, assignment, readiness, attention, profile, permission or action state.
+Overview, Vehicles, Chargers and detail views may not independently redefine the meaning of lifecycle, assignment, readiness, attention, profile, permission or action state.
 
 Tabs bring one shared model to the user:
 
 - **Overview** — compact operational awareness.
 - **Vehicles** — extended vehicle management.
 - **Chargers** — extended charger management.
-- **Charging** — charging activity and planning.
 - **Vehicle detail** — deep vehicle projection.
 - **Charger detail** — deep charger projection.
+
+Charging activity and planning remain Mobility capabilities presented inside the relevant Overview, Vehicle and Charger projections. They are not a standalone Mobility workspace.
 
 ## Overview V1
 
@@ -204,6 +205,6 @@ A later V2.x may adopt new backend contracts explicitly. V1 and V2.x must never 
 
 **Compact + premium + usable** is the cross-screen presentation rule.
 
-Overview is the current reference for visual maturity, but improvements must be promoted into shared presentation primitives rather than copied screen by screen. Overview, Vehicles, Chargers and Charging use one page/hero grammar across phone portrait, tablet and desktop. Existing information and controls are preserved; presentation refactors may regroup or resize them but must not silently remove product capability.
+Overview is the current reference for visual maturity, but improvements must be promoted into shared presentation primitives rather than copied screen by screen. Overview, Vehicles and Chargers use one page/hero grammar across phone portrait, tablet and desktop. Existing information and controls are preserved; presentation refactors may regroup or resize them but must not silently remove product capability.
 
 Contextual hero artwork explains the purpose of a tab and the premium home setting. Hero artwork is presentation-only and must never be used as product/device truth.

@@ -36,7 +36,7 @@ runtime
         ↓
 domain adapters / canonical UX models
         ↓
-Overview | Vehicles | Chargers | Charging | Detail
+Overview | Vehicles | Chargers | Detail
 ```
 
 No screen may independently redefine lifecycle, selected charger, readiness, attention, user relationship, permission or action semantics. Missing backend truth renders N/A/fail-closed and is tracked in `documentation/BACKEND_INTERFACE_BACKLOG.md`.
