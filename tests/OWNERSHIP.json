@@ -142,6 +142,15 @@
         "exact Mobility asset identity join",
         "fail-closed planning projection"
       ]
+    },
+    "energy_mobility_insights_projection": {
+      "owner": "tests/contracts/energy-mobility-insights-projection-smoke.mjs",
+      "owns": [
+        "Energy per-asset metering projection into Mobility Insights",
+        "Energy per-asset value projection into Mobility Insights",
+        "exact Mobility asset identity join for Insights",
+        "fail-closed Energy Insights projection"
+      ]
     }
   }
 }
