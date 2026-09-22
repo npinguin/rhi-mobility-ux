@@ -338,13 +338,14 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
 
   renderVehiclePicker(rt, asset) {
     const assetId = this.assetId(asset);
-    const catalog = rhiMobilityVehicleVisualCatalog();
+    const catalog = rhiMobilitySelectableVehicleVisualCatalog();
     const current = this.vehicleVisualSelection(rt, asset);
     const draft = this._vehiclePickerDraft.get(assetId) || {};
     const vehicle = catalog.find((row)=>row.id===draft.vehicle_id) || current.vehicle || catalog[0];
     const colors = vehicle?.colors || [];
     const color = colors.find((row)=>row.id===draft.color_id) || (current.vehicle?.id===vehicle?.id ? current.color : null) || colors[0];
     const key = vehicle && color ? rhiMobilityVehicleVisualKey(vehicle.id, color.id) : "";
+    const currentSelectable = current.vehicle?.selectable !== false && current.vehicle?.visual_quality !== "fallback_only";
     return `<section class="vehicle-picker-panel" data-picker-panel="${rt.escape(assetId)}">
       <div class="vehicle-picker-head">
         <div><small>APPEARANCE</small><h3>Choose vehicle & colour</h3><p>The UX catalog owns visuals. Mobility stores only the selected <code>vehicle.image_key</code>.</p></div>
@@ -356,6 +357,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
         <div class="vehicle-picker-key"><span>Visual key</span><code>${rt.escape(key || "Unavailable")}</code></div>
         <button class="vehicle-picker-save" data-vehicle-picker-save="${rt.escape(assetId)}" data-vehicle-key="${rt.escape(key)}" ${!current.writable || !key ? "disabled" : ""}><ha-icon icon="mdi:check"></ha-icon><span>Use this vehicle</span></button>
       </div>
+      ${!currentSelectable ? `<div class="vehicle-picker-gap"><ha-icon icon="mdi:image-off-outline"></ha-icon><span>Current legacy visual has no verified model artwork. It remains readable, but is not offered as a new picker choice.</span></div>` : ""}
       ${current.writable ? "" : `<div class="vehicle-picker-gap"><ha-icon icon="mdi:alert-outline"></ha-icon><span>Backend does not publish a writable vehicle.image_key yet. Picker stays fail-closed.</span></div>`}
     </section>`;
   }
@@ -369,6 +371,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     const display = model?.display || asset.display_name || rt.vehicleLabel(assetId);
     const subtitle = this.displaySubtitle(asset, model);
     const image = model?.image || "";
+    const visualFilter = this.vehicleVisualSelection(rt, asset)?.color?.filter || "none";
     const route = rt.assetDetailRoute(asset);
     const ctx = this.chargingContext(rt, asset, chargers);
     const relLabels = rt.vehicleChargerRelationship(assetId);
@@ -456,7 +459,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     };
     return `<article class="ov-vehicle-row">
       <button class="ov-vehicle-main" data-nav="${rt.escape(route)}" title="Open vehicle details">
-        <span class="ov-vehicle-image">${image ? `<img src="${rt.escape(rt.cache(image))}" alt="${rt.escape(display)}">` : `<ha-icon icon="mdi:car-electric"></ha-icon>`}</span>
+        <span class="ov-vehicle-image">${image ? `<img src="${rt.escape(rt.cache(image))}" alt="${rt.escape(display)}" style="filter:${rt.escape(visualFilter)}">` : `<ha-icon icon="mdi:car-electric"></ha-icon>`}</span>
         <span class="ov-vehicle-copy"><b>${rt.escape(display)}</b><small>${rt.escape(signalValue(signals.energy))} · ${rt.escape(signalValue(signals.range))}</small></span>
       </button>
       <div class="ov-signal ${signalTone(signals.security)}" title="${rt.escape(signals.security?.subvalue || "")}"><ha-icon icon="mdi:lock-outline"></ha-icon><span>Security</span><b>${rt.escape(signalValue(signals.security, "Unknown"))}</b></div>
@@ -552,6 +555,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     const heroVehicle = activeVehicles[0] || vehicles[0] || null;
     const heroModel = heroVehicle ? (new HomeBrainAssetFactory(rt).adapterFor(heroVehicle, this.config)?.build?.() || null) : null;
     const heroImage = heroModel?.image || "";
+    const heroVisualFilter = heroVehicle ? (this.vehicleVisualSelection(rt, heroVehicle)?.color?.filter || "none") : "none";
     const chargingCount = activeVehicles.filter((v)=>!!this.vehicleChargingInfo(rt, v)?.active).length;
     const chargerSummary = this.overviewChargerSummary(rt, chargers);
     const attention = rt.supervisorOutcome("mobility", "attention", "Unknown") || "Unknown";
@@ -571,7 +575,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
           <p>Know if your vehicles are ready, secure and comfortable, what is charging, and where action is needed.</p>
           <div class="ov-energy-live-line"><strong>${rt.escape(fleetLabel)}</strong><span>Live Mobility status</span></div>
         </div>
-        ${heroImage ? `<div class="ov-energy-hero-art"><img src="${rt.escape(rt.cache(heroImage))}" alt=""></div>` : ""}
+        ${heroImage ? `<div class="ov-energy-hero-art"><img src="${rt.escape(rt.cache(heroImage))}" alt="" style="filter:${rt.escape(heroVisualFilter)}"></div>` : ""}
       </section>
 
       <section class="ov-status-grid" aria-label="Mobility status">
@@ -663,6 +667,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     const heroVehicle = allActive[0] || allInactive[0] || null;
     const heroModel = heroVehicle ? (factory.adapterFor(heroVehicle, this.config)?.build?.() || null) : null;
     const heroImage = heroModel?.image || "";
+    const heroVisualFilter = heroVehicle ? (this.vehicleVisualSelection(rt, heroVehicle)?.color?.filter || "none") : "none";
     const activeCount = allActive.length;
     const inactiveCount = allInactive.length;
     const attentionCount = [...allActive, ...allInactive].filter(attentionRequired).length;
@@ -687,7 +692,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
           <p>Manage the vehicles you use every day: readiness, charger assignment, charging controls, direct actions and lifecycle.</p>
           <div class="vehicles-live-line"><strong>${activeCount} active</strong><span>${inactiveCount} inactive · ${attentionCount} requiring published attention</span></div>
         </div>
-        ${heroImage ? `<div class="vehicles-hero-art"><img src="${rt.escape(rt.cache(heroImage))}" alt=""></div>` : ""}
+        ${heroImage ? `<div class="vehicles-hero-art"><img src="${rt.escape(rt.cache(heroImage))}" alt="" style="filter:${rt.escape(heroVisualFilter)}"></div>` : ""}
       </section>
 
       <section class="vehicle-management-bar" aria-label="Vehicle management">
