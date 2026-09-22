@@ -48,6 +48,10 @@ class HomeBrainAssetShell {
       const asset = this.rt.vehicleById(assetId) || this.rt.assetById(assetId) || { asset_id:assetId, asset_type:"vehicle", image_key:prop.value };
       return new HomeBrainVehicleVisualPicker(this.rt).render(asset, { showClose:false, context:"detail" });
     }
+    if (key === "charger.image_key") {
+      const asset = this.rt.chargerById(assetId) || this.rt.assetById(assetId) || { asset_id:assetId, asset_type:"charger", image_key:prop.value };
+      return new HomeBrainChargerVisualPicker(this.rt).render(asset, { showClose:false, context:"detail" });
+    }
     const unitSuffix = unit && !["%"].includes(unit) ? `<span class="unit-suffix">${this.rt.escape(unit)}</span>` : "";
     let control = "";
 
@@ -181,6 +185,7 @@ class HomeBrainAssetShell {
     if (model.image) {
       return `<img src="${this.rt.escape(model.image)}"
                    data-vehicle-visual-preview="${model.type === "vehicle" ? "1" : "0"}"
+                   data-charger-visual-preview="${model.type === "charger" ? "1" : "0"}"
                    data-image-gray="${this.rt.escape(model.imageGray ?? 0)}"
                    onerror="this.onerror=null;this.src='${this.rt.escape(model.fallbackImage || "")}';this.classList.add('image-fallback');"
                    style="opacity:${model.imageOpacity ?? 1};filter:grayscale(${model.imageGray ?? 0}) ${this.rt.escape(model.imageFilter || "none")} drop-shadow(0 24px 30px rgba(15,35,80,.15));" />`;
@@ -370,6 +375,74 @@ class HomeBrainAssetShell {
         const key = saveButton.getAttribute("data-vehicle-key") || "";
         if (assetId && key) this.rt.writePublishedProperty(assetId, "vehicle.image_key", key);
       });
+
+    this.root.querySelectorAll(".detail-charger-picker").forEach((panel) => {
+      const brandSelect = panel.querySelector("[data-charger-picker-brand]");
+      const modelSelect = panel.querySelector("[data-charger-picker-model]");
+      const variantSelect = panel.querySelector("[data-charger-picker-variant]");
+      const appearanceSelect = panel.querySelector("[data-charger-picker-appearance]");
+      const saveButton = panel.querySelector("[data-charger-picker-save]");
+      const keyNode = panel.querySelector(".vehicle-picker-key code");
+      const assetId = brandSelect?.getAttribute("data-charger-picker-brand") || "";
+      const picker = new HomeBrainChargerVisualPicker(this.rt);
+      const placeholder = (label)=>`<option value="" selected disabled>${this.rt.escape(label)}</option>`;
+
+      const updatePreview = () => {
+        const catalog = picker.catalog();
+        const charger = catalog.find((row)=>row.id === String(variantSelect?.value || "")) || null;
+        const appearance = charger?.appearances?.find((row)=>row.id === String(appearanceSelect?.value || "")) || null;
+        const key = charger && appearance ? rhiMobilityChargerVisualKey(charger.id, appearance.id) : "";
+        if (keyNode) keyNode.textContent = key || "Unavailable";
+        if (saveButton) {
+          saveButton.setAttribute("data-charger-key", key);
+          saveButton.disabled = !key || !picker.selection({asset_id:assetId}).writable;
+        }
+        const hero = this.root.querySelector('[data-charger-visual-preview="1"]');
+        if (hero && appearance?.package_file) hero.src = this.rt.cache(this.rt.assetUrl(appearance.package_file));
+      };
+
+      const refreshHierarchy = (level) => {
+        const catalog = picker.catalog();
+        const brand = String(brandSelect?.value || "");
+        if (level === "brand") {
+          const models = picker.modelsForBrand(brand, catalog);
+          if (modelSelect) {
+            modelSelect.disabled = !brand;
+            modelSelect.innerHTML = placeholder("Choose model…") + models.map((model)=>`<option value="${this.rt.escape(model)}">${this.rt.escape(model)}</option>`).join("");
+          }
+          if (variantSelect) { variantSelect.disabled = true; variantSelect.innerHTML = placeholder("Choose variant…"); }
+          if (appearanceSelect) { appearanceSelect.disabled = true; appearanceSelect.innerHTML = placeholder("Choose colour…"); }
+        }
+        if (level === "model") {
+          const model = String(modelSelect?.value || "");
+          const variants = picker.variantsFor(brand, model, catalog);
+          if (variantSelect) {
+            variantSelect.disabled = !model;
+            variantSelect.innerHTML = placeholder("Choose variant…") + variants.map((row)=>`<option value="${this.rt.escape(row.id)}">${this.rt.escape(row.variant || "Standard")} · ${this.rt.escape(row.max_power_kw ? row.max_power_kw+" kW" : row.years)}</option>`).join("");
+          }
+          if (appearanceSelect) { appearanceSelect.disabled = true; appearanceSelect.innerHTML = placeholder("Choose colour…"); }
+        }
+        if (level === "variant") {
+          const charger = catalog.find((row)=>row.id === String(variantSelect?.value || "")) || null;
+          if (appearanceSelect) {
+            appearanceSelect.disabled = !charger;
+            appearanceSelect.innerHTML = placeholder("Choose colour…") + (charger?.appearances || []).map((row)=>`<option value="${this.rt.escape(row.id)}">${this.rt.escape(row.label)}</option>`).join("");
+          }
+        }
+        updatePreview();
+      };
+
+      brandSelect?.addEventListener("change", ()=>refreshHierarchy("brand"));
+      modelSelect?.addEventListener("change", ()=>refreshHierarchy("model"));
+      variantSelect?.addEventListener("change", ()=>refreshHierarchy("variant"));
+      appearanceSelect?.addEventListener("change", updatePreview);
+      saveButton?.addEventListener("click", ()=>{
+        if (saveButton.disabled) return;
+        const key = saveButton.getAttribute("data-charger-key") || "";
+        if (assetId && key) this.rt.writePublishedProperty(assetId, "charger.image_key", key);
+      });
+    });
+
     });
 
     this.root.querySelectorAll("[data-write-asset][data-write-key]").forEach((el) => {
