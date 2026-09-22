@@ -353,7 +353,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     const route = rt.assetDetailRoute(asset);
     const ctx = this.chargingContext(rt, asset, chargers);
     const relLabels = rt.vehicleChargerRelationship(assetId);
-    const assignedName = relLabels.effective_display_name || ctx.assigned?.display_name || "No active charger";
+    const assignedName = relLabels.effective_display_name || ctx.assigned?.display_name || "No charger selected";
     const isRealAssetId = (v) => {
       const idv = String(v || "").trim();
       return !!idv && !["none","unknown","unavailable","null","undefined"].includes(idv.toLowerCase());
@@ -363,7 +363,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     const activeChargerId = [relLabels.connected, relLabels.effective, ctx.assigned?.asset_id].find(isRealAssetId) || "";
     const activeChargerAsset = activeChargerId ? (rt.chargerById(activeChargerId) || rt.assetById(activeChargerId) || { asset_id: activeChargerId, asset_type: "charger" }) : null;
     const activeChargerRoute = activeChargerAsset ? rt.assetDetailRoute(activeChargerAsset) : "";
-    const chargerImage = this.chargerImage(activeChargerId || "default");
+    const chargerImage = activeChargerId ? this.chargerImage(activeChargerId) : rhiMobilityAssetUrl("chargers/charger_fallback.png");
     const notPresentButton = this.lifecycleToggleButton(rt, asset, "presence-toggle manage-lifecycle");
     const vehicleCommands = this.dashboardVehicleCommands(rt, assetId);
     const chargingActivity = this.chargingActivityDisplay(rt, asset);
@@ -883,32 +883,17 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     }));
     this.shadowRoot.querySelectorAll("button[data-vehicle-picker]").forEach((btn)=>btn.addEventListener("click",()=>{
       const assetId = btn.getAttribute("data-vehicle-picker") || "";
-      this._vehiclePickerAsset = this._vehiclePickerAsset === assetId ? "" : assetId;
+      const closing = this._vehiclePickerAsset === assetId;
+      if (closing) this._vehiclePickerDraft.delete(assetId);
+      else this._vehiclePickerDraft.set(assetId,{});
+      this._vehiclePickerAsset = closing ? "" : assetId;
       this._forceRender = true; this._lastSignature = "";
       if (this._hass) this.hass = this._hass;
     }));
     this.shadowRoot.querySelectorAll("button[data-vehicle-picker-close]").forEach((btn)=>btn.addEventListener("click",()=>{
+      const assetId = btn.getAttribute("data-vehicle-picker-close") || this._vehiclePickerAsset || "";
+      if (assetId) this._vehiclePickerDraft.delete(assetId);
       this._vehiclePickerAsset = ""; this._forceRender = true; this._lastSignature = "";
-      if (this._hass) this.hass = this._hass;
-    }));
-    this.shadowRoot.querySelectorAll("select[data-vehicle-picker-brand]").forEach((select)=>select.addEventListener("change",()=>{
-      const assetId = select.getAttribute("data-vehicle-picker-brand") || "";
-      this._vehiclePickerDraft.set(assetId,{brand:select.value,model:"",variant_id:"",color_id:""});
-      this._forceRender = true; this._lastSignature = "";
-      if (this._hass) this.hass = this._hass;
-    }));
-    this.shadowRoot.querySelectorAll("select[data-vehicle-picker-model]").forEach((select)=>select.addEventListener("change",()=>{
-      const assetId = select.getAttribute("data-vehicle-picker-model") || "";
-      const current = this._vehiclePickerDraft.get(assetId) || {};
-      this._vehiclePickerDraft.set(assetId,{...current,model:select.value,variant_id:"",color_id:""});
-      this._forceRender = true; this._lastSignature = "";
-      if (this._hass) this.hass = this._hass;
-    }));
-    this.shadowRoot.querySelectorAll("select[data-vehicle-picker-variant]").forEach((select)=>select.addEventListener("change",()=>{
-      const assetId = select.getAttribute("data-vehicle-picker-variant") || "";
-      const current = this._vehiclePickerDraft.get(assetId) || {};
-      this._vehiclePickerDraft.set(assetId,{...current,variant_id:select.value,color_id:""});
-      this._forceRender = true; this._lastSignature = "";
       if (this._hass) this.hass = this._hass;
     }));
     this.shadowRoot.querySelectorAll("select[data-vehicle-picker-color]").forEach((select)=>select.addEventListener("change",()=>{
