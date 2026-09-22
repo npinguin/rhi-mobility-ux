@@ -534,10 +534,6 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
 
   renderOverviewPage(rt, vehicles, chargers, activityRows, reco) {
     const activeVehicles = vehicles.filter((v)=>rt.lifecycleStatus(v) === "active");
-    const heroVehicle = activeVehicles[0] || vehicles[0] || null;
-    const heroModel = heroVehicle ? (new HomeBrainAssetFactory(rt).adapterFor(heroVehicle, this.config)?.build?.() || null) : null;
-    const heroImage = heroModel?.image || "";
-    const heroVisualFilter = heroVehicle ? (this.vehicleVisualSelection(rt, heroVehicle)?.color?.filter || "none") : "none";
     const chargingCount = activeVehicles.filter((v)=>!!this.vehicleChargingInfo(rt, v)?.active).length;
     const chargerSummary = this.overviewChargerSummary(rt, chargers);
     const attention = rt.supervisorOutcome("mobility", "attention", "Unknown") || "Unknown";
@@ -550,15 +546,9 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     const attentionTone = ["none","ok","not applicable"].includes(String(attention).toLowerCase()) ? "ok" : String(attention).toLowerCase() === "unknown" ? "muted" : "warn";
 
     return `
-      <section class="ov-energy-hero">
-        <div class="ov-energy-hero-copy">
-          <small>MOBILITY</small>
-          <h1>Mobility Overview</h1>
-          <p>Know if your vehicles are ready, secure and comfortable, what is charging, and where action is needed.</p>
-          <div class="ov-energy-live-line"><strong>${rt.escape(fleetLabel)}</strong><span>Live Mobility status</span></div>
-        </div>
-        ${heroImage ? `<div class="ov-energy-hero-art"><img src="${rt.escape(rt.cache(heroImage))}" alt="" style="filter:${rt.escape(heroVisualFilter)}"></div>` : ""}
-      </section>
+      ${hbMobilityPageHero(rt, "overview", {
+        meta:`<strong>${rt.escape(fleetLabel)}</strong><span>${rt.escape(chargingLabel)} · ${rt.escape(chargerSummary.total)} chargers</span>`
+      })}
 
       <section class="ov-status-grid" aria-label="Mobility status">
         <div class="ov-status-item">
@@ -646,10 +636,6 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     const visibleActive = filter === "disabled" ? [] : filter === "attention" ? allActive.filter(attentionRequired) : allActive;
     const visibleInactive = filter === "active" ? [] : filter === "attention" ? allInactive.filter(attentionRequired) : allInactive;
 
-    const heroVehicle = allActive[0] || allInactive[0] || null;
-    const heroModel = heroVehicle ? (factory.adapterFor(heroVehicle, this.config)?.build?.() || null) : null;
-    const heroImage = heroModel?.image || "";
-    const heroVisualFilter = heroVehicle ? (this.vehicleVisualSelection(rt, heroVehicle)?.color?.filter || "none") : "none";
     const activeCount = allActive.length;
     const inactiveCount = allInactive.length;
     const attentionCount = [...allActive, ...allInactive].filter(attentionRequired).length;
@@ -667,15 +653,9 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     const managementPath = "/config/integrations/integration/rhi_mobility";
 
     return `
-      <section class="vehicles-hero">
-        <div class="vehicles-hero-copy">
-          <small>MOBILITY / VEHICLE MANAGEMENT</small>
-          <h1>Vehicles</h1>
-          <p>Manage the vehicles you use every day: readiness, charger assignment, charging controls, direct actions and lifecycle.</p>
-          <div class="vehicles-live-line"><strong>${activeCount} active</strong><span>${inactiveCount} inactive · ${attentionCount} requiring published attention</span></div>
-        </div>
-        ${heroImage ? `<div class="vehicles-hero-art"><img src="${rt.escape(rt.cache(heroImage))}" alt="" style="filter:${rt.escape(heroVisualFilter)}"></div>` : ""}
-      </section>
+      ${hbMobilityPageHero(rt, "vehicles", {
+        meta:`<strong>${activeCount} active</strong><span>${inactiveCount} inactive · ${attentionCount} requiring published attention</span>`
+      })}
 
       <section class="vehicle-management-bar" aria-label="Vehicle management">
         <div class="vehicle-filter-group" role="group" aria-label="Filter vehicles">
