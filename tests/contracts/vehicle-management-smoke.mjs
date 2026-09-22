@@ -61,4 +61,19 @@ if(!shell.includes('data-vehicle-visual-preview')) throw new Error('vehicle deta
 if(!picker.includes('class HomeBrainVehicleVisualPicker')) throw new Error('shared vehicle picker helper missing');
 if(!dashboard.includes('new HomeBrainVehicleVisualPicker(rt).selection')) throw new Error('vehicle management does not consume shared picker selection model');
 
-console.log('PASS vehicle management, shared detail picker, verified visual gating and cross-screen rendering');
+for(const needle of [
+  'rc.23 mobile density rewrite',
+  'grid-template-columns:minmax(0,1fr) 138px',
+  '.charger-hero-panel{',
+  'height:72px!important',
+  '.inactive-row{',
+  'grid-template-columns:auto minmax(0,1fr) auto!important',
+  '.vehicle-picker-grid{grid-template-columns:1fr!important',
+  'height:44px!important'
+]) {
+  if(!dashboard.includes(needle)) throw new Error(`mobile vehicle-density regression: missing ${needle}`);
+}
+if(!shell.includes('rc.23 mobile detail density + picker hardening')) throw new Error('mobile detail picker hardening missing');
+if(!shell.includes('.detail-vehicle-picker .vehicle-picker-grid{grid-template-columns:1fr!important')) throw new Error('detail picker is not one-column on phone');
+
+console.log('PASS vehicle management, shared detail picker, verified visuals and compact mobile composition');
