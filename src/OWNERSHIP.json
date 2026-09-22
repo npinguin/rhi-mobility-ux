@@ -22,7 +22,8 @@
         "contract normalization",
         "commands and readback boundary",
         "read-only Energy public planning projection for Mobility Intelligence",
-        "read-only Energy public metering/value projection for Mobility Insights"
+        "read-only Energy public metering/value projection for Mobility Insights",
+        "read-only Energy public strategy projection for Mobility Intelligence"
       ]
     },
     "domain_adapters": {
