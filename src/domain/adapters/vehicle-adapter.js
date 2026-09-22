@@ -100,7 +100,7 @@ class HomeBrainVehicleAdapter {
     const visualPackageFile = visual?.vehicle?.selectable !== false && visual?.vehicle?.visual_quality !== "fallback_only"
       ? String(visual?.vehicle?.package_file || "")
       : "";
-    const img = visualPackageFile ? this.rt.assetUrl(visualPackageFile) : profileImage;
+    const img = visualPackageFile || profileImage;
     const imageFilter = visual?.color?.filter || "none";
     const actions = this.rt.commandActionsFor(assetId, "quick_actions").map((cmd, index) => ({
       label: cmd.label || this.rt.titleize(cmd.command_id || cmd.command_key),
