@@ -28,7 +28,7 @@ for(const needle of [
   'data-vehicle-picker-color',
   'data-vehicle-picker-save',
   'Picker stays fail-closed',
-  'Current legacy visual has no verified model artwork',
+  'no default is applied',
   'class HomeBrainVehicleVisualPicker',
   'rhiMobilitySelectableVehicleVisualCatalog()'
 ]) {
@@ -38,15 +38,23 @@ for(const needle of [
 for(const needle of [
   'RHI_MOBILITY_VEHICLE_VISUALS',
   'audi.q8.4m.2024-2026.tfsi-e',
-  'bmw.ix1.u11.2022-2026.ev',
+  'bmw.x1.u11.2025-2026.phev',
   'mercedes.gla.h247.2023-2026.phev',
   'renault.scenic.e-tech.2024-2026.techno',
   'volkswagen.id4.2024-2026.ev',
-  'generic.guest.current.generic',
+  'generic.guest.current.phev-1phase',
+  'generic.guest.current.ev-3phase',
   'rhiMobilityParseVehicleVisualKey',
   'rhiMobilityVehicleVisualKey',
   'rhiMobilitySelectableVehicleVisualCatalog',
-  'selectable:false, visual_quality:"fallback_only"',
+  'audi_q8_daytona_grey_23',
+  'vw_id4_business_pro_silver_grey',
+  'mercedes_gla_phev',
+  'bmw_x1_phev',
+  'renault_scenic_techno_ev',
+  'guest_phev',
+  'guest_ev',
+  'visual_quality:"profile_source"',
   'selectable:true, visual_quality:"verified_model"'
 ]) {
   if(!catalog.includes(needle)) throw new Error(`vehicle visual catalog regression: missing ${needle}`);
@@ -61,6 +69,8 @@ if(!shell.includes('key === "vehicle.image_key"')) throw new Error('vehicle deta
 if(!shell.includes('new HomeBrainVehicleVisualPicker(this.rt).render')) throw new Error('vehicle detail is not using the shared picker');
 if(!shell.includes('data-vehicle-visual-preview')) throw new Error('vehicle detail live picker preview is missing');
 if(!picker.includes('class HomeBrainVehicleVisualPicker')) throw new Error('shared vehicle picker helper missing');
+if(picker.includes('|| catalog[0]')) throw new Error('picker must not silently default an unknown vehicle to the first catalog entry');
+if(!picker.includes('Choose vehicle…')) throw new Error('unknown current visual must require explicit vehicle selection');
 if(!dashboard.includes('new HomeBrainVehicleVisualPicker(rt).selection')) throw new Error('vehicle management does not consume shared picker selection model');
 for(const needle of [
   'Vehicle & colour',
