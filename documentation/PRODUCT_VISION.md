@@ -148,6 +148,8 @@ Current selectable model artwork is limited to Audi Q8, BMW iX1 and Mercedes-Ben
 
 Assets remain package data under `src/assets/<category>/`. Behavior, permissions and operational semantics never come from artwork selection.
 
+The same Vehicle / Colour picker component is used wherever vehicle appearance is editable. Vehicle Management and Vehicle Detail may present it differently, but neither may expose a raw `vehicle.image_key` editor or maintain a second catalog.
+
 ## V1 vs V2.x
 
 V1 consumes only `MOBILITY_PUBLIC_RUNTIME_V1`.
