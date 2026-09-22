@@ -24,6 +24,16 @@ function walk(dir, base){
 
 const sourceFiles=walk(srcRoot,srcRoot);
 const distFiles=walk(distRoot,distRoot);
+
+function assertValidWebp(root, rel){
+  if(!rel.endsWith('.webp')) return;
+  const bytes=fs.readFileSync(path.join(root,rel));
+  if(bytes.length < 16 || bytes.toString('ascii',0,4)!=='RIFF' || bytes.toString('ascii',8,12)!=='WEBP') throw new Error(`Invalid WebP header: ${rel}`);
+  const declared=bytes.readUInt32LE(4)+8;
+  if(declared!==bytes.length) throw new Error(`Truncated/corrupt WebP asset: ${rel} declares ${declared} bytes, actual ${bytes.length}`);
+}
+for(const rel of sourceFiles) assertValidWebp(srcRoot,rel);
+for(const rel of distFiles) assertValidWebp(distRoot,rel);
 if(JSON.stringify(sourceFiles)!==JSON.stringify(distFiles)) throw new Error('src/assets and dist/assets file inventories differ');
 
 for(const rel of sourceFiles){
