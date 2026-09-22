@@ -1,47 +1,34 @@
-# v1.0.0-rc.31 — premium Mobility cleanup + Energy projections
+# v1.0.0-rc.32 — pixel-perfect Mobility Overview
 
 ## Scope
 
-- tightens the shared Mobility presentation grammar into one compact premium layout across Mobility, Intelligence and Insights;
-- keeps the current Robotix/Home Intelligence shell, Overview, Vehicles, Chargers, detail screens, controls and existing backend-owned data intact;
-- makes tab heroes more compact and responsive so desktop, tablet and phone portrait keep the same visual hierarchy;
-- replaces the old Planning/Strategies/History/Log placeholder presentation with the same shared premium card/fact grammar used by the current Mobility workspaces;
-- makes Mobility Planning a read-only projection of Energy public planning contracts rather than a future Mobility-owned placeholder;
-- projects Energy-owned Mobility-relevant strategy profiles and effective policies under Intelligence;
-- projects Energy-owned per-vehicle metering and financial value into Mobility Insights using exact canonical Mobility asset ids only;
-- keeps Mobility execution/activity/audit evidence separate from Energy metering/value semantics;
-- fails closed to N/A/unavailable when Energy does not publish planning, metering or value;
-- adds owned regression tests for Energy Planning and Energy Mobility Insights projections.
-
-## Cross-domain ownership
-
-Planning source:
-- `sensor.energy_planning_index`
-- `sensor.energy_planning_experience_index`
-
-Strategy source:
-- `sensor.energy_strategy_profile_index`
-- `sensor.energy_strategy_effective_index`
-
-Insights Energy source:
-- `sensor.energy_asset_metering_index`
-- `sensor.energy_value_accounting_index`
-
-Mobility UX does not recalculate Energy planning, metering or value and does not join cross-domain data by display name.
+- rebuilds the Mobility Overview against the approved premium mock while preserving existing Mobility data, controls and backend ownership;
+- packages the approved generated Overview hero as `assets/heroes/mobility-overview-approved.webp`;
+- makes the hero a floating background composition with no duplicate hero-meta/status line;
+- replaces the old generic Overview summary with one four-domain status bar:
+  - Charging: free/active chargers, current aggregate charger power and remaining energy-to-charge when published;
+  - Climate / Comfort: Home Assistant outdoor temperature plus climate state of the next-departure vehicle when published;
+  - Security: backend/public-contract evidence for unlocked/open vehicles, doors and windows;
+  - Maintenance: backend-published tire/oil/inspection/service attention;
+- keeps missing truth fail-closed as N/A/unavailable;
+- preserves Quick Actions, vehicle charger assignment, vehicle commands and per-vehicle readiness/security/comfort/maintenance context;
+- removes the superseded Overview-only Next action / Chargers / Recent activity / Conclusion composition;
+- isolates the new presentation to Overview; Vehicles, Chargers, Intelligence and Insights keep their rc.31 behavior.
 
 ## Runtime contract
 
 - Mobility contract: `MOBILITY_PUBLIC_RUNTIME_V1`
 - Minimum Mobility backend: `M0.9.29`
-- Energy data is consumed read-only from Energy public UX entities already present in Home Assistant.
-- No Mobility backend semantic extension is introduced.
+- No Mobility backend contract extension is introduced.
+- Outdoor temperature is read from Home Assistant weather/temperature state when available.
+- No frontend positive fallback is introduced.
 
 ## Rollback
 
-Rollback candidate: `v1.0.0-rc.30`.
+Rollback candidate: `v1.0.0-rc.31`.
 
 ## Qualification
 
-Before publication: source/contract tests, executable bundle proof, deterministic two-build proof, committed package/source equality and HACS validation.
+Before publication: full contract/UX/package/release tests, executable bundle proof, deterministic two-build proof, committed package/source equality and HACS validation.
 
-Runtime proof after install: phone portrait, tablet and desktop; Overview, Vehicles, Chargers, Planning, Strategies, History and Log; existing vehicle/charger actions and pickers; Energy Planning fail-closed behavior; Energy per-vehicle metering/value projection; no-charger state; footer/runtime diagnostics.
+Runtime qualification after install: approved hero rendering; Overview status-bar truth and N/A behavior; tablet/desktop/mobile layout; existing vehicle controls and charger assignment; route refresh; resource load; restart/reload; rollback.
