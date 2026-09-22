@@ -1,19 +1,29 @@
-# v1.0.0-rc.29 — shared premium Mobility presentation hotfix
+# v1.0.0-rc.30 — Mobility UX coherence + identity-safe picker
 
 ## Scope
 
-- supersedes broken `v1.0.0-rc.28`;
-- fixes the shared presentation source serialization defect that caused `hbMobilityPageHero()` to be undefined at runtime while static parse checks still passed;
-- adds an executable regression gate for the shared presentation module;
-- keeps the rc.28 presentation scope intact: shared typography, spacing, density, page geometry and compact premium tab heroes;
-- preserves all existing Mobility content, filters, actions, KPI/status rows and management controls;
-- keeps contextual hero artwork presentation-only; product/device truth remains separate;
-- keeps Mobility on frozen `MOBILITY_PUBLIC_RUNTIME_V1` with backend baseline `M0.9.29`.
+- makes Overview the explicit presentation reference for page spacing, section spacing, card rhythm, control height and responsive density;
+- centralizes common Vehicles/Chargers presentation glue in `src/app/presentation.js` while preserving screen-specific semantics and functionality;
+- removes the synthetic standalone Charging tab/page/hero from Mobility navigation and presentation contracts;
+- keeps Overview, Vehicles and Chargers as the current Mobility workspaces;
+- fixes Vehicle & colour so frozen-V1 product identity comes from the backend/profile and `vehicle.image_key` can only select appearance within that same product;
+- clears unsaved picker drafts on close/reopen so another vehicle's draft cannot leak into the current vehicle;
+- rejects cross-model persisted image overrides instead of presenting them as vehicle identity;
+- fixes the no-charger relationship fallback so the vehicle card shows an explicit charger fallback / “No charger selected” state instead of resolving through an unrelated default asset;
+- upgrades the three tab hero scenes to a darker premium home-mobility visual language with sports-car/charging context;
+- records relationship-state illustration/action refinement as an explicit UX backlog item without expanding frozen V1.
+
+## Runtime contract
+
+- Contract: `MOBILITY_PUBLIC_RUNTIME_V1`
+- Minimum backend: `M0.9.29`
+- V1 remains frozen; no new backend semantics are introduced.
 
 ## Rollback
 
-Known-good rollback remains `v1.0.0-rc.27`. The published rc.28 candidate is not modified.
+Rollback candidate: `v1.0.0-rc.29`.
 
 ## Qualification
 
-Static validation, executable-module validation, deterministic build proof, HACS validation and package/source equality are required before publication. Target runtime proof must cover phone portrait, tablet and desktop plus Overview, Vehicles, Chargers and Charging.
+Before publication: static/source validation, executable shared-presentation proof, picker identity-safety regression, deterministic two-build proof, committed package/source equality and HACS validation.
+Runtime proof after install: phone portrait, tablet and desktop; Overview, Vehicles and Chargers; picker reopen/cancel/save; no-charger state; existing actions/controls remain present.
