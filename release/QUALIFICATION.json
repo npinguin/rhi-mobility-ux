@@ -1,6 +1,6 @@
 {
-  "candidate_version": "1.0.0-rc.25",
-  "candidate_tag": "v1.0.0-rc.25",
+  "candidate_version": "1.0.0-rc.26",
+  "candidate_tag": "v1.0.0-rc.26",
   "candidate_sha": "pending",
   "target_home_assistant": "pending",
   "hacs_install": "pending",
@@ -31,6 +31,8 @@
   "vehicle_lifecycle_management": "pending",
   "vehicle_picker_write_readback": "pending",
   "vehicle_picker_restart_persistence": "pending",
-  "vehicle_picker_profile_fallback": "pending",
-  "vehicle_picker_visual_rendering": "pending"
+  "vehicle_picker_visual_rendering": "pending",
+  "vehicle_picker_canonical_artwork": "pending",
+  "vehicle_picker_current_scope_distinct_artwork": "pending",
+  "vehicle_picker_legacy_artwork_absent": "pending"
 }
