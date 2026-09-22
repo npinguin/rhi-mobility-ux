@@ -1,6 +1,6 @@
 {
-  "candidate_version": "1.0.0-rc.29",
-  "candidate_tag": "v1.0.0-rc.29",
+  "candidate_version": "1.0.0-rc.30",
+  "candidate_tag": "v1.0.0-rc.30",
   "candidate_sha": "pending",
   "target_home_assistant": "pending",
   "hacs_install": "pending",
@@ -46,5 +46,10 @@
   "vehicles_hero": "pending",
   "chargers_hero": "pending",
   "charging_hero": "pending",
-  "shared_presentation_runtime_load": "pending"
+  "shared_presentation_runtime_load": "pending",
+  "shared_presentation_coherence": "pending",
+  "vehicle_picker_identity_safety": "pending",
+  "no_charger_relationship_state": "pending",
+  "real_mobility_tabs_only": "pending",
+  "premium_tab_heroes": "pending"
 }
