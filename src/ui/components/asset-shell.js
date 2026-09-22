@@ -225,6 +225,12 @@ class HomeBrainAssetShell {
         ${m.detailRoute ? `<button class="metric-detail-link" data-nav="${this.rt.escape(m.detailRoute)}" title="${this.rt.escape(m.detailTitle || "Open related asset details")}"><ha-icon icon="mdi:plus"></ha-icon></button>` : ""}
       </div>`).join("");
     const mainSections = (model.sections || []).filter((s) => s && s.key !== "activity");
+    const chargerAppearance = model.type === "charger"
+      ? new HomeBrainChargerVisualPicker(this.rt).render(
+          model.registryEntry || { asset_id:model.id || "", asset_type:"charger", image_key:model.visualKey || "" },
+          { showClose:false, context:"detail" }
+        )
+      : "";
 
     this.root.innerHTML = `
       <ha-card>
@@ -250,6 +256,7 @@ class HomeBrainAssetShell {
               ${model.chargerDetailRoute ? `<button class="mini-detail-button hero-charger-detail-link" data-nav="${this.rt.escape(model.chargerDetailRoute)}" title="Open charger details"><ha-icon icon="mdi:plus"></ha-icon></button>` : ""}
             </div>` : ""}
           </section>
+          ${chargerAppearance ? `<details class="detail-appearance-fold"><summary><ha-icon icon="mdi:palette-outline"></ha-icon><span>Charger & colour</span><small>Visual library</small></summary>${chargerAppearance}</details>` : ""}
 
           <section class="actions"><div class="actions-title">Quick actions</div>${actions || `<div class="no-actions">No actions available for this asset.</div>`}</section>
           <section class="grid">${mainSections.map((s) => this.renderSection(s)).join("")}</section>
@@ -494,7 +501,8 @@ class HomeBrainAssetShell {
       .hero-image img.image-fallback { opacity:.42!important; }
       .hero-icon { width:220px;height:220px;border-radius:48px;background:linear-gradient(135deg,#EAF2FF,#FFFFFF);display:flex;align-items:center;justify-content:center;box-shadow:0 24px 55px rgba(15,35,80,.10); }
       .hero-icon ha-icon { --mdc-icon-size:120px;color:var(--hb-blue); }
-      .actions { display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px; }.action { height:58px;border-radius:14px;border:1px solid rgba(14,35,72,.11);background:#fff;color:var(--hb-ink);font-weight:650;font-size:14px;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 12px 28px rgba(15,35,80,.06);cursor:pointer; }.action ha-icon { --mdc-icon-size:22px;color:var(--hb-blue); }.action.primary { background:linear-gradient(135deg,#1467F5,#3C7BFF);color:#fff;border-color:#1467F5; }.action.primary ha-icon { color:#fff; }
+      .detail-appearance-fold{border:1px solid var(--hb-line);border-radius:16px;background:#fff;overflow:hidden}.detail-appearance-fold>summary{height:46px;display:flex;align-items:center;gap:8px;padding:0 14px;cursor:pointer;list-style:none;font-size:12.5px;font-weight:600}.detail-appearance-fold>summary::-webkit-details-marker{display:none}.detail-appearance-fold>summary ha-icon{--mdc-icon-size:18px;color:var(--hb-blue)}.detail-appearance-fold>summary small{margin-left:auto;color:var(--hb-muted);font-size:10.5px;font-weight:500}.detail-appearance-fold .charger-picker-panel{margin:0;border:0;border-top:1px solid var(--hb-line);border-radius:0}
+            .actions { display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px; }.action { height:58px;border-radius:14px;border:1px solid rgba(14,35,72,.11);background:#fff;color:var(--hb-ink);font-weight:650;font-size:14px;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 12px 28px rgba(15,35,80,.06);cursor:pointer; }.action ha-icon { --mdc-icon-size:22px;color:var(--hb-blue); }.action.primary { background:linear-gradient(135deg,#1467F5,#3C7BFF);color:#fff;border-color:#1467F5; }.action.primary ha-icon { color:#fff; }
       .action small { display:block;font-size:9.5px;font-weight:650;line-height:1.05;opacity:.72;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; } .enum-action { flex-direction:column;height:auto;min-height:58px;padding:8px 10px; } .enum-action select { max-width:160px;border:1px solid rgba(14,35,72,.15);border-radius:10px;background:#fff;padding:4px 6px;font-size:11px;font-weight:600; } .enum-action.is-disabled { opacity:.55; } .no-actions { grid-column:1/-1;border:1px solid rgba(14,35,72,.10);border-radius:18px;background:#fff;padding:24px;color:var(--hb-muted);font-weight:600; }
       .grid { display:grid;grid-template-columns:repeat(4,minmax(260px,1fr));gap:12px; }
       .section-card { min-height:245px;border-radius:18px;border:1px solid rgba(14,35,72,.10);background:#fff;box-shadow:var(--hb-card-shadow);overflow:hidden; }
