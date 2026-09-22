@@ -21,7 +21,8 @@
         "MOBILITY_PUBLIC_RUNTIME_V1 access",
         "contract normalization",
         "commands and readback boundary",
-        "read-only Energy public planning projection for Mobility Intelligence"
+        "read-only Energy public planning projection for Mobility Intelligence",
+        "read-only Energy public metering/value projection for Mobility Insights"
       ]
     },
     "domain_adapters": {
