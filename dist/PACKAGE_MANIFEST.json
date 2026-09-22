@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "product": "rhi-mobility-ux",
-  "version": "1.0.0-rc.22",
+  "version": "1.0.0-rc.23",
   "source_manifest_schema": 1,
   "hacs_package_root": "dist",
   "hacs_filename": "rhi-mobility-ux.js",
@@ -11,7 +11,7 @@
     "chargers",
     "vehicles"
   ],
-  "runtime_sha256": "83afed7a3b3726c81bb15b335b9c83e39e26c9184e0284c9f785eb5bf2ee2b62",
+  "runtime_sha256": "55512f9aa5a4a85ace5dcdf22a251a81a95442af1eac1f55ce2c686754f4d659",
   "files": [
     {
       "path": "assets/branding/company-logo.svg",
@@ -95,7 +95,7 @@
     },
     {
       "path": "rhi-mobility-ux.js",
-      "bytes": 577589
+      "bytes": 586465
     },
     {
       "path": "rhi-mobility-ux.js.sha256",
