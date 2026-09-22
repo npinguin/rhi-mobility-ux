@@ -134,6 +134,31 @@
         "verified selectable vehicle visuals",
         "cross-screen vehicle visual rendering"
       ]
+    },
+    "energy_planning_projection": {
+      "owner": "tests/contracts/energy-planning-projection-smoke.mjs",
+      "owns": [
+        "read-only Energy planning contract access",
+        "exact Mobility asset identity join",
+        "fail-closed planning projection"
+      ]
+    },
+    "energy_mobility_insights_projection": {
+      "owner": "tests/contracts/energy-mobility-insights-projection-smoke.mjs",
+      "owns": [
+        "Energy per-asset metering projection into Mobility Insights",
+        "Energy per-asset value projection into Mobility Insights",
+        "exact Mobility asset identity join for Insights",
+        "fail-closed Energy Insights projection"
+      ]
+    },
+    "energy_mobility_strategy_projection": {
+      "owner": "tests/contracts/energy-mobility-strategy-projection-smoke.mjs",
+      "owns": [
+        "Energy strategy profile projection into Mobility Intelligence",
+        "Energy effective strategy projection for exact Mobility assets",
+        "fail-closed Energy strategy projection"
+      ]
     }
   }
 }

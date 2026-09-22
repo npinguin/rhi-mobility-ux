@@ -1,6 +1,6 @@
 {
-  "candidate_version": "1.0.0-rc.30",
-  "candidate_tag": "v1.0.0-rc.30",
+  "candidate_version": "1.0.0-rc.31",
+  "candidate_tag": "v1.0.0-rc.31",
   "candidate_sha": "pending",
   "target_home_assistant": "pending",
   "hacs_install": "pending",
@@ -50,5 +50,15 @@
   "vehicle_picker_identity_safety": "pending",
   "no_charger_relationship_state": "pending",
   "real_mobility_tabs_only": "pending",
-  "premium_tab_heroes": "pending"
+  "premium_tab_heroes": "pending",
+  "energy_planning_projection": "pending",
+  "energy_planning_fail_closed": "pending",
+  "energy_insights_metering_projection": "pending",
+  "energy_insights_value_projection": "pending",
+  "energy_insights_exact_asset_join": "pending",
+  "intelligence_insights_premium_layout": "pending",
+  "premium_compact_hero_responsive": "pending",
+  "energy_strategy_profile_projection": "pending",
+  "energy_strategy_effective_projection": "pending",
+  "energy_strategy_exact_asset_join": "pending"
 }
