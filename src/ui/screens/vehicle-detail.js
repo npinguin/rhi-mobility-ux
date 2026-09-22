@@ -6,7 +6,7 @@ class HomeBrainVehicleAssetDetailCard extends HTMLElement {
     this.config = {
       fallback_name: "Vehicle",
       fallback_profile: "Vehicle",
-      fallback_image: rhiMobilityAssetUrl("vehicles/default_vehicle.png"),
+      fallback_image: rhiMobilityAssetUrl("vehicles/vehicle_fallback.png"),
       image_base: "",
       dashboard_path: "/mobility-supervisor/dashboard",
       resource_version: UX_VERSION,
