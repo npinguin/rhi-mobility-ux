@@ -19,7 +19,7 @@ class HomeBrainChargerAdapter {
     const reg = this.registryEntry() || { asset_id:this.assetId() };
     const visual = this.chargerVisual();
     const packageFile = String(visual?.appearance?.package_file || "");
-    return packageFile ? this.rt.assetUrl(packageFile) : this.rt.visualImageUrl(reg, "charger", "image", "charger_fallback");
+    return packageFile || this.rt.visualImageUrl(reg, "charger", "image", "charger_fallback");
   }
   profile() { const reg = this.registryEntry(); return reg?.profile_display_name || reg?.profile || this.config.fallback_profile || "Charger"; }
   status() { return this.rt.chargerOperationalStatus(this.assetId()); }
