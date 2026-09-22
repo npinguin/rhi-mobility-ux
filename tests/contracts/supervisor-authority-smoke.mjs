@@ -40,7 +40,17 @@ for(const forbidden of [
   if(dashboard.includes(forbidden)) throw new Error(`frontend-derived supervisor fallback remains: ${forbidden}`);
 }
 if(!dashboard.includes('Backend supervisor recommendation unavailable.')) throw new Error('missing fail-closed recommendation presentation');
-if(!dashboard.includes('rt.supervisorOutcome("mobility", "attention", "Unknown")')) throw new Error('overview attention is not backend-owned/fail-closed');
-if(!dashboard.includes('rt.supervisorOutcome("mobility", "recommended_action", "")')) throw new Error('overview recommendation is not backend-owned/fail-closed');
+// Overview no longer renders one generic global Attention card. Its approved
+// status bar is domain-specific: Security and Maintenance must remain sourced
+// from published backend/public-contract evidence and fail closed when absent.
+for(const needle of [
+  'overviewSecurityStatus(rt, vehicles = [])',
+  'rt.vehicleIntelligenceStatusTiles(assetId)',
+  'overviewMaintenanceStatus(rt, vehicles = [])',
+  'headline:"N/A"',
+  'No frontend inference'
+]) if(!dashboard.includes(needle)) throw new Error(`approved Overview domain status is not contract-backed/fail-closed: ${needle}`);
+
+if(!dashboard.includes('rt.supervisorOutcome("mobility", "recommended_action", "")')) throw new Error('Mobility recommendation is not backend-owned/fail-closed');
 
 console.log('PASS backend-owned global supervisor intelligence and fail-closed UX regression');

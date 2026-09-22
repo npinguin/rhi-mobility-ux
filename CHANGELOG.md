@@ -1,3 +1,13 @@
+## 1.0.0-rc.32 — pixel-perfect Mobility Overview
+
+- Rebuilt Overview against the approved premium mock without removing existing Mobility data or controls.
+- Added the approved generated floating hero asset and removed duplicate hero status/meta.
+- Replaced generic Overview KPIs with Charging, Climate / Comfort, Security and Maintenance domain status.
+- Kept status derivation contract-backed and fail-closed; Home Assistant provides outdoor temperature.
+- Preserved Quick Actions, charger assignment and vehicle command controls.
+- Removed superseded Overview-only secondary panels while leaving all other tabs on rc.31 behavior.
+- Added/updated regression gates for the approved Overview composition and hero package asset.
+
 ## 1.0.0-rc.31 — premium Mobility cleanup + Energy projections
 
 - Extended the shared premium Mobility grammar across Mobility, Intelligence and Insights without removing existing data, actions or controls.

@@ -50,7 +50,7 @@ const presentationApi = new Function(
 if(typeof presentationApi.hbMobilityPageHero !== 'function') throw new Error('shared hero function is not executable');
 if(typeof presentationApi.hbMobilityPresentationStyles !== 'function') throw new Error('shared presentation styles are not executable');
 const renderedHero=presentationApi.hbMobilityPageHero({escape:(v)=>String(v)},'overview',{meta:'<strong>5 active</strong>'});
-if(!renderedHero.includes('Mobility Overview') || !renderedHero.includes('/assets/heroes/mobility-overview.svg')) throw new Error('shared Overview hero does not render executable package output');
+if(!renderedHero.includes('Mobility Overview') || !renderedHero.includes('/assets/heroes/mobility-overview-approved.webp')) throw new Error('shared Overview hero does not render executable package output');
 console.log('PASS shared presentation module executes, not only parses');
 
 for(const needle of ['--rhi-content-gap:10px','--rhi-control-h:40px','.vehicle-card,.charger-card','.section-title,.vehicle-workspace-head,.ov-panel-head']){
