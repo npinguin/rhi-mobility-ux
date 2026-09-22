@@ -60,6 +60,16 @@ if(!shell.includes('new HomeBrainVehicleVisualPicker(this.rt).render')) throw ne
 if(!shell.includes('data-vehicle-visual-preview')) throw new Error('vehicle detail live picker preview is missing');
 if(!picker.includes('class HomeBrainVehicleVisualPicker')) throw new Error('shared vehicle picker helper missing');
 if(!dashboard.includes('new HomeBrainVehicleVisualPicker(rt).selection')) throw new Error('vehicle management does not consume shared picker selection model');
+for(const needle of [
+  'Vehicle & colour',
+  'vehicle-visual-edit',
+  'rc.24 mobile hero art + discoverable visual picker',
+  'background:linear-gradient(90deg',
+  '.charger-mini-image{',
+  'object-position:right center'
+]) {
+  if(!dashboard.includes(needle)) throw new Error(`hero-art/picker discoverability regression: missing ${needle}`);
+}
 
 for(const needle of [
   'rc.23 mobile density rewrite',
