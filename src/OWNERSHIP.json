@@ -18,9 +18,13 @@
       "path": "src/runtime",
       "owns": [
         "Home Assistant access",
-        "MOBILITY_PUBLIC_RUNTIME_V1 access",
+        "MOBILITY_PUBLIC_RUNTIME_V2 access",
+        "MOBILITY_EXPERIENCE_V2 access",
+        "MOBILITY_POLICY_V2 access",
+        "canonical per-asset V2 semantic configuration read/write boundary",
+        "frozen V1 compatibility fallback only",
         "contract normalization",
-        "commands and readback boundary",
+        "commands and canonical readback boundary",
         "read-only Energy public planning projection for Mobility Intelligence",
         "read-only Energy public metering/value projection for Mobility Insights",
         "read-only Energy public strategy projection for Mobility Intelligence"
