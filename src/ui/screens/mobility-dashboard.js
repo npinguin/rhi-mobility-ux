@@ -595,88 +595,136 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     return { resolved:true, vehicle:next.vehicle, vehicleName, climate, departure:new Date(next.instant).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"}) };
   }
 
+  overviewShortLabel(asset = {}, fallback = "") {
+    const preferred = String(asset?.short_name || asset?.shortName || "").trim();
+    if (preferred) return preferred;
+    const display = String(asset?.display_name || asset?.display || fallback || asset?.asset_id || "").trim();
+    if (!display) return "—";
+    return display
+      .replace(/Volkswagen/gi, "VW")
+      .replace(/Mercedes(?:-Benz)?/gi, "MB")
+      .replace(/Wallbox/gi, "WB")
+      .replace(/Commander/gi, "")
+      .replace(/Business Socket/gi, "")
+      .replace(/\s+/g, " ")
+      .trim()
+      .slice(0, 14);
+  }
+
   overviewChargingStatus(rt, vehicles = [], chargers = []) {
-    let connected = 0;
-    let charging = 0;
-    let available = 0;
+    const connectedRows = [];
+    const chargingRows = [];
+    const availableRows = [];
     let totalPowerKw = 0;
     let powerResolved = false;
     for (const charger of chargers) {
       const assetId = this.assetId(charger);
+      const label = this.overviewShortLabel(charger, rt.chargerLabel(assetId));
       const snapshot = rt.chargerProductSnapshot(assetId);
       const connection = snapshot?.connection?.resolved ? String(snapshot.connection.value || "").toLowerCase() : "";
       const operating = snapshot?.operating?.resolved ? String(snapshot.operating.value || "").toLowerCase() : "";
-      if (["connected", "asset_connected"].includes(connection)) connected += 1;
-      if (operating === "running") charging += 1;
+      if (["connected", "asset_connected"].includes(connection)) connectedRows.push(label);
+      if (operating === "running") chargingRows.push(label);
       const availableProp = rt.canonicalChargerPropertyValue(assetId, "charger.available_for_connection");
-      if (availableProp.resolved && ["true","1","yes","on"].includes(String(availableProp.value).toLowerCase())) available += 1;
+      if (availableProp.resolved && ["true","1","yes","on"].includes(String(availableProp.value).toLowerCase())) availableRows.push(label);
       if (snapshot?.power?.resolved && Number.isFinite(Number(snapshot.power.value))) {
         totalPowerKw += Math.max(0, Number(snapshot.power.value));
         powerResolved = true;
       }
     }
     return {
-      connected,
-      charging,
-      available,
-      powerDisplay:powerResolved ? `${totalPowerKw.toFixed(1)} kW now` : "Power N/A",
-      stateDisplay:`${connected} connected · ${charging} charging`,
-      availabilityDisplay:`${available} available`
+      connected:connectedRows.length,
+      charging:chargingRows.length,
+      available:availableRows.length,
+      powerDisplay:powerResolved ? `${totalPowerKw.toFixed(1)} kW now` : "Power unavailable",
+      stateDisplay:`${chargingRows.length} charging · ${connectedRows.length} connected`,
+      connectedDisplay:connectedRows.length ? connectedRows.join(" · ") : "No chargers connected",
+      availabilityDisplay:availableRows.length ? `${availableRows.join(" · ")} available` : "No charger currently available"
     };
   }
 
   overviewRangeStatus(rt, vehicles = []) {
+    const thresholdKm = 100;
     const known = [];
+    const low = [];
     for (const vehicle of vehicles) {
       const assetId = this.assetId(vehicle);
-      const row = rt.clusterIntelligenceObject(assetId, "vehicle")?.range_intelligence || null;
-      const state = String(row?.state || "").toLowerCase();
-      const summary = String(row?.summary || "").trim();
-      if (!row || ["", "unknown", "disabled"].includes(state) || !summary) continue;
-      known.push({ name:String(vehicle?.display_name || rt.vehicleLabel(assetId) || assetId), summary });
+      const km = rt.numericPropertyValueAny(assetId, [
+        "vehicle.range_total_km",
+        "vehicle.ev_range_km",
+        "vehicle.full_range_km",
+        "vehicle.nominal_range_km"
+      ], null);
+      if (!Number.isFinite(km)) continue;
+      const row = { name:this.overviewShortLabel(vehicle, rt.vehicleLabel(assetId)), km:Math.round(km) };
+      known.push(row);
+      if (km < thresholdKm) low.push(row);
     }
+    const sufficient = known.length - low.length;
+    const unknown = Math.max(0, vehicles.length - known.length);
+    const lowest = known.slice().sort((a,b)=>a.km-b.km).slice(0,2);
     return {
-      known:known.length,
+      thresholdKm,
+      sufficient,
+      low,
+      unknown,
       total:vehicles.length,
-      headline:`${known.length}/${vehicles.length} range reported`,
-      line1:known.slice(0,2).map((row)=>`${row.name} ${row.summary}`).join(" · ") || "Range data unavailable",
-      line2:known.length > 2 ? `+${known.length - 2} more vehicle${known.length - 2 === 1 ? "" : "s"}` : "Low-range policy pending V2"
+      headline:`${sufficient}/${vehicles.length} ≥${thresholdKm} km`,
+      line1:low.length ? low.slice(0,2).map((row)=>`${row.name} ${row.km} km`).join(" · ") : (lowest.length ? `Lowest ${lowest.map((row)=>`${row.name} ${row.km} km`).join(" · ")}` : "Range unavailable"),
+      line2:unknown ? `${unknown} range unknown` : (low.length ? `${low.length} below ${thresholdKm} km` : "No low-range vehicle")
     };
   }
 
   overviewSecurityStatus(rt, vehicles = []) {
     const unsafe = [];
-    let secure = 0;
-    let incomplete = 0;
-    let unknown = 0;
+    const unsafeValues = new Set(["unlocked","open","ajar","not_locked","not locked","not_closed","not closed"]);
+    let covered = 0;
     for (const vehicle of vehicles) {
       const assetId = this.assetId(vehicle);
-      const name = String(vehicle?.display_name || rt.vehicleLabel(assetId) || assetId);
-      const row = rt.clusterIntelligenceObject(assetId, "vehicle")?.security_intelligence || null;
-      const state = String(row?.state || "").toLowerCase();
-      const reasonType = String(row?.reason_type || "").toLowerCase();
-      if (["unsafe", "attention"].includes(state)) unsafe.push({ name, detail:String(row?.reason || row?.summary || "Unsafe") });
-      else if (["secure", "ok"].includes(state)) secure += 1;
-      else if (state === "incomplete" || reasonType === "partial_security_coverage") incomplete += 1;
-      else unknown += 1;
+      const rows = (rt.propertyRows(assetId) || []).filter((row)=>{
+        const key = String(row.property_key || "").toLowerCase();
+        return /(lock_state|door_state|window_state|hood_state|trunk_state)/.test(key);
+      });
+      if (rows.length) covered += 1;
+      const bad = rows.filter((row)=>unsafeValues.has(String(row.value ?? "").trim().toLowerCase()));
+      if (bad.length) {
+        unsafe.push({
+          name:this.overviewShortLabel(vehicle, rt.vehicleLabel(assetId)),
+          detail:bad.map((row)=>String(row.friendly_name || row.display_name || row.property_key || "Access")).slice(0,2).join(" · ")
+        });
+      }
     }
-    return { unsafe, unsafeCount:unsafe.length, secure, incomplete, unknown };
+    return { unsafe, unsafeCount:unsafe.length, covered, incomplete:Math.max(0, vehicles.length-covered) };
   }
 
   overviewMaintenanceStatus(rt, vehicles = []) {
-    const actionable = [];
-    let ok = 0;
-    let unknown = 0;
+    const overdue = [];
+    const dueSoon = [];
+    const scheduled = [];
+    const unknown = [];
     for (const vehicle of vehicles) {
       const assetId = this.assetId(vehicle);
-      const name = String(vehicle?.display_name || rt.vehicleLabel(assetId) || assetId);
-      const row = rt.clusterIntelligenceObject(assetId, "vehicle")?.maintenance_intelligence || null;
-      const state = String(row?.state || "").toLowerCase();
-      if (["attention", "overdue", "due_soon"].includes(state)) actionable.push({ name, state, detail:String(row?.summary || row?.reason || "Maintenance attention") });
-      else if (["ok", "scheduled"].includes(state)) ok += 1;
-      else unknown += 1;
+      const name = this.overviewShortLabel(vehicle, rt.vehicleLabel(assetId));
+      const values = [
+        rt.numericPropertyValue(assetId, "vehicle.inspection_due_days", null),
+        rt.numericPropertyValue(assetId, "vehicle.oil_service_due_days", null),
+        rt.numericPropertyValue(assetId, "vehicle.oil_change_due_days", null)
+      ].filter(Number.isFinite);
+      if (!values.length) { unknown.push({name}); continue; }
+      const days = Math.min(...values);
+      const row = { name, days };
+      if (days < 0) overdue.push(row);
+      else if (days < 90) dueSoon.push(row);
+      else scheduled.push(row);
     }
-    return { actionable, actionableCount:actionable.length, ok, unknown };
+    return {
+      overdue,
+      dueSoon,
+      scheduled,
+      unknown,
+      actionable:[...overdue, ...dueSoon],
+      actionableCount:overdue.length + dueSoon.length
+    };
   }
 
   overviewStatusModel(rt, vehicles = [], chargers = []) {
@@ -697,24 +745,26 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     const activeVehicles = vehicles.filter((v)=>rt.lifecycleStatus(v) === "active");
     const status = this.overviewStatusModel(rt, activeVehicles, chargers);
     const climateHeadline = status.outside.resolved ? `${status.outside.display} outside` : "Outside N/A";
-    const climateVehicle = status.departure.resolved ? `Next ${status.departure.vehicleName} ${status.departure.departure}` : "Departure intent V2 pending";
-    const climateState = status.departure.resolved ? `Preconditioning ${status.departure.climate}` : "Preconditioning state unavailable";
+    const climateVehicle = status.departure.resolved ? `Next ${this.overviewShortLabel(status.departure.vehicle, status.departure.vehicleName)} ${status.departure.departure}` : "No departure set";
+    const climateState = status.departure.resolved ? `Preconditioning ${status.departure.climate}` : "Preconditioning unavailable";
     const securityDetail = status.security.unsafeCount
       ? `${status.security.unsafe[0].name}: ${status.security.unsafe[0].detail}`
-      : `Security: 0 unsafe · ${status.security.incomplete} incomplete`;
-    const maintenanceDetail = status.maintenance.actionableCount
-      ? `${status.maintenance.actionable[0].name}: ${status.maintenance.actionable[0].detail}`
-      : "Maintenance: no backend attention";
+      : "Security: 0 unsafe";
+    const maintenanceDetail = status.maintenance.overdue.length
+      ? `${status.maintenance.overdue[0].name} ${status.maintenance.overdue[0].days}d`
+      : status.maintenance.dueSoon.length
+        ? `${status.maintenance.dueSoon[0].name} +${status.maintenance.dueSoon[0].days}d`
+        : "Maintenance: nothing due <90d";
 
     return `
       ${hbMobilityPageHero(rt, "overview")}
 
-      <section class="ov-status-grid ov-domain-statusbar" aria-label="Mobility overview status">
+      <section class="ov-status-grid ov-domain-statusbar ${status.attentionCount ? "has-attention" : "no-attention"}" aria-label="Mobility overview status">
         <article class="ov-status-item charging">
           <span class="ov-status-icon"><ha-icon icon="mdi:lightning-bolt"></ha-icon></span>
           <div><small>Charging</small><b>${rt.escape(status.charging.powerDisplay)}</b><em>${rt.escape(status.charging.stateDisplay)}</em><em>${rt.escape(status.charging.availabilityDisplay)}</em></div>
         </article>
-        <article class="ov-status-item range">
+        <article class="ov-status-item range ${status.range.low.length ? "warn" : ""}">
           <span class="ov-status-icon"><ha-icon icon="mdi:road-variant"></ha-icon></span>
           <div><small>Range</small><b>${rt.escape(status.range.headline)}</b><em>${rt.escape(status.range.line1)}</em><em>${rt.escape(status.range.line2)}</em></div>
         </article>
@@ -739,7 +789,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
       <section class="ov-panel ov-core-vehicles ov-overview-vehicles">
         <div class="ov-panel-head">
           <div><h2>Vehicles</h2><p>Readiness first: range and energy, security, comfort, maintenance, charger relationship and direct actions.</p></div>
-          <button data-nav="${hbMobilityPath("/dashboard")}">All vehicles <ha-icon icon="mdi:chevron-right"></ha-icon></button>
+          <button data-nav="${hbMobilityPath("/dashboard")}">Vehicle Management <ha-icon icon="mdi:chevron-right"></ha-icon></button>
         </div>
         <div class="ov-vehicle-list">${activeVehicles.length ? activeVehicles.map((vehicle)=>this.renderOverviewVehicleRow(rt,vehicle,chargers)).join("") : `<div class="ov-empty">No active vehicles.</div>`}</div>
       </section>`;
