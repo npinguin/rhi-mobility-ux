@@ -1,3 +1,10 @@
+## 1.0.0-rc.40 — V2 picker session hardening
+
+- keep vehicle colour edits in local draft state and update preview without reconstructing the Home Assistant card;
+- keep charger brand/model/variant/appearance edits in the active picker DOM so native comboboxes stay open and focused;
+- add a reusable V2 semantic picker blueprint for Mobility and future Energy UX;
+- add regression coverage that rejects picker-triggered card rerenders.
+
 ## 1.0.0-rc.39 — Clean heroes + canonical asset detail layout
 
 - removes navigation/location eyebrow copy from every top-level Mobility hero;

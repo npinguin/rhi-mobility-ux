@@ -456,24 +456,86 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
         if (this.isConnected) this.hass = this._hass;
       });
     });
-    this.shadowRoot.querySelectorAll("[data-charger-picker-panel] select").forEach((select) => {
-      select.addEventListener("change", (ev) => {
-        ev.stopPropagation();
-        const panel = select.closest("[data-charger-picker-panel]");
-        const assetId = panel?.getAttribute("data-charger-picker-panel") || "";
-        const draft = { ...(this._chargerPickerDraft.get(assetId) || {}) };
-        if (select.hasAttribute("data-charger-picker-brand")) {
-          draft.brand = select.value; draft.model = ""; draft.variant_id = ""; draft.appearance_id = "";
-        } else if (select.hasAttribute("data-charger-picker-model")) {
-          draft.model = select.value; draft.variant_id = ""; draft.appearance_id = "";
-        } else if (select.hasAttribute("data-charger-picker-variant")) {
-          draft.variant_id = select.value; draft.appearance_id = "";
-        } else if (select.hasAttribute("data-charger-picker-appearance")) {
-          draft.appearance_id = select.value;
+    this.shadowRoot.querySelectorAll("[data-charger-picker-panel]").forEach((panel) => {
+      const assetId = panel.getAttribute("data-charger-picker-panel") || "";
+      const picker = new HomeBrainChargerVisualPicker(rt);
+      const brandSelect = panel.querySelector("[data-charger-picker-brand]");
+      const modelSelect = panel.querySelector("[data-charger-picker-model]");
+      const variantSelect = panel.querySelector("[data-charger-picker-variant]");
+      const appearanceSelect = panel.querySelector("[data-charger-picker-appearance]");
+      const saveButton = panel.querySelector("[data-charger-picker-save]");
+      const keyNode = panel.querySelector(".vehicle-picker-key code");
+      const placeholder = (label)=>`<option value="" selected disabled>${rt.escape(label)}</option>`;
+
+      const updatePreview = () => {
+        const catalog = picker.catalog();
+        const charger = catalog.find((row)=>row.id===String(variantSelect?.value || "")) || null;
+        const appearance = charger?.appearances?.find((row)=>row.id===String(appearanceSelect?.value || "")) || null;
+        const key = charger && appearance && typeof rhiMobilityChargerVisualKey === "function"
+          ? rhiMobilityChargerVisualKey(charger.id, appearance.id)
+          : "";
+        if (keyNode) keyNode.textContent = key || "Unavailable";
+        if (saveButton) {
+          saveButton.setAttribute("data-charger-key", key);
+          saveButton.disabled = !key || !picker.selection({asset_id:assetId}).writable;
         }
+        const card = panel.closest(".charger-card");
+        const preview = card?.querySelector(".charger-visual img");
+        if (preview && appearance?.package_file) preview.src = rt.cache(appearance.package_file);
+      };
+
+      const refreshHierarchy = (level) => {
+        const catalog = picker.catalog();
+        const brand = String(brandSelect?.value || "");
+        if (level === "brand") {
+          const models = picker.modelsForBrand(brand, catalog);
+          if (modelSelect) {
+            modelSelect.disabled = !brand;
+            modelSelect.innerHTML = placeholder("Choose model…") + models.map((model)=>`<option value="${rt.escape(model)}">${rt.escape(model)}</option>`).join("");
+          }
+          if (variantSelect) { variantSelect.disabled = true; variantSelect.innerHTML = placeholder("Choose variant…"); }
+          if (appearanceSelect) { appearanceSelect.disabled = true; appearanceSelect.innerHTML = placeholder("Choose colour…"); }
+        } else if (level === "model") {
+          const model = String(modelSelect?.value || "");
+          const variants = picker.variantsFor(brand, model, catalog);
+          if (variantSelect) {
+            variantSelect.disabled = !model;
+            variantSelect.innerHTML = placeholder("Choose variant…") + variants.map((row)=>`<option value="${rt.escape(row.id)}">${rt.escape(row.variant || "Standard")} · ${rt.escape(row.years)}</option>`).join("");
+          }
+          if (appearanceSelect) { appearanceSelect.disabled = true; appearanceSelect.innerHTML = placeholder("Choose colour…"); }
+        } else if (level === "variant") {
+          const charger = catalog.find((row)=>row.id===String(variantSelect?.value || "")) || null;
+          if (appearanceSelect) {
+            appearanceSelect.disabled = !charger;
+            appearanceSelect.innerHTML = placeholder("Choose colour…") + (charger?.appearances || []).map((row)=>`<option value="${rt.escape(row.id)}">${rt.escape(row.label)}</option>`).join("");
+          }
+        }
+        updatePreview();
+      };
+
+      brandSelect?.addEventListener("change", (ev) => {
+        ev.stopPropagation();
+        const draft = { ...(this._chargerPickerDraft.get(assetId) || {}), brand:brandSelect.value, model:"", variant_id:"", appearance_id:"" };
         this._chargerPickerDraft.set(assetId, draft);
-        this._lastSignature = "";
-        if (this.isConnected) this.hass = this._hass;
+        refreshHierarchy("brand");
+      });
+      modelSelect?.addEventListener("change", (ev) => {
+        ev.stopPropagation();
+        const draft = { ...(this._chargerPickerDraft.get(assetId) || {}), model:modelSelect.value, variant_id:"", appearance_id:"" };
+        this._chargerPickerDraft.set(assetId, draft);
+        refreshHierarchy("model");
+      });
+      variantSelect?.addEventListener("change", (ev) => {
+        ev.stopPropagation();
+        const draft = { ...(this._chargerPickerDraft.get(assetId) || {}), variant_id:variantSelect.value, appearance_id:"" };
+        this._chargerPickerDraft.set(assetId, draft);
+        refreshHierarchy("variant");
+      });
+      appearanceSelect?.addEventListener("change", (ev) => {
+        ev.stopPropagation();
+        const draft = { ...(this._chargerPickerDraft.get(assetId) || {}), appearance_id:appearanceSelect.value };
+        this._chargerPickerDraft.set(assetId, draft);
+        updatePreview();
       });
     });
     this.shadowRoot.querySelectorAll("button[data-charger-picker-save]").forEach((btn) => {

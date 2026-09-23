@@ -1,23 +1,14 @@
-# v1.0.0-rc.39 — Clean heroes + canonical asset detail layout
+# v1.0.0-rc.40 — V2 picker session hardening
 
-## Scope
-- removes page-location/navigation labels from Mobility heroes;
-- uses only page/device title, purpose and artwork in the hero;
-- rebuilds Vehicle Detail and Charger Detail on the same hero/status/actions hierarchy as Mobility Overview;
-- retains transparent canonical detail scene art and shows the actual selected vehicle/charger as the foreground asset;
-- moves status cards below the hero and Quick Actions below status;
-- leaves domain cards and backend contracts unchanged.
+This candidate fixes the visual-picker editing lifecycle without changing Mobility domain semantics.
 
-## Required runtime hierarchy
-navigation → hero(title + purpose + asset visual) → status cards → quick actions → detail content.
+Tested backend: `M0.9.39`.
 
-## Rollback
-Rollback candidate: `v1.0.0-rc.38`.
+- Vehicle colour preview stays local until Save; picker changes no longer force a Home Assistant card rebuild.
+- Charger brand/model/variant/appearance hierarchy updates in place, preserving the active native select and draft state.
+- Save remains contract-driven and fail-closed: persistence activates only when the canonical backend property publishes complete write capability.
+- `documentation/SEMANTIC_PICKER_BLUEPRINT.md` defines the reusable Domain V2 → local draft → semantic write → canonical readback pattern intended for Mobility and later Energy UX.
 
-## Qualification
-Target Home Assistant proof must confirm:
-- no `MOBILITY / ...`, breadcrumb or Back-to-Dashboard text inside heroes;
-- Vehicle Detail and Charger Detail both use Overview-style hero geometry;
-- actual selected asset image is visible in each detail hero;
-- status and action rows render below the hero;
-- desktop/tablet/mobile layouts remain usable.
+Rollback: `v1.0.0-rc.39`.
+
+Target Home Assistant qualification and backend readback proof remain mandatory before stable promotion.
