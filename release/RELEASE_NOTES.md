@@ -12,3 +12,5 @@ Rollback candidate: `v1.0.0-rc.34`.
 
 ## Qualification
 Target Home Assistant must show the structured `www/community/rhi-mobility-ux/assets/` tree and render all seven tab heroes plus both detail scenes without manual file moves.
+
+The rc.35 flat root layout is explicitly rejected by this candidate; runtime assets remain grouped under `assets/`.
