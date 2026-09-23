@@ -152,7 +152,7 @@ console.log('PASS vehicle management, hierarchical picker, complete canonical cu
 if(!presentation.includes('MOBILITY / VEHICLE MANAGEMENT')) throw new Error('vehicle-management hero eyebrow drifted from shared presentation owner');
 if(!presentation.includes('Manage the vehicles you use every day')) throw new Error('vehicle-management hero purpose drifted from shared presentation owner');
 
-if(!presentation.includes('mobility-vehicles.svg')) throw new Error('Vehicle tab contextual hero asset missing from shared presentation owner');
+if(!presentation.includes('asset_key:"vehicles"')) throw new Error('Vehicle tab contextual hero key missing from shared presentation owner');
 
 for(const needle of [
   'const profile = this.rt.profileForAsset',
