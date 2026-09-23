@@ -38,6 +38,18 @@ This file is the authoritative list of unresolved Mobility UX product/runtime is
 
 8. **Cross-screen runtime parity against the current tested backend remains unqualified** until the immutable candidate is installed and exercised on the target Home Assistant.
 
+9. **High-risk runtime paths still rely partly on implementation-string smoke tests.**
+   - Test governance requires behavior/state assertions where practical.
+   - Picker/runtime/HACS regressions that previously escaped static CI should gain executable behavior tests at the owning boundary.
+   - Source-string assertions may remain only where the literal declaration itself is the owned contract.
+   - This is closed only when the critical picker write/readback, V2 resolution and visual-selection paths are behavior-tested without duplicating another owner's invariant.
+
+10. **Premium visual system and artwork provenance are not complete.**
+   - Current asset governance proves identity/package integrity, not premium product quality.
+   - Vehicle provenance is tracked, but charger artwork needs equivalent source/licence/provenance discipline before broader distribution.
+   - The visual system still needs a documented premium master/background/context policy so cards, pickers, detail and hero remain one visual family rather than separate image collections.
+   - Runtime-generated canonical product imagery is forbidden.
+
 ## Closure rule
 
 An open issue may move to the closed section only when all of the following are true:
