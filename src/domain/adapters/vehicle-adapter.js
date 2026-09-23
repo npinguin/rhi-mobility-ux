@@ -112,61 +112,59 @@ class HomeBrainVehicleAdapter {
       { chargerDetailRoute, chargerDisplay }
     );
 
-    const rangeKm = this.rt.numericPropertyValueAny(assetId, [
-      "vehicle.range_total_km",
-      "vehicle.ev_range_km",
-      "vehicle.full_range_km",
-      "vehicle.nominal_range_km"
-    ], null);
-    const rangeTile = Number.isFinite(rangeKm)
-      ? {
-          label:"Range",
-          value:`${Math.round(rangeKm)} km`,
-          subvalue:rangeKm < 100 ? "Below 100 km" : "At least 100 km",
-          icon:"mdi:road-variant",
-          tone:rangeKm < 100 ? "attention" : "neutral"
-        }
-      : { label:"Range", value:"Unknown", subvalue:"No range reading", icon:"mdi:road-variant", tone:"neutral" };
+    const experience = this.rt.vehicleExperienceV2(assetId);
+    const v2Relationship = experience?.charging_relationship || this.rt.vehicleRelationshipV2(assetId) || {};
+    const rangeIntel = experience?.range_intelligence || {};
+    const chargingIntel = experience?.charging_intelligence || {};
+    const securityIntel = experience?.security_intelligence || {};
+    const maintenanceIntel = experience?.maintenance_intelligence || {};
 
-    const selectedId = isReal(relationship.selected) ? this.rt.canonicalAssetId(relationship.selected) : "";
-    const selectedEntry = selectedId ? (this.rt.chargerById(selectedId) || this.rt.assetById(selectedId)) : null;
-    const selectedLabel = selectedEntry?.short_name || selectedEntry?.display_name || relationship.selected_display_name || selectedId || "";
-    const chargingContext = this.rt.liveChargingContextForVehicle(assetId);
-    const chargingFault = String(chargingContext?.status || "").toLowerCase().includes("fault");
-    const chargingTile = {
-      label:"Charging",
-      value:physicalChargerId ? (chargerDisplay || "Connected") : (selectedId ? selectedLabel : "No charger"),
-      subvalue:physicalChargerId
-        ? [chargingContext?.status, Number.isFinite(chargingContext?.power) ? `${Number(chargingContext.power).toFixed(1)} kW` : ""].filter(Boolean).join(" · ")
-        : (selectedId ? "Configured · not physically confirmed" : "No charger assigned"),
-      icon:"mdi:ev-station",
-      tone:chargingFault ? "attention" : "neutral",
-      detailRoute:chargerDetailRoute,
-      detailTitle:chargerDisplay ? `Open ${chargerDisplay} details` : "Open charger details"
+    const toneFor = (state, actionable = []) => actionable.includes(String(state || "").toLowerCase()) ? "attention" : "neutral";
+    const rangeTile = {
+      label:"Range",
+      value:String(rangeIntel.summary || "Unavailable"),
+      subvalue:String(rangeIntel.reason || "Range conclusion unavailable"),
+      icon:"mdi:road-variant",
+      tone:toneFor(rangeIntel.state, ["low"])
     };
 
-    const accessRows = (this.rt.propertyRows(assetId) || []).filter((row)=>/(lock_state|door_state|window_state|hood_state|trunk_state)/.test(String(row.property_key || "").toLowerCase()));
-    const unsafeValues = new Set(["unlocked","open","ajar","not_locked","not locked","not_closed","not closed"]);
-    const unsafeRows = accessRows.filter((row)=>unsafeValues.has(String(row.value ?? "").trim().toLowerCase()));
-    const securityTile = unsafeRows.length
-      ? { label:"Security", value:"Unsafe", subvalue:unsafeRows.map((row)=>row.friendly_name || row.display_name || row.property_key).slice(0,2).join(" · "), icon:"mdi:lock-alert-outline", tone:"attention" }
-      : accessRows.length
-        ? { label:"Security", value:"No unsafe state", subvalue:`${accessRows.length} access facts`, icon:"mdi:lock-outline", tone:"neutral" }
-        : { label:"Security", value:"Unknown", subvalue:"No access evidence", icon:"mdi:lock-outline", tone:"neutral" };
+    const configuredId = String(v2Relationship.configured_charger_id || "");
+    const physicalId = v2Relationship.observed_identity_proven === true
+      ? String(v2Relationship.physically_connected_charger_id || "")
+      : "";
+    const chargingChargerId = physicalId || configuredId;
+    const chargingChargerEntry = chargingChargerId ? (this.rt.chargerById(chargingChargerId) || this.rt.assetById(chargingChargerId)) : null;
+    const chargingChargerLabel = chargingChargerEntry?.display_name || (chargingChargerId ? this.rt.chargerLabel(chargingChargerId) : "");
+    const chargingDetailRoute = chargingChargerId ? this.rt.assetDetailRoute(chargingChargerEntry || chargingChargerId) : "";
+    const chargingTile = {
+      label:"Charging",
+      value:physicalId
+        ? (chargingChargerLabel || "Connected")
+        : (configuredId ? (chargingChargerLabel || "Assigned charger") : "No charger"),
+      subvalue:physicalId
+        ? String(chargingIntel.summary || chargingIntel.reason || "Physical charger confirmed")
+        : (configuredId ? "Configured · physical identity not proven" : String(chargingIntel.summary || "No charger assigned")),
+      icon:"mdi:ev-station",
+      tone:toneFor(chargingIntel.state, ["fault"]),
+      detailRoute:chargingDetailRoute,
+      detailTitle:chargingChargerLabel ? `Open ${chargingChargerLabel} details` : "Open charger details"
+    };
 
-    const maintenanceValues = [
-      this.rt.numericPropertyValue(assetId, "vehicle.inspection_due_days", null),
-      this.rt.numericPropertyValue(assetId, "vehicle.oil_service_due_days", null),
-      this.rt.numericPropertyValue(assetId, "vehicle.oil_change_due_days", null)
-    ].filter(Number.isFinite);
-    const maintenanceDays = maintenanceValues.length ? Math.min(...maintenanceValues) : null;
-    const maintenanceTile = maintenanceDays === null
-      ? { label:"Maintenance", value:"Unknown", subvalue:"No due date", icon:"mdi:wrench-outline", tone:"neutral" }
-      : maintenanceDays < 0
-        ? { label:"Maintenance", value:`${Math.abs(Math.round(maintenanceDays))}d overdue`, subvalue:"Action required", icon:"mdi:wrench-outline", tone:"attention" }
-        : maintenanceDays < 90
-          ? { label:"Maintenance", value:`Due in ${Math.round(maintenanceDays)}d`, subvalue:"Within 90 days", icon:"mdi:wrench-outline", tone:"attention" }
-          : { label:"Maintenance", value:`Next +${Math.round(maintenanceDays)}d`, subvalue:"Scheduled", icon:"mdi:wrench-outline", tone:"neutral" };
+    const securityTile = {
+      label:"Security",
+      value:String(securityIntel.summary || "Unavailable"),
+      subvalue:String(securityIntel.reason || "Security conclusion unavailable"),
+      icon:String(securityIntel.state || "").toLowerCase() === "unsafe" ? "mdi:lock-alert-outline" : "mdi:lock-outline",
+      tone:toneFor(securityIntel.state, ["unsafe"])
+    };
+
+    const maintenanceTile = {
+      label:"Maintenance",
+      value:String(maintenanceIntel.summary || "Unavailable"),
+      subvalue:String(maintenanceIntel.reason || "Maintenance conclusion unavailable"),
+      icon:"mdi:wrench-outline",
+      tone:toneFor(maintenanceIntel.state, ["overdue","due_soon"])
+    };
 
     const headerStatus = [rangeTile, chargingTile, securityTile, maintenanceTile];
 
