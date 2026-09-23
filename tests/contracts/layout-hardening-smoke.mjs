@@ -76,3 +76,16 @@ if(!strategyHero.includes('src="/hacsfiles/rhi-mobility-ux/assets/heroes/mobilit
 const overviewHeroExact=presentationApi.hbMobilityPageHero({escape:(v)=>String(v)},'overview');
 if(!overviewHeroExact.includes('src="/hacsfiles/rhi-mobility-ux/assets/heroes/mobility-overview.png"')) throw new Error('overview hero did not render exact installed HACS asset URL');
 if(strategyHero.includes('/hacsfiles/rhi-mobility-ux/assets/hacsfiles/') || strategyHero.includes('asset--hacsfiles--')) throw new Error('hero URL double-resolution regression detected');
+
+
+if(!presentation.includes('Canonical page composition: Overview is the visual reference')) throw new Error('shared Overview-style hero geometry missing');
+if(!presentation.includes('function hbMobilityStatusGrid(')) throw new Error('shared top status renderer missing');
+if(!presentation.includes('function hbMobilityQuickActions(')) throw new Error('shared top actions renderer missing');
+if(/rhi-page-hero-meta">\$\{meta/.test(presentation)) throw new Error('hero mini status/meta rendering returned');
+for(const source of [dashboard,chargers,router]){
+  if(!source.includes('hbMobilityStatusGrid')) throw new Error('top-level screen missing shared Overview-style status grid');
+  if(!source.includes('hbMobilityQuickActions')) throw new Error('top-level screen missing shared Overview-style quick actions');
+}
+if(dashboard.includes('hbMobilityPageHero(rt, "vehicles", {\n        meta:')) throw new Error('Vehicles hero still carries mini substatus metadata');
+if(chargers.includes('hbMobilityPageHero(rt, "chargers", {')) throw new Error('Chargers hero still carries mini substatus metadata');
+if(router.includes('hbMobilityOutcomeStrip(rt, view')) throw new Error('Intelligence/Insights still use generic five-column outcome strip at top level');

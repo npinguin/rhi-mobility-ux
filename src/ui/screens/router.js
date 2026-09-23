@@ -15,13 +15,12 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
     const rt = new HomeBrainAssetRuntime(hass, this.config);
     const view = this.config.view || this.viewFromPath();
     const data = this.viewModel(view);
-    const heroMeta = view === "planning" ? this.planningHeroMeta(rt) : view === "strategies" ? this.strategyHeroMeta(rt) : view === "history" ? this.insightsHeroMeta(rt) : "";
     this.shadowRoot.innerHTML = `<ha-card><div class="page">
       ${hbMobilityNav(view)}
-      ${hbMobilityPageHero(rt, view, { meta: heroMeta })}
-      ${hbMobilityOutcomeStrip(rt, view, data.outcome)}
+      ${hbMobilityPageHero(rt, view)}
+      ${this.renderTopStatus(rt, view)}
+      ${this.renderTopActions(rt, view)}
       ${view === "planning" ? this.renderPlanning(rt) : view === "strategies" ? this.renderStrategies(rt) : view === "history" ? this.renderInsights(rt) : this.renderContextCards(rt, data)}
-      ${this.renderSupportFacts(rt, view)}
       ${hbMobilityReleaseFooter(rt)}
     </div><style>${this.styles()}</style></ha-card>`;
     this.shadowRoot.querySelectorAll("button[data-nav]").forEach((btn)=>btn.addEventListener("click",()=>rt.navigate(btn.getAttribute("data-nav"))));
@@ -86,6 +85,72 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
     return value === null || value === undefined ? "N/A" : `${Number(value).toFixed(1)} kWh`;
   }
 
+  renderTopStatus(rt, view) {
+    if (view === "planning") {
+      const plan = this.energyPlanning(rt);
+      return hbMobilityStatusGrid(rt, [
+        { icon:"mdi:calendar-check-outline", label:"Planned today", value:this.fmtKwh(plan.today.plannedKwh), sub:plan.today.state || "Energy planning", tone:plan.available ? "ok" : "warn" },
+        { icon:"mdi:calendar-alert-outline", label:"Still to plan", value:this.fmtKwh(plan.today.stillToPlanKwh), sub:"Published by Energy", tone:Number(plan.today.stillToPlanKwh || 0) > 0 ? "warn" : "ok" },
+        { icon:"mdi:weather-sunset-up", label:"Tomorrow", value:this.fmtKwh(plan.tomorrow.plannedKwh), sub:plan.tomorrow.state || "Next horizon", tone:"neutral" },
+        { icon:"mdi:source-branch-check", label:"Contract", value:plan.contractVersion || (plan.available ? "Published" : "Unavailable"), sub:plan.source, tone:plan.available ? "ok" : "warn" }
+      ], "planning-top-status");
+    }
+    if (view === "strategies") {
+      const strategy = this.energyStrategies(rt);
+      return hbMobilityStatusGrid(rt, [
+        { icon:"mdi:tune-variant", label:"Profiles", value:String(strategy.profiles.length), sub:"Energy strategy", tone:strategy.profilesAvailable ? "ok" : "warn" },
+        { icon:"mdi:shield-check-outline", label:"Effective policies", value:String(strategy.effective.length), sub:"Exact Mobility assets", tone:strategy.effective.length ? "ok" : "neutral" },
+        { icon:"mdi:source-branch-check", label:"Profile contract", value:strategy.profileContractVersion || (strategy.profilesAvailable ? "Published" : "Unavailable"), sub:"Energy-owned", tone:strategy.profilesAvailable ? "ok" : "warn" },
+        { icon:"mdi:database-check-outline", label:"Policy contract", value:strategy.effectiveContractVersion || (strategy.effectiveAvailable ? "Published" : "Unavailable"), sub:"Energy-owned", tone:strategy.effectiveAvailable ? "ok" : "warn" }
+      ], "strategies-top-status");
+    }
+    if (view === "history") {
+      const insights = this.energyInsights(rt);
+      return hbMobilityStatusGrid(rt, [
+        { icon:"mdi:counter", label:"Vehicle energy", value:this.fmtKwh(insights.totalVehicleEnergyKwh), sub:"Energy metering", tone:insights.meteringAvailable ? "ok" : "warn" },
+        { icon:"mdi:currency-eur", label:"Attributed value", value:insights.totalAttributedEur === null ? "N/A" : `€${Number(insights.totalAttributedEur).toFixed(2)}`, sub:"Energy accounting", tone:insights.valueAvailable ? "ok" : "warn" },
+        { icon:"mdi:car-multiple", label:"Vehicles with evidence", value:String(insights.rows.length), sub:"Exact asset-id join", tone:insights.rows.length ? "ok" : "neutral" },
+        { icon:"mdi:database-check-outline", label:"Source", value:"Energy", sub:"Metering + value", tone:"neutral" }
+      ], "history-top-status");
+    }
+    return hbMobilityStatusGrid(rt, [
+      { icon:"mdi:check-circle-outline", label:"Status", value:rt.supervisorOutcome("mobility", "status", "Unknown"), sub:"Mobility runtime", tone:"neutral" },
+      { icon:"mdi:shield-check-outline", label:"Trust", value:rt.supervisorOutcome("mobility", "trust", "Unknown"), sub:"Contract-backed", tone:"neutral" },
+      { icon:"mdi:alert-circle-outline", label:"Attention", value:rt.supervisorOutcome("mobility", "attention", "None"), sub:"Backend-published", tone:String(rt.supervisorOutcome("mobility", "attention", "None")).toLowerCase()==="none" ? "ok" : "warn" },
+      { icon:"mdi:history", label:"Activity", value:"Read-only", sub:"Audit evidence", tone:"neutral" }
+    ], "log-top-status");
+  }
+
+  renderTopActions(rt, view) {
+    const actions = {
+      planning: [
+        { icon:"mdi:target", label:"Strategies", path:hbMobilityPath("/strategies"), primary:true },
+        { icon:"mdi:car-electric", label:"Vehicles", path:hbMobilityPath("/dashboard") },
+        { icon:"mdi:ev-station", label:"Chargers", path:hbMobilityPath("/charger-maintenance") },
+        { icon:"mdi:chart-timeline-variant", label:"History", path:hbMobilityPath("/history") }
+      ],
+      strategies: [
+        { icon:"mdi:calendar-clock", label:"Planning", path:hbMobilityPath("/planning"), primary:true },
+        { icon:"mdi:car-electric", label:"Vehicles", path:hbMobilityPath("/dashboard") },
+        { icon:"mdi:ev-station", label:"Chargers", path:hbMobilityPath("/charger-maintenance") },
+        { icon:"mdi:chart-timeline-variant", label:"History", path:hbMobilityPath("/history") }
+      ],
+      history: [
+        { icon:"mdi:format-list-bulleted", label:"Log", path:hbMobilityPath("/log"), primary:true },
+        { icon:"mdi:car-electric", label:"Vehicles", path:hbMobilityPath("/dashboard") },
+        { icon:"mdi:calendar-clock", label:"Planning", path:hbMobilityPath("/planning") },
+        { icon:"mdi:target", label:"Strategies", path:hbMobilityPath("/strategies") }
+      ],
+      log: [
+        { icon:"mdi:chart-timeline-variant", label:"History", path:hbMobilityPath("/history"), primary:true },
+        { icon:"mdi:car-electric", label:"Vehicles", path:hbMobilityPath("/dashboard") },
+        { icon:"mdi:ev-station", label:"Chargers", path:hbMobilityPath("/charger-maintenance") },
+        { icon:"mdi:calendar-clock", label:"Planning", path:hbMobilityPath("/planning") }
+      ]
+    };
+    return hbMobilityQuickActions(rt, actions[view] || actions.planning);
+  }
+
   planningHeroMeta(rt) {
     const plan = this.energyPlanning(rt);
     const source = plan.available ? "Energy backend" : "Energy planning unavailable";
@@ -127,10 +192,7 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
       ? (plan.exactIdentityJoin && !mobilityRows.length ? "Energy planning is available, but no published planning row currently matches a canonical Mobility asset id." : "")
       : "The Energy public planning contract is not available. Mobility does not reconstruct or estimate a plan.";
 
-    return `<section class="rhi-fact-grid">
-      ${facts.map(([icon,label,value,sub])=>`<div class="rhi-fact"><ha-icon icon="${icon}"></ha-icon><div><small>${rt.escape(label)}</small><b>${rt.escape(value)}</b><span>${rt.escape(sub)}</span></div></div>`).join("")}
-    </section>
-    <section class="rhi-context-grid">
+    return `<section class="rhi-context-grid">
       <article class="rhi-context-card">
         <div class="rhi-context-card-kicker"><ha-icon icon="mdi:calendar-clock"></ha-icon>Energy-owned planning</div>
         <h3>Operational charging plan</h3>
@@ -166,13 +228,7 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
     const unavailable = !strategy.profilesAvailable && !strategy.effectiveAvailable
       ? "Energy strategy contracts are unavailable. Mobility does not invent a strategy or infer one from charging behavior."
       : "";
-    return `<section class="rhi-fact-grid">
-      <div class="rhi-fact"><ha-icon icon="mdi:tune-variant"></ha-icon><div><small>Profiles</small><b>${rt.escape(String(strategy.profiles.length))}</b><span>Energy strategy</span></div></div>
-      <div class="rhi-fact"><ha-icon icon="mdi:shield-check-outline"></ha-icon><div><small>Effective policies</small><b>${rt.escape(String(strategy.effective.length))}</b><span>Exact Mobility assets</span></div></div>
-      <div class="rhi-fact"><ha-icon icon="mdi:source-branch-check"></ha-icon><div><small>Profile contract</small><b>${rt.escape(strategy.profileContractVersion || (strategy.profilesAvailable ? "Published" : "Unavailable"))}</b><span>Energy-owned</span></div></div>
-      <div class="rhi-fact"><ha-icon icon="mdi:database-check-outline"></ha-icon><div><small>Policy contract</small><b>${rt.escape(strategy.effectiveContractVersion || (strategy.effectiveAvailable ? "Published" : "Unavailable"))}</b><span>Energy-owned</span></div></div>
-    </section>
-    <section class="rhi-context-grid">
+    return `<section class="rhi-context-grid">
       <article class="rhi-context-card">
         <div class="rhi-context-card-kicker"><ha-icon icon="mdi:tune-variant"></ha-icon>Configured intent</div>
         <h3>Mobility energy profiles</h3>
@@ -206,13 +262,7 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
     const gap = (!insights.meteringAvailable && !insights.valueAvailable)
       ? "Energy metering and value contracts are unavailable. Mobility does not estimate vehicle energy or financial value."
       : (!rows ? "Energy is available, but no published metering/value record currently matches a canonical Mobility vehicle id." : "");
-    return `<section class="rhi-fact-grid">
-      <div class="rhi-fact"><ha-icon icon="mdi:counter"></ha-icon><div><small>Vehicle energy</small><b>${rt.escape(this.fmtKwh(insights.totalVehicleEnergyKwh))}</b><span>Energy metering</span></div></div>
-      <div class="rhi-fact"><ha-icon icon="mdi:currency-eur"></ha-icon><div><small>Attributed value</small><b>${rt.escape(insights.totalAttributedEur === null ? "N/A" : `€${Number(insights.totalAttributedEur).toFixed(2)}`)}</b><span>Energy accounting</span></div></div>
-      <div class="rhi-fact"><ha-icon icon="mdi:car-multiple"></ha-icon><div><small>Vehicles with evidence</small><b>${rt.escape(String(insights.rows.length))}</b><span>Exact asset-id join</span></div></div>
-      <div class="rhi-fact"><ha-icon icon="mdi:database-check-outline"></ha-icon><div><small>Source</small><b>Energy</b><span>Metering + value</span></div></div>
-    </section>
-    <section class="rhi-context-grid insights-grid">
+    return `<section class="rhi-context-grid insights-grid">
       <article class="rhi-context-card rhi-insights-wide">
         <div class="rhi-context-card-kicker"><ha-icon icon="mdi:chart-timeline-variant"></ha-icon>Measured Mobility</div>
         <h3>Vehicle energy & value</h3>

@@ -1,3 +1,12 @@
+## 1.0.0-rc.38 — Unified Overview-style top-level tab layout
+
+- Promoted Mobility Overview hero geometry to the shared top-level tab presentation.
+- Removed hero-level mini status/meta rows from Vehicles, Chargers, Planning, Strategies, History and Log.
+- Added one shared four-card top status system and one shared Overview-style quick-action bar.
+- Replaced generic five-column outcome strips at top level with domain-specific status cards.
+- Kept lower-level content, commands, backend semantics and the nine approved hero assets unchanged.
+- Preserved rc.37 nested HACS packaging and rc.36 charger occupancy semantics.
+
 ## 1.0.0-rc.37 — Energy-aligned nested assets + hero runtime fix
 
 - Preserves the rc.36 charger occupancy semantics correction.

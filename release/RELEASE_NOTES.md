@@ -1,23 +1,25 @@
-# v1.0.0-rc.37 — Energy-aligned nested assets + hero runtime fix
+# v1.0.0-rc.38 — Unified Overview-style top-level tab layout
 
 ## Scope
-- keeps the rc.36 charger occupancy semantics fix;
-- restores the same nested HACS package model used successfully by RHI Energy UX: `dist/assets/**` with zero GitHub Release assets;
-- removes the rc.35 flat `asset--...` runtime workaround;
-- restores runtime URLs under `/hacsfiles/rhi-mobility-ux/assets/**`;
-- fixes the actual hero defect: the shared hero renderer was resolving an already-resolved HACS URL a second time;
-- preserves all nine approved hero masters byte-for-byte and keeps the semantic mapping unchanged;
-- adds executable regression checks for exact final Overview and Strategies hero URLs.
+- makes Mobility Overview the visual reference for every top-level tab hero;
+- keeps the nine approved hero images and their semantic mapping unchanged;
+- removes all hero-level mini status/meta rows: heroes contain only eyebrow, title, description and artwork;
+- adds one shared four-tile top status pattern matching Overview;
+- adds one shared quick-action bar matching Overview;
+- applies the pattern to Vehicles, Chargers, Planning, Strategies, History and Log;
+- preserves detailed content and domain ownership below the top-level presentation layer;
+- preserves rc.37 nested HACS asset delivery and rc.36 charger occupancy semantics.
 
-## Packaging reference
-RHI Energy UX currently uses the same HACS dashboard metadata, immutable tag `dist/` delivery, zero release assets, structured `dist/assets/` tree and source/dist asset parity. Mobility now follows that proven model again.
+## Runtime target
+Every top-level tab must render in this order:
+1. shared navigation;
+2. full-width Overview-style hero;
+3. four top-level status cards;
+4. Overview-style quick actions;
+5. domain-specific content.
 
 ## Rollback
-Rollback candidate: `v1.0.0-rc.36`.
+Rollback candidate: `v1.0.0-rc.37`.
 
 ## Qualification
-Static/package/HACS validation must pass before publication. Target Home Assistant proof must confirm:
-- `www/community/rhi-mobility-ux/assets/{branding,chargers,heroes,vehicles}` exists;
-- no `asset--...` file sprawl remains in the plugin root;
-- all seven tab heroes and both detail scenes render;
-- rc.36 charger occupancy semantics remain intact.
+Target Home Assistant proof must confirm desktop/tablet/mobile alignment across all seven tabs and no mini status text inside any hero.
