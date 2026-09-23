@@ -1198,17 +1198,16 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     .rhi-page-hero-overview .rhi-page-hero-art:before{content:""!important;display:block!important;position:absolute!important;z-index:2!important;inset:0!important;background:linear-gradient(90deg,#fff 0%,rgba(255,255,255,.96) 9%,rgba(255,255,255,.68) 19%,rgba(255,255,255,.13) 37%,rgba(255,255,255,0) 55%)!important}
     .rhi-page-hero-overview .rhi-page-hero-art img{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;min-height:0!important;max-height:none!important;object-fit:cover!important;object-position:center 52%!important;transform:none!important}
 
-    .ov-domain-statusbar{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:8px!important;margin:0!important}.ov-domain-statusbar.no-attention{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+    .ov-domain-statusbar{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:8px!important;margin:0!important}
     .ov-domain-statusbar .ov-status-item{min-width:0!important;min-height:94px!important;display:grid!important;grid-template-columns:52px minmax(0,1fr)!important;gap:11px!important;align-items:center!important;padding:12px 14px!important;border:1px solid #DBE6F3!important;border-radius:15px!important;background:rgba(255,255,255,.97)!important;box-shadow:0 8px 22px rgba(21,61,115,.045)!important}
     .ov-domain-statusbar .ov-status-icon{width:46px!important;height:46px!important;border-radius:14px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:#EEF5FF!important;color:#1467F5!important}
     .ov-domain-statusbar .ov-status-icon ha-icon{--mdc-icon-size:27px!important}
     .ov-domain-statusbar .charging .ov-status-icon{background:#EEF5FF!important;color:#1467F5!important}
-    .ov-domain-statusbar .attention.warn .ov-status-icon,.ov-domain-statusbar .range.warn .ov-status-icon{background:#FFF4E8!important;color:#FF7500!important}
-    .ov-domain-statusbar .maintenance.warn .ov-status-icon{background:#EEF3FF!important;color:#315FBA!important}
+    .ov-domain-statusbar .range.warn .ov-status-icon,.ov-domain-statusbar .security.warn .ov-status-icon,.ov-domain-statusbar .maintenance.warn .ov-status-icon{background:#FFF4E8!important;color:#FF7500!important}
     .ov-domain-statusbar .ov-status-item>div{min-width:0!important;display:block!important}
     .ov-domain-statusbar small{display:block!important;margin:0 0 3px!important;color:#31558E!important;font-size:10px!important;font-weight:650!important}
     .ov-domain-statusbar b{display:block!important;margin:0 0 3px!important;color:#0B173D!important;font-size:clamp(14px,1.25vw,18px)!important;font-weight:720!important;line-height:1.08!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
-    .ov-domain-statusbar .attention.warn b,.ov-domain-statusbar .range.warn b{color:#F05B0A!important}
+    .ov-domain-statusbar .range.warn b,.ov-domain-statusbar .security.warn b,.ov-domain-statusbar .maintenance.warn b{color:#F05B0A!important}
     .ov-domain-statusbar em{display:block!important;margin-top:2px!important;color:#55709B!important;font-size:10px!important;font-style:normal!important;font-weight:500!important;line-height:1.2!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
 
     .ov-quickbar{margin:0!important;min-height:52px!important;padding:6px 10px!important;border:1px solid #DBE6F3!important;border-radius:14px!important;background:#fff!important;box-shadow:0 5px 16px rgba(21,61,115,.03)!important}
