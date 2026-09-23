@@ -1,3 +1,12 @@
+## 1.0.0-rc.41 — picker write/readback + refresh stability
+
+- prefer the richest canonical V2-backed property row when duplicate V1 projections expose the same semantic property, preventing writable visual properties from being shadowed by read-only rows;
+- keep open Vehicle Management and Charger Management picker sessions stable during normal Home Assistant state refreshes;
+- keep focused Vehicle/Charger Detail pickers stable while runtime state changes;
+- preserve backend-owned vehicle identity while restoring canonical `vehicle.image_key` / `charger.image_key` write capability when published by Mobility M0.9.39;
+- extend regression coverage for picker write metadata and refresh-session invariants;
+- no new status semantics or V1-only dependencies are introduced while backend V2 contract-gap issue #107 remains the stop/go gate for the broader status refactor.
+
 ## 1.0.0-rc.40 — V2 picker session hardening
 
 - keep vehicle colour edits in local draft state and update preview without reconstructing the Home Assistant card;
