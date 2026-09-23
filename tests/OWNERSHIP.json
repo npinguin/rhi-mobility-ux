@@ -172,10 +172,11 @@
     "v2_first_status_architecture": {
       "owner": "tests/contracts/v2-first-status-architecture-smoke.mjs",
       "owns": [
-        "rc.43 Mobility status information architecture across overview, management, routed and detail screens",
-        "UX-owned range and maintenance presentation thresholds",
-        "neutral status colour unless action is required",
-        "removal of backend/contract plumbing from user-facing status headers"
+        "MOBILITY_PUBLIC_RUNTIME_V2 fleet and relationship consumption",
+        "MOBILITY_EXPERIENCE_V2 product conclusion consumption across Overview, management and detail screens",
+        "MOBILITY_POLICY_V2 read/write boundary without frontend threshold duplication",
+        "neutral status colour unless backend-owned Experience V2 state is actionable",
+        "UX select / aggregate / format / present ownership with no product-state inference"
       ]
     }
   }
