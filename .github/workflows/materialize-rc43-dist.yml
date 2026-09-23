@@ -1,5 +1,5 @@
 name: Validate and materialize rc43 dist
-# rerun after Vehicle Management purpose regression correction
+# rerun after rc43 status-test syntax correction
 
 on:
   push:
