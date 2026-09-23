@@ -1,6 +1,6 @@
 {
   "product": "rhi-mobility-ux",
-  "version": "1.0.0-rc.44",
+  "version": "1.0.0-rc.45",
   "stage": "test_candidate",
   "publication_authority": "github_releases",
   "publication_status": "installable_candidate_until_qualified",
@@ -8,8 +8,8 @@
   "legacy_source_release": "R22.12.11.30",
   "legacy_bundle_sha256": "13c018f8937eaabec418fc18b34ea54c22e967a76629f4ccb06304884c34823b",
   "mobility_contract": "MOBILITY_PUBLIC_RUNTIME_V2",
-  "minimum_backend": "M0.9.41",
-  "tested_backend_baseline": "M0.9.41",
+  "minimum_backend": "M0.9.42",
+  "tested_backend_baseline": "M0.9.42",
   "runtime_artifact": "dist/rhi-mobility-ux.js",
   "runtime_checksum_artifact": "dist/rhi-mobility-ux.js.sha256",
   "hacs_repository_type": "dashboard",
