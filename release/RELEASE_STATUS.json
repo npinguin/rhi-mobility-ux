@@ -6,7 +6,7 @@
   "publication_status": "derive_from_github_release",
   "contract": "MOBILITY_PUBLIC_RUNTIME_V1",
   "minimum_backend": "M0.9.29",
-  "tested_backend": "M0.9.36",
+  "tested_backend": "M0.9.39",
   "static_validation": "required_before_publication",
   "hacs_validation": "required_before_publication",
   "target_runtime_proof": "see release/QUALIFICATION.json",
