@@ -377,15 +377,24 @@ class HomeBrainAssetShell {
       modelSelect?.addEventListener("change", ()=>refreshHierarchy("model"));
       variantSelect?.addEventListener("change", ()=>refreshHierarchy("variant"));
       colorSelect?.addEventListener("change", updatePreview);
-      saveButton?.addEventListener("click", ()=>{
+      saveButton?.addEventListener("click", async ()=>{
         if (saveButton.disabled) return;
         const profileId = saveButton.getAttribute("data-vehicle-profile-id") || "";
         const key = saveButton.getAttribute("data-vehicle-key") || "";
         if (!assetId || !key) return;
         const profileProp = this.rt.semanticProperty(assetId, "asset.profile_id");
         const currentProfile = String(profileProp?.value || "");
-        if (profileId && profileId !== currentProfile && !this.rt.writePublishedProperty(assetId, "asset.profile_id", profileId)) return;
-        this.rt.writePublishedProperty(assetId, "vehicle.image_key", key);
+        saveButton.disabled=true; saveButton.classList.add("pending");
+        try {
+          if (profileId && profileId !== currentProfile) {
+            if (!await this.rt.writePublishedPropertyAsync(assetId, "asset.profile_id", profileId)) throw new Error("profile write unavailable");
+          }
+          if (!await this.rt.writePublishedPropertyAsync(assetId, "vehicle.image_key", key)) throw new Error("appearance write unavailable");
+          saveButton.classList.remove("pending"); saveButton.classList.add("sent");
+        } catch (error) {
+          saveButton.disabled=false; saveButton.classList.remove("pending");
+          console.error("RHI Mobility vehicle detail picker save failed",error);
+        }
       });
     });
 
@@ -454,15 +463,24 @@ class HomeBrainAssetShell {
       modelSelect?.addEventListener("change", ()=>refreshHierarchy("model"));
       variantSelect?.addEventListener("change", ()=>refreshHierarchy("variant"));
       appearanceSelect?.addEventListener("change", updatePreview);
-      saveButton?.addEventListener("click", ()=>{
+      saveButton?.addEventListener("click", async ()=>{
         if (saveButton.disabled) return;
         const profileId = saveButton.getAttribute("data-charger-profile-id") || "";
         const key = saveButton.getAttribute("data-charger-key") || "";
         if (!assetId || !key) return;
         const profileProp = this.rt.semanticProperty(assetId, "asset.profile_id");
         const currentProfile = String(profileProp?.value || "");
-        if (profileId && profileId !== currentProfile && !this.rt.writePublishedProperty(assetId, "asset.profile_id", profileId)) return;
-        this.rt.writePublishedProperty(assetId, "charger.image_key", key);
+        saveButton.disabled=true; saveButton.classList.add("pending");
+        try {
+          if (profileId && profileId !== currentProfile) {
+            if (!await this.rt.writePublishedPropertyAsync(assetId, "asset.profile_id", profileId)) throw new Error("profile write unavailable");
+          }
+          if (!await this.rt.writePublishedPropertyAsync(assetId, "charger.image_key", key)) throw new Error("appearance write unavailable");
+          saveButton.classList.remove("pending"); saveButton.classList.add("sent");
+        } catch (error) {
+          saveButton.disabled=false; saveButton.classList.remove("pending");
+          console.error("RHI Mobility charger detail picker save failed",error);
+        }
       });
     });
 
