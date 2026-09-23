@@ -39,39 +39,17 @@ const runtimeDigest = crypto.createHash('sha256').update(fs.readFileSync(out)).d
 fs.writeFileSync(checksumPath, `${runtimeDigest}  rhi-mobility-ux.js\n`);
 
 const assetSource = path.join(srcRoot, sourceManifest.assets_root);
+const assetDist = path.join(distRoot, 'assets');
+fs.rmSync(assetDist, { recursive: true, force: true });
+fs.mkdirSync(assetDist, { recursive: true });
 
 const assetCategories = fs.readdirSync(assetSource, { withFileTypes: true })
   .filter((entry) => entry.isDirectory())
   .map((entry) => entry.name)
   .sort();
 
-function sourceAssetFiles(dir, base = dir) {
-  const rows = [];
-  for (const entry of fs.readdirSync(dir, { withFileTypes: true }).sort((a,b)=>a.name.localeCompare(b.name))) {
-    const absolute = path.join(dir, entry.name);
-    if (entry.isDirectory()) {
-      rows.push(...sourceAssetFiles(absolute, base));
-      continue;
-    }
-    if (!entry.isFile()) continue;
-    rows.push({
-      absolute,
-      relative: path.relative(base, absolute).split(path.sep).join('/')
-    });
-  }
-  return rows;
-}
-
-function packagedAssetName(relative) {
-  return `asset--${relative.replaceAll('/', '--')}`;
-}
-
-const packagedAssetNames = new Set();
-for (const row of sourceAssetFiles(assetSource)) {
-  const packaged = packagedAssetName(row.relative);
-  if (packagedAssetNames.has(packaged)) throw new Error(`Flattened HACS asset collision: ${row.relative} -> ${packaged}`);
-  packagedAssetNames.add(packaged);
-  fs.copyFileSync(row.absolute, path.join(distRoot, packaged));
+for (const category of assetCategories) {
+  fs.cpSync(path.join(assetSource, category), path.join(assetDist, category), { recursive: true });
 }
 
 function packageFiles(dir, base = dir) {
@@ -101,8 +79,7 @@ const packageManifest = {
   source_manifest_schema: sourceManifest.schema_version,
   hacs_package_root: 'dist',
   hacs_filename: 'rhi-mobility-ux.js',
-  asset_delivery: 'flat_hacs_plugin_root',
-  asset_filename_prefix: 'asset--',
+  assets_root: 'assets',
   asset_categories: assetCategories,
   runtime_sha256: runtimeDigest,
   files: packageFiles(distRoot)
@@ -111,5 +88,5 @@ fs.writeFileSync(packageManifestPath, JSON.stringify(packageManifest, null, 2) +
 
 console.log(
   `Built ${modules.length} modules -> ${path.relative(root, out)}, checksum ${runtimeDigest}; ` +
-  `packaged ${packagedAssetNames.size} flat HACS assets from ${assetCategories.length} source categories`
+  `packaged ${assetCategories.length} asset categories under dist/assets`
 );
