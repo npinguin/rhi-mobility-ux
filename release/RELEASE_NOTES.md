@@ -1,13 +1,14 @@
-# v1.0.0-rc.36 — Hero runtime URL resolution hotfix
+# v1.0.0-rc.36 — Restore nested assets + hero URL fix
 
 ## Scope
-- fixes double resolution of canonical hero URLs in the shared page-hero renderer;
-- preserves rc.35 flat HACS asset delivery unchanged;
-- adds exact rendered URL regression tests for Overview and Strategies;
-- rejects any future `asset--hacsfiles--...` double-packaging path.
+- restores the proven rc.34 runtime package structure under `assets/{branding,chargers,heroes,vehicles}`;
+- removes the rc.35 flat `asset--...` packaging workaround;
+- fixes the actual hero defect: canonical hero URLs were resolved a second time by the shared page-hero renderer;
+- preserves the nine approved hero masters byte-for-byte;
+- adds exact rendered hero URL regression checks and installed-target existence checks.
 
 ## Rollback
-Rollback candidate: `v1.0.0-rc.35`.
+Rollback candidate: `v1.0.0-rc.34`.
 
 ## Qualification
-Static/package/HACS validation must pass before publication. Target Home Assistant proof must confirm heroes render after HACS update without manual file moves.
+Target Home Assistant must show the structured `www/community/rhi-mobility-ux/assets/` tree and render all seven tab heroes plus both detail scenes without manual file moves.
