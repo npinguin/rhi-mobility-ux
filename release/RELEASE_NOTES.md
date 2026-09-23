@@ -1,25 +1,23 @@
-# v1.0.0-rc.38 — Unified Overview-style top-level tab layout
+# v1.0.0-rc.39 — Clean heroes + canonical asset detail layout
 
 ## Scope
-- makes Mobility Overview the visual reference for every top-level tab hero;
-- keeps the nine approved hero images and their semantic mapping unchanged;
-- removes all hero-level mini status/meta rows: heroes contain only eyebrow, title, description and artwork;
-- adds one shared four-tile top status pattern matching Overview;
-- adds one shared quick-action bar matching Overview;
-- applies the pattern to Vehicles, Chargers, Planning, Strategies, History and Log;
-- preserves detailed content and domain ownership below the top-level presentation layer;
-- preserves rc.37 nested HACS asset delivery and rc.36 charger occupancy semantics.
+- removes page-location/navigation labels from Mobility heroes;
+- uses only page/device title, purpose and artwork in the hero;
+- rebuilds Vehicle Detail and Charger Detail on the same hero/status/actions hierarchy as Mobility Overview;
+- retains transparent canonical detail scene art and shows the actual selected vehicle/charger as the foreground asset;
+- moves status cards below the hero and Quick Actions below status;
+- leaves domain cards and backend contracts unchanged.
 
-## Runtime target
-Every top-level tab must render in this order:
-1. shared navigation;
-2. full-width Overview-style hero;
-3. four top-level status cards;
-4. Overview-style quick actions;
-5. domain-specific content.
+## Required runtime hierarchy
+navigation → hero(title + purpose + asset visual) → status cards → quick actions → detail content.
 
 ## Rollback
-Rollback candidate: `v1.0.0-rc.37`.
+Rollback candidate: `v1.0.0-rc.38`.
 
 ## Qualification
-Target Home Assistant proof must confirm desktop/tablet/mobile alignment across all seven tabs and no mini status text inside any hero.
+Target Home Assistant proof must confirm:
+- no `MOBILITY / ...`, breadcrumb or Back-to-Dashboard text inside heroes;
+- Vehicle Detail and Charger Detail both use Overview-style hero geometry;
+- actual selected asset image is visible in each detail hero;
+- status and action rows render below the hero;
+- desktop/tablet/mobile layouts remain usable.
