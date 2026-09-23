@@ -101,5 +101,12 @@
   "charger_management_status": "pending",
   "routed_status_simplification": "pending",
   "vehicle_detail_status": "pending",
-  "charger_detail_status": "pending"
+  "charger_detail_status": "pending",
+  "mobility_runtime_v2_surface": "pending",
+  "mobility_experience_v2_surface": "pending",
+  "mobility_policy_v2_surface": "pending",
+  "runtime_v2_power_completeness": "pending",
+  "experience_v2_no_frontend_reclassification": "pending",
+  "v2_physical_relationship_identity": "pending",
+  "policy_v2_runtime_threshold_revision": "pending"
 }
