@@ -1,5 +1,5 @@
 name: Validate and materialize rc43 dist
-# rerun after UX contract-test correction
+# rerun after screen-preservation naming correction
 
 on:
   push:
