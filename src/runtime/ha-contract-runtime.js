@@ -2554,6 +2554,35 @@ class HomeBrainAssetRuntime {
     return this.writePropertyValue(model.prop, next);
   }
 
+  v2SemanticProperty(assetId = "", propertyKey = "") {
+    const canonical = this.canonicalAssetId(assetId);
+    const wanted = String(propertyKey || "").trim();
+    if (!canonical || !wanted) return null;
+    const states = Object.values(this.hass?.states || {});
+    const matches = states.filter((state) => {
+      const attrs = state?.attributes || {};
+      return String(attrs.canonical_contract || "").toUpperCase() === "MOBILITY_PUBLIC_RUNTIME_V2"
+        && String(attrs.asset_id || "") === canonical
+        && String(attrs.property_key || "") === wanted;
+    });
+    if (!matches.length) return null;
+    const state = matches.find((row)=>String(row.entity_id || "").startsWith("sensor.rhi_mobility_")) || matches[0];
+    const attrs = state?.attributes || {};
+    return this.normalizePropertyRow({
+      ...attrs,
+      asset_id: canonical,
+      property_key: wanted,
+      value: state?.state,
+      _source_entity_id: state?.entity_id || "",
+      canonical_contract: "MOBILITY_PUBLIC_RUNTIME_V2"
+    });
+  }
+
+  semanticProperty(assetId = "", propertyKey = "") {
+    return this.v2SemanticProperty(assetId, propertyKey)
+      || this.propertyByCompoundKey(assetId, propertyKey);
+  }
+
   propertyByCompoundKey(assetId = "", propertyKey = "") {
     const canonical = this.canonicalAssetId(assetId);
     const wanted = String(propertyKey || "").trim();
