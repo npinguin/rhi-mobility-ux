@@ -1,3 +1,12 @@
+## 1.0.0-rc.36 — charger occupancy semantics fix
+
+- Fixed the Mobility Overview free-charger count: an idle or stopped charger is no longer assumed to be free.
+- A charger is counted as free only when canonical physical connection evidence says it is disconnected and its operating state is idle/stopped.
+- Physically connected chargers remain in use even when they are not actively charging.
+- Unresolved occupancy fails closed to N/A instead of inflating the free count.
+- Added regression coverage for disconnected, connected, physical-relationship, unresolved and faulted charger states.
+- Qualified against Mobility backend M0.9.36 diagnostics.
+
 ## 1.0.0-rc.35 — HACS runtime asset delivery hotfix
 
 - Fixed HACS packaging so runtime images are files directly under the plugin `dist/` root, matching HACS frontend-plugin download semantics.
