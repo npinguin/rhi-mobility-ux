@@ -1,15 +1,18 @@
-## 1.0.0-rc.43 — UX-first status simplification
+## 1.0.0-rc.43 — UX-first status simplification on Mobility V2
 
+- migrates user-facing Mobility status consumption to backend M0.9.40 direct V2 surfaces: `MOBILITY_PUBLIC_RUNTIME_V2`, `MOBILITY_EXPERIENCE_V2` and `MOBILITY_POLICY_V2`;
+- keeps UX ownership to select / aggregate / format / present: range, security, maintenance, charge demand, availability and fault conclusions are no longer reconstructed in frontend code;
+- Overview now answers the four agreed user questions directly: Charging, Range, Security and Maintenance, each in a compact three-line card;
+- charging totals and aggregate power come from Runtime V2 fleet facts, including aggregate-power completeness; physical vehicle→charger labels appear only when `observed_identity_proven=true`;
+- range low/ok, security secure/unsafe/incomplete/unknown and maintenance overdue/due_soon/scheduled/ok/unknown come directly from Experience V2;
+- thresholds are read from Policy V2 rather than duplicated in UX;
+- Vehicle Management consumes Experience V2 configuration/profile and charging-relationship facts;
+- Charger Management consumes Runtime V2 fleet totals and Experience V2 availability/fault/configuration conclusions;
+- Vehicle Detail consumes Experience V2 Range / Charging / Security / Maintenance;
+- Charger Detail consumes Experience V2 State / Power / Vehicle and renders Issue only when `fault.state=active`;
+- normal/available/connected/scheduled/secure states remain visually neutral; action colour is reserved for backend-owned actionable states;
 - renames Vehicles and Chargers to Vehicle Management and Charger Management across navigation, heroes and dashboard view titles;
-- removes backend contract/version/gap plumbing from user-facing status headers;
-- keeps status colour neutral by default and reserves orange/red treatment for concrete user action;
-- makes Overview answer four daily questions: current charging load/occupancy/availability, usable range with a 100 km UX threshold, comfort/departure context, and conditional attention;
-- classifies maintenance in UX as overdue (<0 d), due soon (0–89 d), scheduled (>=90 d) and unknown using numeric due-day facts only;
-- treats security as actionable only when explicit access facts are unsafe; unknown/incomplete evidence stays neutral;
-- makes Vehicle Management factual: fleet lifecycle, profile coverage and charger assignment;
-- makes Charger Management factual: profile coverage, availability, current aggregate load/connection state and fault-only issue surfacing;
 - reduces Planning, Strategies, History and Log headers to user-value facts instead of technical source/contract KPIs;
-- reduces Vehicle Detail to Range / Charging / Security / Maintenance and Charger Detail to State / Power / Vehicle with Issue only when needed;
 - preserves rc.42 picker write/readback and refresh-session fixes.
 
 ## 1.0.0-rc.42 — picker write/readback + refresh stability
