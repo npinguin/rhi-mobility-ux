@@ -1,6 +1,6 @@
 {
   "product": "rhi-mobility-ux",
-  "version": "1.0.0-rc.36",
+  "version": "1.0.0-rc.37",
   "stage": "test_candidate",
   "publication_authority": "github_releases",
   "publication_status": "installable_candidate_until_qualified",
@@ -14,7 +14,7 @@
   "runtime_checksum_artifact": "dist/rhi-mobility-ux.js.sha256",
   "hacs_repository_type": "dashboard",
   "hacs_validation_category": "plugin",
-  "asset_delivery": "flat_hacs_plugin_root",
+  "asset_delivery": "dist/assets",
   "runtime_manual_local_dependency": false,
   "known_accepted_technical_debt": 0,
   "known_accepted_feature_debt": 0,

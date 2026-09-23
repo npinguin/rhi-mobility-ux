@@ -69,3 +69,10 @@ console.log('PASS shared presentation module executes, not only parses');
 for(const needle of ['--rhi-content-gap:10px','--rhi-control-h:40px','.vehicle-card,.charger-card','.section-title,.vehicle-workspace-head,.ov-panel-head']){
   if(!presentation.includes(needle)) throw new Error(`Overview-reference shared style regression: missing ${needle}`);
 }
+
+
+const strategyHero=presentationApi.hbMobilityPageHero({escape:(v)=>String(v)},'strategies');
+if(!strategyHero.includes('src="/hacsfiles/rhi-mobility-ux/assets/heroes/mobility-strategies.png"')) throw new Error('strategy hero did not render exact installed HACS asset URL');
+const overviewHeroExact=presentationApi.hbMobilityPageHero({escape:(v)=>String(v)},'overview');
+if(!overviewHeroExact.includes('src="/hacsfiles/rhi-mobility-ux/assets/heroes/mobility-overview.png"')) throw new Error('overview hero did not render exact installed HACS asset URL');
+if(strategyHero.includes('/hacsfiles/rhi-mobility-ux/assets/hacsfiles/') || strategyHero.includes('asset--hacsfiles--')) throw new Error('hero URL double-resolution regression detected');

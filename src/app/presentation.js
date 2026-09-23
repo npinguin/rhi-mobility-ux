@@ -28,7 +28,7 @@ function hbMobilityPageHero(rt, tab, options = {}) {
       ${actions ? `<div class="rhi-page-hero-actions">${actions}</div>` : ""}
     </div>
     <div class="rhi-page-hero-art" aria-hidden="true">
-      <img src="${esc(rhiMobilityAssetUrl(asset))}" alt="">
+      <img src="${esc(asset)}" alt="">
       ${badge ? `<div class="rhi-page-hero-badge">${badge}</div>` : ""}
     </div>
   </section>`;

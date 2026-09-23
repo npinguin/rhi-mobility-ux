@@ -1,107 +1,106 @@
 {
   "schema_version": 1,
   "product": "rhi-mobility-ux",
-  "version": "1.0.0-rc.36",
+  "version": "1.0.0-rc.37",
   "source_manifest_schema": 1,
   "hacs_package_root": "dist",
   "hacs_filename": "rhi-mobility-ux.js",
-  "asset_delivery": "flat_hacs_plugin_root",
-  "asset_filename_prefix": "asset--",
+  "assets_root": "assets",
   "asset_categories": [
     "branding",
     "chargers",
     "heroes",
     "vehicles"
   ],
-  "runtime_sha256": "1022894507813098d5d54784b577a51189de8e49aeea8975c99ba7573c9140db",
+  "runtime_sha256": "eb388c66e7e197d792292b6a70fb9e4f2e54df4a0dfdaaa5e6f07a63337450a3",
   "files": [
     {
-      "path": "asset--branding--company-logo.svg",
+      "path": "assets/branding/company-logo.svg",
       "bytes": 17019
     },
     {
-      "path": "asset--chargers--charger_fallback.png",
+      "path": "assets/chargers/charger_fallback.png",
       "bytes": 132329
     },
     {
-      "path": "asset--chargers--charger_peblar.svg",
+      "path": "assets/chargers/charger_peblar.svg",
       "bytes": 2252
     },
     {
-      "path": "asset--chargers--charger_utility_plug.svg",
+      "path": "assets/chargers/charger_utility_plug.svg",
       "bytes": 2210
     },
     {
-      "path": "asset--chargers--charger_wallbox_black.svg",
+      "path": "assets/chargers/charger_wallbox_black.svg",
       "bytes": 2453
     },
     {
-      "path": "asset--chargers--charger_wallbox_white.svg",
+      "path": "assets/chargers/charger_wallbox_white.svg",
       "bytes": 2453
     },
     {
-      "path": "asset--heroes--mobility-chargers.png",
+      "path": "assets/heroes/mobility-chargers.png",
       "bytes": 2358013
     },
     {
-      "path": "asset--heroes--mobility-charging-detail.png",
+      "path": "assets/heroes/mobility-charging-detail.png",
       "bytes": 2249680
     },
     {
-      "path": "asset--heroes--mobility-history.png",
+      "path": "assets/heroes/mobility-history.png",
       "bytes": 2296486
     },
     {
-      "path": "asset--heroes--mobility-log.png",
+      "path": "assets/heroes/mobility-log.png",
       "bytes": 2198926
     },
     {
-      "path": "asset--heroes--mobility-overview.png",
+      "path": "assets/heroes/mobility-overview.png",
       "bytes": 2330222
     },
     {
-      "path": "asset--heroes--mobility-planning.png",
+      "path": "assets/heroes/mobility-planning.png",
       "bytes": 2418236
     },
     {
-      "path": "asset--heroes--mobility-strategies.png",
+      "path": "assets/heroes/mobility-strategies.png",
       "bytes": 2230620
     },
     {
-      "path": "asset--heroes--mobility-vehicle-detail.png",
+      "path": "assets/heroes/mobility-vehicle-detail.png",
       "bytes": 2256288
     },
     {
-      "path": "asset--heroes--mobility-vehicles.png",
+      "path": "assets/heroes/mobility-vehicles.png",
       "bytes": 2280184
     },
     {
-      "path": "asset--vehicles--vehicle_audi_q8.png",
+      "path": "assets/vehicles/vehicle_audi_q8.png",
       "bytes": 261604
     },
     {
-      "path": "asset--vehicles--vehicle_bmw_x1_phev.png",
+      "path": "assets/vehicles/vehicle_bmw_x1_phev.png",
       "bytes": 267503
     },
     {
-      "path": "asset--vehicles--vehicle_fallback.png",
+      "path": "assets/vehicles/vehicle_fallback.png",
       "bytes": 113622
     },
     {
-      "path": "asset--vehicles--vehicle_mercedes_gla.png",
+      "path": "assets/vehicles/vehicle_mercedes_gla.png",
       "bytes": 238575
     },
     {
-      "path": "asset--vehicles--vehicle_renault_scenic_techno_ev.webp",
+      "path": "assets/vehicles/vehicle_renault_scenic_techno_ev.webp",
       "bytes": 9128
     },
     {
-      "path": "asset--vehicles--vehicle_vw_id4.webp",
+      "path": "assets/vehicles/vehicle_vw_id4.webp",
       "bytes": 9580
     },
     {
       "path": "rhi-mobility-ux.js",
-      "bytes": 684032
+      "bytes": 683745
     },
     {
       "path": "rhi-mobility-ux.js.sha256",

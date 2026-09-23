@@ -1,19 +1,23 @@
-# v1.0.0-rc.36 — charger occupancy semantics fix
+# v1.0.0-rc.37 — Energy-aligned nested assets + hero runtime fix
 
 ## Scope
-- corrects the Mobility Overview `free` charger count;
-- treats `free` as a physical occupancy statement rather than an idle/zero-power statement;
-- requires canonical disconnected evidence before an idle/stopped charger can be counted free;
-- treats a physically connected charger as in use even when charging power is zero;
-- fails closed to N/A when occupancy cannot be proven;
-- leaves `active` as the count of chargers that are actually charging;
-- adds regression tests covering the occupancy state matrix.
+- keeps the rc.36 charger occupancy semantics fix;
+- restores the same nested HACS package model used successfully by RHI Energy UX: `dist/assets/**` with zero GitHub Release assets;
+- removes the rc.35 flat `asset--...` runtime workaround;
+- restores runtime URLs under `/hacsfiles/rhi-mobility-ux/assets/**`;
+- fixes the actual hero defect: the shared hero renderer was resolving an already-resolved HACS URL a second time;
+- preserves all nine approved hero masters byte-for-byte and keeps the semantic mapping unchanged;
+- adds executable regression checks for exact final Overview and Strategies hero URLs.
 
-## Runtime evidence
-The reported M0.9.36 runtime publishes four charger assets. The previous UX could count idle/stopped assets as free without proving they were physically unoccupied. rc.36 consumes the existing canonical charger connection/physical relationship contract instead.
+## Packaging reference
+RHI Energy UX currently uses the same HACS dashboard metadata, immutable tag `dist/` delivery, zero release assets, structured `dist/assets/` tree and source/dist asset parity. Mobility now follows that proven model again.
 
 ## Rollback
-Rollback candidate: `v1.0.0-rc.35`.
+Rollback candidate: `v1.0.0-rc.36`.
 
 ## Qualification
-Static/package/HACS validation must pass before publication. Target Home Assistant proof must confirm the Overview free count reflects physical occupancy and no longer treats an idle-but-occupied charger as free.
+Static/package/HACS validation must pass before publication. Target Home Assistant proof must confirm:
+- `www/community/rhi-mobility-ux/assets/{branding,chargers,heroes,vehicles}` exists;
+- no `asset--...` file sprawl remains in the plugin root;
+- all seven tab heroes and both detail scenes render;
+- rc.36 charger occupancy semantics remain intact.

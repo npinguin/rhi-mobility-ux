@@ -1,6 +1,6 @@
 {
-  "candidate_version": "1.0.0-rc.36",
-  "candidate_tag": "v1.0.0-rc.36",
+  "candidate_version": "1.0.0-rc.37",
+  "candidate_tag": "v1.0.0-rc.37",
   "candidate_sha": "pending",
   "target_home_assistant": "pending",
   "hacs_install": "pending",
@@ -72,7 +72,9 @@
   "canonical_hero_all_tabs_runtime_render": "pending",
   "vehicle_detail_scene_runtime_render": "pending",
   "charging_detail_scene_runtime_render": "pending",
-  "hacs_flat_asset_delivery": "pending",
   "hacs_installed_hero_assets": "pending",
-  "overview_charger_occupancy_semantics": "pending"
+  "overview_charger_occupancy_semantics": "pending",
+  "hacs_nested_asset_delivery": "pending",
+  "hero_runtime_url_resolution": "pending",
+  "energy_aligned_packaging": "pending"
 }
