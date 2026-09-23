@@ -88,6 +88,42 @@ class HomeBrainChargerAdapter {
     const dataFreshness = "—";
     const trust = "—";
     const health = chargerSnapshot.health.display;
+    const operatingRaw = chargerSnapshot.operating.resolved ? String(chargerSnapshot.operating.value || "").toLowerCase() : "";
+    const connectionRaw = chargerSnapshot.connection.resolved ? String(chargerSnapshot.connection.value || "").toLowerCase() : "";
+    const faulted = operatingRaw === "fault";
+    const stateTile = {
+      label:"State",
+      value:chargerSnapshot.operating.display,
+      subvalue:chargerSnapshot.connection.resolved ? chargerSnapshot.connection.display : "Connection unknown",
+      icon:"mdi:ev-station",
+      tone:faulted ? "attention" : "neutral"
+    };
+    const powerTile = {
+      label:"Power",
+      value:chargerSnapshot.power.display,
+      subvalue:chargerSnapshot.power.resolved ? (operatingRaw === "running" ? "Charging now" : "Current charger load") : "Power unavailable",
+      icon:"mdi:flash",
+      tone:faulted ? "attention" : "neutral"
+    };
+    const vehicleTile = {
+      label:"Vehicle",
+      value:chargerSnapshot.connected_vehicle.resolved ? chargerSnapshot.connected_vehicle.display : "No vehicle identified",
+      subvalue:chargerSnapshot.connected_vehicle.resolved ? "Physical relationship" : (["connected","asset_connected"].includes(connectionRaw) ? "Connected vehicle not identified" : "No physical vehicle relationship"),
+      icon:"mdi:car-electric",
+      tone:"neutral",
+      detailRoute:chargerSnapshot.connected_vehicle.resolved ? physicalVehicle.detailRoute : "",
+      detailTitle:physicalVehicle.displayName ? `Open ${physicalVehicle.displayName} details` : "Open vehicle details"
+    };
+    const headerStatus = [stateTile, powerTile, vehicleTile];
+    if (chargerSnapshot.health.resolved && String(chargerSnapshot.health.display || "").toLowerCase() !== "ok") {
+      headerStatus.push({
+        label:"Issue",
+        value:chargerSnapshot.health.display,
+        subvalue:chargerSnapshot.health.reason || "Review charger health",
+        icon:"mdi:alert-circle-outline",
+        tone:"attention"
+      });
+    }
     const iconMap = { driveway_left:"mdi:ev-station", driveway_right:"mdi:ev-station", sideway:"mdi:ev-plug-type2", utility_plug:"mdi:power-socket-eu" };
     const ctlByField = (field, label, icon, opts = {}) => { const entity = this.rt.controlEntity(assetId, field, ""); return entity ? { type:"control", entity, label, icon, ...opts } : { type:"readonly", icon, label, value: opts.fallback || "Not available" }; };
     return {
@@ -95,7 +131,7 @@ class HomeBrainChargerAdapter {
       image:this.rt.cache(this.chargerImageFromId()), fallbackImage:this.rt.cache(this.rt.assetUrl("chargers/charger_fallback.png")), imageOpacity:available ? 1 : 0.34, imageGray:available ? 0 : 0.25,
       visualKey:visual?.key || "", visualProduct:visual?.charger || null, visualAppearance:visual?.appearance || null,
       backPath:this.config.dashboard_path || "/mobility-supervisor/dashboard", backLabel:this.config.back_label || "← Back to Dashboard", detailRoute:this.rt.detailRoute(reg), lifecycle, registryEntry:reg, breadcrumb:["Home","Chargers",name],
-      status:this.rt.chargerCanonicalStatusTiles(assetId, { detailRoute: physicalVehicle.detailRoute, detailTitle: physicalVehicle.displayName ? `Open ${physicalVehicle.displayName} details` : "Open vehicle details" }),
+      status:headerStatus,
       actions:this.rt.commandActionsFor(assetId, "quick_actions").map((cmd,index)=>({ label:cmd.label || this.rt.titleize(cmd.command_id || cmd.command_key), icon:this.rt.commandIcon(cmd), entity:cmd.intent_entity, command:cmd, primary:index === 0, hide:cmd.frontend_allowed === false })),
       // R22.12.11.24: charger detail sections come from the charger component contract.
       // UX must not infer charger layout from flat property family/group names.
