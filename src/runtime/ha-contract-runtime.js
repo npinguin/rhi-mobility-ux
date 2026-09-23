@@ -49,12 +49,13 @@ class HomeBrainAssetRuntime {
       product_policy_v2: { contract_id: "MOBILITY_POLICY_V2", role: "authority" },
       command_v2: { contract_id: "MOBILITY_COMMAND_V2", role: "authority" },
       identity_navigation: { entity_id: "sensor.mobility_asset_index", role: "compatibility_projection" },
-      vehicle_properties: { entity_id: "vehicle_component_property_indexes", role: "compatibility_projection" },
-      charger_properties: { entity_id: "sensor.mobility_charger_property_index", role: "compatibility_projection" },
-      relationships: { entity_id: "sensor.mobility_relationship_index", role: "compatibility_projection" },
+      semantic_properties_v2: { canonical_contract: "MOBILITY_PUBLIC_RUNTIME_V2", role: "authority" },
+      vehicle_properties: { canonical_contract: "MOBILITY_PUBLIC_RUNTIME_V2", role: "authority" },
+      charger_properties: { canonical_contract: "MOBILITY_PUBLIC_RUNTIME_V2", role: "authority" },
+      relationships: { contract_id: "MOBILITY_PUBLIC_RUNTIME_V2", role: "authority" },
       command_readiness: { contract_id: "MOBILITY_COMMAND_V2", role: "authority" },
       command_results: { entity_id: "sensor.mobility_activity_index", role: "compatibility_projection" },
-      component_layout: { entity_id: "component_contract_indexes", role: "compatibility_projection" },
+      component_layout: { fields: ["component_id","section_id"], canonical_contract: "MOBILITY_PUBLIC_RUNTIME_V2", role: "authority" },
       command_placement: { contract_id: "MOBILITY_COMMAND_V2", role: "authority" },
       energy_boundary: { entity_id: "sensor.mobility_energy_asset_publication", role: "external_consumer_only" },
       asset_runtime_compatibility: { entity_id: "sensor.mobility_asset_runtime_contract_index", role: "diagnostics_only_deprecated" },
@@ -2255,6 +2256,8 @@ class HomeBrainAssetRuntime {
 
   vehicleComponentDetailSections(assetId = "") {
     const canonical = this.canonicalAssetId(assetId);
+    const v2Sections = this.v2ComponentDetailSections(canonical, "vehicle");
+    if (v2Sections !== null) return v2Sections;
     const components = this.vehicleComponentRows();
     if (!components.length) {
       return [{
@@ -2454,6 +2457,8 @@ class HomeBrainAssetRuntime {
 
   chargerComponentDetailSections(assetId = "") {
     const canonical = this.canonicalAssetId(assetId);
+    const v2Sections = this.v2ComponentDetailSections(canonical, "charger");
+    if (v2Sections !== null) return v2Sections;
     const components = this.chargerComponentRows();
     const forbiddenProductStatusKeys = new Set(["charger.status", "source_status", "charger.operational_state"]);
     const allProps = this.propertyRows(canonical).filter((p)=>String(p.access || "").toLowerCase() !== "internal");
@@ -2568,6 +2573,126 @@ class HomeBrainAssetRuntime {
     return "";
   }
 
+  v2PropertyRows(assetId = "") {
+    const canonical = assetId ? this.canonicalAssetId(assetId) : "";
+    const rows = [];
+    for (const state of Object.values(this.hass?.states || {})) {
+      const attrs = state?.attributes || {};
+      if (String(attrs.canonical_contract || "").toUpperCase() !== "MOBILITY_PUBLIC_RUNTIME_V2") continue;
+      const rowAsset = this.canonicalAssetId(attrs.asset_id || "");
+      const propertyKey = String(attrs.property_key || "").trim();
+      if (!rowAsset || !propertyKey || (canonical && rowAsset !== canonical)) continue;
+      rows.push(this.normalizePropertyRow({
+        ...attrs,
+        asset_id:rowAsset,
+        property_key:propertyKey,
+        value:state?.state,
+        display_name:attrs.display_name || attrs.friendly_name || state?.attributes?.friendly_name || "",
+        _source_entity_id:state?.entity_id || "",
+        canonical_contract:"MOBILITY_PUBLIC_RUNTIME_V2"
+      }));
+    }
+    const byKey = new Map();
+    for (const row of rows.filter(Boolean)) {
+      const key = `${row.asset_id}:${row.property_key}`;
+      const current = byKey.get(key);
+      if (!current || String(row._source_entity_id || "").startsWith("sensor.rhi_mobility_")) byKey.set(key, row);
+    }
+    return [...byKey.values()].sort((a,b)=>
+      String(a.asset_id || "").localeCompare(String(b.asset_id || "")) ||
+      Number(a.display_order ?? 9999) - Number(b.display_order ?? 9999) ||
+      String(a.property_key || "").localeCompare(String(b.property_key || ""))
+    );
+  }
+
+  v2ComponentDetailSections(assetId = "", assetType = "") {
+    const canonical = this.canonicalAssetId(assetId);
+    const props = this.v2PropertyRows(canonical);
+    if (!props.length) return null;
+
+    const hiddenFromProduct = assetType === "charger"
+      ? new Set(["charger.status","source_status","charger.operating_state"])
+      : new Set();
+    const product = [];
+    const engineering = [];
+    const unplaced = [];
+    for (const prop of props) {
+      const visibility = String(prop.visibility || prop.ux_visibility || "").toLowerCase();
+      if (visibility === "internal") continue;
+      if (visibility === "engineering" || visibility === "diagnostics" || visibility === "diagnostics_only" || hiddenFromProduct.has(String(prop.property_key || ""))) {
+        engineering.push(prop);
+        continue;
+      }
+      const componentId = String(prop.component_id || "").trim();
+      const sectionId = String(prop.section_id || "").trim();
+      if (!componentId || !sectionId) {
+        unplaced.push(prop);
+        continue;
+      }
+      product.push(prop);
+    }
+
+    const sections = [];
+    const groups = new Map();
+    for (const prop of product) {
+      const componentId = String(prop.component_id);
+      if (!groups.has(componentId)) groups.set(componentId, new Map());
+      const sectionId = String(prop.section_id);
+      if (!groups.get(componentId).has(sectionId)) groups.get(componentId).set(sectionId, []);
+      groups.get(componentId).get(sectionId).push(prop);
+    }
+
+    for (const [componentId, sectionMap] of [...groups.entries()].sort(([a],[b])=>a.localeCompare(b))) {
+      const rows = [];
+      const multiSection = sectionMap.size > 1;
+      for (const [sectionId, sectionProps] of [...sectionMap.entries()].sort(([a],[b])=>a.localeCompare(b))) {
+        if (multiSection || !["overview","details","main"].includes(this.norm(sectionId))) {
+          rows.push({ type:"subheader", label:this.titleize(sectionId.replace(/_/g," ")), value:"" });
+        }
+        for (const prop of sectionProps.sort((a,b)=>
+          Number(a.display_order ?? 9999) - Number(b.display_order ?? 9999) ||
+          String(a.property_key || "").localeCompare(String(b.property_key || ""))
+        )) rows.push(this.propertyOperationalRow(prop));
+      }
+      sections.push({
+        key:`v2-component-${componentId}`,
+        title:this.titleize(componentId.replace(/_/g," ")),
+        icon:componentId.includes("power") ? "mdi:flash" : componentId.includes("charging") ? "mdi:ev-station" : componentId.includes("security") ? "mdi:shield-car" : componentId.includes("battery") ? "mdi:battery" : "mdi:information-outline",
+        header:`${rows.filter((row)=>row.type !== "subheader").length} fields`,
+        rows,
+        details:[]
+      });
+    }
+
+    if (unplaced.length) {
+      sections.push({
+        key:"v2-layout-contract-gap",
+        title:"Layout contract gap",
+        icon:"mdi:alert-outline",
+        header:`${unplaced.length} unplaced properties`,
+        rows:[{ type:"readonly", icon:"mdi:alert-outline", label:"Component placement", value:"Contract gap" }],
+        details:unplaced.map((prop)=>({
+          label:String(prop.property_key || "Property"),
+          value:`owner=${prop._source_entity_id || "MOBILITY_PUBLIC_RUNTIME_V2"}; missing component_id/section_id`
+        }))
+      });
+    }
+
+    if (engineering.length) {
+      sections.push({
+        key:"v2-engineering",
+        title:"Engineering",
+        icon:"mdi:wrench",
+        header:`${engineering.length} diagnostics`,
+        rows:[],
+        details:engineering
+          .sort((a,b)=>String(a.property_key || "").localeCompare(String(b.property_key || "")))
+          .map((prop)=>({ label:this.propertyDisplayLabel(prop), value:`${this.propertyDisplayValue(prop)} · key=${prop.property_key}` }))
+      });
+    }
+    return sections.filter((section)=>section.rows?.length || section.details?.length);
+  }
+
   propertyRowsFromEntity(entityId = "", assetId = "") {
     const canonical = assetId ? this.canonicalAssetId(assetId) : "";
     const attrs = this.entity(entityId)?.attributes || {};
@@ -2654,6 +2779,11 @@ class HomeBrainAssetRuntime {
     const canonical = assetId ? this.canonicalAssetId(assetId) : "";
     const cacheKey = `propertyRows:${canonical || "all"}`;
     if (this._memo.has(cacheKey)) return this._memo.get(cacheKey);
+    const v2 = this.v2PropertyRows(canonical);
+    if (canonical && v2.length) {
+      this._memo.set(cacheKey, v2);
+      return v2;
+    }
     let entities = [];
     if (canonical) {
       if (canonical.startsWith("vehicle_")) entities = ["sensor.mobility_vehicle_property_index", ...this.vehicleComponentPropertyIndexEntities()];
