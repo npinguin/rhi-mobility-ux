@@ -312,6 +312,21 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
     const activeChargers = chargers.filter((c) => rt.lifecycleStatus(c) === "active");
     const inactiveChargers = chargers.filter((c) => rt.lifecycleStatus(c) !== "active" && rt.lifecycleStatus(c) !== "retired");
     const operational = activeChargers.filter((c) => this.chargerRuntimeReady(rt, c)).length;
+    const snapshots = activeChargers.map((c)=>rt.chargerProductSnapshot(c.asset_id));
+    const connectedCount = snapshots.filter((snapshot)=>{
+      const value = String(snapshot?.connection?.value ?? snapshot?.connection?.display ?? "").trim().toLowerCase();
+      return snapshot?.connection?.resolved && value === "connected";
+    }).length;
+    const chargingCount = snapshots.filter((snapshot)=>{
+      const value = String(snapshot?.operating?.value ?? snapshot?.operating?.display ?? "").trim().toLowerCase();
+      return snapshot?.operating?.resolved && ["running","charging"].includes(value);
+    }).length;
+    const availableCount = snapshots.filter((snapshot)=>{
+      const connection = String(snapshot?.connection?.value ?? snapshot?.connection?.display ?? "").trim().toLowerCase();
+      const operating = String(snapshot?.operating?.value ?? snapshot?.operating?.display ?? "").trim().toLowerCase();
+      return snapshot?.connection?.resolved && connection === "disconnected" &&
+        (!snapshot?.operating?.resolved || !["fault","error","unavailable","offline","blocked"].includes(operating));
+    }).length;
     const totalPower = activeChargers.reduce((sum, c) => {
       const exact = rt.canonicalChargerPropertyValue(c.asset_id, "charger.power_kw");
       const n = exact.resolved ? Number(String(exact.value).replace(",", ".")) : NaN;
@@ -350,10 +365,10 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
         ${hbMobilityNav(this.config?.nav_active || "chargers")}
         ${hbMobilityPageHero(rt, "chargers")}
         ${hbMobilityStatusGrid(rt, [
-          { icon:"mdi:ev-station", label:"Active", value:String(activeChargers.length), sub:`${inactiveChargers.length} inactive`, tone:"neutral" },
-          { icon:"mdi:check-circle-outline", label:"Operational", value:`${operational} of ${activeChargers.length}`, sub:"Runtime ready", tone:operational === activeChargers.length ? "ok" : "warn" },
-          { icon:"mdi:lightning-bolt", label:"Power now", value:`${totalPower.toFixed(1)} kW`, sub:"Active charger total", tone:totalPower > 0 ? "ok" : "neutral" },
-          { icon:"mdi:alert-circle-outline", label:"Attention", value:activeChargers.length === operational ? "None" : "Review", sub:activeChargers.length === operational ? "No contract gap" : "Operational gap", tone:activeChargers.length === operational ? "ok" : "warn" }
+          { icon:"mdi:ev-station", label:"Active chargers", value:String(activeChargers.length), sub:`${inactiveChargers.length} inactive`, tone:"neutral" },
+          { icon:"mdi:ev-plug-type2", label:"Connected", value:String(connectedCount), sub:"Physical connector state", tone:connectedCount ? "ok" : "neutral" },
+          { icon:"mdi:lightning-bolt", label:"Charging", value:String(chargingCount), sub:`${totalPower.toFixed(1)} kW now`, tone:chargingCount ? "ok" : "neutral" },
+          { icon:"mdi:power-plug", label:"Available", value:String(availableCount), sub:"Disconnected and usable", tone:availableCount ? "ok" : "neutral" }
         ], "chargers-top-status")}
         ${hbMobilityQuickActions(rt, [
           { icon:"mdi:cog-outline", label:"Manage chargers & profiles", path:"/config/integrations/integration/rhi_mobility", primary:true },
@@ -361,7 +376,7 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
           { icon:"mdi:calendar-clock", label:"Charging plan", path:hbMobilityPath("/planning") },
           { icon:"mdi:target", label:"Strategies", path:hbMobilityPath("/strategies") }
         ])}
-        <section class="section-title"><h2>Active chargers</h2><span>${activeChargers.length} active · ${operational} operational · ${totalPower.toFixed(1)} kW now</span></section>
+        <section class="section-title"><h2>Active chargers</h2></section>
         <section class="grid">
           ${activeChargers.length ? activeChargers.map((c) => this.renderCharger(rt, c)).join("") : `<div class="empty-state"><ha-icon icon="mdi:ev-station-off"></ha-icon><h2>No active chargers</h2><p>Activate a charger below when needed.</p></div>`}
         </section>
