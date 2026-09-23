@@ -26,7 +26,7 @@ if(chargerBlock.includes('this.hass = this._hass')) throw new Error('charger hie
 if(!chargerBlock.includes('this._chargerPickerDraft.set')) throw new Error('charger picker must preserve local draft state');
 
 if(!dashboard.includes('if (!forceRender && this._vehiclePickerAsset && this._lastRenderOk) return;')) throw new Error('open vehicle picker must block normal HA card reconstruction');
-if(!chargers.includes('if (this._chargerPickerAsset && this._lastRenderOk) return;')) throw new Error('open charger picker must block normal HA card reconstruction');
+if(!chargers.includes('if (!this._forceRender && this._chargerPickerAsset && this._lastRenderOk) return;')) throw new Error('open charger picker must allow one forced render, then block normal HA card reconstruction');
 if(!router.includes('activeDetailControl?.closest?.(".detail-vehicle-picker,.detail-charger-picker")')) throw new Error('focused detail picker must survive runtime refresh');
 for(const needle of ['MOBILITY_PUBLIC_RUNTIME_V2','v2SemanticProperty(assetId = "", propertyKey = "")','semanticProperty(assetId = "", propertyKey = "")','write_supported','write_service_domain','write_target_entity']) {
   if(!runtime.includes(needle)) throw new Error(`runtime duplicate property resolution no longer prefers canonical writable metadata: missing ${needle}`);
