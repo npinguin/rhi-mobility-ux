@@ -1161,7 +1161,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
         updatePreview();
       });
     });
-    this.shadowRoot.querySelectorAll("button[data-vehicle-picker-save]").forEach((btn)=>btn.addEventListener("click",()=>{
+    this.shadowRoot.querySelectorAll("button[data-vehicle-picker-save]").forEach((btn)=>btn.addEventListener("click",async()=>{
       if(btn.disabled) return;
       const assetId=btn.getAttribute("data-vehicle-picker-save") || "";
       const profileId=btn.getAttribute("data-vehicle-profile-id") || "";
@@ -1169,11 +1169,20 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
       if(!assetId || !key) return;
       const profileProp=rt.semanticProperty(assetId,"asset.profile_id");
       const currentProfile=String(profileProp?.value || "");
-      if(profileId && profileId!==currentProfile && !rt.writePublishedProperty(assetId,"asset.profile_id",profileId)) return;
-      if(!rt.writePublishedProperty(assetId,"vehicle.image_key",key)) return;
-      btn.classList.add("sent");
-      this._vehiclePickerDraft.delete(assetId);
-      setTimeout(()=>{this._vehiclePickerAsset="";this._forceRender=true;this._lastSignature="";if(this._hass)this.hass=this._hass;},450);
+      btn.disabled=true; btn.classList.add("pending");
+      try {
+        if(profileId && profileId!==currentProfile) {
+          if(!await rt.writePublishedPropertyAsync(assetId,"asset.profile_id",profileId)) throw new Error("profile write unavailable");
+        }
+        if(!await rt.writePublishedPropertyAsync(assetId,"vehicle.image_key",key)) throw new Error("appearance write unavailable");
+        btn.classList.remove("pending"); btn.classList.add("sent");
+        this._vehiclePickerDraft.delete(assetId);
+        this._vehiclePickerAsset=""; this._forceRender=true; this._lastSignature="";
+        if(this._hass)this.hass=this._hass;
+      } catch (error) {
+        btn.disabled=false; btn.classList.remove("pending");
+        console.error("RHI Mobility vehicle picker save failed",error);
+      }
     }));
     this.shadowRoot.querySelectorAll("button[data-lifecycle-asset]").forEach((btn)=>btn.addEventListener("click",()=>{
       if (btn.disabled) return;
