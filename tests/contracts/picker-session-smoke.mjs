@@ -41,3 +41,10 @@ for(const needle of ['Domain public runtime V2','local draft + live preview','mu
 if(!dashboard.includes('data-vehicle-profile-id')) throw new Error('vehicle picker save must carry canonical Mobility profile intent');
 if(!chargers.includes('data-charger-profile-id')) throw new Error('charger picker save must carry canonical Mobility profile intent');
 console.log('PASS V2 semantic picker editing session stays local and reusable');
+
+
+if(!dashboard.includes('await rt.writePublishedPropertyAsync(assetId,"asset.profile_id",profileId)')) throw new Error('vehicle picker must await profile persistence before appearance write');
+if(!dashboard.includes('await rt.writePublishedPropertyAsync(assetId,"vehicle.image_key",key)')) throw new Error('vehicle picker must await appearance write');
+if(!chargers.includes('await rt.writePublishedPropertyAsync(assetId, "asset.profile_id", profileId)')) throw new Error('charger picker must await profile persistence before appearance write');
+if(!chargers.includes('await rt.writePublishedPropertyAsync(assetId, "charger.image_key", key)')) throw new Error('charger picker must await appearance write');
+if(!chargers.includes('grid-template-columns:repeat(4,minmax(120px,1fr))')) throw new Error('charger picker must share the vehicle picker desktop hierarchy layout');
