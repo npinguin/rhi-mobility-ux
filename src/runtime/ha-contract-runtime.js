@@ -635,10 +635,32 @@ class HomeBrainAssetRuntime {
   }
 
   vehicleChargerRelationship(assetId) {
-    // R22.12.11.25 / R43.2.53: relationship_index is the sole topology owner.
-    // Selected/effective/physical are distinct relationship rows; UX must not
-    // infer physical connection from an assigned/effective charger.
     const canonical = this.canonicalAssetId(assetId);
+    const runtimeV2 = this.mobilityRuntimeV2();
+    if (runtimeV2) {
+      const relation = (runtimeV2.vehicle_charger_relationships || []).find((row)=>String(row?.vehicle_id || row?.asset_id || "") === canonical) || null;
+      const selected = this.cleanValue(relation?.configured_charger_id || "", "none") || "none";
+      const effective = this.cleanValue(relation?.effective_charger_id || "", "none") || "none";
+      const connected = relation?.observed_identity_proven === true
+        ? (this.cleanValue(relation?.physically_connected_charger_id || "", "none") || "none")
+        : "none";
+      return {
+        assigned:selected !== "none" ? selected : effective,
+        effective, selected, connected,
+        assigned_display_name:this.assetDisplayName(selected !== "none" ? selected : effective),
+        effective_display_name:this.assetDisplayName(effective),
+        connected_display_name:this.assetDisplayName(connected),
+        relationship_resolution:relation?.relationship_status || "",
+        reason:relation?.reason || "",
+        observed_identity_proven:relation?.observed_identity_proven === true,
+        row:relation,
+        physical_row:relation,
+        effective_row:relation,
+        selected_row:relation,
+        _authority:"MOBILITY_PUBLIC_RUNTIME_V2"
+      };
+    }
+    // Frozen V1 relationship index is compatibility-only on older backends.
     const rows = this.relationshipRows(canonical).filter((r) => String(r.source_asset_id || r.asset_id || "") === String(canonical));
     const selectedRow = rows.find((r) => String(r.relationship_type || "") === "vehicle_selected_charger") || null;
     const effectiveRow = rows.find((r) => String(r.relationship_type || "") === "vehicle_effective_charger") || null;
@@ -2977,8 +2999,34 @@ class HomeBrainAssetRuntime {
   relationshipFor(assetId) {
     const canonical = this.canonicalAssetId(assetId);
     if (canonical.startsWith("vehicle_")) return this.vehicleChargerRelationship(canonical);
-    const rows = this.relationshipRows(canonical).filter((r) => String(r.source_asset_id || r.asset_id || "") === String(canonical));
     if (!canonical.startsWith("charger_")) return { assigned:"none", connected:"none", effective:"none", selected:"none", row:null };
+    const runtimeV2 = this.mobilityRuntimeV2();
+    if (runtimeV2) {
+      const relations = runtimeV2.vehicle_charger_relationships || [];
+      const configured = relations.filter((row)=>String(row?.configured_charger_id || "") === canonical);
+      const effectiveRows = relations.filter((row)=>String(row?.effective_charger_id || "") === canonical);
+      const physical = relations.filter((row)=>row?.observed_identity_proven === true && String(row?.physically_connected_charger_id || "") === canonical);
+      const one = (rows) => rows.length === 1 ? String(rows[0]?.vehicle_id || rows[0]?.asset_id || "none") : "none";
+      const selected = one(configured);
+      const effective = one(effectiveRows);
+      const connected = one(physical);
+      const assigned = selected !== "none" ? selected : effective;
+      return {
+        assigned, connected, effective, selected,
+        assigned_vehicle:assigned,
+        connected_vehicle:connected,
+        effective_vehicle:effective,
+        selected_vehicle:selected,
+        relationship_resolution:physical.length > 1 || effectiveRows.length > 1 || configured.length > 1 ? "CONFLICT" : "V2",
+        confidence:physical.length === 1 ? "proven" : "",
+        row:physical[0] || effectiveRows[0] || configured[0] || null,
+        connected_row:physical[0] || null,
+        effective_row:effectiveRows[0] || null,
+        selected_row:configured[0] || null,
+        _authority:"MOBILITY_PUBLIC_RUNTIME_V2"
+      };
+    }
+    const rows = this.relationshipRows(canonical).filter((r) => String(r.source_asset_id || r.asset_id || "") === String(canonical));
     const selectedRow = rows.find((r) => String(r.relationship_type || "") === "charger_selected_vehicle") || null;
     const effectiveRow = rows.find((r) => String(r.relationship_type || "") === "charger_effective_assigned_vehicle") || null;
     const connectedRow = rows.find((r) => String(r.relationship_type || "") === "charger_connected_vehicle") || null;
