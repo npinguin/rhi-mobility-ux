@@ -1,3 +1,14 @@
+## 1.0.0-rc.46 — Direct Mobility Command V2 closure
+
+- consume backend `MOBILITY_COMMAND_V2` directly and fail closed without V1 fallback once the V2 contract is present;
+- take command support, readiness, blocked reason and placement from the producer-owned V2 contract;
+- execute commands only through `rhi_mobility.execute_command` with exact `asset_id` + `command_key`;
+- remove V1 command-index and slot-index authority from the V2 path;
+- keep charger Start/Stop/Unlock/Restart/Identify complete even when legacy slot materialization is partial;
+- keep vehicle engineering commands out of quick actions according to backend placement;
+- preserve rc.45 picker sequencing, semantic transport translation and visual identity safety;
+- advance the tested backend baseline to Mobility M0.9.43.
+
 ## 1.0.0-rc.45 — Picker transport and visual consistency closure
 
 - translate canonical semantic profile ids to Home Assistant select option labels at the transport boundary;
