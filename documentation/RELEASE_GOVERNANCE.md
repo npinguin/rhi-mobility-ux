@@ -90,7 +90,7 @@ Any extra build is exceptional, not standard release procedure.
 
 ## Mobility boundaries
 
-UX owns presentation only and consumes `MOBILITY_PUBLIC_RUNTIME_V1`. Backend semantics remain backend-owned.
+UX owns presentation only and consumes canonical Mobility V2 contracts. Frozen V1 is compatibility-only and must not be a new UX authority. Backend semantics and configuration persistence remain backend-owned.
 
 Runtime controls remain fail-closed. Actual/readback remains operational truth. Global supervisor meaning remains backend-owned.
 
