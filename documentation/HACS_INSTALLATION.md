@@ -21,7 +21,7 @@ Important:
 - the dashboard URL/path must remain `mobility-supervisor`, because internal navigation uses `/mobility-supervisor/...`;
 - `/mobility-supervisor/dashboard` remains the legacy **Vehicles** route for backward compatibility; the new Overview is `/mobility-supervisor/overview`;
 - HACS installs/updates the plugin resource only; it does **not** create or migrate the Lovelace dashboard structure. Apply the complete dashboard YAML below when installing this candidate;
-- only Overview remains a visible Lovelace tab; Vehicles, Chargers, Charging, Planning, Strategies, History and Log are internal `subview: true` routes navigated from the RHI Mobility shell;
+- only Overview remains a visible Lovelace tab; Vehicles, Chargers, Planning, Strategies, History and Log are internal `subview: true` routes navigated from the RHI Mobility shell; Charging is a capability within Mobility projections, not a standalone workspace;
 - remove the legacy `resource_version: 'R22.12.11.30'` entries so the HACS bundle version owns cache busting;
 - keep the HACS resource `/hacsfiles/rhi-mobility-ux/rhi-mobility-ux.js` configured as a JavaScript module;
 - do not remove the old `/local/homebrain/...` resource/files until HACS install, refresh, navigation and rollback have been proven.
@@ -138,11 +138,12 @@ The same YAML is available as `documentation/homebrain_mobility.hacs.yaml`.
    - `/mobility-supervisor/overview` renders the new Overview screen;
    - vehicle detail navigation opens `/mobility-supervisor/asset-detail?asset=...`;
    - `/mobility-supervisor/charger-maintenance` renders Chargers;
-   - `/mobility-supervisor/charging` renders Charging;
+   - there is no standalone Charging workspace route; charging state/actions are rendered inside Overview, Vehicle, Charger and detail projections;
    - `/mobility-supervisor/planning` and `/strategies` render Intelligence screens;
    - `/mobility-supervisor/history` and `/log` render Insights screens;
    - charger detail navigation works;
-   - packaged images load from `/hacsfiles/rhi-mobility-ux/assets/...`;\n   - `/hacsfiles/rhi-mobility-ux/assets/vehicles/...` and `/assets/chargers/...` are physically present after install;
+   - packaged images load from `/hacsfiles/rhi-mobility-ux/assets/...`;
+   - `/hacsfiles/rhi-mobility-ux/assets/vehicles/...` and `/hacsfiles/rhi-mobility-ux/assets/chargers/...` are physically present after install;
    - the footer reports the installed Mobility UX version;
    - browser refresh on overview and detail pages preserves rendering;
    - no `Custom element doesn't exist` or JavaScript runtime errors appear.
