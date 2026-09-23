@@ -46,7 +46,7 @@ views:
         relationship_source: mobility_relationship_index
         release_info_position: bottom
 
-  - title: Vehicles
+  - title: Vehicle Management
     path: dashboard
     subview: true
     panel: true
@@ -76,7 +76,7 @@ views:
         relationship_source: mobility_relationship_index
         release_info_position: bottom
 
-  - title: Chargers
+  - title: Charger Management
     path: charger-maintenance
     subview: true
     panel: true

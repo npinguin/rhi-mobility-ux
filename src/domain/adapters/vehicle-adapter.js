@@ -112,6 +112,62 @@ class HomeBrainVehicleAdapter {
       { chargerDetailRoute, chargerDisplay }
     );
 
+    const experience = this.rt.vehicleExperienceV2(assetId);
+    const v2Relationship = experience?.charging_relationship || this.rt.vehicleRelationshipV2(assetId) || {};
+    const rangeIntel = experience?.range_intelligence || {};
+    const chargingIntel = experience?.charging_intelligence || {};
+    const securityIntel = experience?.security_intelligence || {};
+    const maintenanceIntel = experience?.maintenance_intelligence || {};
+
+    const toneFor = (state, actionable = []) => actionable.includes(String(state || "").toLowerCase()) ? "attention" : "neutral";
+    const rangeTile = {
+      label:"Range",
+      value:String(rangeIntel.summary || "Unavailable"),
+      subvalue:String(rangeIntel.reason || "Range conclusion unavailable"),
+      icon:"mdi:road-variant",
+      tone:toneFor(rangeIntel.state, ["low"])
+    };
+
+    const configuredId = String(v2Relationship.configured_charger_id || "");
+    const physicalId = v2Relationship.observed_identity_proven === true
+      ? String(v2Relationship.physically_connected_charger_id || "")
+      : "";
+    const chargingChargerId = physicalId || configuredId;
+    const chargingChargerEntry = chargingChargerId ? (this.rt.chargerById(chargingChargerId) || this.rt.assetById(chargingChargerId)) : null;
+    const chargingChargerLabel = chargingChargerEntry?.display_name || (chargingChargerId ? this.rt.chargerLabel(chargingChargerId) : "");
+    const chargingDetailRoute = chargingChargerId ? this.rt.assetDetailRoute(chargingChargerEntry || chargingChargerId) : "";
+    const chargingTile = {
+      label:"Charging",
+      value:physicalId
+        ? (chargingChargerLabel || "Connected")
+        : (configuredId ? (chargingChargerLabel || "Assigned charger") : "No charger"),
+      subvalue:physicalId
+        ? String(chargingIntel.summary || chargingIntel.reason || "Physical charger confirmed")
+        : (configuredId ? "Configured · physical identity not proven" : String(chargingIntel.summary || "No charger assigned")),
+      icon:"mdi:ev-station",
+      tone:toneFor(chargingIntel.state, ["fault"]),
+      detailRoute:chargingDetailRoute,
+      detailTitle:chargingChargerLabel ? `Open ${chargingChargerLabel} details` : "Open charger details"
+    };
+
+    const securityTile = {
+      label:"Security",
+      value:String(securityIntel.summary || "Unavailable"),
+      subvalue:String(securityIntel.reason || "Security conclusion unavailable"),
+      icon:String(securityIntel.state || "").toLowerCase() === "unsafe" ? "mdi:lock-alert-outline" : "mdi:lock-outline",
+      tone:toneFor(securityIntel.state, ["unsafe"])
+    };
+
+    const maintenanceTile = {
+      label:"Maintenance",
+      value:String(maintenanceIntel.summary || "Unavailable"),
+      subvalue:String(maintenanceIntel.reason || "Maintenance conclusion unavailable"),
+      icon:"mdi:wrench-outline",
+      tone:toneFor(maintenanceIntel.state, ["overdue","due_soon"])
+    };
+
+    const headerStatus = [rangeTile, chargingTile, securityTile, maintenanceTile];
+
     return {
       type:"vehicle", id, present, display, subtitle:profile, readiness:lifecycle,
       image:this.rt.cache(img), fallbackImage:this.rt.cache(this.rt.assetUrl("vehicles/vehicle_fallback.png")), imageOpacity:present ? 1 : 0.34, imageGray:present ? 0 : 0.25, imageFilter,
@@ -119,8 +175,7 @@ class HomeBrainVehicleAdapter {
       chargerDisplay, chargerDetailRoute,
       backPath:this.config.dashboard_path || "/mobility-supervisor/dashboard", backLabel:this.config.back_label || "← Back to Dashboard", detailRoute:this.rt.detailRoute(reg), lifecycle, registryEntry:reg,
       breadcrumb:["Home", "Vehicles", display],
-      // Vehicle hero strip is intelligence only: Range | Energy | Security | Maintenance | Freshness.
-      status:this.rt.vehicleIntelligenceStatusTiles(assetId),
+      status:headerStatus,
       actions,
       sections:[this.rt.lifecycleContractGapSection(assetId)].filter(Boolean).concat(componentSections).concat([
         { key:"activity", title:"Recent Activity", icon:"mdi:history", header:"Activity contract", rows:this.latestActivityRows(assetId), details:[] }

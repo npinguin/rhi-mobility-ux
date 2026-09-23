@@ -44,6 +44,9 @@ class HomeBrainAssetRuntime {
 
   contractAuthorityRegistry() {
     return {
+      fleet_runtime_v2: { contract_id: "MOBILITY_PUBLIC_RUNTIME_V2", role: "authority" },
+      product_experience_v2: { contract_id: "MOBILITY_EXPERIENCE_V2", role: "authority" },
+      product_policy_v2: { contract_id: "MOBILITY_POLICY_V2", role: "authority" },
       identity_navigation: { entity_id: "sensor.mobility_asset_index", role: "authority" },
       vehicle_properties: { entity_id: "vehicle_component_property_indexes", role: "authority" },
       charger_properties: { entity_id: "sensor.mobility_charger_property_index", role: "authority" },
@@ -108,6 +111,9 @@ class HomeBrainAssetRuntime {
       "sensor.mobility_charger_profile_index",
       "sensor.mobility_energy_asset_publication",
       "sensor.mobility_release_contract",
+      "sensor.rhi_mobility_runtime_v2",
+      "sensor.rhi_mobility_experience_v2",
+      "sensor.rhi_mobility_policy_v2",
       ...this.hardBackendGateSpecs().map((g) => g.entity_id),
       ...this.diagnosticHealthSpecs().map((g) => g.entity_id)
     ]);
@@ -133,6 +139,93 @@ class HomeBrainAssetRuntime {
   attr(entityId, attr, fallback = undefined) {
     const entity = this.entity(entityId);
     return entity?.attributes?.[attr] ?? fallback;
+  }
+
+  contractEntity(contractId = "", preferredEntityIds = []) {
+    const wanted = String(contractId || "").trim();
+    if (!wanted) return undefined;
+    for (const entityId of preferredEntityIds) {
+      const state = this.hass?.states?.[entityId];
+      if (String(state?.attributes?.contract_id || "") === wanted) return state;
+    }
+    return Object.values(this.hass?.states || {}).find((state) =>
+      String(state?.attributes?.contract_id || "") === wanted
+    );
+  }
+
+  mobilityRuntimeV2() {
+    const state = this.contractEntity("MOBILITY_PUBLIC_RUNTIME_V2", [
+      "sensor.rhi_mobility_runtime_v2",
+      "sensor.mobility_runtime_v2"
+    ]);
+    const attrs = state?.attributes || {};
+    if (String(attrs.contract_id || "") !== "MOBILITY_PUBLIC_RUNTIME_V2") return null;
+    return {
+      contract_id: attrs.contract_id,
+      canonical: attrs.canonical === true,
+      fleet: attrs.fleet && typeof attrs.fleet === "object" ? attrs.fleet : {},
+      vehicle_charger_relationships: Array.isArray(attrs.vehicle_charger_relationships) ? attrs.vehicle_charger_relationships : [],
+      ux_inference_forbidden: attrs.ux_inference_forbidden === true
+    };
+  }
+
+  mobilityExperienceV2() {
+    const state = this.contractEntity("MOBILITY_EXPERIENCE_V2", [
+      "sensor.rhi_mobility_experience_v2",
+      "sensor.mobility_experience_v2"
+    ]);
+    const attrs = state?.attributes || {};
+    if (String(attrs.contract_id || "") !== "MOBILITY_EXPERIENCE_V2") return null;
+    return {
+      ...attrs,
+      fleet: attrs.fleet && typeof attrs.fleet === "object" ? attrs.fleet : {},
+      vehicles: Array.isArray(attrs.vehicles) ? attrs.vehicles : [],
+      chargers: Array.isArray(attrs.chargers) ? attrs.chargers : []
+    };
+  }
+
+  mobilityPolicyV2() {
+    const state = this.contractEntity("MOBILITY_POLICY_V2", [
+      "sensor.rhi_mobility_policy_v2",
+      "sensor.mobility_policy_v2"
+    ]);
+    const attrs = state?.attributes || {};
+    if (String(attrs.contract_id || "") !== "MOBILITY_POLICY_V2") return null;
+    return {
+      contract_id: attrs.contract_id,
+      publisher: attrs.publisher || "",
+      revision: Number(attrs.revision ?? state?.state ?? 0) || 0,
+      policy: attrs.policy && typeof attrs.policy === "object" ? attrs.policy : {}
+    };
+  }
+
+  mobilityFleetV2() {
+    return this.mobilityRuntimeV2()?.fleet || this.mobilityExperienceV2()?.fleet || {};
+  }
+
+  vehicleExperienceV2(assetId = "") {
+    const canonical = this.canonicalAssetId(assetId);
+    return this.mobilityExperienceV2()?.vehicles?.find((row) => String(row?.asset_id || "") === canonical) || null;
+  }
+
+  chargerExperienceV2(assetId = "") {
+    const canonical = this.canonicalAssetId(assetId);
+    return this.mobilityExperienceV2()?.chargers?.find((row) => String(row?.asset_id || "") === canonical) || null;
+  }
+
+  vehicleRelationshipV2(assetId = "") {
+    const canonical = this.canonicalAssetId(assetId);
+    const runtime = this.mobilityRuntimeV2();
+    const fromRuntime = runtime?.vehicle_charger_relationships?.find((row) => String(row?.vehicle_id || row?.asset_id || "") === canonical);
+    if (fromRuntime) return fromRuntime;
+    return this.vehicleExperienceV2(canonical)?.charging_relationship || null;
+  }
+
+  setMobilityPolicy(policyKey = "", value = "") {
+    const key = String(policyKey || "").trim();
+    if (!key || !this.hass?.callService) return false;
+    this.hass.callService("rhi_mobility", "set_policy", { policy_key:key, value });
+    return true;
   }
 
   parseListValue(value) {
@@ -509,7 +602,10 @@ class HomeBrainAssetRuntime {
       JSON.stringify(canonical ? this.commandRegistry(canonical) : this.publicCommandRows()),
       JSON.stringify(canonical ? this.activityRowsFor(canonical) : this.activityRowsFor("")),
       JSON.stringify(canonical ? this.intelligenceRowsFor(canonical) : this.intelligenceRowsFor("")),
-      JSON.stringify(canonical ? this.energyAssetPublicationRows(canonical) : this.energyAssetPublicationRows(""))
+      JSON.stringify(canonical ? this.energyAssetPublicationRows(canonical) : this.energyAssetPublicationRows("")),
+      JSON.stringify(this.mobilityRuntimeV2()),
+      JSON.stringify(this.mobilityExperienceV2()),
+      JSON.stringify(this.mobilityPolicyV2())
     ];
     return parts.join("|");
   }

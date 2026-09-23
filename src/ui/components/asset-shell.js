@@ -218,7 +218,8 @@ class HomeBrainAssetShell {
 
   render(model) {
     const actions = (model.actions || []).map((a) => this.renderAction(a)).join("");
-    const status = (model.status || []).map((m) => `
+    const statusItems = model.status || [];
+    const status = statusItems.map((m) => `
       <div class="metric tone-${this.rt.escape(m.tone || "neutral")} ${m.detailRoute ? "has-detail-link" : ""}">
         <ha-icon icon="${m.icon}"></ha-icon>
         <div class="metric-copy"><span>${this.rt.escape(m.label)}</span><b>${this.rt.escape(m.value)}</b>${m.subvalue ? `<small class="metric-sub">${m.subIcon ? `<ha-icon class="metric-sub-icon" icon="${this.rt.escape(m.subIcon)}"></ha-icon>` : ""}${this.rt.escape(m.subvalue)}</small>` : ""}</div>
@@ -250,7 +251,7 @@ class HomeBrainAssetShell {
             <div class="hero-image">${this.renderHeroVisual(model)}</div>
           </section>
 
-          <section class="detail-status-grid" aria-label="Asset status">${status}</section>
+          <section class="detail-status-grid status-count-${Math.min(4,statusItems.length)}" aria-label="Asset status">${status}</section>
           <section class="actions"><div class="actions-title">Quick actions</div>${actions || `<div class="no-actions">No actions available for this asset.</div>`}</section>
           ${chargerAppearance ? `<details class="detail-appearance-fold"><summary><ha-icon icon="mdi:palette-outline"></ha-icon><span>Charger & colour</span><small>Visual library</small></summary>${chargerAppearance}</details>` : ""}
           <section class="grid">${mainSections.map((s) => this.renderSection(s)).join("")}</section>
@@ -712,14 +713,14 @@ class HomeBrainAssetShell {
       .detail-scene-hero .hero-image{position:absolute!important;z-index:3!important;right:3.5%!important;top:5%!important;width:49%!important;height:90%!important;min-height:0!important;display:flex!important;align-items:center!important;justify-content:center!important;pointer-events:none!important}
       .detail-scene-hero .hero-image img{width:100%!important;height:100%!important;max-height:none!important;object-fit:contain!important;object-position:center!important;filter:drop-shadow(0 24px 30px rgba(15,35,80,.15))!important}
       .detail-scene-hero .hero-icon{width:58%!important;height:75%!important;border-radius:30px!important}
-      .detail-status-grid{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:8px!important;margin:0!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important}
+      .detail-status-grid{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:8px!important;margin:0!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important}.detail-status-grid.status-count-1{grid-template-columns:1fr!important}.detail-status-grid.status-count-2{grid-template-columns:repeat(2,minmax(0,1fr))!important}.detail-status-grid.status-count-3{grid-template-columns:repeat(3,minmax(0,1fr))!important}
       .detail-status-grid .metric{min-width:0!important;min-height:94px!important;height:auto!important;display:grid!important;grid-template-columns:52px minmax(0,1fr)!important;gap:11px!important;align-items:center!important;padding:12px 14px!important;border:1px solid #DBE6F3!important;border-radius:15px!important;background:rgba(255,255,255,.97)!important;box-shadow:0 8px 22px rgba(21,61,115,.045)!important}
       .detail-status-grid .metric ha-icon{width:46px!important;height:46px!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:9px!important;box-sizing:border-box!important;border-radius:14px!important;background:#EEF5FF!important;color:#1467F5!important;--mdc-icon-size:27px!important}
       .detail-status-grid .metric span{display:block!important;margin:0 0 3px!important;color:#31558E!important;font-size:10px!important;font-weight:650!important}
       .detail-status-grid .metric b{display:block!important;margin:0 0 3px!important;color:#0B173D!important;font-size:clamp(14px,1.2vw,18px)!important;font-weight:720!important;line-height:1.08!important}
       .detail-status-grid .metric-sub{display:block!important;margin-top:2px!important;color:#55709B!important;font-size:10px!important;font-weight:500!important;line-height:1.2!important}
       .detail-status-grid .metric.tone-attention ha-icon,.detail-status-grid .metric.tone-orange ha-icon,.detail-status-grid .metric.tone-warn ha-icon{background:#FFF4E8!important;color:#FF7500!important}
-      .detail-status-grid .metric.tone-green ha-icon,.detail-status-grid .metric.tone-ok ha-icon{background:#E8FBF5!important;color:#04A875!important}
+      .detail-status-grid .metric.tone-green ha-icon,.detail-status-grid .metric.tone-ok ha-icon,.detail-status-grid .metric.tone-active ha-icon{background:#EEF5FF!important;color:#1467F5!important}
       .actions{min-height:52px!important;padding:6px 10px!important;margin:0!important;border:1px solid #DBE6F3!important;border-radius:14px!important;background:#fff!important;box-shadow:0 5px 16px rgba(21,61,115,.03)!important;display:flex!important;align-items:center!important;gap:8px!important;flex-wrap:wrap!important}
       .actions-title{font-size:9.5px!important;letter-spacing:.13em!important;text-transform:uppercase!important;color:#31558E!important;font-weight:700!important;margin-right:2px!important;flex:0 0 auto!important}
       .actions .action{width:auto!important;min-width:0!important;height:40px!important;min-height:40px!important;border:1px solid #D8E4F1!important;border-radius:10px!important;background:#fff!important;color:#075FD8!important;box-shadow:none!important;font-size:11px!important;font-weight:660!important;padding:0 13px!important;display:inline-flex!important;align-items:center!important;gap:7px!important}

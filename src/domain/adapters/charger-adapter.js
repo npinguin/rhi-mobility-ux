@@ -88,6 +88,53 @@ class HomeBrainChargerAdapter {
     const dataFreshness = "—";
     const trust = "—";
     const health = chargerSnapshot.health.display;
+    const experience = this.rt.chargerExperienceV2(assetId);
+    const connectionIntel = experience?.connection_intelligence || {};
+    const chargingIntel = experience?.charging_intelligence || {};
+    const powerIntel = experience?.power_intelligence || {};
+    const vehicleIntel = experience?.vehicle_intelligence || {};
+    const fault = experience?.fault || {};
+    const faultActive = String(fault.state || "").toLowerCase() === "active";
+
+    const stateTile = {
+      label:"State",
+      value:String(chargingIntel.summary || connectionIntel.summary || "Unavailable"),
+      subvalue:String(connectionIntel.summary || chargingIntel.reason || "State conclusion unavailable"),
+      icon:"mdi:ev-station",
+      tone:faultActive ? "attention" : "neutral"
+    };
+    const powerTile = {
+      label:"Power",
+      value:String(powerIntel.summary || "Unavailable"),
+      subvalue:String(powerIntel.reason || "Power conclusion unavailable"),
+      icon:"mdi:flash",
+      tone:faultActive ? "attention" : "neutral"
+    };
+
+    const vehicleAssetId = String(vehicleIntel.connected_vehicle_asset_id || "");
+    const vehicleEntry = vehicleAssetId ? (this.rt.vehicleById(vehicleAssetId) || this.rt.assetById(vehicleAssetId)) : null;
+    const vehicleDisplay = String(vehicleIntel.connected_vehicle_display_name || vehicleEntry?.display_name || vehicleIntel.summary || "No vehicle identified");
+    const vehicleRoute = vehicleAssetId ? this.rt.assetDetailRoute(vehicleEntry || vehicleAssetId) : "";
+    const vehicleTile = {
+      label:"Vehicle",
+      value:vehicleDisplay,
+      subvalue:String(vehicleIntel.reason || "Vehicle relationship unavailable"),
+      icon:"mdi:car-electric",
+      tone:"neutral",
+      detailRoute:vehicleRoute,
+      detailTitle:vehicleDisplay ? `Open ${vehicleDisplay} details` : "Open vehicle details"
+    };
+
+    const headerStatus = [stateTile, powerTile, vehicleTile];
+    if (faultActive) {
+      headerStatus.push({
+        label:"Issue",
+        value:String(fault.code || "Fault"),
+        subvalue:String(fault.reason || "Charger fault active"),
+        icon:"mdi:alert-circle-outline",
+        tone:"attention"
+      });
+    }
     const iconMap = { driveway_left:"mdi:ev-station", driveway_right:"mdi:ev-station", sideway:"mdi:ev-plug-type2", utility_plug:"mdi:power-socket-eu" };
     const ctlByField = (field, label, icon, opts = {}) => { const entity = this.rt.controlEntity(assetId, field, ""); return entity ? { type:"control", entity, label, icon, ...opts } : { type:"readonly", icon, label, value: opts.fallback || "Not available" }; };
     return {
@@ -95,7 +142,7 @@ class HomeBrainChargerAdapter {
       image:this.rt.cache(this.chargerImageFromId()), fallbackImage:this.rt.cache(this.rt.assetUrl("chargers/charger_fallback.png")), imageOpacity:available ? 1 : 0.34, imageGray:available ? 0 : 0.25,
       visualKey:visual?.key || "", visualProduct:visual?.charger || null, visualAppearance:visual?.appearance || null,
       backPath:this.config.dashboard_path || "/mobility-supervisor/dashboard", backLabel:this.config.back_label || "← Back to Dashboard", detailRoute:this.rt.detailRoute(reg), lifecycle, registryEntry:reg, breadcrumb:["Home","Chargers",name],
-      status:this.rt.chargerCanonicalStatusTiles(assetId, { detailRoute: physicalVehicle.detailRoute, detailTitle: physicalVehicle.displayName ? `Open ${physicalVehicle.displayName} details` : "Open vehicle details" }),
+      status:headerStatus,
       actions:this.rt.commandActionsFor(assetId, "quick_actions").map((cmd,index)=>({ label:cmd.label || this.rt.titleize(cmd.command_id || cmd.command_key), icon:this.rt.commandIcon(cmd), entity:cmd.intent_entity, command:cmd, primary:index === 0, hide:cmd.frontend_allowed === false })),
       // R22.12.11.24: charger detail sections come from the charger component contract.
       // UX must not infer charger layout from flat property family/group names.

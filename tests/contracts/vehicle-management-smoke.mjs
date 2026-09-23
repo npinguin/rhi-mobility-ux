@@ -150,7 +150,7 @@ if(!shell.includes('.detail-vehicle-picker .vehicle-picker-grid{grid-template-co
 console.log('PASS vehicle management, hierarchical picker, complete canonical current artwork, zero legacy runtime path and compact mobile composition');
 
 if(presentation.includes('MOBILITY / VEHICLE MANAGEMENT')) throw new Error('vehicle-management hero navigation/location eyebrow must stay removed');
-if(!presentation.includes('Manage the vehicles you use every day')) throw new Error('vehicle-management hero purpose drifted from shared presentation owner');
+if(!presentation.includes('Check that your fleet is configured, assigned and operational')) throw new Error('vehicle-management hero purpose drifted from shared presentation owner');
 
 if(!presentation.includes('asset_key:"vehicles"')) throw new Error('Vehicle tab contextual hero key missing from shared presentation owner');
 

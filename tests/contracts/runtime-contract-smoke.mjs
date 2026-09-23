@@ -45,3 +45,79 @@ if(missingSnap.power.resolved!==false || missingSnap.power.display!=='—') thro
 
 console.log('PASS canonical actual/requested separation and zero/unavailable semantics');
 console.log('PASS canonical charger status/connection/power/health contract smoke');
+
+
+const v2Hass={states:{
+  'sensor.rhi_mobility_runtime_v2':{state:'ready',attributes:{
+    contract_id:'MOBILITY_PUBLIC_RUNTIME_V2',
+    canonical:true,
+    fleet:{
+      active_vehicle_count:5,
+      active_charger_count:4,
+      available_charger_count:2,
+      connected_charger_count:2,
+      charging_charger_count:0,
+      aggregate_actual_charging_power_kw:0,
+      aggregate_power_state:'complete',
+      power_known_charger_count:4,
+      power_unknown_charger_count:0
+    },
+    vehicle_charger_relationships:[
+      {vehicle_id:'vehicle_id4',configured_charger_id:'charger_peb',effective_charger_id:'charger_peb',physically_connected_charger_id:null,observed_identity_proven:false,relationship_status:'CONFIGURED',reason:'configured_only'}
+    ],
+    ux_inference_forbidden:true
+  }},
+  'sensor.rhi_mobility_experience_v2':{state:'ready',attributes:{
+    contract_id:'MOBILITY_EXPERIENCE_V2',
+    policy_revision:7,
+    fleet:{active_vehicle_count:5,active_charger_count:4},
+    vehicles:[{
+      asset_id:'vehicle_id4',
+      display_name:'ID4',
+      configuration_status:{state:'complete',profile_id:'vehicle.vw.id4'},
+      runtime_data_health:{state:'healthy',reasons:[]},
+      charge_demand:{state:'satisfied',energy_needed_kwh:0,target_soc_pct:80,ready_by:null,reason:'minimum_demand_kwh:0.5'},
+      charging_relationship:{vehicle_id:'vehicle_id4',configured_charger_id:'charger_peb',effective_charger_id:'charger_peb',physically_connected_charger_id:null,observed_identity_proven:false},
+      range_intelligence:{state:'ok',summary:'387 km total',reason:'Low-range threshold 100 km',threshold_km:100},
+      security_intelligence:{state:'secure',summary:'Secure',reason:'Required security coverage confirms the vehicle is secured'},
+      maintenance_intelligence:{state:'scheduled',summary:'Inspection in 292 d',reason:'Inspection in 292 d'},
+      comfort_intelligence:{state:'off',summary:'Off',reason:'off'}
+    }],
+    chargers:[{
+      asset_id:'charger_peb',
+      display_name:'PEB',
+      configuration_status:{state:'complete',profile_id:'charger.peblar'},
+      runtime_data_health:{state:'healthy',reasons:[]},
+      fault:{state:'none',code:null,reason:null},
+      availability_intelligence:{state:'ok',summary:'Available'},
+      connection_intelligence:{state:'asset_connected',summary:'Asset Connected'},
+      charging_intelligence:{state:'idle',summary:'Idle',reason:'0.00 kW actual'},
+      power_intelligence:{state:'ok',summary:'0.00 kW actual',reason:'No requested power configured'},
+      vehicle_intelligence:{state:'assigned',summary:'Vehicle vehicle_id4',connected_vehicle_asset_id:'vehicle_id4',connected_vehicle_display_name:'ID4'}
+    }]
+  }},
+  'sensor.rhi_mobility_policy_v2':{state:'7',attributes:{
+    contract_id:'MOBILITY_POLICY_V2',
+    publisher:'rhi_mobility',
+    revision:7,
+    policy:{
+      range:{low_range_km:100},
+      maintenance:{due_soon_days:90},
+      security:{required_coverage:['lock','doors','windows']},
+      charging:{minimum_demand_kwh:0.5}
+    }
+  }},
+  'sensor.mobility_asset_index':{state:'ready',attributes:{assets_json:[
+    {asset_id:'vehicle_id4',asset_type:'vehicle',display_name:'ID4'},
+    {asset_id:'charger_peb',asset_type:'charger',display_name:'PEB'}
+  ]}}
+},callService:(domain,service,data)=>{v2Hass.lastCall={domain,service,data};}};
+const v2rt=new Runtime(v2Hass,{});
+if(v2rt.mobilityRuntimeV2()?.fleet?.connected_charger_count!==2) throw new Error('Runtime V2 fleet contract not consumed');
+if(v2rt.vehicleExperienceV2('vehicle_id4')?.security_intelligence?.state!=='secure') throw new Error('Experience V2 vehicle contract not consumed');
+if(v2rt.chargerExperienceV2('charger_peb')?.fault?.state!=='none') throw new Error('Experience V2 charger contract not consumed');
+if(v2rt.mobilityPolicyV2()?.policy?.maintenance?.due_soon_days!==90) throw new Error('Policy V2 contract not consumed');
+if(v2rt.vehicleRelationshipV2('vehicle_id4')?.observed_identity_proven!==false) throw new Error('Runtime V2 relationship identity proof not preserved');
+if(!v2rt.setMobilityPolicy('range.low_range_km','120')) throw new Error('Policy V2 write boundary unavailable');
+if(v2Hass.lastCall?.domain!=='rhi_mobility' || v2Hass.lastCall?.service!=='set_policy' || v2Hass.lastCall?.data?.policy_key!=='range.low_range_km') throw new Error('Policy V2 write must use rhi_mobility.set_policy');
+console.log('PASS Mobility Runtime/Experience/Policy V2 direct contract consumption');

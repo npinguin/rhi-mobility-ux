@@ -9,8 +9,8 @@ const required = [
   'key: "intelligence"',
   'key: "insights"',
   '{ key: "overview", label: "Overview", icon: "mdi:view-dashboard-outline", path: "/overview" }',
-  '{ key: "vehicles", label: "Vehicles", icon: "mdi:car-outline", path: "/dashboard" }',
-  '{ key: "chargers", label: "Chargers", icon: "mdi:ev-station", path: "/charger-maintenance" }',
+  '{ key: "vehicles", label: "Vehicle Management", icon: "mdi:car-outline", path: "/dashboard" }',
+  '{ key: "chargers", label: "Charger Management", icon: "mdi:ev-station", path: "/charger-maintenance" }',
   '{ key: "planning", label: "Planning", icon: "mdi:calendar-clock-outline", path: "/planning" }',
   '{ key: "strategies", label: "Strategies", icon: "mdi:target", path: "/strategies" }',
   '{ key: "history", label: "History", icon: "mdi:chart-timeline-variant", path: "/history" }',
@@ -39,10 +39,11 @@ for (const path of ['overview','dashboard','charger-maintenance','planning','str
 }
 
 if (!routes.includes('title: Overview\n    path: overview')) throw new Error('Overview route definition missing');
-if (!routes.includes('title: Vehicles\n    path: dashboard')) throw new Error('legacy Vehicles route /dashboard must be preserved');
+if (!routes.includes('title: Vehicle Management\n    path: dashboard')) throw new Error('Vehicle Management route /dashboard must be preserved');
 if (!dashboard.includes('rt.navigate(target)')) throw new Error('Overview/Vehicles navigation must update the canonical URL so refresh preserves the current tab');
 if (!dashboard.includes('rememberViewPosition()') || !dashboard.includes('restoreViewPositionOnce()') || !dashboard.includes('window.addEventListener("pagehide"')) throw new Error('Mobility route/refresh position persistence missing');
 if (dashboard.includes('hbMobilityPath("/vehicles")')) throw new Error('invalid /vehicles route leaked into dashboard');
-console.log('PASS Mobility route mapping, URL-authoritative tab state and refresh/position persistence');
+if (!routes.includes('title: Charger Management\n    path: charger-maintenance')) throw new Error('Charger Management route must be preserved');
+console.log('PASS Mobility route mapping, management naming, URL-authoritative tab state and refresh/position persistence');
 
 if(header.includes('key: "charging"') || routes.includes('path: charging')) throw new Error('synthetic Charging tab/route returned');

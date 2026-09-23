@@ -68,9 +68,9 @@ MOBILITY_EXPERIENCE_V2     = user-facing conclusions
 UX                         = select / aggregate / format / present
 ```
 
-The frozen V1 public facade remains a transitional compatibility surface for existing consumers while backend issue #107 confirms the direct V2 authority/migration matrix. New UX work must not introduce V1-only dependencies or reconstruct missing product semantics locally.
+rc.43 consumes the direct Runtime V2 / Experience V2 / Policy V2 Home Assistant surfaces introduced in backend M0.9.40. The frozen V1 facade remains compatibility-only for older consumers. New UX work must not introduce V1-only status dependencies or reconstruct product conclusions locally.
 
-Configuration controls use backend V1 write metadata, options and write targets. `asset.profile_id` and `vehicle.selected_charger` may remain visible/editable while unset. Runtime controls remain fail-closed without V1 write capability.
+Existing configuration controls may still use backend-published write metadata, options and write targets where no V2 configuration-write replacement exists. `asset.profile_id` and `vehicle.selected_charger` may remain visible/editable while unset. Runtime controls remain fail-closed without V1 write capability.
 
 Actual/readback is the normal operational truth. Requested intent is transient during editing/pending write and must not replace canonical actual state.
 

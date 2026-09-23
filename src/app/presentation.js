@@ -4,8 +4,8 @@
 
 const HB_MOBILITY_PAGE_HEROES = Object.freeze({
   overview: { eyebrow:"", title:"Mobility Overview", description:"Know if your vehicles are ready, secure and comfortable, what is charging, and where action is needed.", asset_key:"overview" },
-  vehicles: { eyebrow:"", title:"Vehicles", description:"Manage the vehicles you use every day: readiness, charger assignment, charging controls, direct actions and lifecycle.", asset_key:"vehicles" },
-  chargers: { eyebrow:"", title:"Chargers", description:"Manage charger availability, charging state, power, connected vehicles, controls and lifecycle from one compact workspace.", asset_key:"chargers" },
+  vehicles: { eyebrow:"", title:"Vehicle Management", description:"Check that your fleet is configured, assigned and operational, then manage the vehicles that need attention.", asset_key:"vehicles" },
+  chargers: { eyebrow:"", title:"Charger Management", description:"Check that your charging park is configured, available and operating as expected, then manage exceptions.", asset_key:"chargers" },
   planning: { eyebrow:"", title:"Planning", description:"See the Energy-owned charging plan, what is already planned and what still needs attention.", asset_key:"planning" },
   strategies: { eyebrow:"", title:"Strategies", description:"Understand configured intent and effective energy policy without duplicating backend semantics.", asset_key:"strategies" },
   history: { eyebrow:"", title:"History", description:"Review measured vehicle energy, value and Mobility outcomes from their authoritative backend domains.", asset_key:"history" },
@@ -32,8 +32,9 @@ function hbMobilityPageHero(rt, tab, options = {}) {
 
 function hbMobilityStatusGrid(rt, items = [], className = "") {
   const esc = (value) => rt?.escape ? rt.escape(value) : String(value ?? "");
-  return `<section class="rhi-top-status-grid ${esc(className)}" aria-label="Page status">
-    ${items.slice(0,4).map((item) => `<article class="rhi-top-status-item ${esc(item.tone || "")}">
+  const visible = items.slice(0,4);
+  return `<section class="rhi-top-status-grid status-count-${visible.length} ${esc(className)}" aria-label="Page status">
+    ${visible.map((item) => `<article class="rhi-top-status-item ${esc(item.tone || "")}">
       <span class="rhi-top-status-icon"><ha-icon icon="${esc(item.icon || "mdi:information-outline")}"></ha-icon></span>
       <div><small>${esc(item.label || "")}</small><b>${esc(item.value ?? "—")}</b>${item.sub ? `<em>${esc(item.sub)}</em>` : ""}${item.sub2 ? `<em>${esc(item.sub2)}</em>` : ""}</div>
     </article>`).join("")}
@@ -129,11 +130,11 @@ function hbMobilityPresentationStyles() {
     .rhi-page-hero-art:before{content:""!important;display:block!important;position:absolute!important;z-index:2!important;inset:0!important;background:linear-gradient(90deg,#fff 0%,rgba(255,255,255,.96) 9%,rgba(255,255,255,.68) 19%,rgba(255,255,255,.13) 37%,rgba(255,255,255,0) 55%)!important}
     .rhi-page-hero-art img{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;min-height:0!important;max-height:none!important;object-fit:cover!important;object-position:center 52%!important;transform:none!important}
 
-    .rhi-top-status-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:0}
+    .rhi-top-status-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:0}.rhi-top-status-grid.status-count-1{grid-template-columns:1fr}.rhi-top-status-grid.status-count-2{grid-template-columns:repeat(2,minmax(0,1fr))}.rhi-top-status-grid.status-count-3{grid-template-columns:repeat(3,minmax(0,1fr))}
     .rhi-top-status-item{min-width:0;min-height:94px;display:grid;grid-template-columns:52px minmax(0,1fr);gap:11px;align-items:center;padding:12px 14px;border:1px solid #DBE6F3;border-radius:15px;background:rgba(255,255,255,.97);box-shadow:0 8px 22px rgba(21,61,115,.045)}
     .rhi-top-status-icon{width:46px;height:46px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:#EEF5FF;color:#1467F5}
     .rhi-top-status-icon ha-icon{--mdc-icon-size:27px}
-    .rhi-top-status-item.ok .rhi-top-status-icon{background:#E8FBF5;color:#04A875}
+    .rhi-top-status-item.ok .rhi-top-status-icon{background:#EEF3FF;color:#315FBA}
     .rhi-top-status-item.warn .rhi-top-status-icon{background:#FFF4E8;color:#FF7500}
     .rhi-top-status-item.neutral .rhi-top-status-icon{background:#EEF3FF;color:#315FBA}
     .rhi-top-status-item>div{min-width:0}.rhi-top-status-item small{display:block;margin:0 0 3px;color:#31558E;font-size:10px;font-weight:650}
