@@ -5,7 +5,7 @@ These defects predate the HACS migration and are intentionally not hidden by pac
 1. Charger component placement can still surface valid product properties under Engineering/Unmapped depending on the deployed component contract/materialization.
 2. Some charger commands such as Restart, Identify or Unlock may still be missing if the deployed placement/runtime parsing path does not materialize them correctly.
 3. Requested versus actual/readback is structurally separated on the Mobility overview: requested charge power is an explicit control intent and actual charging power comes from the physically connected charger's canonical `charger.power_kw`. Cross-screen target-HA parity still requires runtime qualification before this migration-baseline defect can be fully closed.
-4. Cross-screen runtime parity against backend R43.2.65 remains to be proven after HACS deployment.
+4. Cross-screen runtime parity against the current backend remains to be proven after HACS deployment.\n5. Vehicle and charger picker runtime closure is under active correction in rc.44/M0.9.41: target-HA write/readback/restart proof remains pending until qualification.
 
 ## Closed structurally after migration baseline
 
