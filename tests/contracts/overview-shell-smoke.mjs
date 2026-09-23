@@ -6,7 +6,7 @@ const presentation=fs.readFileSync(new URL('../../src/app/presentation.js',impor
 for (const needle of [
   'hbMobilityPageHero(rt, "overview")',
   'Mobility Overview',
-  'class="ov-status-grid ov-domain-statusbar"',
+  'ov-domain-statusbar ${status.attentionCount ? "has-attention" : "no-attention"}',
   '<small>Charging</small>',
   '<small>Range</small>',
   '<small>Comfort</small>',
@@ -16,7 +16,9 @@ for (const needle of [
   'overviewOutsideTemperature()',
   'overviewNextDeparture(rt, vehicles)',
   'overviewSecurityStatus(rt, vehicles)',
+  'unsafeValues = new Set',
   'overviewMaintenanceStatus(rt, vehicles)',
+  'maintenanceDays',
   'class="ov-quickbar energy-like"',
   'class="ov-panel ov-core-vehicles ov-overview-vehicles"',
   '<h2>Vehicles</h2>',
