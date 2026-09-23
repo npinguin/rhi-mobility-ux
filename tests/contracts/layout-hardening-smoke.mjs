@@ -89,3 +89,39 @@ for(const source of [dashboard,chargers,router]){
 if(dashboard.includes('hbMobilityPageHero(rt, "vehicles", {\n        meta:')) throw new Error('Vehicles hero still carries mini substatus metadata');
 if(chargers.includes('hbMobilityPageHero(rt, "chargers", {')) throw new Error('Chargers hero still carries mini substatus metadata');
 if(router.includes('hbMobilityOutcomeStrip(rt, view')) throw new Error('Intelligence/Insights still use generic five-column outcome strip at top level');
+
+
+for(const forbidden of [
+  'MOBILITY / VEHICLE MANAGEMENT',
+  'MOBILITY / CHARGER MANAGEMENT',
+  'INTELLIGENCE / ENERGY PLANNING',
+  'INTELLIGENCE / STRATEGIES',
+  'INSIGHTS / ENERGY & MOBILITY',
+  'INSIGHTS / LOG'
+]) {
+  if(presentation.includes(forbidden)) throw new Error(`navigation-location eyebrow returned to hero contract: ${forbidden}`);
+}
+for(const tab of ['overview','vehicles','chargers','planning','strategies','history','log']) {
+  const html=presentationApi.hbMobilityPageHero({escape:(v)=>String(v)},tab);
+  if(/<small>\s*[^<]+<\/small>/.test(html)) throw new Error(`top-level hero contains navigation/location eyebrow: ${tab}`);
+}
+
+for(const forbidden of ['class="breadcrumb"','class="back-inline"','class="hero-topline"']) {
+  if(assetShell.includes(forbidden)) throw new Error(`detail hero navigation chrome returned: ${forbidden}`);
+}
+for(const required of [
+  'class="detail-purpose"',
+  'class="detail-status-grid"',
+  'Inspect readiness, charging relationship, operational status and direct actions for this vehicle.',
+  'Inspect charger availability, connection health, power, linked vehicle and direct controls for this charging point.',
+  'rc.39 canonical detail composition',
+  '.detail-scene-hero h1{margin:8px 0 10px!important;font-size:clamp(31px,3.1vw,48px)!important',
+  '.detail-status-grid{display:grid!important',
+  '.actions{min-height:52px!important'
+]) {
+  if(!assetShell.includes(required)) throw new Error(`canonical detail layout regression: missing ${required}`);
+}
+const heroIndex=assetShell.indexOf('class="hero detail-scene-hero"');
+const statusIndex=assetShell.indexOf('class="detail-status-grid"');
+const actionsIndex=assetShell.indexOf('class="actions"');
+if(!(heroIndex >= 0 && statusIndex > heroIndex && actionsIndex > statusIndex)) throw new Error('detail page hierarchy must be hero -> status -> quick actions');

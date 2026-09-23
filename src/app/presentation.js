@@ -3,13 +3,13 @@
 // Domain screens keep their semantics, data ownership and actions.
 
 const HB_MOBILITY_PAGE_HEROES = Object.freeze({
-  overview: { eyebrow:"MOBILITY", title:"Mobility Overview", description:"Know if your vehicles are ready, secure and comfortable, what is charging, and where action is needed.", asset_key:"overview" },
-  vehicles: { eyebrow:"MOBILITY / VEHICLE MANAGEMENT", title:"Vehicles", description:"Manage the vehicles you use every day: readiness, charger assignment, charging controls, direct actions and lifecycle.", asset_key:"vehicles" },
-  chargers: { eyebrow:"MOBILITY / CHARGER MANAGEMENT", title:"Chargers", description:"Manage charger availability, charging state, power, connected vehicles, controls and lifecycle from one compact workspace.", asset_key:"chargers" },
-  planning: { eyebrow:"INTELLIGENCE / ENERGY PLANNING", title:"Planning", description:"See the Energy-owned charging plan, what is already planned and what still needs attention.", asset_key:"planning" },
-  strategies: { eyebrow:"INTELLIGENCE / STRATEGIES", title:"Strategies", description:"Understand configured intent and effective energy policy without duplicating backend semantics.", asset_key:"strategies" },
-  history: { eyebrow:"INSIGHTS / ENERGY & MOBILITY", title:"History", description:"Review measured vehicle energy, value and Mobility outcomes from their authoritative backend domains.", asset_key:"history" },
-  log: { eyebrow:"INSIGHTS / LOG", title:"Log", description:"Inspect operational and audit evidence with backend-owned reasons and status.", asset_key:"log" }
+  overview: { eyebrow:"", title:"Mobility Overview", description:"Know if your vehicles are ready, secure and comfortable, what is charging, and where action is needed.", asset_key:"overview" },
+  vehicles: { eyebrow:"", title:"Vehicles", description:"Manage the vehicles you use every day: readiness, charger assignment, charging controls, direct actions and lifecycle.", asset_key:"vehicles" },
+  chargers: { eyebrow:"", title:"Chargers", description:"Manage charger availability, charging state, power, connected vehicles, controls and lifecycle from one compact workspace.", asset_key:"chargers" },
+  planning: { eyebrow:"", title:"Planning", description:"See the Energy-owned charging plan, what is already planned and what still needs attention.", asset_key:"planning" },
+  strategies: { eyebrow:"", title:"Strategies", description:"Understand configured intent and effective energy policy without duplicating backend semantics.", asset_key:"strategies" },
+  history: { eyebrow:"", title:"History", description:"Review measured vehicle energy, value and Mobility outcomes from their authoritative backend domains.", asset_key:"history" },
+  log: { eyebrow:"", title:"Log", description:"Inspect operational and audit evidence with backend-owned reasons and status.", asset_key:"log" }
 });
 
 function hbMobilityPageHero(rt, tab, options = {}) {
@@ -19,7 +19,7 @@ function hbMobilityPageHero(rt, tab, options = {}) {
   const badge = options.badge || "";
   return `<section class="rhi-page-hero rhi-page-hero-${esc(tab)}">
     <div class="rhi-page-hero-copy">
-      <small>${esc(options.eyebrow || spec.eyebrow)}</small>
+      ${(options.eyebrow || spec.eyebrow) ? `<small>${esc(options.eyebrow || spec.eyebrow)}</small>` : ""}
       <h1>${esc(options.title || spec.title)}</h1>
       <p>${esc(options.description || spec.description)}</p>
     </div>
@@ -121,7 +121,7 @@ function hbMobilityPresentationStyles() {
     .rhi-page-hero{position:relative!important;display:block!important;min-height:clamp(176px,16vw,218px)!important;border:0!important;border-radius:18px!important;background:linear-gradient(90deg,#fff 0%,#fff 30%,rgba(255,255,255,.94) 39%,rgba(255,255,255,.18) 60%,rgba(255,255,255,0) 76%)!important;box-shadow:none!important;overflow:hidden!important;margin:0!important}
     .rhi-page-hero:before{display:none!important}
     .rhi-page-hero-copy{position:relative!important;z-index:4!important;width:min(48%,650px)!important;max-width:none!important;padding:32px 20px 28px 24px!important}
-    .rhi-page-hero-copy>small{font-size:10px!important;color:#214A86!important;letter-spacing:.16em!important}
+    .rhi-page-hero-copy>small{display:none!important;font-size:10px!important;color:#214A86!important;letter-spacing:.16em!important}
     .rhi-page-hero-copy h1{font-size:clamp(31px,3.1vw,48px)!important;line-height:.98!important;letter-spacing:-.048em!important;color:#08133A!important;margin:8px 0 10px!important}
     .rhi-page-hero-copy p{max-width:510px!important;font-size:clamp(12px,1.15vw,16px)!important;line-height:1.42!important;color:#536A91!important;font-weight:500!important}
     .rhi-page-hero-meta,.rhi-page-hero-actions{display:none!important}

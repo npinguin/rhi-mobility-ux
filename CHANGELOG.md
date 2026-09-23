@@ -1,3 +1,14 @@
+## 1.0.0-rc.39 — Clean heroes + canonical asset detail layout
+
+- removes navigation/location eyebrow copy from every top-level Mobility hero;
+- removes breadcrumb and Back-to-Dashboard chrome from vehicle and charger detail heroes;
+- aligns vehicle and charger detail heroes to the same title/purpose/visual geometry as Mobility Overview;
+- keeps the canonical detail scene as translucent background while foregrounding the actual selected asset image;
+- moves asset status out of the hero into its own top-level status row;
+- keeps Quick Actions in the next row, followed by domain detail cards;
+- adds regressions for clean hero copy and hero → status → actions detail hierarchy;
+- preserves rc.38 top-level layout, rc.37 nested HACS assets and all backend semantics.
+
 ## 1.0.0-rc.38 — Unified Overview-style top-level tab layout
 
 - Promoted Mobility Overview hero geometry to the shared top-level tab presentation.
