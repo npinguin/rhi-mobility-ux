@@ -1759,7 +1759,7 @@ class HomeBrainAssetRuntime {
   }
 
   writePublishedProperty(assetId = "", propertyKey = "", value = "") {
-    const prop = this.propertyByCompoundKey(this.canonicalAssetId(assetId), propertyKey);
+    const prop = this.semanticProperty(this.canonicalAssetId(assetId), propertyKey);
     if (!prop) return false;
     return this.writePropertyValue(prop, value);
   }
