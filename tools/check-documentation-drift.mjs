@@ -11,6 +11,9 @@ const normative=[
   'documentation/BRANDING.md',
   'documentation/ENGINEER_HANDOVER.md',
   'documentation/HACS_INSTALLATION.md',
+  'documentation/HISTORY_AND_LESSONS.md',
+  'documentation/KNOWN_DEFECTS.md',
+  'documentation/SEMANTIC_PICKER_BLUEPRINT.md',
   'documentation/RELEASE_GOVERNANCE.md',
   'documentation/SOURCE_PACKAGE_GOVERNANCE.md',
   'documentation/TEST_GOVERNANCE.md',
@@ -64,6 +67,38 @@ const vision=fs.readFileSync(path.join(root,'documentation/PRODUCT_VISION.md'),'
 const backlog=fs.readFileSync(path.join(root,'documentation/BACKEND_INTERFACE_BACKLOG.md'),'utf8');
 if(!vision.includes('One model, one ownership') || !vision.includes('No charger') || !vision.includes('refresh')) failures.push('PRODUCT_VISION missing locked Mobility UX invariants');
 if(!backlog.includes('HA-native user') || !backlog.includes('do not mock') || !backlog.includes('V2.x')) failures.push('BACKEND_INTERFACE_BACKLOG missing interface governance');
+
+
+const knownDefects=fs.readFileSync(path.join(root,'documentation/KNOWN_DEFECTS.md'),'utf8');
+const history=fs.readFileSync(path.join(root,'documentation/HISTORY_AND_LESSONS.md'),'utf8');
+const pickerBlueprint=fs.readFileSync(path.join(root,'documentation/SEMANTIC_PICKER_BLUEPRINT.md'),'utf8');
+
+for(const token of [
+  'V2 interface migration is incomplete',
+  'Frozen V1 is compatibility-only',
+  'target Home Assistant',
+  'canonical readback'
+]){
+  if(!knownDefects.includes(token)) failures.push(`KNOWN_DEFECTS missing required open-issue invariant: ${token}`);
+}
+for(const token of [
+  'Compatibility projections may keep an older consumer alive',
+  'Service acceptance is not persistence proof',
+  'Green CI proves source/package invariants',
+  'wrong-model image fallback',
+  'full V2 interface migration'
+]){
+  if(!history.includes(token)) failures.push(`HISTORY_AND_LESSONS missing durable lesson: ${token}`);
+}
+for(const token of ['local draft','canonical backend readback','Reuse by Energy']){
+  if(!pickerBlueprint.includes(token)) failures.push(`SEMANTIC_PICKER_BLUEPRINT missing reusable invariant: ${token}`);
+}
+const runtimeOwns=ownership?.owners?.runtime?.owns || [];
+for(const token of ['MOBILITY_PUBLIC_RUNTIME_V2 access','MOBILITY_EXPERIENCE_V2 access','MOBILITY_POLICY_V2 access','frozen V1 compatibility fallback only']){
+  if(!runtimeOwns.includes(token)) failures.push(`src/OWNERSHIP runtime boundary missing: ${token}`);
+}
+if(runtimeOwns.includes('MOBILITY_PUBLIC_RUNTIME_V1 access')) failures.push('src/OWNERSHIP still declares V1 as primary runtime access');
+if(/\brc\.\d+\b/.test(handover)) failures.push('ENGINEER_HANDOVER must not copy current candidate identity; use machine release authorities');
 
 const sourceGov=fs.readFileSync(path.join(root,'documentation/SOURCE_PACKAGE_GOVERNANCE.md'),'utf8');
 for(const token of ['app/','runtime/','domain/','ui/','assets/','dist/PACKAGE_MANIFEST.json','Migration sequence']){
