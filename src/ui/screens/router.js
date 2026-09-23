@@ -625,6 +625,9 @@ ${hbMobilitySharedShellStyles()}
       return;
     }
 
+    const activeDetailControl = this.shadowRoot?.activeElement;
+    if (activeDetailControl?.closest?.(".detail-vehicle-picker,.detail-charger-picker")) return;
+
     const sig = JSON.stringify({
       entry,
       assetId,
