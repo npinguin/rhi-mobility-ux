@@ -1,12 +1,15 @@
-# v1.0.0-rc.33 — Overview hero binary hotfix
+# v1.0.0-rc.34 — Canonical Mobility hero library
 
 ## Scope
-- replaces the corrupt/truncated rc.32 Overview hero WebP with the validated approved image bytes;
-- keeps rc.32 Overview layout, status bar, controls and semantics unchanged;
-- adds an asset-policy gate that rejects invalid/truncated WebP files before publication.
+- replaces the legacy shared/reused hero artwork with the approved nine-image Mobility hero library;
+- assigns one canonical scene to Overview, Vehicles, Chargers, Planning, Strategies, History and Log;
+- adds dedicated vehicle-detail and charging-detail scenes while preserving asset-specific vehicle/charger identity artwork;
+- centralizes hero resolution in the package-owned semantic hero catalog;
+- removes superseded active SVG/WebP hero assets;
+- adds release gates for exact nine-image inventory, unique mapping, 2172×724 PNG masters and source/dist byte parity.
 
 ## Rollback
-Rollback candidate: `v1.0.0-rc.32`.
+Rollback candidate: `v1.0.0-rc.33`.
 
 ## Qualification
-Static/package/HACS validation before publication; runtime proof must confirm the Overview hero renders in Home Assistant/Safari.
+Static/package/HACS validation is required before publication. Target Home Assistant proof must verify all seven tab heroes, both detail scenes, responsive rendering, HACS update/install, restart persistence and rollback before stable promotion.
