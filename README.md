@@ -56,7 +56,8 @@ Mobility UX has one semantic model behind the current workspaces. Overview, Vehi
 Read:
 - `documentation/PRODUCT_VISION.md` for user focus, tab intent, No charger semantics and route persistence;
 - `documentation/HISTORY_AND_LESSONS.md` for durable engineering history and failed patterns;
-- `documentation/KNOWN_DEFECTS.md` for authoritative open issues, including the incomplete V2 interface migration;
+- `documentation/KNOWN_DEFECTS.md` for the authoritative human-readable open issues, including the incomplete V2 interface migration;
+- `documentation/OPEN_ISSUES.json` for machine-readable issue IDs, owner areas, evidence locations and exit criteria;
 - `documentation/BACKEND_INTERFACE_BACKLOG.md` for backend interfaces that remain unavailable until explicitly published.
 
 No future backend capability is mocked in the UX. Frozen V1 is compatibility-only; new UX behavior is V2-first.
