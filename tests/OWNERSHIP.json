@@ -172,10 +172,10 @@
     "v2_first_status_architecture": {
       "owner": "tests/contracts/v2-first-status-architecture-smoke.mjs",
       "owns": [
-        "rc.41 Overview/Vehicle/Charger top-level status information architecture",
-        "no frontend security or maintenance text inference",
-        "selected relationship counting for charging setup",
-        "explicit V2 contract-gap presentation for missing product facts"
+        "rc.43 Mobility status information architecture across overview, management, routed and detail screens",
+        "UX-owned range and maintenance presentation thresholds",
+        "neutral status colour unless action is required",
+        "removal of backend/contract plumbing from user-facing status headers"
       ]
     }
   }
