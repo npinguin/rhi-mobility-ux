@@ -48,7 +48,7 @@ try{
   vm.createContext(sandbox);
   vm.runInContext(resolver+'\n'+catalog,sandbox,{timeout:5000});
   const refs=vm.runInContext(`[
-    ...rhiMobilityImageCatalog().map((row)=>row.package_file),
+    ...RHI_MOBILITY_IMAGE_CATALOG.map((row)=>row.package_path),
     ...rhiMobilityHeroCatalog().map((row)=>row.package_path)
   ].filter(Boolean)`,sandbox,{timeout:1000});
   if(!refs.length) throw new Error('package asset catalogs have no references');
