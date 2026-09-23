@@ -1,39 +1,16 @@
-# v1.0.0-rc.43 — UX-first status simplification on Mobility V2
+# v1.0.0-rc.44 — V2 picker closure
 
-This candidate applies the agreed Mobility status design and migrates the user-facing status architecture to the direct backend V2 contracts introduced in `M0.9.40`.
+This candidate closes the known Vehicle/Charger picker defects against Mobility backend `M0.9.41`.
 
-Required Mobility contracts:
+- Vehicle Brand / Model / Variant now select a Mobility-owned product profile via `asset.profile_id`; Colour persists through `vehicle.image_key`.
+- Charger Brand / Model / Variant now select a Mobility-owned charger profile via `asset.profile_id`; Appearance persists through `charger.image_key`.
+- The UX resolves canonical per-asset V2 property sensors first and consumes their published write capability instead of requiring the frozen V1 property-index path.
+- Charger Management fixes the render guard that previously prevented the picker from appearing after clicking **Charger & colour**.
+- Active picker sessions remain local and stable during normal Home Assistant refreshes.
+- Product artwork/profile mapping is explicit in the UX visual catalog; the UX does not infer backend identity from free text.
 
-- `MOBILITY_PUBLIC_RUNTIME_V2` — canonical fleet facts and configured/effective/physical relationships.
-- `MOBILITY_EXPERIENCE_V2` — backend-owned product conclusions.
-- `MOBILITY_POLICY_V2` — persistent thresholds and interpretation policy.
+Required backend: `M0.9.41`.
 
-UX ownership is limited to **select / aggregate / format / present**. It does not derive low range, security state, maintenance state, charger fault or physical relationship identity.
+Rollback: `v1.0.0-rc.43`.
 
-Status model:
-
-- Overview: Charging / Range / Security / Maintenance.
-- Vehicle Management: Fleet / Profiles / Charging setup.
-- Charger Management: Profiles / Availability / Runtime / conditional Issue.
-- Planning: Today / Still to plan / Tomorrow.
-- Strategies: Configured / Effective.
-- History: Energy / Value / Vehicles.
-- Log: recent Activity plus Attention only when a concrete backend-published action exists.
-- Vehicle Detail: Range / Charging / Security / Maintenance.
-- Charger Detail: State / Power / Vehicle, with Issue only when Experience V2 publishes `fault.state=active`.
-
-Important semantics:
-
-- Runtime V2 fleet power uses `aggregate_power_state`; unknown or partial power is never silently presented as complete zero.
-- A configured charger is never presented as a physical vehicle relationship.
-- Vehicle→charger physical mapping is shown only when `observed_identity_proven=true`.
-- `security_intelligence.state=incomplete|unknown` is neutral, not unsafe.
-- Maintenance warning treatment is driven by Experience V2 `overdue|due_soon`; scheduled/ok/unknown remain non-actionable.
-- Range warning treatment is driven by Experience V2 `range_intelligence.state=low`.
-- Policy thresholds are read from Policy V2; they are not duplicated as UX constants.
-
-Tested backend baseline: `M0.9.40`.
-
-Rollback: `v1.0.0-rc.42`.
-
-Target Home Assistant qualification must verify the information hierarchy, V2 contract discovery and status colour behavior with real runtime data before stable promotion.
+Target qualification must prove both pickers on real Home Assistant: open, hierarchy edit, save, canonical readback, refresh, reload and restart persistence.
