@@ -7,12 +7,14 @@ const runtime=fs.readFileSync(new URL('../../src/runtime/ha-contract-runtime.js'
 const router=fs.readFileSync(new URL('../../src/ui/screens/router.js',import.meta.url),'utf8');
 const assetShell=fs.readFileSync(new URL('../../src/ui/components/asset-shell.js',import.meta.url),'utf8');
 
-const vehicleStart=dashboard.indexOf('select[data-vehicle-picker-color]');
-const vehicleEnd=dashboard.indexOf('button[data-vehicle-picker-save]',vehicleStart);
+const vehicleStart=dashboard.indexOf('this.shadowRoot.querySelectorAll("[data-picker-panel]")');
+const vehicleEnd=dashboard.indexOf('this.shadowRoot.querySelectorAll("button[data-lifecycle-asset]")',vehicleStart);
 const vehicleBlock=dashboard.slice(vehicleStart,vehicleEnd);
-if(!vehicleBlock.includes('new HomeBrainVehicleVisualPicker(rt).selection')) throw new Error('vehicle colour picker no longer updates from the shared selection model');
-if(vehicleBlock.includes('this.hass = this._hass')) throw new Error('vehicle colour change must not rebuild the HA card');
-if(!vehicleBlock.includes('preview.style.filter')) throw new Error('vehicle colour picker must update preview in place');
+for(const needle of ['new HomeBrainVehicleVisualPicker(rt)','picker.selection(asset,draft)','brandSelect?.addEventListener','modelSelect?.addEventListener','variantSelect?.addEventListener','colorSelect?.addEventListener','data-vehicle-profile-id']) {
+  if(!vehicleBlock.includes(needle)) throw new Error(`vehicle picker session regression: missing ${needle}`);
+}
+if(vehicleBlock.includes('this.hass = this._hass')) throw new Error('vehicle hierarchy change must not rebuild the HA card');
+if(!vehicleBlock.includes('preview.style.filter')) throw new Error('vehicle picker must update preview in place');
 
 const chargerStart=chargers.indexOf('querySelectorAll("[data-charger-picker-panel]")');
 const chargerEnd=chargers.indexOf('button[data-charger-picker-save]',chargerStart);
