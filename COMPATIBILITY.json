@@ -1,18 +1,19 @@
 {
-  "ux_version": "1.0.0-rc.45",
+  "ux_version": "1.0.0-rc.46",
   "release_stage": "release_candidate",
   "legacy_source_release": "R22.12.11.30",
   "mobility_contract": {
     "contract": "MOBILITY_PUBLIC_RUNTIME_V2",
-    "minimum_backend": "M0.9.41",
+    "minimum_backend": "M0.9.43",
     "tested_backend_releases": [
-      "M0.9.41"
+      "M0.9.43"
     ],
     "runtime_proof": "pending",
     "required_contracts": [
       "MOBILITY_PUBLIC_RUNTIME_V2",
       "MOBILITY_EXPERIENCE_V2",
-      "MOBILITY_POLICY_V2"
+      "MOBILITY_POLICY_V2",
+      "MOBILITY_COMMAND_V2"
     ]
   }
 }
