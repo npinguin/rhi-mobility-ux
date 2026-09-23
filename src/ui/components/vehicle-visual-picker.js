@@ -26,7 +26,7 @@ class HomeBrainVehicleVisualPicker {
 
   profileIdForVehicle(vehicle, profileProp) {
     if (!vehicle) return "";
-    const available = new Set((this.rt.propertyEditorChoices(profileProp) || []).map((row)=>String(row?.value ?? row || "")));
+    const available = new Set((this.rt.propertyEditorChoices(profileProp) || []).map((row)=>String((row?.value ?? row) || "")));
     const candidates = Array.isArray(vehicle.profile_ids) ? vehicle.profile_ids : [];
     return candidates.find((id)=>available.has(String(id))) || "";
   }
