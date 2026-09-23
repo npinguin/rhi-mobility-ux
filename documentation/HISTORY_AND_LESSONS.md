@@ -79,6 +79,39 @@ Durable lesson:
 
 Any persistence, resource-path, HACS-package or native-control behavior needs target runtime qualification before stable promotion.
 
+### 4a. HACS asset-path regression: do not redesign packaging from a runtime symptom
+
+A previous runtime incident initially looked like HACS could not serve nested assets. A flattening change was attempted, but target evidence later showed the nested package tree was valid and the actual defect was a double-resolved asset URL in the UX.
+
+Durable lessons:
+
+- treat the generated/installed package tree as evidence before changing package structure;
+- distinguish "file missing" from "URL resolver produced the wrong path";
+- never flatten or duplicate canonical assets to mask a resolver defect;
+- verify the exact installed HACS path and browser-requested URL on the target system;
+- keep source → dist asset parity and deterministic package inventory machine-checked.
+
+### 4b. Corrupt/truncated artwork can pass higher-level visual review
+
+A broken/truncated WebP once reached the visual pipeline and required a package hotfix. Asset validity therefore cannot rely on browser behavior or catalog references alone.
+
+Durable lessons:
+
+- binary asset headers/declared lengths must be validated in CI;
+- source and dist bytes must match exactly;
+- supported visual masters must exist, be decodable and be governed by the asset catalog;
+- visual packaging failures are release defects, not cosmetic issues.
+
+### 4c. Capability contracts beat release-number branching
+
+Backend release metadata is important for qualification and compatibility reporting, but UX behavior must not branch on a hard-coded backend release number when the contract can publish the capability directly.
+
+Durable lesson:
+
+> Release versions qualify a package; published capabilities drive runtime behavior.
+
+Use contract presence, writable metadata and canonical properties to decide what the UX can do. Version strings remain release/diagnostic metadata, not a substitute for interface negotiation.
+
 ### 5. Canonical visual ownership
 
 Visual drift became visible when an ID.4 could display Renault artwork or when a known product rendered blank.
@@ -95,6 +128,33 @@ The current rule is:
 Durable lesson:
 
 > Identity safety is more important than showing an image. A blank/neutral failure is preferable to a convincing but wrong product.
+
+### 5a. Visual quality strategy: canonical family first, context second
+
+The scalable visual strategy is not "one bitmap for every screen × colour × context".
+
+Vehicle visuals should use:
+
+- one canonical, validated model master per supported real model/variant family;
+- runtime colour treatment only where it remains visually credible;
+- explicit curated colour overrides only when needed;
+- shared presentation contexts/crops/scenes that never redefine identity.
+
+Chargers follow the same identity discipline, with explicit appearance masters where enclosure/faceplate variants are materially different.
+
+Runtime generative image creation is forbidden for canonical identity because it can silently change grille, body, model year, connector, enclosure or proportions.
+
+Premium contextual scenes come after canonical identity/render correctness. Cards, pickers, detail and hero may present the same visual family differently, but may not invent a different product.
+
+### 5b. Shared visual grammar must be reused, not imitated
+
+Cross-domain UX drift appeared when one package recreated the Mobility hero/status/action structure with lookalike local components instead of reusing the shared presentation grammar.
+
+Durable lesson:
+
+> If a visual structure is meant to be identical across RHI packages, share the primitive/token/contract rather than copy its appearance.
+
+Energy is the first reuse target: hero geometry, status-row grammar, quick actions, picker lifecycle and footer/header rules should be consumed as shared standards where applicable.
 
 ### 6. Release and package governance
 
@@ -122,6 +182,17 @@ Durable lessons:
 - publication/promotion do not rebuild;
 - any runtime-impacting correction after publication needs a new version;
 - zero accepted technical/feature debt means unresolved defects remain explicit, not hidden.
+
+### 6a. One authoritative validation per source SHA
+
+Repeated branch replacement, close/reopen cycles and overlapping validation can create multiple identical GitHub runs without adding evidence.
+
+Durable lessons:
+
+- one source SHA should have one authoritative Validate result;
+- superseded PRs/branches are closed explicitly rather than kept as competing release histories;
+- publication verifies the validated committed package and does not rebuild it;
+- qualification adds target-runtime evidence to the exact immutable candidate instead of creating another build.
 
 ## Important failed patterns
 
