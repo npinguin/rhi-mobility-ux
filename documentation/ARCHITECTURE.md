@@ -5,7 +5,9 @@
 Only `src/runtime/` and `src/domain/adapters/` may know Mobility public contract names; direct `hass.states` access belongs to `src/runtime/` only.
 
 ```text
-MOBILITY_PUBLIC_RUNTIME_V1
+MOBILITY_PUBLIC_RUNTIME_V2 = canonical facts / fleet / physical relationships
+MOBILITY_EXPERIENCE_V2     = backend-owned user conclusions
+MOBILITY_POLICY_V2         = persistent interpretation policy
         ↓
 runtime
         ↓
@@ -30,7 +32,7 @@ Forbidden for screens/components:
 Mobility UX has one semantic ownership model. Tabs are projections, not independent interpreters.
 
 ```text
-MOBILITY_PUBLIC_RUNTIME_V1
+MOBILITY_PUBLIC_RUNTIME_V2
         ↓
 runtime
         ↓
@@ -39,17 +41,19 @@ domain adapters / canonical UX models
 Overview | Vehicles | Chargers | Detail
 ```
 
-No screen may independently redefine lifecycle, selected charger, readiness, attention, user relationship, permission or action semantics. Missing backend truth renders N/A/fail-closed and is tracked in `documentation/BACKEND_INTERFACE_BACKLOG.md`.
+No screen may independently redefine lifecycle, relationship identity, readiness, range classification, security, maintenance, charge demand, availability or fault semantics. Product conclusions come from `MOBILITY_EXPERIENCE_V2`; fleet totals and physical relationship proof come from `MOBILITY_PUBLIC_RUNTIME_V2`; thresholds come from `MOBILITY_POLICY_V2`. Missing backend truth renders unavailable/fail-closed.
 
 `vehicle.selected_charger` unset semantics are normalized once in the vehicle adapter. **No charger** is shown only from backend-owned `allow_none` / `none_value` metadata; UX never manufactures an unset write option.
 
 ## Ownership invariants
 
-- Charger product state: `charger.operating_state`.
-- Charger connection: `charger.connection_state`.
-- Charger actual power: `charger.power_kw`.
-- Charger health: `charger.health` + `charger.health_reason`.
-- Relationships: Mobility Relationship Index only.
+- Fleet counts / aggregate charging power / completeness: `MOBILITY_PUBLIC_RUNTIME_V2.fleet`.
+- Vehicle↔charger configured/effective/physical identity: `MOBILITY_PUBLIC_RUNTIME_V2.vehicle_charger_relationships`.
+- Vehicle product conclusions: `MOBILITY_EXPERIENCE_V2.vehicles[]`.
+- Charger product conclusions and fault: `MOBILITY_EXPERIENCE_V2.chargers[]`.
+- Thresholds and required coverage: `MOBILITY_POLICY_V2.policy`.
+- UX owns select / aggregate / format / present only; it does not recreate product states.
+- Scalar property indexes remain valid for detailed factual values and controls, not for re-deriving Experience V2.
 - Command placement: backend command-slot indexes only.
 - Command readiness/invoke: Mobility Command Index only.
 - Command activity/result: Mobility Activity Index only.
