@@ -33,4 +33,4 @@ for(const forbidden of ['dist/','COMPATIBILITY.json','RELEASE_MANIFEST.json','QU
 if(publish.includes('gh release upload')) throw new Error('publication must not upload GitHub Release assets');
 const checksum=fs.readFileSync(path.join(root,'dist/rhi-mobility-ux.js.sha256'),'utf8').trim().split(/\s+/)[0];
 if(manifest.runtime_sha256!==checksum) throw new Error('package manifest runtime checksum drift');
-console.log('PASS HACS package: proven nested dist/assets package layout restored with branding, vehicles, chargers and heroes');
+console.log('PASS HACS package: nested dist/assets package restored with branding, vehicles, chargers and heroes');
