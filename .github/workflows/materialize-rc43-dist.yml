@@ -1,5 +1,5 @@
 name: Validate and materialize rc43 dist
-# rerun after screen-preservation naming correction
+# rerun after detail-status regression correction
 
 on:
   push:
