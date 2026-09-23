@@ -88,38 +88,49 @@ class HomeBrainChargerAdapter {
     const dataFreshness = "—";
     const trust = "—";
     const health = chargerSnapshot.health.display;
-    const operatingRaw = chargerSnapshot.operating.resolved ? String(chargerSnapshot.operating.value || "").toLowerCase() : "";
-    const connectionRaw = chargerSnapshot.connection.resolved ? String(chargerSnapshot.connection.value || "").toLowerCase() : "";
-    const faulted = operatingRaw === "fault";
+    const experience = this.rt.chargerExperienceV2(assetId);
+    const connectionIntel = experience?.connection_intelligence || {};
+    const chargingIntel = experience?.charging_intelligence || {};
+    const powerIntel = experience?.power_intelligence || {};
+    const vehicleIntel = experience?.vehicle_intelligence || {};
+    const fault = experience?.fault || {};
+    const faultActive = String(fault.state || "").toLowerCase() === "active";
+
     const stateTile = {
       label:"State",
-      value:chargerSnapshot.operating.display,
-      subvalue:chargerSnapshot.connection.resolved ? chargerSnapshot.connection.display : "Connection unknown",
+      value:String(chargingIntel.summary || connectionIntel.summary || "Unavailable"),
+      subvalue:String(connectionIntel.summary || chargingIntel.reason || "State conclusion unavailable"),
       icon:"mdi:ev-station",
-      tone:faulted ? "attention" : "neutral"
+      tone:faultActive ? "attention" : "neutral"
     };
     const powerTile = {
       label:"Power",
-      value:chargerSnapshot.power.display,
-      subvalue:chargerSnapshot.power.resolved ? (operatingRaw === "running" ? "Charging now" : "Current charger load") : "Power unavailable",
+      value:String(powerIntel.summary || "Unavailable"),
+      subvalue:String(powerIntel.reason || "Power conclusion unavailable"),
       icon:"mdi:flash",
-      tone:faulted ? "attention" : "neutral"
+      tone:faultActive ? "attention" : "neutral"
     };
+
+    const vehicleAssetId = String(vehicleIntel.connected_vehicle_asset_id || "");
+    const vehicleEntry = vehicleAssetId ? (this.rt.vehicleById(vehicleAssetId) || this.rt.assetById(vehicleAssetId)) : null;
+    const vehicleDisplay = String(vehicleIntel.connected_vehicle_display_name || vehicleEntry?.display_name || vehicleIntel.summary || "No vehicle identified");
+    const vehicleRoute = vehicleAssetId ? this.rt.assetDetailRoute(vehicleEntry || vehicleAssetId) : "";
     const vehicleTile = {
       label:"Vehicle",
-      value:chargerSnapshot.connected_vehicle.resolved ? chargerSnapshot.connected_vehicle.display : "No vehicle identified",
-      subvalue:chargerSnapshot.connected_vehicle.resolved ? "Physical relationship" : (["connected","asset_connected"].includes(connectionRaw) ? "Connected vehicle not identified" : "No physical vehicle relationship"),
+      value:vehicleDisplay,
+      subvalue:String(vehicleIntel.reason || "Vehicle relationship unavailable"),
       icon:"mdi:car-electric",
       tone:"neutral",
-      detailRoute:chargerSnapshot.connected_vehicle.resolved ? physicalVehicle.detailRoute : "",
-      detailTitle:physicalVehicle.displayName ? `Open ${physicalVehicle.displayName} details` : "Open vehicle details"
+      detailRoute:vehicleRoute,
+      detailTitle:vehicleDisplay ? `Open ${vehicleDisplay} details` : "Open vehicle details"
     };
+
     const headerStatus = [stateTile, powerTile, vehicleTile];
-    if (chargerSnapshot.health.resolved && String(chargerSnapshot.health.display || "").toLowerCase() !== "ok") {
+    if (faultActive) {
       headerStatus.push({
         label:"Issue",
-        value:chargerSnapshot.health.display,
-        subvalue:chargerSnapshot.health.reason || "Review charger health",
+        value:String(fault.code || "Fault"),
+        subvalue:String(fault.reason || "Charger fault active"),
         icon:"mdi:alert-circle-outline",
         tone:"attention"
       });
