@@ -1,3 +1,13 @@
+## 1.0.0-rc.42 — picker write/readback + refresh stability
+
+- builds strictly on the already-published rc.41 V2-first status architecture;
+- prefers the richest canonical V2-backed property row when duplicate V1 projections expose the same semantic property, preventing writable visual properties from being shadowed by read-only rows;
+- keeps open Vehicle Management and Charger Management picker sessions stable during normal Home Assistant state refreshes;
+- keeps focused Vehicle/Charger Detail pickers stable while runtime state changes;
+- preserves backend-owned vehicle identity while restoring canonical `vehicle.image_key` / `charger.image_key` write capability when published by Mobility M0.9.39;
+- adds regression coverage for picker write metadata and refresh-session invariants;
+- does not alter rc.41 status semantics or introduce a new V1-only dependency.
+
 ## 1.0.0-rc.41 — V2-first status architecture
 
 - freezes the top-level information architecture around user questions: daily Overview, Vehicle Management and Charger Management;
