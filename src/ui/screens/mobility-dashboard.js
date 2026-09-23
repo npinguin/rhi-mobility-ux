@@ -801,8 +801,20 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
       return String(model?.display || vehicle?.display_name || rt.vehicleLabel(this.assetId(vehicle)) || this.assetId(vehicle));
     };
     const attentionRequired = (vehicle) => {
-      const value = String(rt.supervisorOutcome(this.assetId(vehicle), "attention", "") || "").trim().toLowerCase();
-      return !!value && !["none","ok","not applicable","unknown","unavailable"].includes(value);
+      const row = rt.vehicleExperienceV2(this.assetId(vehicle));
+      if (!row) return false;
+      const configuration = String(row?.configuration_status?.state || "").toLowerCase();
+      const dataHealth = String(row?.runtime_data_health?.state || "").toLowerCase();
+      const range = String(row?.range_intelligence?.state || "").toLowerCase();
+      const security = String(row?.security_intelligence?.state || "").toLowerCase();
+      const maintenance = String(row?.maintenance_intelligence?.state || "").toLowerCase();
+      const demand = String(row?.charge_demand?.state || "").toLowerCase();
+      return configuration === "incomplete"
+        || ["partial","stale","unavailable"].includes(dataHealth)
+        || range === "low"
+        || security === "unsafe"
+        || ["overdue","due_soon"].includes(maintenance)
+        || demand === "needed";
     };
     const sortRows = (rows) => {
       const copy = [...rows];
@@ -816,20 +828,21 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     const visibleActive = filter === "disabled" ? [] : filter === "attention" ? allActive.filter(attentionRequired) : allActive;
     const visibleInactive = filter === "active" ? [] : filter === "attention" ? allInactive.filter(attentionRequired) : allInactive;
 
-    const activeCount = allActive.length;
+    const fleet = rt.mobilityFleetV2();
+    const experienceRows = rt.mobilityExperienceV2()?.vehicles || [];
+    const experienceById = new Map(experienceRows.map((row)=>[String(row?.asset_id || ""),row]));
+    const activeCount = Number.isFinite(Number(fleet.active_vehicle_count)) ? Number(fleet.active_vehicle_count) : allActive.length;
     const inactiveCount = allInactive.length;
     const attentionCount = [...allActive, ...allInactive].filter(attentionRequired).length;
     const assignedRows = allActive.filter((vehicle)=>{
-      const rel = rt.vehicleChargerRelationship(this.assetId(vehicle));
-      const selected = String(rel?.selected || "").trim().toLowerCase();
-      return !!selected && !["none","unknown","unavailable","null","undefined","—"].includes(selected);
+      const row = experienceById.get(this.assetId(vehicle));
+      return !!String(row?.charging_relationship?.configured_charger_id || "").trim();
     });
     const configuredCount = assignedRows.length;
     const unassignedRows = allActive.filter((vehicle)=>!assignedRows.includes(vehicle));
     const profiledRows = allActive.filter((vehicle)=>{
-      const assetId = this.assetId(vehicle);
-      const profile = vehicle?.profile_id ?? vehicle?.profile ?? rt.propertyByCompoundKey(assetId, "asset.profile_id")?.value;
-      return !!String(profile ?? "").trim();
+      const row = experienceById.get(this.assetId(vehicle));
+      return !!String(row?.configuration_status?.profile_id || "").trim();
     });
     const unprofiledRows = allActive.filter((vehicle)=>!profiledRows.includes(vehicle));
     const managementPath = "/config/integrations/integration/rhi_mobility";
