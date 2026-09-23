@@ -1,3 +1,11 @@
+## 1.0.0-rc.35 — HACS runtime asset delivery hotfix
+
+- Fixed HACS packaging so runtime images are files directly under the plugin `dist/` root, matching HACS frontend-plugin download semantics.
+- Preserved structured canonical assets in `src/assets/` and added deterministic collision-safe flat package filenames.
+- Updated the runtime asset resolver to the installed HACS filenames.
+- Replaced the previous recursive install simulation with an exact flat-file HACS plugin simulation.
+- Added byte-parity and flat-inventory gates so a release cannot validate while its runtime images are absent from the actual HACS install.
+
 ## 1.0.0-rc.34 — Canonical nine-image Mobility hero library
 
 - Replaced legacy/reused tab hero artwork with the approved nine-image canonical Mobility hero library.

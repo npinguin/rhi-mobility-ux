@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const srcRoot=path.join(root,'src/assets');
-const distRoot=path.join(root,'dist/assets');
+const distRoot=path.join(root,'dist');
 const allowedExt=new Set(['.png','.webp','.svg','.jpg','.jpeg']);
 const safeSegment=/^[a-z0-9][a-z0-9_.-]*$/;
 
@@ -23,26 +23,40 @@ function walk(dir, base){
 }
 
 const sourceFiles=walk(srcRoot,srcRoot);
-const distFiles=walk(distRoot,distRoot);
 
-function assertValidWebp(root, rel){
-  if(!rel.endsWith('.webp')) return;
-  const bytes=fs.readFileSync(path.join(root,rel));
-  if(bytes.length < 16 || bytes.toString('ascii',0,4)!=='RIFF' || bytes.toString('ascii',8,12)!=='WEBP') throw new Error(`Invalid WebP header: ${rel}`);
-  const declared=bytes.readUInt32LE(4)+8;
-  if(declared!==bytes.length) throw new Error(`Truncated/corrupt WebP asset: ${rel} declares ${declared} bytes, actual ${bytes.length}`);
+function packagedAssetName(rel){
+  return `asset--${rel.replaceAll('/', '--')}`;
 }
-for(const rel of sourceFiles) assertValidWebp(srcRoot,rel);
-for(const rel of distFiles) assertValidWebp(distRoot,rel);
-if(JSON.stringify(sourceFiles)!==JSON.stringify(distFiles)) throw new Error('src/assets and dist/assets file inventories differ');
 
+function assertValidWebp(file, label){
+  if(!label.endsWith('.webp')) return;
+  const bytes=fs.readFileSync(file);
+  if(bytes.length < 16 || bytes.toString('ascii',0,4)!=='RIFF' || bytes.toString('ascii',8,12)!=='WEBP') throw new Error(`Invalid WebP header: ${label}`);
+  const declared=bytes.readUInt32LE(4)+8;
+  if(declared!==bytes.length) throw new Error(`Truncated/corrupt WebP asset: ${label} declares ${declared} bytes, actual ${bytes.length}`);
+}
+
+const expectedPackagedAssets=new Set();
 for(const rel of sourceFiles){
   const ext=path.extname(rel).toLowerCase();
   if(!allowedExt.has(ext)) throw new Error(`unsupported asset extension: ${rel}`);
-  const sourceBytes=fs.readFileSync(path.join(srcRoot,rel));
-  const distBytes=fs.readFileSync(path.join(distRoot,rel));
-  if(!sourceBytes.equals(distBytes)) throw new Error(`packaged asset differs from canonical source: ${rel}`);
+  const packaged=packagedAssetName(rel);
+  if(expectedPackagedAssets.has(packaged)) throw new Error(`flattened HACS asset collision: ${rel} -> ${packaged}`);
+  expectedPackagedAssets.add(packaged);
+  const sourceFile=path.join(srcRoot,rel);
+  const distFile=path.join(distRoot,packaged);
+  if(!fs.existsSync(distFile)) throw new Error(`flattened HACS package asset missing: ${rel} -> ${packaged}`);
+  assertValidWebp(sourceFile,rel);
+  assertValidWebp(distFile,packaged);
+  const sourceBytes=fs.readFileSync(sourceFile);
+  const distBytes=fs.readFileSync(distFile);
+  if(!sourceBytes.equals(distBytes)) throw new Error(`packaged asset differs from canonical source: ${rel} -> ${packaged}`);
 }
+const actualPackagedAssets=fs.readdirSync(distRoot,{withFileTypes:true})
+  .filter((entry)=>entry.isFile() && entry.name.startsWith('asset--'))
+  .map((entry)=>entry.name)
+  .sort();
+if(JSON.stringify([...expectedPackagedAssets].sort())!==JSON.stringify(actualPackagedAssets)) throw new Error('flat HACS asset inventory differs from canonical src/assets inventory');
 
 const catalogSource=fs.readFileSync(path.join(root,'src/app/asset-catalog.js'),'utf8');
 const sandbox={rhiMobilityAssetUrl:(p)=>String(p)};
