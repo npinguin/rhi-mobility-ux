@@ -1097,36 +1097,83 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
       this._vehiclePickerAsset = ""; this._forceRender = true; this._lastSignature = "";
       if (this._hass) this.hass = this._hass;
     }));
-    this.shadowRoot.querySelectorAll("select[data-vehicle-picker-color]").forEach((select)=>select.addEventListener("change",()=>{
-      const assetId = select.getAttribute("data-vehicle-picker-color") || "";
-      const current = this._vehiclePickerDraft.get(assetId) || {};
-      const draft = {...current,color_id:select.value};
-      this._vehiclePickerDraft.set(assetId,draft);
-      const asset = rt.vehicleById(assetId) || rt.assetById(assetId) || { asset_id:assetId, asset_type:"vehicle" };
-      const visual = new HomeBrainVehicleVisualPicker(rt).selection(asset,draft);
-      const panel = select.closest("[data-picker-panel]");
-      const keyNode = panel?.querySelector(".vehicle-picker-key code");
-      const saveButton = panel?.querySelector("[data-vehicle-picker-save]");
-      if (keyNode) keyNode.textContent = visual.key || "Unavailable";
-      if (saveButton) {
-        saveButton.setAttribute("data-vehicle-key", visual.key || "");
-        saveButton.disabled = !visual.writable || !visual.key;
-      }
-      const card = panel?.closest(".vehicle-card");
-      const preview = card?.querySelector(".vehicle-image img");
-      if (preview) {
-        if (visual?.vehicle?.package_file) preview.src = rt.cache(visual.vehicle.package_file);
-        preview.style.filter = visual?.color?.filter || "none";
-      }
-    }));
+    this.shadowRoot.querySelectorAll("[data-picker-panel]").forEach((panel)=>{
+      const assetId = panel.getAttribute("data-picker-panel") || "";
+      const picker = new HomeBrainVehicleVisualPicker(rt);
+      const asset = rt.vehicleById(assetId) || rt.assetById(assetId) || {asset_id:assetId,asset_type:"vehicle"};
+      const brandSelect = panel.querySelector("[data-vehicle-picker-brand]");
+      const modelSelect = panel.querySelector("[data-vehicle-picker-model]");
+      const variantSelect = panel.querySelector("[data-vehicle-picker-variant]");
+      const colorSelect = panel.querySelector("[data-vehicle-picker-color]");
+      const saveButton = panel.querySelector("[data-vehicle-picker-save]");
+      const keyNode = panel.querySelector(".vehicle-picker-key code");
+      const placeholder=(label)=>`<option value="" selected disabled>${rt.escape(label)}</option>`;
+
+      const updatePreview=()=>{
+        const draft=this._vehiclePickerDraft.get(assetId) || {};
+        const visual=picker.selection(asset,draft);
+        if(keyNode) keyNode.textContent=visual.key || "Unavailable";
+        if(saveButton){
+          saveButton.setAttribute("data-vehicle-key",visual.key || "");
+          saveButton.setAttribute("data-vehicle-profile-id",visual.profile_id || "");
+          saveButton.disabled=!visual.writable;
+        }
+        const card=panel.closest(".vehicle-card");
+        const preview=card?.querySelector(".vehicle-image img");
+        if(preview && visual?.vehicle?.package_file) preview.src=rt.cache(visual.vehicle.package_file);
+        if(preview) preview.style.filter=visual?.color?.filter || "none";
+      };
+
+      const refreshHierarchy=(level)=>{
+        const catalog=picker.catalog();
+        const brand=String(brandSelect?.value || "");
+        if(level==="brand"){
+          const models=picker.modelsForBrand(brand,catalog);
+          if(modelSelect){modelSelect.disabled=!brand;modelSelect.innerHTML=placeholder("Choose model…")+models.map((model)=>`<option value="${rt.escape(model)}">${rt.escape(model)}</option>`).join("");}
+          if(variantSelect){variantSelect.disabled=true;variantSelect.innerHTML=placeholder("Choose variant…");}
+          if(colorSelect){colorSelect.disabled=true;colorSelect.innerHTML=placeholder("Choose colour…");}
+        }else if(level==="model"){
+          const model=String(modelSelect?.value || "");
+          const variants=picker.variantsFor(brand,model,catalog);
+          if(variantSelect){variantSelect.disabled=!model;variantSelect.innerHTML=placeholder("Choose variant…")+variants.map((row)=>`<option value="${rt.escape(row.id)}">${rt.escape(row.variant)} · ${rt.escape(row.years)}</option>`).join("");}
+          if(colorSelect){colorSelect.disabled=true;colorSelect.innerHTML=placeholder("Choose colour…");}
+        }else if(level==="variant"){
+          const vehicle=catalog.find((row)=>row.id===String(variantSelect?.value || "")) || null;
+          if(colorSelect){colorSelect.disabled=!vehicle;colorSelect.innerHTML=placeholder("Choose colour…")+(vehicle?.colors || []).map((row)=>`<option value="${rt.escape(row.id)}">${rt.escape(row.label)}</option>`).join("");}
+        }
+        updatePreview();
+      };
+
+      brandSelect?.addEventListener("change",()=>{
+        this._vehiclePickerDraft.set(assetId,{...(this._vehiclePickerDraft.get(assetId)||{}),brand:brandSelect.value,model:"",variant_id:"",color_id:""});
+        refreshHierarchy("brand");
+      });
+      modelSelect?.addEventListener("change",()=>{
+        this._vehiclePickerDraft.set(assetId,{...(this._vehiclePickerDraft.get(assetId)||{}),model:modelSelect.value,variant_id:"",color_id:""});
+        refreshHierarchy("model");
+      });
+      variantSelect?.addEventListener("change",()=>{
+        this._vehiclePickerDraft.set(assetId,{...(this._vehiclePickerDraft.get(assetId)||{}),variant_id:variantSelect.value,color_id:""});
+        refreshHierarchy("variant");
+      });
+      colorSelect?.addEventListener("change",()=>{
+        this._vehiclePickerDraft.set(assetId,{...(this._vehiclePickerDraft.get(assetId)||{}),color_id:colorSelect.value});
+        updatePreview();
+      });
+    });
     this.shadowRoot.querySelectorAll("button[data-vehicle-picker-save]").forEach((btn)=>btn.addEventListener("click",()=>{
-      if (btn.disabled) return;
-      const assetId = btn.getAttribute("data-vehicle-picker-save") || "";
-      const key = btn.getAttribute("data-vehicle-key") || "";
-      if (!assetId || !key || !rt.writePublishedProperty(assetId,"vehicle.image_key",key)) return;
+      if(btn.disabled) return;
+      const assetId=btn.getAttribute("data-vehicle-picker-save") || "";
+      const profileId=btn.getAttribute("data-vehicle-profile-id") || "";
+      const key=btn.getAttribute("data-vehicle-key") || "";
+      if(!assetId || !key) return;
+      const profileProp=rt.semanticProperty(assetId,"asset.profile_id");
+      const currentProfile=String(profileProp?.value || "");
+      if(profileId && profileId!==currentProfile && !rt.writePublishedProperty(assetId,"asset.profile_id",profileId)) return;
+      if(!rt.writePublishedProperty(assetId,"vehicle.image_key",key)) return;
       btn.classList.add("sent");
       this._vehiclePickerDraft.delete(assetId);
-      setTimeout(()=>{ this._vehiclePickerAsset=""; this._forceRender=true; this._lastSignature=""; if(this._hass)this.hass=this._hass; },450);
+      setTimeout(()=>{this._vehiclePickerAsset="";this._forceRender=true;this._lastSignature="";if(this._hass)this.hass=this._hass;},450);
     }));
     this.shadowRoot.querySelectorAll("button[data-lifecycle-asset]").forEach((btn)=>btn.addEventListener("click",()=>{
       if (btn.disabled) return;
