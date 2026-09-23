@@ -612,118 +612,122 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
   }
 
   overviewChargingStatus(rt, vehicles = [], chargers = []) {
-    const connectedRows = [];
-    const chargingRows = [];
-    const availableRows = [];
-    let totalPowerKw = 0;
-    let powerResolved = false;
-    for (const charger of chargers) {
-      const assetId = this.assetId(charger);
-      const label = this.overviewShortLabel(charger, rt.chargerLabel(assetId));
-      const snapshot = rt.chargerProductSnapshot(assetId);
-      const connection = snapshot?.connection?.resolved ? String(snapshot.connection.value || "").toLowerCase() : "";
-      const operating = snapshot?.operating?.resolved ? String(snapshot.operating.value || "").toLowerCase() : "";
-      if (["connected", "asset_connected"].includes(connection)) connectedRows.push(label);
-      if (operating === "running") chargingRows.push(label);
-      const availableProp = rt.canonicalChargerPropertyValue(assetId, "charger.available_for_connection");
-      if (availableProp.resolved && ["true","1","yes","on"].includes(String(availableProp.value).toLowerCase())) availableRows.push(label);
-      if (snapshot?.power?.resolved && Number.isFinite(Number(snapshot.power.value))) {
-        totalPowerKw += Math.max(0, Number(snapshot.power.value));
-        powerResolved = true;
-      }
-    }
+    const fleet = rt.mobilityFleetV2();
+    const experience = rt.mobilityExperienceV2();
+    const chargerRows = (experience?.chargers || []).filter((row)=>String(row?.lifecycle_status || "active").toLowerCase() !== "disabled");
+    const relationships = rt.mobilityRuntimeV2()?.vehicle_charger_relationships || [];
+    const connectedRows = chargerRows.filter((row)=>String(row?.connection_intelligence?.state || "").toLowerCase() === "asset_connected");
+    const availableRows = chargerRows.filter((row)=>String(row?.availability_intelligence?.state || "").toLowerCase() === "ok");
+    const label = (row)=>this.overviewShortLabel(row, row?.display_name || row?.asset_id || "—");
+    const vehicleLabel = (assetId)=>{
+      const row=(experience?.vehicles || []).find((item)=>String(item?.asset_id || "")===String(assetId || ""));
+      return this.overviewShortLabel(row || {}, row?.display_name || rt.vehicleLabel(assetId) || assetId);
+    };
+    const chargerLabel = (assetId)=>{
+      const row=chargerRows.find((item)=>String(item?.asset_id || "")===String(assetId || ""));
+      return this.overviewShortLabel(row || {}, row?.display_name || rt.chargerLabel(assetId) || assetId);
+    };
+    const provenMappings = relationships
+      .filter((row)=>row?.observed_identity_proven === true && row?.physically_connected_charger_id)
+      .map((row)=>`${vehicleLabel(row.vehicle_id || row.asset_id)}→${chargerLabel(row.physically_connected_charger_id)}`);
+
+    const connected = Number(fleet.connected_charger_count);
+    const charging = Number(fleet.charging_charger_count);
+    const available = Number(fleet.available_charger_count);
+    const powerState = String(fleet.aggregate_power_state || "unknown").toLowerCase();
+    const power = Number(fleet.aggregate_actual_charging_power_kw);
+    const powerDisplay = Number.isFinite(power) && powerState !== "unknown"
+      ? `${power.toFixed(1)} kW${powerState === "partial" ? " · partial" : " now"}`
+      : "Power unknown";
+    const currentContext = provenMappings.length
+      ? provenMappings.slice(0,2).join(" · ")
+      : (connectedRows.length ? connectedRows.slice(0,3).map(label).join(" · ") : "No charger connected");
+    const availabilityDisplay = availableRows.length
+      ? `${availableRows.slice(0,3).map(label).join(" · ")} available`
+      : (Number.isFinite(available) ? `${available} available` : "Availability unknown");
+
     return {
-      connected:connectedRows.length,
-      charging:chargingRows.length,
-      available:availableRows.length,
-      powerDisplay:powerResolved ? `${totalPowerKw.toFixed(1)} kW now` : "Power unavailable",
-      stateDisplay:connectedRows.length ? `${chargingRows.length} charging · ${connectedRows.join(" · ")} connected` : `${chargingRows.length} charging · none connected`,
-      connectedDisplay:connectedRows.length ? connectedRows.join(" · ") : "No chargers connected",
-      availabilityDisplay:availableRows.length ? `${availableRows.join(" · ")} available` : "No charger currently available"
+      connected:Number.isFinite(connected) ? connected : connectedRows.length,
+      charging:Number.isFinite(charging) ? charging : chargerRows.filter((row)=>String(row?.charging_intelligence?.state || "").toLowerCase() === "running").length,
+      available:Number.isFinite(available) ? available : availableRows.length,
+      powerDisplay,
+      stateDisplay:`${Number.isFinite(charging) ? charging : 0} charging · ${Number.isFinite(connected) ? connected : connectedRows.length} connected`,
+      currentContext,
+      availabilityDisplay,
+      powerState
     };
   }
 
   overviewRangeStatus(rt, vehicles = []) {
-    const thresholdKm = 100;
-    const known = [];
-    const low = [];
-    for (const vehicle of vehicles) {
-      const assetId = this.assetId(vehicle);
-      const km = rt.numericPropertyValueAny(assetId, [
-        "vehicle.range_total_km",
-        "vehicle.ev_range_km",
-        "vehicle.full_range_km",
-        "vehicle.nominal_range_km"
-      ], null);
-      if (!Number.isFinite(km)) continue;
-      const row = { name:this.overviewShortLabel(vehicle, rt.vehicleLabel(assetId)), km:Math.round(km) };
-      known.push(row);
-      if (km < thresholdKm) low.push(row);
-    }
-    const sufficient = known.length - low.length;
-    const unknown = Math.max(0, vehicles.length - known.length);
-    const lowest = known.slice().sort((a,b)=>a.km-b.km).slice(0,2);
+    const experience = rt.mobilityExperienceV2();
+    const policy = rt.mobilityPolicyV2();
+    const activeIds = new Set(vehicles.map((vehicle)=>this.assetId(vehicle)));
+    const rows = (experience?.vehicles || []).filter((row)=>activeIds.has(String(row?.asset_id || "")));
+    const threshold = Number(policy?.policy?.range?.low_range_km ?? rows.find((row)=>Number.isFinite(Number(row?.range_intelligence?.threshold_km)))?.range_intelligence?.threshold_km);
+    const ok = rows.filter((row)=>String(row?.range_intelligence?.state || "").toLowerCase() === "ok");
+    const low = rows.filter((row)=>String(row?.range_intelligence?.state || "").toLowerCase() === "low")
+      .map((row)=>({ name:this.overviewShortLabel(row, row.display_name || row.asset_id), summary:String(row?.range_intelligence?.summary || "Low range") }));
+    const unknown = rows.filter((row)=>!["ok","low"].includes(String(row?.range_intelligence?.state || "").toLowerCase()));
+    const total = vehicles.length;
     return {
-      thresholdKm,
-      sufficient,
+      thresholdKm:Number.isFinite(threshold) ? threshold : null,
+      sufficient:ok.length,
       low,
-      unknown,
-      total:vehicles.length,
-      headline:`${sufficient}/${vehicles.length} ≥${thresholdKm} km`,
-      line1:low.length ? low.slice(0,2).map((row)=>`${row.name} ${row.km} km`).join(" · ") : (lowest.length ? `Lowest ${lowest.map((row)=>`${row.name} ${row.km} km`).join(" · ")}` : "Range unavailable"),
-      line2:unknown ? `${unknown} range unknown` : (low.length ? `${low.length} below ${thresholdKm} km` : "No low-range vehicle")
+      unknown:Math.max(unknown.length, total - rows.length),
+      total,
+      headline:Number.isFinite(threshold) ? `${ok.length}/${total} ≥${threshold} km` : `${ok.length}/${total} range OK`,
+      line1:low.length ? low.slice(0,2).map((row)=>`${row.name} ${row.summary}`).join(" · ") : "No low-range vehicle",
+      line2:Math.max(unknown.length, total - rows.length) ? `${Math.max(unknown.length, total - rows.length)} range unknown` : (Number.isFinite(threshold) ? `Policy threshold ${threshold} km` : "Range policy applied")
     };
   }
 
   overviewSecurityStatus(rt, vehicles = []) {
-    const unsafe = [];
-    const unsafeValues = new Set(["unlocked","open","ajar","not_locked","not locked","not_closed","not closed"]);
-    let covered = 0;
-    for (const vehicle of vehicles) {
-      const assetId = this.assetId(vehicle);
-      const rows = (rt.propertyRows(assetId) || []).filter((row)=>{
-        const key = String(row.property_key || "").toLowerCase();
-        return /(lock_state|door_state|window_state|hood_state|trunk_state)/.test(key);
+    const activeIds = new Set(vehicles.map((vehicle)=>this.assetId(vehicle)));
+    const rows = (rt.mobilityExperienceV2()?.vehicles || []).filter((row)=>activeIds.has(String(row?.asset_id || "")));
+    const groups = { secure:[], unsafe:[], incomplete:[], unknown:[] };
+    for (const row of rows) {
+      const state = String(row?.security_intelligence?.state || "unknown").toLowerCase();
+      const bucket = Object.prototype.hasOwnProperty.call(groups,state) ? state : "unknown";
+      groups[bucket].push({
+        name:this.overviewShortLabel(row, row.display_name || row.asset_id),
+        summary:String(row?.security_intelligence?.summary || state)
       });
-      if (rows.length) covered += 1;
-      const bad = rows.filter((row)=>unsafeValues.has(String(row.value ?? "").trim().toLowerCase()));
-      if (bad.length) {
-        unsafe.push({
-          name:this.overviewShortLabel(vehicle, rt.vehicleLabel(assetId)),
-          detail:bad.map((row)=>String(row.friendly_name || row.display_name || row.property_key || "Access")).slice(0,2).join(" · ")
-        });
-      }
     }
-    return { unsafe, unsafeCount:unsafe.length, covered, incomplete:Math.max(0, vehicles.length-covered) };
+    const missing = Math.max(0, vehicles.length - rows.length);
+    for (let i=0;i<missing;i+=1) groups.unknown.push({name:"Unknown",summary:"No Experience V2 row"});
+    return {
+      unsafe:groups.unsafe,
+      unsafeCount:groups.unsafe.length,
+      secure:groups.secure.length,
+      incomplete:groups.incomplete.length,
+      unknown:groups.unknown.length
+    };
   }
 
   overviewMaintenanceStatus(rt, vehicles = []) {
-    const overdue = [];
-    const dueSoon = [];
-    const scheduled = [];
-    const unknown = [];
-    for (const vehicle of vehicles) {
-      const assetId = this.assetId(vehicle);
-      const name = this.overviewShortLabel(vehicle, rt.vehicleLabel(assetId));
-      const values = [
-        rt.numericPropertyValue(assetId, "vehicle.inspection_due_days", null),
-        rt.numericPropertyValue(assetId, "vehicle.oil_service_due_days", null),
-        rt.numericPropertyValue(assetId, "vehicle.oil_change_due_days", null)
-      ].filter(Number.isFinite);
-      if (!values.length) { unknown.push({name}); continue; }
-      const days = Math.min(...values);
-      const row = { name, days };
-      if (days < 0) overdue.push(row);
-      else if (days < 90) dueSoon.push(row);
-      else scheduled.push(row);
+    const activeIds = new Set(vehicles.map((vehicle)=>this.assetId(vehicle)));
+    const rows = (rt.mobilityExperienceV2()?.vehicles || []).filter((row)=>activeIds.has(String(row?.asset_id || "")));
+    const groups = { overdue:[], due_soon:[], scheduled:[], ok:[], unknown:[] };
+    for (const row of rows) {
+      const intel = row?.maintenance_intelligence || {};
+      const state = String(intel.state || "unknown").toLowerCase();
+      const bucket = Object.prototype.hasOwnProperty.call(groups,state) ? state : "unknown";
+      groups[bucket].push({
+        name:this.overviewShortLabel(row, row.display_name || row.asset_id),
+        summary:String(intel.summary || state),
+        intelligence:intel
+      });
     }
+    const missing = Math.max(0, vehicles.length - rows.length);
+    for (let i=0;i<missing;i+=1) groups.unknown.push({name:"Unknown",summary:"No Experience V2 row"});
     return {
-      overdue,
-      dueSoon,
-      scheduled,
-      unknown,
-      actionable:[...overdue, ...dueSoon],
-      actionableCount:overdue.length + dueSoon.length
+      overdue:groups.overdue,
+      dueSoon:groups.due_soon,
+      scheduled:groups.scheduled,
+      ok:groups.ok,
+      unknown:groups.unknown,
+      actionable:[...groups.overdue, ...groups.due_soon],
+      actionableCount:groups.overdue.length + groups.due_soon.length
     };
   }
 
@@ -733,49 +737,44 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     return {
       charging:this.overviewChargingStatus(rt, vehicles, chargers),
       range:this.overviewRangeStatus(rt, vehicles),
-      outside:this.overviewOutsideTemperature(),
-      departure:this.overviewNextDeparture(rt, vehicles),
       security,
-      maintenance,
-      attentionCount:security.unsafeCount + maintenance.actionableCount
+      maintenance
     };
   }
 
   renderOverviewPage(rt, vehicles, chargers, activityRows, reco) {
     const activeVehicles = vehicles.filter((v)=>rt.lifecycleStatus(v) === "active");
     const status = this.overviewStatusModel(rt, activeVehicles, chargers);
-    const climateHeadline = status.outside.resolved ? `${status.outside.display} outside` : "Outside N/A";
-    const climateVehicle = status.departure.resolved ? `Next ${this.overviewShortLabel(status.departure.vehicle, status.departure.vehicleName)} ${status.departure.departure}` : "No departure set";
-    const climateState = status.departure.resolved ? `Preconditioning ${status.departure.climate}` : "Preconditioning unavailable";
-    const securityDetail = status.security.unsafeCount
-      ? `${status.security.unsafe[0].name}: ${status.security.unsafe[0].detail}`
-      : "Security: 0 unsafe";
-    const maintenanceDetail = status.maintenance.overdue.length
-      ? `${status.maintenance.overdue[0].name} ${status.maintenance.overdue[0].days}d`
-      : status.maintenance.dueSoon.length
-        ? `${status.maintenance.dueSoon[0].name} +${status.maintenance.dueSoon[0].days}d`
-        : "Maintenance: nothing due <90d";
+    const securityNames = status.security.unsafe.length
+      ? status.security.unsafe.slice(0,2).map((row)=>row.name).join(" · ")
+      : (status.security.incomplete ? `${status.security.incomplete} incomplete` : (status.security.unknown ? `${status.security.unknown} unknown` : "All covered vehicles secure"));
+    const maintenanceAction = status.maintenance.actionable.length
+      ? status.maintenance.actionable.slice(0,2).map((row)=>`${row.name} ${row.summary}`).join(" · ")
+      : "Nothing due < policy window";
+    const nextMaintenance = status.maintenance.scheduled.length
+      ? `Next ${status.maintenance.scheduled[0].name} · ${status.maintenance.scheduled[0].summary}`
+      : (status.maintenance.unknown.length ? `${status.maintenance.unknown.length} unknown` : "No scheduled maintenance");
 
     return `
       ${hbMobilityPageHero(rt, "overview")}
 
-      <section class="ov-status-grid ov-domain-statusbar ${status.attentionCount ? "has-attention" : "no-attention"}" aria-label="Mobility overview status">
+      <section class="ov-status-grid ov-domain-statusbar" aria-label="Mobility overview status">
         <article class="ov-status-item charging">
           <span class="ov-status-icon"><ha-icon icon="mdi:lightning-bolt"></ha-icon></span>
-          <div><small>Charging</small><b>${rt.escape(status.charging.powerDisplay)}</b><em>${rt.escape(status.charging.stateDisplay)}</em><em>${rt.escape(status.charging.availabilityDisplay)}</em></div>
+          <div><small>Charging</small><b>${rt.escape(status.charging.powerDisplay)}</b><em>${rt.escape(status.charging.stateDisplay)}</em><em>${rt.escape(status.charging.currentContext)} · ${rt.escape(status.charging.availabilityDisplay)}</em></div>
         </article>
         <article class="ov-status-item range ${status.range.low.length ? "warn" : ""}">
           <span class="ov-status-icon"><ha-icon icon="mdi:road-variant"></ha-icon></span>
           <div><small>Range</small><b>${rt.escape(status.range.headline)}</b><em>${rt.escape(status.range.line1)}</em><em>${rt.escape(status.range.line2)}</em></div>
         </article>
-        <article class="ov-status-item comfort">
-          <span class="ov-status-icon"><ha-icon icon="mdi:fan"></ha-icon></span>
-          <div><small>Comfort</small><b>${rt.escape(climateHeadline)}</b><em>${rt.escape(climateVehicle)}</em><em>${rt.escape(climateState)}</em></div>
+        <article class="ov-status-item security ${status.security.unsafeCount ? "warn" : ""}">
+          <span class="ov-status-icon"><ha-icon icon="mdi:lock-outline"></ha-icon></span>
+          <div><small>Security</small><b>${rt.escape(`${status.security.unsafeCount} unsafe`)}</b><em>${rt.escape(`${status.security.secure} secure · ${status.security.incomplete} incomplete`)}</em><em>${rt.escape(securityNames)}</em></div>
         </article>
-        ${status.attentionCount ? `<article class="ov-status-item attention warn">
-          <span class="ov-status-icon"><ha-icon icon="mdi:alert-circle-outline"></ha-icon></span>
-          <div><small>Attention</small><b>${rt.escape(`${status.attentionCount} action${status.attentionCount === 1 ? "" : "s"}`)}</b><em>${rt.escape(maintenanceDetail)}</em><em>${rt.escape(securityDetail)}</em></div>
-        </article>` : ""}
+        <article class="ov-status-item maintenance ${status.maintenance.actionableCount ? "warn" : ""}">
+          <span class="ov-status-icon"><ha-icon icon="mdi:wrench-outline"></ha-icon></span>
+          <div><small>Maintenance</small><b>${rt.escape(`${status.maintenance.overdue.length} overdue · ${status.maintenance.dueSoon.length} due soon`)}</b><em>${rt.escape(maintenanceAction)}</em><em>${rt.escape(nextMaintenance)}</em></div>
+        </article>
       </section>
 
       <section class="ov-quickbar energy-like" aria-label="Quick actions">
