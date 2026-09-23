@@ -159,6 +159,15 @@
         "Energy effective strategy projection for exact Mobility assets",
         "fail-closed Energy strategy projection"
       ]
+    },
+    "picker_session": {
+      "owner": "tests/contracts/picker-session-smoke.mjs",
+      "owns": [
+        "hierarchical picker local draft lifecycle",
+        "in-place dependent select updates",
+        "picker focus preservation without card reconstruction",
+        "semantic picker blueprint reuse rule"
+      ]
     }
   }
 }
