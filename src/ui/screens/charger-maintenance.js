@@ -340,7 +340,12 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
       feedback: Array.from(this._commandFeedback || []).filter(([, until]) => Date.now() < until)
     });
     const activeEl = this.shadowRoot?.activeElement;
-    if (this._lastSignature === signature && this._lastRenderOk && !(activeEl && ["SELECT", "INPUT"].includes(activeEl.tagName))) return;
+    if (activeEl && ["SELECT", "INPUT"].includes(activeEl.tagName) && this._lastRenderOk) return;
+    // Keep the explicit charger picker editing session local. Incoming HA
+    // updates may refresh the runtime object, but they must not reconstruct the
+    // open picker and erase its draft hierarchy/preview.
+    if (this._chargerPickerAsset && this._lastRenderOk) return;
+    if (this._lastSignature === signature && this._lastRenderOk) return;
     this._lastSignature = signature;
     this._lastRenderOk = true;
 
