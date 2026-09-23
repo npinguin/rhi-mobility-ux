@@ -242,26 +242,17 @@ class HomeBrainAssetShell {
           <section class="hero detail-scene-hero">
             <img class="detail-hero-scene" src="${this.rt.escape(detailHeroScene)}" alt="" aria-hidden="true" />
             <div class="hero-left">
-              <div class="hero-topline">
-                <div class="breadcrumb">${(model.breadcrumb || []).map((b, i) => `${i ? "<span>›</span>" : ""}<b${i === (model.breadcrumb.length - 1) ? "" : " class='crumb-light'"}>${this.rt.escape(b)}</b>`).join("")}</div>
-                <button class="back-inline" data-nav="${this.rt.escape(model.backPath)}">${this.rt.escape(model.backLabel || "← Back")}</button>
-              </div>
-              <div class="title-row">
-                <h1>${this.rt.escape(model.display)}</h1>
-              </div>
-              <div class="subtitle">${this.rt.escape(model.subtitle)}</div>
-              <div class="status-strip">${status}</div>
+              <div class="title-row"><h1>${this.rt.escape(model.display)}</h1></div>
+              <div class="detail-purpose">${this.rt.escape(model.type === "charger"
+                ? "Inspect charger availability, connection health, power, linked vehicle and direct controls for this charging point."
+                : "Inspect readiness, charging relationship, operational status and direct actions for this vehicle.")}</div>
             </div>
             <div class="hero-image">${this.renderHeroVisual(model)}</div>
-            ${model.type === "vehicle" ? `<div class="hero-charger-image">
-              ${model.chargerDisplay && model.chargerDisplay !== "Not available" ? `<div class="hero-charger-name">${this.rt.escape(model.chargerDisplay)}</div>` : ""}
-              <img src="${this.rt.escape(model.chargerImage || model.chargerFallbackImage || "")}" onerror="this.onerror=null;this.src='${this.rt.escape(model.chargerFallbackImage || "")}';" />
-              ${model.chargerDetailRoute ? `<button class="mini-detail-button hero-charger-detail-link" data-nav="${this.rt.escape(model.chargerDetailRoute)}" title="Open charger details"><ha-icon icon="mdi:plus"></ha-icon></button>` : ""}
-            </div>` : ""}
           </section>
-          ${chargerAppearance ? `<details class="detail-appearance-fold"><summary><ha-icon icon="mdi:palette-outline"></ha-icon><span>Charger & colour</span><small>Visual library</small></summary>${chargerAppearance}</details>` : ""}
 
+          <section class="detail-status-grid" aria-label="Asset status">${status}</section>
           <section class="actions"><div class="actions-title">Quick actions</div>${actions || `<div class="no-actions">No actions available for this asset.</div>`}</section>
+          ${chargerAppearance ? `<details class="detail-appearance-fold"><summary><ha-icon icon="mdi:palette-outline"></ha-icon><span>Charger & colour</span><small>Visual library</small></summary>${chargerAppearance}</details>` : ""}
           <section class="grid">${mainSections.map((s) => this.renderSection(s)).join("")}</section>
           ${this.renderFooter(model)}
         </div>
