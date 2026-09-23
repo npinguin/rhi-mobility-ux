@@ -1,0 +1,29 @@
+name: Validate rc36 current head
+
+on:
+  push:
+    branches:
+      - fix/rc36-hero-double-resolution
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+        with:
+          ref: fix/rc36-hero-double-resolution
+          fetch-depth: 0
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Remove temporary workflow from validation workspace
+        run: rm .github/workflows/validate-rc36-current.yml
+      - run: npm ci
+      - name: Full governed validation
+        run: npm test
