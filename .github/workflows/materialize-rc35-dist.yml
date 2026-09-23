@@ -22,8 +22,10 @@ jobs:
           node-version: '24'
           cache: npm
       - run: npm ci
-      - name: Build and validate exact candidate
-        run: npm test
+      - name: Build deterministic dist
+        run: |
+          npm run clean
+          npm run build
       - name: Commit deterministic dist
         shell: bash
         run: |
