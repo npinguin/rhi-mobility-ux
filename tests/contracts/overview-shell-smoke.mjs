@@ -8,10 +8,11 @@ for (const needle of [
   'Mobility Overview',
   'class="ov-status-grid ov-domain-statusbar"',
   '<small>Charging</small>',
-  '<small>Climate / Comfort</small>',
-  '<small>Security</small>',
-  '<small>Maintenance</small>',
+  '<small>Range</small>',
+  '<small>Comfort</small>',
+  '<small>Attention</small>',
   'overviewChargingStatus(rt, vehicles, chargers)',
+  'overviewRangeStatus(rt, vehicles)',
   'overviewOutsideTemperature()',
   'overviewNextDeparture(rt, vehicles)',
   'overviewSecurityStatus(rt, vehicles)',
@@ -37,7 +38,9 @@ for (const forbidden of [
   'class="ov-conclusion"',
   'Energy today',
   'All ready</small>',
-  '3 available</small>'
+  '3 available</small>',
+  '<small>Security</small>',
+  '<small>Maintenance</small>'
 ]) if (dashboard.includes(forbidden)) throw new Error(`obsolete/mock Overview content returned: ${forbidden}`);
 
 if(!presentation.includes('asset_key:"overview"')) throw new Error('Overview is not bound to the canonical hero key');
