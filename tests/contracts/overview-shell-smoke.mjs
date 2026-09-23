@@ -18,7 +18,7 @@ for (const needle of [
   'overviewSecurityStatus(rt, vehicles)',
   'unsafeValues = new Set',
   'overviewMaintenanceStatus(rt, vehicles)',
-  'maintenanceDays',
+  'const days = Math.min(...values);',
   'class="ov-quickbar energy-like"',
   'class="ov-panel ov-core-vehicles ov-overview-vehicles"',
   '<h2>Vehicles</h2>',
