@@ -31,7 +31,6 @@ for(const needle of [
   'data-vehicle-picker-variant',
   'data-vehicle-picker-color',
   'data-vehicle-picker-save',
-  'Product identity remains backend/profile-owned',
   'class HomeBrainVehicleVisualPicker',
   'rhiMobilitySelectableVehicleVisualCatalog()',
   'modelsForBrand',
@@ -105,7 +104,7 @@ for(const needle of [
   'data-charger-picker-model',
   'data-charger-picker-variant',
   'data-charger-picker-appearance',
-  'Frozen V1 publishes charger.image_key read-only'
+  'Mobility V2 does not publish a writable asset.profile_id for this charger.'
 ]) {
   if(!chargerPicker.includes(needle)) throw new Error(`shared charger picker regression: missing ${needle}`);
 }
@@ -155,15 +154,20 @@ if(!presentation.includes('Check that your fleet is configured, assigned and ope
 if(!presentation.includes('asset_key:"vehicles"')) throw new Error('Vehicle tab contextual hero key missing from shared presentation owner');
 
 for(const needle of [
-  'const profile = this.rt.profileForAsset',
-  'Product identity never comes from a presentation override',
-  'identity_locked: true',
-  'cross_model_override_rejected',
-  'Use this colour',
-  'data-vehicle-picker-brand="${this.rt.escape(assetId)}" disabled',
-  'data-vehicle-picker-model="${this.rt.escape(assetId)}" disabled',
-  'data-vehicle-picker-variant="${this.rt.escape(assetId)}" disabled'
-]) if(!picker.includes(needle)) throw new Error(`appearance-only vehicle picker regression: missing ${needle}`);
+  'this.rt.semanticProperty(assetId, "asset.profile_id")',
+  'this.rt.semanticProperty(assetId, "vehicle.image_key")',
+  'rhiMobilityVehicleVisualForProfile',
+  'profileIdForVehicle',
+  'Use this vehicle & colour',
+  'data-vehicle-profile-id'
+]) if(!picker.includes(needle)) throw new Error(`V2 vehicle picker regression: missing ${needle}`);
+
+for(const needle of [
+  'profile_ids:["volkswagen_id4_pro_my2026","vw_id4_business_pro_77kwh"]',
+  'profile_ids:["audi_q8_55_tfsi_e_quattro_my2025","audi_q8_tfsi_55e_2025_phev"]',
+  'profile_ids:["wallbox_commander2_22kw","wallbox_ocpp"]',
+  'profile_ids:["peblar_business_socket_22kw","peblar_22kw"]'
+]) if(!catalog.includes(needle)) throw new Error(`profile-to-visual mapping regression: missing ${needle}`);
 
 if(!dashboard.includes('this._vehiclePickerDraft.delete(assetId)')) throw new Error('vehicle picker cancel/close no longer clears unsaved draft');
 if(!dashboard.includes('this._vehiclePickerDraft.set(assetId,{})')) throw new Error('vehicle picker open no longer starts from canonical current selection');
