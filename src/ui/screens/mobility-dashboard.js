@@ -637,7 +637,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
       charging:chargingRows.length,
       available:availableRows.length,
       powerDisplay:powerResolved ? `${totalPowerKw.toFixed(1)} kW now` : "Power unavailable",
-      stateDisplay:`${chargingRows.length} charging · ${connectedRows.length} connected`,
+      stateDisplay:connectedRows.length ? `${chargingRows.length} charging · ${connectedRows.join(" · ")} connected` : `${chargingRows.length} charging · none connected`,
       connectedDisplay:connectedRows.length ? connectedRows.join(" · ") : "No chargers connected",
       availabilityDisplay:availableRows.length ? `${availableRows.join(" · ")} available` : "No charger currently available"
     };
