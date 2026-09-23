@@ -29,12 +29,28 @@ class HomeBrainChargerAdapter {
     const lifecycle = this.rt.lifecycleStatus(this.registryEntry() || assetId);
     if (lifecycle === "disabled") return { bucket:"disabled", resolved:true, label:"Disabled" };
     if (lifecycle !== "active") return { bucket:"unknown", resolved:false, label:"N/A" };
+
     const snapshot = this.rt.chargerProductSnapshot(assetId);
-    if (!snapshot?.operating?.resolved) return { bucket:"unknown", resolved:false, label:"N/A" };
-    const raw = String(snapshot.operating.value || "").trim().toLowerCase();
-    if (["idle", "stopped"].includes(raw)) return { bucket:"free", resolved:true, label:"Free" };
-    if (["running", "preparing"].includes(raw)) return { bucket:"in_use", resolved:true, label:"In use" };
-    if (["fault"].includes(raw)) return { bucket:"unavailable", resolved:true, label:"Unavailable" };
+    const operatingResolved = !!snapshot?.operating?.resolved;
+    const operating = operatingResolved ? String(snapshot.operating.value || "").trim().toLowerCase() : "";
+    if (operating === "fault") return { bucket:"unavailable", resolved:true, label:"Unavailable" };
+
+    // "Free" is an occupancy statement, not a charging-power statement.
+    // An idle/stopped charger may still have a vehicle physically connected.
+    const connectionResolved = !!snapshot?.connection?.resolved;
+    const connection = connectionResolved ? String(snapshot.connection.value || "").trim().toLowerCase() : "";
+    const physicallyConnected = !!snapshot?.connected_vehicle?.resolved
+      || ["connected", "asset_connected"].includes(connection);
+    const physicallyDisconnected = ["disconnected", "no_asset_connected"].includes(connection);
+
+    if (physicallyConnected) return { bucket:"in_use", resolved:true, label:"In use" };
+    if (["running", "preparing", "suspended"].includes(operating)) return { bucket:"in_use", resolved:true, label:"In use" };
+    if (physicallyDisconnected && ["idle", "stopped"].includes(operating)) {
+      return { bucket:"free", resolved:true, label:"Free" };
+    }
+
+    // Fail closed: without connection/relationship evidence we cannot call a
+    // charger free merely because its power/operating state is idle/stopped.
     return { bucket:"unknown", resolved:false, label:"N/A" };
   }
 
