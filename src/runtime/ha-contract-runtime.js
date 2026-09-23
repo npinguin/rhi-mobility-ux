@@ -1736,6 +1736,58 @@ class HomeBrainAssetRuntime {
     };
   }
 
+  propertyTransportValue(prop = {}, semanticValue = "") {
+    const domainText = String(prop.write_service_domain || "").toLowerCase();
+    const actionText = String(prop.write_service_action || "").toLowerCase();
+    const binding = String(prop.write_binding_type || "").toLowerCase();
+    if (!(binding === "select" || domainText === "select" || actionText.includes("select"))) return semanticValue;
+    const choices = this.propertyEditorChoices(prop);
+    const wanted = String(semanticValue ?? "");
+    const match = choices.find((row)=>{
+      const value = typeof row === "object" && row !== null ? row.value : row;
+      return String(value ?? "") === wanted;
+    });
+    if (match && typeof match === "object" && match !== null) {
+      const label = match.label ?? match.display_name ?? match.name;
+      if (label !== undefined && label !== null && String(label).trim() !== "") return label;
+    }
+    return semanticValue;
+  }
+
+  async writePropertyValueAsync(prop = {}, value = "") {
+    if (!prop || !this.hass || !this.isWritableProperty(prop)) return false;
+    const domain = prop.write_service_domain;
+    const action = prop.write_service_action;
+    const target = prop.write_target_entity;
+    const transportValue = this.propertyTransportValue(prop, value);
+    const payload = { ...(prop.write_service_data && typeof prop.write_service_data === "object" ? prop.write_service_data : {}) };
+    if (!payload.entity_id) payload.entity_id = target;
+    const domainText = String(domain || "").toLowerCase();
+    const actionText = String(action || "").toLowerCase();
+    if (!["button", "input_button"].includes(domainText)) {
+      const explicitField = String(prop.write_value_field || "").trim();
+      if (explicitField) payload[explicitField] = transportValue;
+      else if (actionText.includes("select") || domainText.includes("select")) payload.option = transportValue;
+      else if (actionText.includes("datetime") || domainText.includes("datetime")) payload.datetime = transportValue;
+      else if (actionText.includes("time")) payload.time = transportValue;
+      else if (actionText.includes("turn_")) { /* entity_id only */ }
+      else payload.value = transportValue;
+    }
+    try {
+      await this.hass.callService(domain, action, payload);
+      return true;
+    } catch (error) {
+      console.error("[RHI Mobility UX] property write failed", {property_key:prop.property_key,asset_id:prop.asset_id,error});
+      return false;
+    }
+  }
+
+  async writePublishedPropertyAsync(assetId = "", propertyKey = "", value = "") {
+    const prop = this.semanticProperty(this.canonicalAssetId(assetId), propertyKey);
+    if (!prop) return false;
+    return this.writePropertyValueAsync(prop, value);
+  }
+
   writePropertyValue(prop = {}, value = "") {
     if (!prop || !this.hass || !this.isWritableProperty(prop)) return false;
     const domain = prop.write_service_domain;
@@ -1745,14 +1797,15 @@ class HomeBrainAssetRuntime {
     if (!payload.entity_id) payload.entity_id = target;
     const domainText = String(domain || "").toLowerCase();
     const actionText = String(action || "").toLowerCase();
+    const transportValue = this.propertyTransportValue(prop, value);
     if (!["button", "input_button"].includes(domainText)) {
       const explicitField = String(prop.write_value_field || "").trim();
-      if (explicitField) payload[explicitField] = value;
-      else if (actionText.includes("select") || domainText.includes("select")) payload.option = value;
-      else if (actionText.includes("datetime") || domainText.includes("datetime")) payload.datetime = value;
-      else if (actionText.includes("time")) payload.time = value;
+      if (explicitField) payload[explicitField] = transportValue;
+      else if (actionText.includes("select") || domainText.includes("select")) payload.option = transportValue;
+      else if (actionText.includes("datetime") || domainText.includes("datetime")) payload.datetime = transportValue;
+      else if (actionText.includes("time")) payload.time = transportValue;
       else if (actionText.includes("turn_")) { /* entity_id only */ }
-      else payload.value = value;
+      else payload.value = transportValue;
     }
     this.hass.callService(domain, action, payload);
     return true;
