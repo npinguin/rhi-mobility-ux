@@ -1,3 +1,9 @@
+## 1.0.0-rc.36 — Hero runtime URL resolution hotfix
+
+- Fixed tab heroes resolving an already packaged HACS URL a second time.
+- Added an executable contract asserting exact final hero `<img src>` values and rejecting `asset--hacsfiles--` regressions.
+- No asset bytes, mappings or backend semantics changed.
+
 ## 1.0.0-rc.35 — HACS runtime asset delivery hotfix
 
 - Fixed HACS packaging so runtime images are files directly under the plugin `dist/` root, matching HACS frontend-plugin download semantics.

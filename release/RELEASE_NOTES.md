@@ -1,15 +1,13 @@
-# v1.0.0-rc.35 — HACS runtime asset delivery hotfix
+# v1.0.0-rc.36 — Hero runtime URL resolution hotfix
 
 ## Scope
-- fixes the real HACS frontend-plugin install model: only files directly under `dist/` are downloaded;
-- replaces the broken nested `dist/assets/**` delivery with deterministic flat runtime asset filenames in `dist/`;
-- keeps canonical source assets structured under `src/assets/{branding,vehicles,chargers,heroes}`;
-- changes the runtime resolver so structured catalog paths map to flat installed filenames;
-- replaces the recursive test install with a simulation of HACS `gather_files_to_download()` semantics;
-- requires source-to-flat-package byte parity for every runtime image.
+- fixes double resolution of canonical hero URLs in the shared page-hero renderer;
+- preserves rc.35 flat HACS asset delivery unchanged;
+- adds exact rendered URL regression tests for Overview and Strategies;
+- rejects any future `asset--hacsfiles--...` double-packaging path.
 
 ## Rollback
-Rollback candidate: `v1.0.0-rc.34`.
+Rollback candidate: `v1.0.0-rc.35`.
 
 ## Qualification
-Static/package/HACS validation must pass before publication. Target Home Assistant proof must confirm the nine hero scenes and existing vehicle/charger artwork load from `/hacsfiles/rhi-mobility-ux/asset--*`.
+Static/package/HACS validation must pass before publication. Target Home Assistant proof must confirm heroes render after HACS update without manual file moves.
