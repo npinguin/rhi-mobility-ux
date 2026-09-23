@@ -372,7 +372,7 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
 
     const activeEl = this.shadowRoot?.activeElement;
     if (activeEl && ["SELECT", "INPUT"].includes(activeEl.tagName) && this._lastRenderOk) return;
-    if (this._chargerPickerAsset && this._lastRenderOk) return;
+    if (!this._forceRender && this._chargerPickerAsset && this._lastRenderOk) return;
     if (this._lastSignature === signature && this._lastRenderOk) return;
     this._lastSignature = signature;
     this._lastRenderOk = true;
@@ -406,6 +406,7 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
 </style>
       ${hbMobilityReleaseFooter(rt)}
     </ha-card>`;
+    this._forceRender = false;
 
     this.shadowRoot.querySelectorAll("button[data-command-id]").forEach((btn) => {
       btn.addEventListener("click", (ev) => {
@@ -472,6 +473,7 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
         const assetId = btn.getAttribute("data-charger-picker") || "";
         this._chargerPickerAsset = this._chargerPickerAsset === assetId ? "" : assetId;
         if (!this._chargerPickerDraft.has(assetId)) this._chargerPickerDraft.set(assetId, {});
+        this._forceRender = true;
         this._lastSignature = "";
         if (this.isConnected) this.hass = this._hass;
       });
@@ -480,6 +482,7 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
       btn.addEventListener("click", (ev) => {
         ev.preventDefault(); ev.stopPropagation();
         this._chargerPickerAsset = "";
+        this._forceRender = true;
         this._lastSignature = "";
         if (this.isConnected) this.hass = this._hass;
       });
@@ -504,8 +507,12 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
           : "";
         if (keyNode) keyNode.textContent = key || "Unavailable";
         if (saveButton) {
+          const asset = rt.chargerById(assetId) || rt.assetById(assetId) || {asset_id:assetId,asset_type:"charger"};
+          const draft = this._chargerPickerDraft.get(assetId) || {};
+          const selection = picker.selection(asset, draft);
           saveButton.setAttribute("data-charger-key", key);
-          saveButton.disabled = !key || !picker.selection({asset_id:assetId}).writable;
+          saveButton.setAttribute("data-charger-profile-id", selection.profile_id || "");
+          saveButton.disabled = !key || !selection.writable;
         }
         const card = panel.closest(".charger-card");
         const preview = card?.querySelector(".charger-visual img");
@@ -571,8 +578,16 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
         ev.preventDefault(); ev.stopPropagation();
         if (btn.disabled) return;
         const assetId = btn.getAttribute("data-charger-picker-save") || "";
+        const profileId = btn.getAttribute("data-charger-profile-id") || "";
         const key = btn.getAttribute("data-charger-key") || "";
-        if (assetId && key) rt.writePublishedProperty(assetId, "charger.image_key", key);
+        if (!assetId || !key) return;
+        const profileProp = rt.semanticProperty(assetId, "asset.profile_id");
+        const currentProfile = String(profileProp?.value || "");
+        if (profileId && profileId !== currentProfile && !rt.writePublishedProperty(assetId, "asset.profile_id", profileId)) return;
+        if (!rt.writePublishedProperty(assetId, "charger.image_key", key)) return;
+        btn.classList.add("sent");
+        this._chargerPickerDraft.delete(assetId);
+        setTimeout(()=>{ this._chargerPickerAsset=""; this._forceRender=true; this._lastSignature=""; if(this._hass)this.hass=this._hass; },450);
       });
     });
 
