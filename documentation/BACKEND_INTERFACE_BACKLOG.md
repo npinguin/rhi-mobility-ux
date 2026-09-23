@@ -1,5 +1,22 @@
 # Mobility Backend Interface Backlog
 
+## rc.41 V2-first contract gate
+
+Backend issue **rhi-mobility #107 — Mobility UX — V2 contract-gap confirmation for rc.41** is the authority gate for new status semantics.
+
+New UX work follows:
+
+```text
+Public Runtime V2 = canonical facts
+Policy V2         = thresholds and interpretation rules
+Experience V2     = user-facing conclusions
+UX                = select, aggregate, format and present
+```
+
+No new UX feature may add a V1-only dependency or reconstruct a missing V2 product fact locally. Missing configuration completeness, runtime/data health, charge demand, policy classification, site-capacity or other unconfirmed semantics remain explicit contract gaps until #107 classifies them A/B/C/D.
+
+The existing V1 facade remains a temporary compatibility source for already-consumed facts only; it is not the target architecture.
+
 This backlog captures product capabilities required by Mobility UX that are not authoritative in `MOBILITY_PUBLIC_RUNTIME_V1` today.
 
 Rule: **do not mock these in UX**. Until the backend publishes the contract, the relevant V1 surface remains empty, unavailable or N/A.

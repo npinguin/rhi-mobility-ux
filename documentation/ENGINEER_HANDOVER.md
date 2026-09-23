@@ -59,15 +59,16 @@ Testing mirrors code ownership: **one invariant, one test owner**. Do not make a
 
 ## Product boundary
 
+Target architecture:
+
 ```text
-Mobility backend
-→ MOBILITY_PUBLIC_RUNTIME_V1
-→ runtime
-→ domain adapters/models
-→ UI components/screens
+MOBILITY_PUBLIC_RUNTIME_V2 = canonical facts
+MOBILITY_POLICY_V2         = thresholds / interpretation rules
+MOBILITY_EXPERIENCE_V2     = user-facing conclusions
+UX                         = select / aggregate / format / present
 ```
 
-UX renders V1 and does not create a second Mobility semantic authority.
+The frozen V1 public facade remains a transitional compatibility surface for existing consumers while backend issue #107 confirms the direct V2 authority/migration matrix. New UX work must not introduce V1-only dependencies or reconstruct missing product semantics locally.
 
 Configuration controls use backend V1 write metadata, options and write targets. `asset.profile_id` and `vehicle.selected_charger` may remain visible/editable while unset. Runtime controls remain fail-closed without V1 write capability.
 

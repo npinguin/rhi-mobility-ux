@@ -312,7 +312,19 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
     const activeChargers = chargers.filter((c) => rt.lifecycleStatus(c) === "active");
     const inactiveChargers = chargers.filter((c) => rt.lifecycleStatus(c) !== "active" && rt.lifecycleStatus(c) !== "retired");
     const operational = activeChargers.filter((c) => this.chargerRuntimeReady(rt, c)).length;
+    let connectedCount = 0;
+    let chargingCount = 0;
+    let availableCount = 0;
+    let faultCount = 0;
     const totalPower = activeChargers.reduce((sum, c) => {
+      const snapshot = rt.chargerProductSnapshot(c.asset_id);
+      const connection = snapshot?.connection?.resolved ? String(snapshot.connection.value || "").toLowerCase() : "";
+      const operating = snapshot?.operating?.resolved ? String(snapshot.operating.value || "").toLowerCase() : "";
+      if (["connected","asset_connected"].includes(connection)) connectedCount += 1;
+      if (operating === "running") chargingCount += 1;
+      if (operating === "fault") faultCount += 1;
+      const available = rt.canonicalChargerPropertyValue(c.asset_id, "charger.available_for_connection");
+      if (available.resolved && ["true","1","yes","on"].includes(String(available.value).toLowerCase())) availableCount += 1;
       const exact = rt.canonicalChargerPropertyValue(c.asset_id, "charger.power_kw");
       const n = exact.resolved ? Number(String(exact.value).replace(",", ".")) : NaN;
       const kw = Number.isFinite(n) ? (Math.abs(n) > 100 ? n / 1000 : n) : 0;
@@ -339,6 +351,19 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
       drafts: Array.from(this._limitDrafts || []),
       feedback: Array.from(this._commandFeedback || []).filter(([, until]) => Date.now() < until)
     });
+    const chargerHeaderCards = [
+      { icon:"mdi:clipboard-check-outline", label:"Configuration", value:"V2 contract gap", sub:`${activeChargers.length} active chargers · backend #107`, tone:"neutral" },
+      { icon:"mdi:transmission-tower", label:"Site", value:`${totalPower.toFixed(1)} kW now`, sub:`${availableCount} available · capacity V2 gap`, tone:"neutral" },
+      { icon:"mdi:ev-plug-type2", label:"Runtime", value:`${connectedCount} connected · ${chargingCount} charging`, sub:`${availableCount} available`, tone:faultCount ? "warn" : "neutral" }
+    ];
+    if (faultCount) chargerHeaderCards.push({
+      icon:"mdi:alert-circle-outline",
+      label:"Issue",
+      value:`${faultCount} fault${faultCount === 1 ? "" : "s"}`,
+      sub:"Canonical charger operating state",
+      tone:"warn"
+    });
+
     const activeEl = this.shadowRoot?.activeElement;
     if (this._lastSignature === signature && this._lastRenderOk && !(activeEl && ["SELECT", "INPUT"].includes(activeEl.tagName))) return;
     this._lastSignature = signature;
@@ -349,19 +374,14 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
         <div class="hi-version-block" style="position:absolute;top:18px;right:22px;text-align:right;font-size:10.5px;line-height:1.25;font-weight:400;color:var(--secondary-text-color,#6B7280);opacity:.82;background:none;border:0;box-shadow:none;padding:0;margin:0;z-index:3;pointer-events:none;"><div>UX ${rt.escape(UX_VERSION)}</div><div>Backend ${rt.escape(rt.backendVersion())}</div></div>
         ${hbMobilityNav(this.config?.nav_active || "chargers")}
         ${hbMobilityPageHero(rt, "chargers")}
-        ${hbMobilityStatusGrid(rt, [
-          { icon:"mdi:ev-station", label:"Active", value:String(activeChargers.length), sub:`${inactiveChargers.length} inactive`, tone:"neutral" },
-          { icon:"mdi:check-circle-outline", label:"Operational", value:`${operational} of ${activeChargers.length}`, sub:"Runtime ready", tone:operational === activeChargers.length ? "ok" : "warn" },
-          { icon:"mdi:lightning-bolt", label:"Power now", value:`${totalPower.toFixed(1)} kW`, sub:"Active charger total", tone:totalPower > 0 ? "ok" : "neutral" },
-          { icon:"mdi:alert-circle-outline", label:"Attention", value:activeChargers.length === operational ? "None" : "Review", sub:activeChargers.length === operational ? "No contract gap" : "Operational gap", tone:activeChargers.length === operational ? "ok" : "warn" }
-        ], "chargers-top-status")}
+        ${hbMobilityStatusGrid(rt, chargerHeaderCards, "chargers-top-status")}
         ${hbMobilityQuickActions(rt, [
           { icon:"mdi:cog-outline", label:"Manage chargers & profiles", path:"/config/integrations/integration/rhi_mobility", primary:true },
           { icon:"mdi:car-electric", label:"Vehicles", path:hbMobilityPath("/dashboard") },
           { icon:"mdi:calendar-clock", label:"Charging plan", path:hbMobilityPath("/planning") },
           { icon:"mdi:target", label:"Strategies", path:hbMobilityPath("/strategies") }
         ])}
-        <section class="section-title"><h2>Active chargers</h2><span>${activeChargers.length} active · ${operational} operational · ${totalPower.toFixed(1)} kW now</span></section>
+        <section class="section-title"><h2>Active chargers</h2><span>${activeChargers.length} active · ${connectedCount} connected · ${chargingCount} charging · ${totalPower.toFixed(1)} kW now</span></section>
         <section class="grid">
           ${activeChargers.length ? activeChargers.map((c) => this.renderCharger(rt, c)).join("") : `<div class="empty-state"><ha-icon icon="mdi:ev-station-off"></ha-icon><h2>No active chargers</h2><p>Activate a charger below when needed.</p></div>`}
         </section>

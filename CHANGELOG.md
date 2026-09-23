@@ -1,3 +1,14 @@
+## 1.0.0-rc.41 — V2-first status architecture
+
+- freezes the top-level information architecture around user questions: daily Overview, Vehicle Management and Charger Management;
+- removes frontend security and maintenance text/regex inference from Overview;
+- counts vehicle charger setup from the selected relationship instead of editor sentinel values;
+- makes Overview Attention conditional and driven only by backend-published intelligence states;
+- reshapes Charger Management around Configuration, Site and Runtime using canonical charger state;
+- leaves configuration completeness, runtime-data-health, site capacity and low-range policy as explicit V2 contract gaps tracked by backend issue #107;
+- adds a release-blocking regression gate that forbids reintroducing the removed frontend semantic inference;
+- introduces no new V1-only dependency while the V2 authority matrix is being confirmed.
+
 ## 1.0.0-rc.40 — V2 picker session hardening
 
 - keep vehicle colour edits in local draft state and update preview without reconstructing the Home Assistant card;
