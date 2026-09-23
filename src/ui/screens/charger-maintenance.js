@@ -653,19 +653,22 @@ ${hbMobilitySharedShellStyles()}
       /* rc.27 shared visual-library management + mobile density. */
       .charger-appearance-action{height:34px;border-radius:10px;border:1px solid rgba(14,35,72,.10);background:#fff;color:#1467F5;display:inline-flex;align-items:center;gap:6px;padding:0 10px;font-size:11px;font-weight:600;cursor:pointer;grid-column:2/4;justify-self:start}
       .charger-appearance-action ha-icon{--mdc-icon-size:16px}
-      .charger-picker-panel{margin:0;padding:10px;border:1px solid var(--hb-line);border-radius:14px;background:#fbfdff}
-      .charger-picker-panel .vehicle-picker-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-      .charger-picker-panel .vehicle-picker-head{display:flex;justify-content:space-between;gap:10px}
-      .charger-picker-panel .vehicle-picker-head small{font-size:9px;color:var(--hb-blue);font-weight:650;letter-spacing:.08em}
-      .charger-picker-panel .vehicle-picker-head h3{margin:2px 0 3px;font-size:15px}
-      .charger-picker-panel .vehicle-picker-head p{font-size:10.5px;line-height:1.3}
-      .charger-picker-panel label{display:grid;gap:4px}
-      .charger-picker-panel label>span,.charger-picker-panel .vehicle-picker-key>span{font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:var(--hb-muted)}
-      .charger-picker-panel select,.charger-picker-panel code,.charger-picker-panel .vehicle-picker-save{min-height:40px;border:1px solid var(--hb-line);border-radius:10px;background:#fff;padding:0 10px}
-      .charger-picker-panel .vehicle-picker-key{display:grid;gap:4px}
-      .charger-picker-panel .vehicle-picker-save{display:flex;align-items:center;justify-content:center;gap:7px;font-weight:600}
-      .charger-picker-panel .vehicle-picker-close{width:34px;height:34px;border-radius:10px;border:1px solid var(--hb-line);background:#fff}
-      .charger-picker-panel .vehicle-picker-gap{grid-column:1/-1;margin-top:8px;font-size:10.5px;color:var(--hb-muted);display:flex;gap:7px;align-items:flex-start}
+      .charger-picker-panel{margin:0 12px 10px;padding:12px 14px;border:1px solid #cfe0f6;border-radius:14px;background:linear-gradient(135deg,#fbfdff,#f3f8ff);box-shadow:inset 0 1px 0 rgba(255,255,255,.8)}
+      .charger-picker-panel .vehicle-picker-grid{display:grid;grid-template-columns:repeat(4,minmax(120px,1fr));gap:8px;align-items:end;margin-top:10px}
+      .charger-picker-panel .vehicle-picker-hierarchy .vehicle-picker-key{grid-column:1/4}
+      .charger-picker-panel .vehicle-picker-hierarchy .vehicle-picker-save{grid-column:4}
+      .charger-picker-panel .vehicle-picker-head{display:flex;justify-content:space-between;gap:14px;align-items:start}
+      .charger-picker-panel .vehicle-picker-head small{font-size:8.5px;letter-spacing:.13em;color:#64748b;font-weight:750}
+      .charger-picker-panel .vehicle-picker-head h3{margin:2px 0 2px;font-size:15px;color:#0f172a}
+      .charger-picker-panel .vehicle-picker-head p{margin:0;font-size:9.5px;color:#64748b}
+      .charger-picker-panel label,.charger-picker-panel .vehicle-picker-key{display:flex;flex-direction:column;gap:4px}
+      .charger-picker-panel label>span,.charger-picker-panel .vehicle-picker-key>span{font-size:8.5px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.05em}
+      .charger-picker-panel select{height:34px;border:1px solid #d7e2ef;border-radius:8px;background:#fff;color:#0f172a;padding:0 8px;font-size:10.5px;font-weight:600}
+      .charger-picker-panel code{height:34px;display:flex;align-items:center;border:1px solid #d7e2ef;border-radius:8px;background:#fff;padding:0 8px;font-size:8.5px;color:#475569;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+      .charger-picker-panel .vehicle-picker-save{height:34px;border:1px solid #0b65ea;border-radius:8px;background:#0b65ea;color:#fff;padding:0 11px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:10px;font-weight:700}
+      .charger-picker-panel .vehicle-picker-close{width:30px;height:30px;border:1px solid #dbe5f0;border-radius:8px;background:#fff;color:#64748b}
+      .charger-picker-panel .vehicle-picker-gap{grid-column:1/-1;margin-top:8px;font-size:9.5px;color:#9a5a16;display:flex;gap:6px;align-items:center}
+      @media(max-width:900px){.charger-picker-panel .vehicle-picker-grid{grid-template-columns:1fr 1fr}.charger-picker-panel .vehicle-picker-hierarchy .vehicle-picker-key{grid-column:1/-1}.charger-picker-panel .vehicle-picker-hierarchy .vehicle-picker-save{grid-column:auto}}
       @media(max-width:560px){
         .page{padding:8px 8px 18px!important;gap:8px!important}
         .charger-card{padding:10px!important;gap:8px!important;border-radius:16px!important}
@@ -676,7 +679,6 @@ ${hbMobilitySharedShellStyles()}
         .charger-title h3{font-size:15px!important}.charger-title p{font-size:10px!important}
         .charger-kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important}
         .soft-line{gap:6px!important;flex-wrap:wrap!important}
-        .charger-picker-panel .vehicle-picker-grid{grid-template-columns:1fr!important}
         .charger-appearance-action{grid-column:2/4!important;height:32px!important;padding:0 8px!important}
         .grid{grid-template-columns:1fr!important;gap:10px!important}
       }
