@@ -311,25 +311,20 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
     const chargers = factory.chargers().filter((a) => rt.lifecycleStatus(a) !== "retired").sort((a,b)=>(Number(a.sort_order ?? 999)-Number(b.sort_order ?? 999)) || String(a.display_name).localeCompare(String(b.display_name)));
     const activeChargers = chargers.filter((c) => rt.lifecycleStatus(c) === "active");
     const inactiveChargers = chargers.filter((c) => rt.lifecycleStatus(c) !== "active" && rt.lifecycleStatus(c) !== "retired");
-    const operational = activeChargers.filter((c) => this.chargerRuntimeReady(rt, c)).length;
-    let connectedCount = 0;
-    let chargingCount = 0;
-    let availableCount = 0;
-    let faultCount = 0;
-    const totalPower = activeChargers.reduce((sum, c) => {
-      const snapshot = rt.chargerProductSnapshot(c.asset_id);
-      const connection = snapshot?.connection?.resolved ? String(snapshot.connection.value || "").toLowerCase() : "";
-      const operating = snapshot?.operating?.resolved ? String(snapshot.operating.value || "").toLowerCase() : "";
-      if (["connected","asset_connected"].includes(connection)) connectedCount += 1;
-      if (operating === "running") chargingCount += 1;
-      if (operating === "fault") faultCount += 1;
-      const available = rt.canonicalChargerPropertyValue(c.asset_id, "charger.available_for_connection");
-      if (available.resolved && ["true","1","yes","on"].includes(String(available.value).toLowerCase())) availableCount += 1;
-      const exact = rt.canonicalChargerPropertyValue(c.asset_id, "charger.power_kw");
-      const n = exact.resolved ? Number(String(exact.value).replace(",", ".")) : NaN;
-      const kw = Number.isFinite(n) ? (Math.abs(n) > 100 ? n / 1000 : n) : 0;
-      return sum + kw;
-    }, 0);
+    const fleet = rt.mobilityFleetV2();
+    const experienceRows = rt.mobilityExperienceV2()?.chargers || [];
+    const experienceById = new Map(experienceRows.map((row)=>[String(row?.asset_id || ""),row]));
+    const connectedCount = Number.isFinite(Number(fleet.connected_charger_count)) ? Number(fleet.connected_charger_count) : experienceRows.filter((row)=>String(row?.connection_intelligence?.state || "").toLowerCase() === "asset_connected").length;
+    const chargingCount = Number.isFinite(Number(fleet.charging_charger_count)) ? Number(fleet.charging_charger_count) : experienceRows.filter((row)=>String(row?.charging_intelligence?.state || "").toLowerCase() === "running").length;
+    const availableCount = Number.isFinite(Number(fleet.available_charger_count)) ? Number(fleet.available_charger_count) : experienceRows.filter((row)=>String(row?.availability_intelligence?.state || "").toLowerCase() === "ok").length;
+    const faultRows = experienceRows.filter((row)=>String(row?.fault?.state || "").toLowerCase() === "active");
+    const faultCount = faultRows.length;
+    const aggregatePowerState = String(fleet.aggregate_power_state || "unknown").toLowerCase();
+    const aggregatePower = Number(fleet.aggregate_actual_charging_power_kw);
+    const totalPowerDisplay = Number.isFinite(aggregatePower) && aggregatePowerState !== "unknown"
+      ? `${aggregatePower.toFixed(1)} kW${aggregatePowerState === "partial" ? " · partial" : " now"}`
+      : "Power unknown";
+
     const signature = JSON.stringify({
       assets: chargers.map((c) => {
         const assetId = c.asset_id;
@@ -345,38 +340,31 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
           this.chargerProperty(rt, assetId, "charger.session_energy_kwh", ""),
           rt.chargerHealthSummary(assetId).value,
           rt.chargerHealthSummary(assetId).reason,
+          experienceById.get(assetId),
           commands];
       }),
+      fleet,
       open: Array.from(this._openPanels || []).sort(),
       drafts: Array.from(this._limitDrafts || []),
       feedback: Array.from(this._commandFeedback || []).filter(([, until]) => Date.now() < until)
     });
-    const labelFor = (charger) => String(charger?.short_name || charger?.display_name || charger?.name || charger?.asset_id || "—").trim();
-    const profiledChargers = activeChargers.filter((charger)=>{
-      const profile = charger?.profile_id ?? charger?.profile ?? rt.propertyByCompoundKey(charger.asset_id, "asset.profile_id")?.value;
-      return !!String(profile ?? "").trim();
-    });
-    const unprofiledChargers = activeChargers.filter((charger)=>!profiledChargers.includes(charger));
-    const availableChargers = activeChargers.filter((charger)=>{
-      const available = rt.canonicalChargerPropertyValue(charger.asset_id, "charger.available_for_connection");
-      return available.resolved && ["true","1","yes","on"].includes(String(available.value).toLowerCase());
-    });
-    const faultChargers = activeChargers.filter((charger)=>{
-      const snapshot = rt.chargerProductSnapshot(charger.asset_id);
-      return snapshot?.operating?.resolved && String(snapshot.operating.value || "").toLowerCase() === "fault";
-    });
+    const labelFor = (row) => String(row?.short_name || row?.display_name || row?.name || row?.asset_id || "—").trim();
+    const activeExperience = activeChargers.map((charger)=>experienceById.get(charger.asset_id)).filter(Boolean);
+    const profiledRows = activeExperience.filter((row)=>!!String(row?.configuration_status?.profile_id || "").trim());
+    const unprofiledRows = activeExperience.filter((row)=>!String(row?.configuration_status?.profile_id || "").trim());
+    const availableRows = activeExperience.filter((row)=>String(row?.availability_intelligence?.state || "").toLowerCase() === "ok");
     const names = (rows)=>rows.slice(0,3).map(labelFor).join(" · ");
 
     const chargerHeaderCards = [
-      { icon:"mdi:card-account-details-outline", label:"Profiles", value:`${profiledChargers.length}/${activeChargers.length} configured`, sub:unprofiledChargers.length ? `${names(unprofiledChargers)} without profile` : "All active chargers profiled", tone:"neutral" },
-      { icon:"mdi:ev-station", label:"Availability", value:`${availableCount}/${activeChargers.length} available`, sub:availableChargers.length ? names(availableChargers) : "No charger currently available", tone:"neutral" },
-      { icon:"mdi:lightning-bolt", label:"Runtime", value:`${totalPower.toFixed(1)} kW now`, sub:`${connectedCount} connected · ${chargingCount} charging`, tone:"neutral" }
+      { icon:"mdi:card-account-details-outline", label:"Profiles", value:`${profiledRows.length}/${activeChargers.length} configured`, sub:unprofiledRows.length ? `${names(unprofiledRows)} without profile` : "All active chargers profiled", tone:"neutral" },
+      { icon:"mdi:ev-station", label:"Availability", value:`${availableCount}/${activeChargers.length} available`, sub:availableRows.length ? names(availableRows) : "No charger currently available", tone:"neutral" },
+      { icon:"mdi:lightning-bolt", label:"Runtime", value:totalPowerDisplay, sub:`${connectedCount} connected · ${chargingCount} charging`, tone:"neutral" }
     ];
     if (faultCount) chargerHeaderCards.push({
       icon:"mdi:alert-circle-outline",
       label:"Issue",
       value:`${faultCount} fault${faultCount === 1 ? "" : "s"}`,
-      sub:names(faultChargers),
+      sub:names(faultRows),
       tone:"warn"
     });
 
@@ -399,7 +387,7 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
           { icon:"mdi:calendar-clock", label:"Charging plan", path:hbMobilityPath("/planning") },
           { icon:"mdi:target", label:"Strategies", path:hbMobilityPath("/strategies") }
         ])}
-        <section class="section-title"><h2>Active chargers</h2><span>${activeChargers.length} active · ${connectedCount} connected · ${chargingCount} charging · ${totalPower.toFixed(1)} kW now</span></section>
+        <section class="section-title"><h2>Active chargers</h2><span>${activeChargers.length} active · ${connectedCount} connected · ${chargingCount} charging · ${rt.escape(totalPowerDisplay)}</span></section>
         <section class="grid">
           ${activeChargers.length ? activeChargers.map((c) => this.renderCharger(rt, c)).join("") : `<div class="empty-state"><ha-icon icon="mdi:ev-station-off"></ha-icon><h2>No active chargers</h2><p>Activate a charger below when needed.</p></div>`}
         </section>
