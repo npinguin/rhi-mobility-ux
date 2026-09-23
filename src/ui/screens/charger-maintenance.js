@@ -505,18 +505,18 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
         const key = charger && appearance && typeof rhiMobilityChargerVisualKey === "function"
           ? rhiMobilityChargerVisualKey(charger.id, appearance.id)
           : "";
-        if (keyNode) keyNode.textContent = key || "Unavailable";
+        const asset = rt.chargerById(assetId) || rt.assetById(assetId) || {asset_id:assetId,asset_type:"charger"};
+        const draft = this._chargerPickerDraft.get(assetId) || {};
+        const selection = picker.selection(asset, draft);
+        if (keyNode) keyNode.textContent = selection.key || key || "Unavailable";
         if (saveButton) {
-          const asset = rt.chargerById(assetId) || rt.assetById(assetId) || {asset_id:assetId,asset_type:"charger"};
-          const draft = this._chargerPickerDraft.get(assetId) || {};
-          const selection = picker.selection(asset, draft);
-          saveButton.setAttribute("data-charger-key", key);
+          saveButton.setAttribute("data-charger-key", selection.key || key || "");
           saveButton.setAttribute("data-charger-profile-id", selection.profile_id || "");
-          saveButton.disabled = !key || !selection.writable;
+          saveButton.disabled = !selection.writable;
         }
         const card = panel.closest(".charger-card");
         const preview = card?.querySelector(".charger-visual img");
-        if (preview && appearance?.package_file) preview.src = rt.cache(appearance.package_file);
+        if (preview && selection.appearance?.package_file) preview.src = rt.cache(selection.appearance.package_file);
       };
 
       const refreshHierarchy = (level) => {
