@@ -89,62 +89,70 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
     if (view === "planning") {
       const plan = this.energyPlanning(rt);
       return hbMobilityStatusGrid(rt, [
-        { icon:"mdi:calendar-check-outline", label:"Planned today", value:this.fmtKwh(plan.today.plannedKwh), sub:plan.today.state || "Energy planning", tone:plan.available ? "ok" : "warn" },
-        { icon:"mdi:calendar-alert-outline", label:"Still to plan", value:this.fmtKwh(plan.today.stillToPlanKwh), sub:"Published by Energy", tone:Number(plan.today.stillToPlanKwh || 0) > 0 ? "warn" : "ok" },
-        { icon:"mdi:weather-sunset-up", label:"Tomorrow", value:this.fmtKwh(plan.tomorrow.plannedKwh), sub:plan.tomorrow.state || "Next horizon", tone:"neutral" },
-        { icon:"mdi:source-branch-check", label:"Contract", value:plan.contractVersion || (plan.available ? "Published" : "Unavailable"), sub:plan.source, tone:plan.available ? "ok" : "warn" }
+        { icon:"mdi:calendar-check-outline", label:"Today", value:this.fmtKwh(plan.today.plannedKwh), sub:plan.today.state || "Planned energy", tone:"neutral" },
+        { icon:"mdi:calendar-alert-outline", label:"Still to plan", value:this.fmtKwh(plan.today.stillToPlanKwh), sub:"Remaining today", tone:"neutral" },
+        { icon:"mdi:weather-sunset-up", label:"Tomorrow", value:this.fmtKwh(plan.tomorrow.plannedKwh), sub:plan.tomorrow.state || "Next horizon", tone:"neutral" }
       ], "planning-top-status");
     }
     if (view === "strategies") {
       const strategy = this.energyStrategies(rt);
       return hbMobilityStatusGrid(rt, [
-        { icon:"mdi:tune-variant", label:"Profiles", value:String(strategy.profiles.length), sub:"Energy strategy", tone:strategy.profilesAvailable ? "ok" : "warn" },
-        { icon:"mdi:shield-check-outline", label:"Effective policies", value:String(strategy.effective.length), sub:"Exact Mobility assets", tone:strategy.effective.length ? "ok" : "neutral" },
-        { icon:"mdi:source-branch-check", label:"Profile contract", value:strategy.profileContractVersion || (strategy.profilesAvailable ? "Published" : "Unavailable"), sub:"Energy-owned", tone:strategy.profilesAvailable ? "ok" : "warn" },
-        { icon:"mdi:database-check-outline", label:"Policy contract", value:strategy.effectiveContractVersion || (strategy.effectiveAvailable ? "Published" : "Unavailable"), sub:"Energy-owned", tone:strategy.effectiveAvailable ? "ok" : "warn" }
+        { icon:"mdi:tune-variant", label:"Configured", value:String(strategy.profiles.length), sub:"Mobility strategy profiles", tone:"neutral" },
+        { icon:"mdi:shield-check-outline", label:"Effective", value:String(strategy.effective.length), sub:"Policies in effect for Mobility assets", tone:"neutral" }
       ], "strategies-top-status");
     }
     if (view === "history") {
       const insights = this.energyInsights(rt);
       return hbMobilityStatusGrid(rt, [
-        { icon:"mdi:counter", label:"Vehicle energy", value:this.fmtKwh(insights.totalVehicleEnergyKwh), sub:"Energy metering", tone:insights.meteringAvailable ? "ok" : "warn" },
-        { icon:"mdi:currency-eur", label:"Attributed value", value:insights.totalAttributedEur === null ? "N/A" : `€${Number(insights.totalAttributedEur).toFixed(2)}`, sub:"Energy accounting", tone:insights.valueAvailable ? "ok" : "warn" },
-        { icon:"mdi:car-multiple", label:"Vehicles with evidence", value:String(insights.rows.length), sub:"Exact asset-id join", tone:insights.rows.length ? "ok" : "neutral" },
-        { icon:"mdi:database-check-outline", label:"Source", value:"Energy", sub:"Metering + value", tone:"neutral" }
+        { icon:"mdi:counter", label:"Energy", value:this.fmtKwh(insights.totalVehicleEnergyKwh), sub:"Selected period", tone:"neutral" },
+        { icon:"mdi:currency-eur", label:"Value", value:insights.totalAttributedEur === null ? "N/A" : `€${Number(insights.totalAttributedEur).toFixed(2)}`, sub:"Attributed value", tone:"neutral" },
+        { icon:"mdi:car-multiple", label:"Vehicles", value:String(insights.rows.length), sub:"With measured history", tone:"neutral" }
       ], "history-top-status");
     }
-    return hbMobilityStatusGrid(rt, [
-      { icon:"mdi:check-circle-outline", label:"Status", value:rt.supervisorOutcome("mobility", "status", "Unknown"), sub:"Mobility runtime", tone:"neutral" },
-      { icon:"mdi:shield-check-outline", label:"Trust", value:rt.supervisorOutcome("mobility", "trust", "Unknown"), sub:"Contract-backed", tone:"neutral" },
-      { icon:"mdi:alert-circle-outline", label:"Attention", value:rt.supervisorOutcome("mobility", "attention", "None"), sub:"Backend-published", tone:String(rt.supervisorOutcome("mobility", "attention", "None")).toLowerCase()==="none" ? "ok" : "warn" },
-      { icon:"mdi:history", label:"Activity", value:"Read-only", sub:"Audit evidence", tone:"neutral" }
-    ], "log-top-status");
+    const rows = rt.activityRowsFor ? rt.activityRowsFor("") : [];
+    const latest = rows[0] || null;
+    const latestValue = latest
+      ? String(latest.message || latest.result || latest.result_code || latest.activity_state || latest.status || latest.activity_type || latest.command_key || "Recent activity")
+      : "No recent activity";
+    const attention = String(rt.supervisorOutcome("mobility", "attention", "") || "").trim();
+    const actionable = attention && !["none","ok","not applicable","unknown","unavailable"].includes(attention.toLowerCase());
+    const cards = [
+      { icon:"mdi:history", label:"Activity", value:`${rows.length} recent`, sub:latestValue, tone:"neutral" }
+    ];
+    if (actionable) cards.push({
+      icon:"mdi:alert-circle-outline",
+      label:"Attention",
+      value:attention,
+      sub:String(rt.supervisorOutcome("mobility", "attention_reason", "") || "Review recent activity"),
+      tone:"warn"
+    });
+    return hbMobilityStatusGrid(rt, cards, "log-top-status");
   }
 
   renderTopActions(rt, view) {
     const actions = {
       planning: [
         { icon:"mdi:target", label:"Strategies", path:hbMobilityPath("/strategies"), primary:true },
-        { icon:"mdi:car-electric", label:"Vehicles", path:hbMobilityPath("/dashboard") },
-        { icon:"mdi:ev-station", label:"Chargers", path:hbMobilityPath("/charger-maintenance") },
+        { icon:"mdi:car-electric", label:"Vehicle Management", path:hbMobilityPath("/dashboard") },
+        { icon:"mdi:ev-station", label:"Charger Management", path:hbMobilityPath("/charger-maintenance") },
         { icon:"mdi:chart-timeline-variant", label:"History", path:hbMobilityPath("/history") }
       ],
       strategies: [
         { icon:"mdi:calendar-clock", label:"Planning", path:hbMobilityPath("/planning"), primary:true },
-        { icon:"mdi:car-electric", label:"Vehicles", path:hbMobilityPath("/dashboard") },
-        { icon:"mdi:ev-station", label:"Chargers", path:hbMobilityPath("/charger-maintenance") },
+        { icon:"mdi:car-electric", label:"Vehicle Management", path:hbMobilityPath("/dashboard") },
+        { icon:"mdi:ev-station", label:"Charger Management", path:hbMobilityPath("/charger-maintenance") },
         { icon:"mdi:chart-timeline-variant", label:"History", path:hbMobilityPath("/history") }
       ],
       history: [
         { icon:"mdi:format-list-bulleted", label:"Log", path:hbMobilityPath("/log"), primary:true },
-        { icon:"mdi:car-electric", label:"Vehicles", path:hbMobilityPath("/dashboard") },
+        { icon:"mdi:car-electric", label:"Vehicle Management", path:hbMobilityPath("/dashboard") },
         { icon:"mdi:calendar-clock", label:"Planning", path:hbMobilityPath("/planning") },
         { icon:"mdi:target", label:"Strategies", path:hbMobilityPath("/strategies") }
       ],
       log: [
         { icon:"mdi:chart-timeline-variant", label:"History", path:hbMobilityPath("/history"), primary:true },
-        { icon:"mdi:car-electric", label:"Vehicles", path:hbMobilityPath("/dashboard") },
-        { icon:"mdi:ev-station", label:"Chargers", path:hbMobilityPath("/charger-maintenance") },
+        { icon:"mdi:car-electric", label:"Vehicle Management", path:hbMobilityPath("/dashboard") },
+        { icon:"mdi:ev-station", label:"Charger Management", path:hbMobilityPath("/charger-maintenance") },
         { icon:"mdi:calendar-clock", label:"Planning", path:hbMobilityPath("/planning") }
       ]
     };
