@@ -62,6 +62,9 @@ const productVision=fs.readFileSync(path.join(root,'documentation/PRODUCT_VISION
 if(!productVision.includes('Charging remains a Mobility capability') || !productVision.includes('not a standalone Mobility workspace')) failures.push('PRODUCT_VISION missing Charging capability/workspace distinction');
 if(!architecture.includes('Overview | Vehicles | Chargers | Detail')) failures.push('ARCHITECTURE missing canonical Mobility projection set');
 if(readme.includes('vehicle_bmw_ix1_phev.png')) failures.push('README.md: obsolete BMW iX1 artwork path returned');
+if(readme.includes('MOBILITY_PUBLIC_RUNTIME_V1')) failures.push('README.md: V1 returned as primary architecture authority');
+if(!readme.includes('documentation/HISTORY_AND_LESSONS.md') || !readme.includes('documentation/KNOWN_DEFECTS.md')) failures.push('README.md: engineer history/open-issue entry points missing');
+if(!architecture.includes('V2 interface migration remains open')) failures.push('ARCHITECTURE missing explicit V2 migration compatibility boundary');
 
 const vision=fs.readFileSync(path.join(root,'documentation/PRODUCT_VISION.md'),'utf8');
 const backlog=fs.readFileSync(path.join(root,'documentation/BACKEND_INTERFACE_BACKLOG.md'),'utf8');
