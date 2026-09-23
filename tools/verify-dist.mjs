@@ -9,8 +9,8 @@ const pkg=JSON.parse(fs.readFileSync(new URL('../package.json',import.meta.url),
 const required=['homebrain-mobility-dashboard-card','homebrain-vehicle-asset-detail-card','homebrain-charger-asset-detail-card','homebrain-mobility-charger-maintenance-card',pkg.version];
 for(const token of required) if(!text.includes(token)) throw new Error(`dist missing ${token}`);
 for(const token of ['/local/homebrain','homebrain-mobility-assets.bundle.js?v=']) if(text.includes(token)) throw new Error(`legacy runtime dependency remains: ${token}`);
-for(const rel of ['assets/branding/company-logo.svg','assets/vehicles/vehicle_fallback.png','assets/chargers/charger_fallback.png']){
-  if(!fs.existsSync(new URL('../dist/'+rel,import.meta.url))) throw new Error(`dist package asset missing: ${rel}`);
+for(const rel of ['asset--branding--company-logo.svg','asset--vehicles--vehicle_fallback.png','asset--chargers--charger_fallback.png','asset--heroes--mobility-overview.png']){
+  if(!fs.existsSync(new URL('../dist/'+rel,import.meta.url))) throw new Error(`dist flat HACS package asset missing: ${rel}`);
 }
 if(!fs.existsSync(checksumFile)) throw new Error('dist checksum missing');
 if(!fs.existsSync(packageManifestFile)) throw new Error('dist package manifest missing');
