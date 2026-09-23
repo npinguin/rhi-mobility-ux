@@ -108,5 +108,6 @@
   "runtime_v2_power_completeness": "pending",
   "experience_v2_no_frontend_reclassification": "pending",
   "v2_physical_relationship_identity": "pending",
-  "policy_v2_runtime_threshold_revision": "pending"
+  "policy_v2_runtime_threshold_revision": "pending",
+  "v2_contract_discovery_by_contract_id": "pending"
 }
