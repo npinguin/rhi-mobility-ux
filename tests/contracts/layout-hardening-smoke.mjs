@@ -2,6 +2,8 @@ import fs from 'node:fs';
 
 const header=fs.readFileSync(new URL('../../src/app/header-and-navigation.js',import.meta.url),'utf8');
 const presentation=fs.readFileSync(new URL('../../src/app/presentation.js',import.meta.url),'utf8');
+const catalog=fs.readFileSync(new URL('../../src/app/asset-catalog.js',import.meta.url),'utf8');
+const assetShell=fs.readFileSync(new URL('../../src/ui/components/asset-shell.js',import.meta.url),'utf8');
 const dashboard=fs.readFileSync(new URL('../../src/ui/screens/mobility-dashboard.js',import.meta.url),'utf8');
 const chargers=fs.readFileSync(new URL('../../src/ui/screens/charger-maintenance.js',import.meta.url),'utf8');
 const router=fs.readFileSync(new URL('../../src/ui/screens/router.js',import.meta.url),'utf8');
@@ -24,9 +26,13 @@ console.log('PASS shared shell geometry');
 
 for(const needle of [
   'HB_MOBILITY_PAGE_HEROES',
-  'mobility-overview.svg',
-  'mobility-vehicles.svg',
-  'mobility-chargers.svg',
+  'asset_key:"overview"',
+  'asset_key:"vehicles"',
+  'asset_key:"chargers"',
+  'asset_key:"planning"',
+  'asset_key:"strategies"',
+  'asset_key:"history"',
+  'asset_key:"log"',
   '--rhi-page-pad-x',
   '--rhi-font-display',
   '@media(max-width:760px)',
@@ -45,12 +51,19 @@ console.log('PASS shared omni-device presentation grammar for Overview, Vehicles
 if(presentation.includes('\\n')) throw new Error('shared presentation source contains escaped-newline serialization and would not execute as a real module');
 const presentationApi = new Function(
   'rhiMobilityAssetUrl',
-  presentation + '\nreturn { hbMobilityPageHero, hbMobilityPresentationStyles };'
+  catalog + '\n' + presentation + '\nreturn { hbMobilityPageHero, hbMobilityPresentationStyles, rhiMobilityHeroCatalog };'
 )((path)=>'/hacsfiles/rhi-mobility-ux/assets/'+path);
 if(typeof presentationApi.hbMobilityPageHero !== 'function') throw new Error('shared hero function is not executable');
 if(typeof presentationApi.hbMobilityPresentationStyles !== 'function') throw new Error('shared presentation styles are not executable');
 const renderedHero=presentationApi.hbMobilityPageHero({escape:(v)=>String(v)},'overview',{meta:'<strong>5 active</strong>'});
-if(!renderedHero.includes('Mobility Overview') || !renderedHero.includes('/assets/heroes/mobility-overview-approved.webp')) throw new Error('shared Overview hero does not render executable package output');
+if(!renderedHero.includes('Mobility Overview') || !renderedHero.includes('/assets/heroes/mobility-overview.png')) throw new Error('shared Overview hero does not render canonical package output');
+const heroRows=presentationApi.rhiMobilityHeroCatalog();
+if(heroRows.length!==9) throw new Error(`canonical hero count drifted: ${heroRows.length}; expected 9`);
+if(new Set(heroRows.map((row)=>row.package_path)).size!==9) throw new Error('canonical hero keys must map one-to-one to nine unique assets');
+for(const key of ['overview','vehicles','chargers','planning','strategies','history','log','vehicle_detail','charging_detail']) {
+  if(!heroRows.some((row)=>row.key===key)) throw new Error(`canonical hero key missing: ${key}`);
+}
+if(!assetShell.includes('rhiMobilityHeroAsset(model.type === "charger" ? "charging_detail" : "vehicle_detail")')) throw new Error('detail shell no longer resolves canonical detail hero scenes');
 console.log('PASS shared presentation module executes, not only parses');
 
 for(const needle of ['--rhi-content-gap:10px','--rhi-control-h:40px','.vehicle-card,.charger-card','.section-title,.vehicle-workspace-head,.ov-panel-head']){
