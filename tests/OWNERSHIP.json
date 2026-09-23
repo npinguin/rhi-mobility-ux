@@ -168,6 +168,15 @@
         "picker focus preservation without card reconstruction",
         "semantic picker blueprint reuse rule"
       ]
+    },
+    "v2_first_status_architecture": {
+      "owner": "tests/contracts/v2-first-status-architecture-smoke.mjs",
+      "owns": [
+        "rc.41 Overview/Vehicle/Charger top-level status information architecture",
+        "no frontend security or maintenance text inference",
+        "selected relationship counting for charging setup",
+        "explicit V2 contract-gap presentation for missing product facts"
+      ]
     }
   }
 }
