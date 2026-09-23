@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import crypto from 'node:crypto';
 
 const source=new URL('../src/assets/branding/company-logo.svg',import.meta.url);
-const distAsset=new URL('../dist/assets/branding/company-logo.svg',import.meta.url);
+const distAsset=new URL('../dist/asset--branding--company-logo.svg',import.meta.url);
 const header=new URL('../src/app/header-and-navigation.js',import.meta.url);
 const expected='264f0d86798a2a53e30b8beb5cae366e4b0916adbb3716b3deb23b5ddbed053d';
 
