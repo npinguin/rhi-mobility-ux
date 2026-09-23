@@ -1,16 +1,24 @@
-# v1.0.0-rc.44 — V2 picker closure
+# v1.0.0-rc.45 — Picker transport and visual consistency closure
 
-This candidate closes the known Vehicle/Charger picker defects against Mobility backend `M0.9.41`.
+This candidate fixes the target-runtime defects observed with rc.44 on Mobility M0.9.41.
 
-- Vehicle Brand / Model / Variant now select a Mobility-owned product profile via `asset.profile_id`; Colour persists through `vehicle.image_key`.
-- Charger Brand / Model / Variant now select a Mobility-owned charger profile via `asset.profile_id`; Appearance persists through `charger.image_key`.
-- The UX resolves canonical per-asset V2 property sensors first and consumes their published write capability instead of requiring the frozen V1 property-index path.
-- Charger Management fixes the render guard that previously prevented the picker from appearing after clicking **Charger & colour**.
-- Active picker sessions remain local and stable during normal Home Assistant refreshes.
-- Product artwork/profile mapping is explicit in the UX visual catalog; the UX does not infer backend identity from free text.
+The backend publishes canonical profile ids, while Home Assistant select entities accept their display labels. rc.44 passed the semantic id directly to `select.select_option`, producing errors such as `peblar_business_socket_22kw is not valid`. rc.45 keeps the semantic id as UX/backend truth but translates it to the contract-published choice label only at the Home Assistant transport boundary.
+
+Vehicle and Charger picker saves are now sequenced:
+
+```text
+profile semantic value
+→ awaited HA write
+→ appearance/image key
+→ awaited HA write
+→ close picker only on success
+```
+
+Vehicle rendering also rejects a stale image key from a different model when `asset.profile_id` identifies a known canonical visual family. This prevents a Volkswagen profile from continuing to display Renault artwork after a partial/failed previous write.
+
+The Charger picker uses the same hierarchy presentation grammar as the Vehicle picker.
 
 Required backend: `M0.9.41`.
+Rollback: `v1.0.0-rc.44`.
 
-Rollback: `v1.0.0-rc.43`.
-
-Target qualification must prove both pickers on real Home Assistant: open, hierarchy edit, save, canonical readback, refresh, reload and restart persistence.
+Target qualification remains mandatory: save Vehicle and Charger profile + appearance, verify canonical readback, refresh/reload, and restart persistence.
