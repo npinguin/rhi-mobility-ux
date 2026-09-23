@@ -874,6 +874,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
           const activeEl = this.shadowRoot?.activeElement;
           if (!forceRender && (now < (this._holdRenderUntil || 0)) && this._lastRenderOk) return;
           if (!forceRender && activeEl && ["SELECT", "INPUT"].includes(activeEl.tagName) && this._lastRenderOk) return;
+          if (!forceRender && this._vehiclePickerAsset && this._lastRenderOk) return;
           if (!forceRender && this._lastRenderOk && now - (this._lastDashboardRenderAt || 0) < 900) return;
           this._lastDashboardRenderAt = now;
           const rt = new HomeBrainAssetRuntime(hass, this.config);
