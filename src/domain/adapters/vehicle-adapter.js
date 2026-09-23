@@ -1,5 +1,5 @@
 // 30-vehicle-adapter.js
-// R22.12.11.30: vehicle view-model adapter for MOBILITY_PUBLIC_RUNTIME_V1; component-contract materialization is transport-safe and fail-closed.
+// Vehicle view-model adapter. Canonical V2 runtime/experience/configuration is primary; frozen V1 component materialization remains compatibility-only and fail-closed.
 // Product semantics are rendered from named backend owners only. No fact/source
 // fallback, topology inference, command matrix, or frontend family reconstruction.
 
