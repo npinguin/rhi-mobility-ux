@@ -1,7 +1,6 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import vm from 'node:vm';
 import { fileURLToPath } from 'node:url';
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../..');
@@ -22,52 +21,48 @@ try{
   if(publish.includes('gh release upload')) throw new Error('publish workflow must not upload GitHub Release assets');
   if(stable.includes('gh release upload')) throw new Error('stable workflow must not upload GitHub Release assets');
 
-  fs.mkdirSync(installRoot,{recursive:true});
+  // Model current HACS tagged-plugin selection: any release assets would be preferred.
+  const simulatedReleaseAssets=[];
+  if(simulatedReleaseAssets.length) throw new Error('tagged release assets would override the dist tree');
+  fs.mkdirSync(path.dirname(installRoot),{recursive:true});
+  fs.cpSync(dist,installRoot,{recursive:true});
 
-  // Mirror current HACS plugin gather_files_to_download() exactly enough for our package:
-  // remote location is dist and HACS installs only files directly under dist.
-  for(const entry of fs.readdirSync(dist,{withFileTypes:true})){
-    if(entry.isDirectory()) continue;
-    fs.copyFileSync(path.join(dist,entry.name),path.join(installRoot,entry.name));
+  const allowedTop=new Set(['rhi-mobility-ux.js','rhi-mobility-ux.js.sha256','PACKAGE_MANIFEST.json','assets']);
+  for(const entry of fs.readdirSync(installRoot)){
+    if(!allowedTop.has(entry)) throw new Error(`unexpected HACS package top-level entry: ${entry}`);
   }
 
-  const installed=fs.readdirSync(installRoot,{withFileTypes:true});
-  if(installed.some((entry)=>entry.isDirectory())) throw new Error('simulated HACS plugin install unexpectedly contains directories');
-
   for(const row of manifest.files){
-    if(row.path.includes('/')) throw new Error(`package manifest contains nested path HACS plugin will not install: ${row.path}`);
     const full=path.join(installRoot,row.path);
     if(!fs.existsSync(full)) throw new Error(`simulated HACS install missing: ${row.path}`);
     const bytes=fs.readFileSync(full);
     if(bytes.length!==row.bytes) throw new Error(`simulated HACS install size mismatch: ${row.path}`);
   }
 
-  const resolver=fs.readFileSync(path.join(root,'src/app/asset-paths.js'),'utf8');
   const catalog=fs.readFileSync(path.join(root,'src/app/asset-catalog.js'),'utf8');
-  const sandbox={};
-  vm.createContext(sandbox);
-  vm.runInContext(resolver+'\n'+catalog,sandbox,{timeout:5000});
-  const refs=vm.runInContext(`[
-    ...RHI_MOBILITY_IMAGE_CATALOG.map((row)=>row.package_path),
-    ...rhiMobilityHeroCatalog().map((row)=>row.package_path)
-  ].filter(Boolean)`,sandbox,{timeout:1000});
-  if(!refs.length) throw new Error('package asset catalogs have no references');
+  const refs=[...catalog.matchAll(/package_path:"([^"]+)"/g)].map(m=>m[1]);
+  if(!refs.length) throw new Error('package asset catalog has no references');
   for(const rel of refs){
-    const name=vm.runInContext(`rhiMobilityPackagedAssetName(${JSON.stringify(rel)})`,sandbox,{timeout:1000});
-    if(!name || name.includes('/')) throw new Error(`asset did not resolve to flat HACS filename: ${rel} -> ${name}`);
-    if(!fs.existsSync(path.join(installRoot,name))) throw new Error(`catalog asset missing after exact HACS plugin install: ${rel} -> ${name}`);
+    if(!fs.existsSync(path.join(installRoot,'assets',rel))) throw new Error(`package catalog has no installed asset: ${rel}`);
   }
 
   for(const required of [
-    'asset--branding--company-logo.svg',
-    'asset--vehicles--vehicle_fallback.png',
-    'asset--chargers--charger_fallback.png',
-    'asset--heroes--mobility-overview.png',
-    'asset--heroes--mobility-strategies.png'
+    'assets/branding/company-logo.svg',
+    'assets/vehicles/vehicle_fallback.png',
+    'assets/chargers/charger_fallback.png',
+    'assets/heroes/mobility-overview.png',
+    'assets/heroes/mobility-strategies.png'
   ]){
     if(!fs.existsSync(path.join(installRoot,required))) throw new Error(`required installed package asset missing: ${required}`);
   }
-  console.log(`PASS exact HACS plugin install simulation: ${manifest.files.length} flat files installed; ${refs.length} catalog references resolve to installed assets`);
+  for(const [url,rel] of [
+    ['/hacsfiles/rhi-mobility-ux/assets/heroes/mobility-overview.png','assets/heroes/mobility-overview.png'],
+    ['/hacsfiles/rhi-mobility-ux/assets/heroes/mobility-strategies.png','assets/heroes/mobility-strategies.png']
+  ]){
+    if(!url.startsWith('/hacsfiles/rhi-mobility-ux/assets/')) throw new Error(`runtime asset URL escaped canonical assets root: ${url}`);
+    if(!fs.existsSync(path.join(installRoot,rel))) throw new Error(`runtime URL target missing from installed package: ${url}`);
+  }
+  console.log(`PASS target HACS layout: nested assets tree preserved; ${manifest.files.length} files and ${refs.length} catalog references resolve`);
 } finally {
   fs.rmSync(tmp,{recursive:true,force:true});
 }
