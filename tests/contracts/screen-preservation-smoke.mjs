@@ -8,9 +8,9 @@ const detail=fs.readFileSync(new URL('../../src/ui/screens/router.js',import.met
 
 const expectedViews = [
   ['Overview','overview'],
-  ['Vehicles','dashboard'],
+  ['Vehicle Management','dashboard'],
   ['Vehicle & Charger Detail','asset-detail'],
-  ['Chargers','charger-maintenance'],
+  ['Charger Management','charger-maintenance'],
   ['Planning','planning'],
   ['Strategies','strategies'],
   ['History','history'],
