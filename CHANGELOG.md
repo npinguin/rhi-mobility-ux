@@ -1,3 +1,12 @@
+## 1.0.0-rc.37 — Energy-aligned nested assets + hero runtime fix
+
+- Preserves the rc.36 charger occupancy semantics correction.
+- Restores the proven Energy-aligned nested runtime package layout under `assets/`.
+- Removes the rc.35 flat `asset--...` packaging workaround from the candidate.
+- Restores canonical runtime URLs under `/hacsfiles/rhi-mobility-ux/assets/**`.
+- Fixes double resolution of already-complete hero HACS URLs in the shared page-hero renderer.
+- Adds exact final hero URL regression coverage while keeping all nine hero master bytes and semantic mappings unchanged.
+
 ## 1.0.0-rc.36 — charger occupancy semantics fix
 
 - Fixed the Mobility Overview free-charger count: an idle or stopped charger is no longer assumed to be free.
