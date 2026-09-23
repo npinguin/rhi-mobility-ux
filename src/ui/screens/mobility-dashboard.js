@@ -820,23 +820,32 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     const activeCount = allActive.length;
     const inactiveCount = allInactive.length;
     const attentionCount = [...allActive, ...allInactive].filter(attentionRequired).length;
-    const configuredCount = allActive.filter((vehicle)=>{
+    const assignedRows = allActive.filter((vehicle)=>{
       const rel = rt.vehicleChargerRelationship(this.assetId(vehicle));
       const selected = String(rel?.selected || "").trim().toLowerCase();
       return !!selected && !["none","unknown","unavailable","null","undefined","—"].includes(selected);
-    }).length;
+    });
+    const configuredCount = assignedRows.length;
+    const unassignedRows = allActive.filter((vehicle)=>!assignedRows.includes(vehicle));
+    const profiledRows = allActive.filter((vehicle)=>{
+      const assetId = this.assetId(vehicle);
+      const profile = vehicle?.profile_id ?? vehicle?.profile ?? rt.propertyByCompoundKey(assetId, "asset.profile_id")?.value;
+      return !!String(profile ?? "").trim();
+    });
+    const unprofiledRows = allActive.filter((vehicle)=>!profiledRows.includes(vehicle));
     const managementPath = "/config/integrations/integration/rhi_mobility";
+    const names = (rows)=>rows.slice(0,3).map((row)=>this.overviewShortLabel(row, vehicleLabel(row))).join(" · ");
 
     return `
       ${hbMobilityPageHero(rt, "vehicles")}
       ${hbMobilityStatusGrid(rt, [
-        { icon:"mdi:clipboard-check-outline", label:"Configuration", value:"V2 contract gap", sub:`${activeCount} active vehicles · backend #107`, tone:"neutral" },
-        { icon:"mdi:ev-station", label:"Charging setup", value:`${configuredCount} configured`, sub:`${Math.max(0, activeCount-configuredCount)} without selected charger`, tone:"neutral" },
-        { icon:"mdi:database-check-outline", label:"Data health", value:"V2 contract gap", sub:"healthy / partial / stale / unavailable pending", tone:"neutral" }
+        { icon:"mdi:car-multiple", label:"Fleet", value:`${activeCount} active`, sub:inactiveCount ? `${inactiveCount} disabled` : "No disabled vehicles", tone:"neutral" },
+        { icon:"mdi:card-account-details-outline", label:"Profiles", value:`${profiledRows.length}/${activeCount} configured`, sub:unprofiledRows.length ? `${names(unprofiledRows)} without profile` : "All active vehicles profiled", tone:"neutral" },
+        { icon:"mdi:ev-station", label:"Charging setup", value:`${configuredCount}/${activeCount} assigned`, sub:unassignedRows.length ? `${names(unassignedRows)} no charger` : "All active vehicles assigned", tone:"neutral" }
       ], "vehicles-top-status")}
       ${hbMobilityQuickActions(rt, [
         { icon:"mdi:cog-outline", label:"Manage vehicles & profiles", path:managementPath, primary:true },
-        { icon:"mdi:ev-station", label:"Chargers", path:hbMobilityPath("/charger-maintenance") },
+        { icon:"mdi:ev-station", label:"Charger Management", path:hbMobilityPath("/charger-maintenance") },
         { icon:"mdi:calendar-clock", label:"Charging plan", path:hbMobilityPath("/planning") },
         { icon:"mdi:target", label:"Strategies", path:hbMobilityPath("/strategies") }
       ])}
@@ -1177,17 +1186,17 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     .rhi-page-hero-overview .rhi-page-hero-art:before{content:""!important;display:block!important;position:absolute!important;z-index:2!important;inset:0!important;background:linear-gradient(90deg,#fff 0%,rgba(255,255,255,.96) 9%,rgba(255,255,255,.68) 19%,rgba(255,255,255,.13) 37%,rgba(255,255,255,0) 55%)!important}
     .rhi-page-hero-overview .rhi-page-hero-art img{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;min-height:0!important;max-height:none!important;object-fit:cover!important;object-position:center 52%!important;transform:none!important}
 
-    .ov-domain-statusbar{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:8px!important;margin:0!important}
+    .ov-domain-statusbar{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:8px!important;margin:0!important}.ov-domain-statusbar.no-attention{grid-template-columns:repeat(3,minmax(0,1fr))!important}
     .ov-domain-statusbar .ov-status-item{min-width:0!important;min-height:94px!important;display:grid!important;grid-template-columns:52px minmax(0,1fr)!important;gap:11px!important;align-items:center!important;padding:12px 14px!important;border:1px solid #DBE6F3!important;border-radius:15px!important;background:rgba(255,255,255,.97)!important;box-shadow:0 8px 22px rgba(21,61,115,.045)!important}
     .ov-domain-statusbar .ov-status-icon{width:46px!important;height:46px!important;border-radius:14px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:#EEF5FF!important;color:#1467F5!important}
     .ov-domain-statusbar .ov-status-icon ha-icon{--mdc-icon-size:27px!important}
-    .ov-domain-statusbar .charging .ov-status-icon{background:#E8FBF5!important;color:#04A875!important}
-    .ov-domain-statusbar .security.warn .ov-status-icon{background:#FFF4E8!important;color:#FF7500!important}
+    .ov-domain-statusbar .charging .ov-status-icon{background:#EEF5FF!important;color:#1467F5!important}
+    .ov-domain-statusbar .attention.warn .ov-status-icon,.ov-domain-statusbar .range.warn .ov-status-icon{background:#FFF4E8!important;color:#FF7500!important}
     .ov-domain-statusbar .maintenance.warn .ov-status-icon{background:#EEF3FF!important;color:#315FBA!important}
     .ov-domain-statusbar .ov-status-item>div{min-width:0!important;display:block!important}
     .ov-domain-statusbar small{display:block!important;margin:0 0 3px!important;color:#31558E!important;font-size:10px!important;font-weight:650!important}
     .ov-domain-statusbar b{display:block!important;margin:0 0 3px!important;color:#0B173D!important;font-size:clamp(14px,1.25vw,18px)!important;font-weight:720!important;line-height:1.08!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
-    .ov-domain-statusbar .security.warn b{color:#F05B0A!important}
+    .ov-domain-statusbar .attention.warn b,.ov-domain-statusbar .range.warn b{color:#F05B0A!important}
     .ov-domain-statusbar em{display:block!important;margin-top:2px!important;color:#55709B!important;font-size:10px!important;font-style:normal!important;font-weight:500!important;line-height:1.2!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
 
     .ov-quickbar{margin:0!important;min-height:52px!important;padding:6px 10px!important;border:1px solid #DBE6F3!important;border-radius:14px!important;background:#fff!important;box-shadow:0 5px 16px rgba(21,61,115,.03)!important}
