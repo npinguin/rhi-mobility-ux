@@ -14,7 +14,7 @@
   "runtime_checksum_artifact": "dist/rhi-mobility-ux.js.sha256",
   "hacs_repository_type": "dashboard",
   "hacs_validation_category": "plugin",
-  "asset_delivery": "flat_hacs_plugin_root",
+  "asset_delivery": "dist/assets",
   "runtime_manual_local_dependency": false,
   "known_accepted_technical_debt": 0,
   "known_accepted_feature_debt": 0,
