@@ -1,3 +1,17 @@
+## 1.0.0-rc.43 — UX-first status simplification
+
+- renames Vehicles and Chargers to Vehicle Management and Charger Management across navigation, heroes and dashboard view titles;
+- removes backend contract/version/gap plumbing from user-facing status headers;
+- keeps status colour neutral by default and reserves orange/red treatment for concrete user action;
+- makes Overview answer four daily questions: current charging load/occupancy/availability, usable range with a 100 km UX threshold, comfort/departure context, and conditional attention;
+- classifies maintenance in UX as overdue (<0 d), due soon (0–89 d), scheduled (>=90 d) and unknown using numeric due-day facts only;
+- treats security as actionable only when explicit access facts are unsafe; unknown/incomplete evidence stays neutral;
+- makes Vehicle Management factual: fleet lifecycle, profile coverage and charger assignment;
+- makes Charger Management factual: profile coverage, availability, current aggregate load/connection state and fault-only issue surfacing;
+- reduces Planning, Strategies, History and Log headers to user-value facts instead of technical source/contract KPIs;
+- reduces Vehicle Detail to Range / Charging / Security / Maintenance and Charger Detail to State / Power / Vehicle with Issue only when needed;
+- preserves rc.42 picker write/readback and refresh-session fixes.
+
 ## 1.0.0-rc.42 — picker write/readback + refresh stability
 
 - builds strictly on the already-published rc.41 V2-first status architecture;
