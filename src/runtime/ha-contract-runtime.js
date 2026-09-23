@@ -47,14 +47,15 @@ class HomeBrainAssetRuntime {
       fleet_runtime_v2: { contract_id: "MOBILITY_PUBLIC_RUNTIME_V2", role: "authority" },
       product_experience_v2: { contract_id: "MOBILITY_EXPERIENCE_V2", role: "authority" },
       product_policy_v2: { contract_id: "MOBILITY_POLICY_V2", role: "authority" },
-      identity_navigation: { entity_id: "sensor.mobility_asset_index", role: "authority" },
-      vehicle_properties: { entity_id: "vehicle_component_property_indexes", role: "authority" },
-      charger_properties: { entity_id: "sensor.mobility_charger_property_index", role: "authority" },
-      relationships: { entity_id: "sensor.mobility_relationship_index", role: "authority" },
-      command_readiness: { entity_id: "sensor.mobility_command_index", role: "authority" },
-      command_results: { entity_id: "sensor.mobility_activity_index", role: "authority" },
-      component_layout: { entity_id: "component_contract_indexes", role: "authority" },
-      command_placement: { entity_id: "command_slot_indexes", role: "authority" },
+      command_v2: { contract_id: "MOBILITY_COMMAND_V2", role: "authority" },
+      identity_navigation: { entity_id: "sensor.mobility_asset_index", role: "compatibility_projection" },
+      vehicle_properties: { entity_id: "vehicle_component_property_indexes", role: "compatibility_projection" },
+      charger_properties: { entity_id: "sensor.mobility_charger_property_index", role: "compatibility_projection" },
+      relationships: { entity_id: "sensor.mobility_relationship_index", role: "compatibility_projection" },
+      command_readiness: { contract_id: "MOBILITY_COMMAND_V2", role: "authority" },
+      command_results: { entity_id: "sensor.mobility_activity_index", role: "compatibility_projection" },
+      component_layout: { entity_id: "component_contract_indexes", role: "compatibility_projection" },
+      command_placement: { contract_id: "MOBILITY_COMMAND_V2", role: "authority" },
       energy_boundary: { entity_id: "sensor.mobility_energy_asset_publication", role: "external_consumer_only" },
       asset_runtime_compatibility: { entity_id: "sensor.mobility_asset_runtime_contract_index", role: "diagnostics_only_deprecated" },
       product_asset_compatibility: { entity_id: "sensor.mobility_product_asset_index", role: "diagnostics_only_deprecated" }
@@ -114,6 +115,7 @@ class HomeBrainAssetRuntime {
       "sensor.rhi_mobility_runtime_v2",
       "sensor.rhi_mobility_experience_v2",
       "sensor.rhi_mobility_policy_v2",
+      "sensor.rhi_mobility_command_v2",
       ...this.hardBackendGateSpecs().map((g) => g.entity_id),
       ...this.diagnosticHealthSpecs().map((g) => g.entity_id)
     ]);
@@ -197,6 +199,105 @@ class HomeBrainAssetRuntime {
       revision: Number(attrs.revision ?? state?.state ?? 0) || 0,
       policy: attrs.policy && typeof attrs.policy === "object" ? attrs.policy : {}
     };
+  }
+
+  mobilityCommandV2() {
+    const state = this.contractEntity("MOBILITY_COMMAND_V2", [
+      "sensor.rhi_mobility_command_v2",
+      "sensor.mobility_command_v2"
+    ]);
+    const attrs = state?.attributes || {};
+    if (String(attrs.contract_id || "") !== "MOBILITY_COMMAND_V2") return null;
+    return {
+      contract_id: attrs.contract_id,
+      publisher: attrs.publisher || "",
+      commands: Array.isArray(attrs.commands) ? attrs.commands : [],
+      raw_service_bindings_exposed: attrs.raw_service_bindings_exposed === true
+    };
+  }
+
+  commandV2Label(commandKey = "") {
+    const key = String(commandKey || "").split(".").pop() || "";
+    const labels = {
+      start:"Start charging",
+      stop:"Stop charging",
+      start_charging:"Start charging",
+      stop_charging:"Stop charging",
+      unlock_connector:"Unlock connector",
+      restart:"Restart",
+      identify:"Identify",
+      lock:"Lock",
+      unlock:"Unlock",
+      climate_start:"Start climate",
+      climate_stop:"Stop climate",
+      refresh:"Refresh"
+    };
+    return labels[key] || this.titleize(key.replace(/_/g, " "));
+  }
+
+  commandV2Rows(assetId = "") {
+    const contract = this.mobilityCommandV2();
+    if (!contract) return null;
+    const canonical = this.canonicalAssetId(assetId);
+    const order = {
+      "charger.command.start":10,
+      "charger.command.start_charging":10,
+      "charger.command.stop":20,
+      "charger.command.stop_charging":20,
+      "charger.command.unlock_connector":30,
+      "vehicle.command.lock":10,
+      "vehicle.command.unlock":20,
+      "vehicle.command.climate_start":30,
+      "vehicle.command.climate_stop":40,
+      "charger.command.restart":70,
+      "charger.command.identify":80,
+      "vehicle.command.refresh":90
+    };
+    return contract.commands
+      .filter((row) => row && (!canonical || this.canonicalAssetId(row.asset_id || "") === canonical))
+      .map((row) => {
+        const key = String(row.command_key || "").trim();
+        const placement = String(row.placement || "").trim();
+        const family = placement.split(".").pop() || "";
+        return this.normalizeCommandEntry({
+          ...row,
+          command_id: row.command_id || (row.asset_id && key ? `${row.asset_id}:${key}` : key),
+          command_key:key,
+          label:row.label || this.commandV2Label(key),
+          command_family:row.command_family || (family === "primary" ? "charging" : family),
+          category:row.category || (family === "engineering" ? "secondary" : "primary"),
+          frontend_allowed:row.supported !== false,
+          exists:row.supported !== false,
+          enabled:row.supported !== false,
+          execution_allowed:row.execution_allowed === true,
+          blocked_reason:row.blocked_reason || "",
+          sort_order:row.sort_order ?? order[key] ?? 999,
+          service_domain:"rhi_mobility",
+          service_action:"execute_command",
+          service_data:{ asset_id:row.asset_id || canonical, command_key:key },
+          service_target:{},
+          _authority:"MOBILITY_COMMAND_V2"
+        }, row.asset_id || canonical);
+      })
+      .filter(Boolean);
+  }
+
+  commandV2RowsForSurface(assetId = "", surface = "operational") {
+    const rows = this.commandV2Rows(assetId);
+    if (rows === null) return null;
+    const canonical = this.canonicalAssetId(assetId);
+    const wanted = this.norm(surface);
+    const isQuick = ["quick_actions","operational","vehicle_actions","charger_actions"].includes(String(surface || ""));
+    return rows.filter((row) => {
+      const placement = String(row.raw?.placement || row.placement || "").trim();
+      const normalizedPlacement = this.norm(placement);
+      const placementTail = this.norm(placement.split(".").pop() || "");
+      if (isQuick) {
+        if (canonical.startsWith("vehicle_")) return placementTail !== "engineering";
+        return canonical.startsWith("charger_");
+      }
+      return wanted === normalizedPlacement || wanted === placementTail || normalizedPlacement.endsWith(wanted);
+    });
   }
 
   mobilityFleetV2() {
@@ -615,12 +716,15 @@ class HomeBrainAssetRuntime {
       JSON.stringify(canonical ? this.energyAssetPublicationRows(canonical) : this.energyAssetPublicationRows("")),
       JSON.stringify(this.mobilityRuntimeV2()),
       JSON.stringify(this.mobilityExperienceV2()),
-      JSON.stringify(this.mobilityPolicyV2())
+      JSON.stringify(this.mobilityPolicyV2()),
+      JSON.stringify(this.mobilityCommandV2())
     ];
     return parts.join("|");
   }
 
   publicCommandRows() {
+    const v2 = this.commandV2Rows("");
+    if (v2 !== null) return v2;
     const rows = [];
     const entity = this.entity("sensor.mobility_command_index");
     const attrs = entity?.attributes || {};
@@ -698,6 +802,7 @@ class HomeBrainAssetRuntime {
       },
       relationships: { published: relationships.length, consumed: relationships.length, missing: 0 },
       commands: {
+        authority: this.mobilityCommandV2() ? "MOBILITY_COMMAND_V2" : "MOBILITY_PUBLIC_RUNTIME_V1_COMPAT",
         published: commands.length, consumed: commands.length, missing: 0,
         hidden_frontend_false: commands.filter((c)=>this.contractBool(c.frontend_allowed, true) === false).length,
         visible_disabled: visibleCommands.filter((c)=>this.contractBool(c.execution_allowed, false) === false).length,
@@ -800,6 +905,8 @@ class HomeBrainAssetRuntime {
 
 
   uiCommandSurface(assetId = "") {
+    const v2 = this.commandV2Rows(assetId);
+    if (v2 !== null) return v2;
     const entityIds = ["sensor.mobility_command_index"];
     for (const entityId of entityIds) {
       const entity = this.entity(entityId);
@@ -2767,9 +2874,8 @@ class HomeBrainAssetRuntime {
 
   commandsFor(assetId) {
     const canonical = this.canonicalAssetId(assetId);
-    // Authoritative command rule: read only sensor.mobility_command_index.commands,
-    // filter by asset_id, hide only frontend_allowed=false, and never infer commands
-    // from properties, switches, buttons, locks, numbers or selects.
+    // Command V2 is authoritative when present. The frozen V1 command index is
+    // compatibility-only for older backends and never overrides a V2 publication.
     return this.commandRegistry(canonical)
       .filter((c) => c && String(c.asset_id || "") === String(canonical))
       .filter((c) => this.contractBool(c.frontend_allowed, true) === true)
@@ -2960,12 +3066,18 @@ class HomeBrainAssetRuntime {
 
   commandsForSurface(assetId = "", surface = "operational") {
     const canonical = this.canonicalAssetId(assetId);
+    const v2Rows = this.commandV2RowsForSurface(canonical, surface);
+    if (v2Rows !== null) {
+      return v2Rows
+        .map((command)=>this.completeCommandIntent(command, canonical))
+        .filter((command)=>command && this.contractBool(command.frontend_allowed, true) === true);
+    }
     const slotRows = this.commandSlotRowsForSurface(canonical, surface);
     if (slotRows === null) return [];
 
-    // R43.2.54: placement comes only from the slot index; readiness/invoke comes only
-    // from sensor.mobility_command_index. A placed command with a missing command row
-    // remains visible but fail-closed as a contract gap.
+    // Frozen V1 compatibility path: placement comes from the slot index and
+    // readiness/invoke from mobility_command_index. This path is never consulted
+    // when MOBILITY_COMMAND_V2 exists.
     const commands = this.uiCommandSurface(canonical).map((command)=>this.completeCommandIntent(command, canonical)).filter(Boolean);
     const byId = new Map(commands.map((cmd)=>[String(cmd.command_id || ""), cmd]));
     const byKey = new Map(commands.map((cmd)=>[String(cmd.command_key || ""), cmd]));
@@ -3167,7 +3279,8 @@ class HomeBrainAssetRuntime {
   }
 
   commandState(command) {
-    // Command index row is authoritative. Do not inspect capability/status helper entities here.
+    // MOBILITY_COMMAND_V2 is authoritative when present; V1 command-index rows are
+    // accepted only as a compatibility projection on older backends.
     const status = command?.execution_status || command?.ui_state || command?.effective_availability || "";
     const reason = command?.blocked_reason || command?.execution_reason || command?.disabled_reason || "";
     const lower = String(status).toLowerCase();
@@ -3181,7 +3294,7 @@ class HomeBrainAssetRuntime {
       busy: lower.includes("running") || lower.includes("pending") || lower.includes("queued") || lower.includes("in_progress"),
       failed: lower.includes("failed") || lower.includes("blocked") || lower.includes("unavailable") || lower.includes("error"),
       status,
-      reason: reason || (unsupportedInteraction ? (command?.interaction_reason || "Required command parameters are not supported") : (missingExecutor ? "No executable service metadata published by command contract" : (!executionAllowed ? "Execution not allowed by command contract" : "")))
+      reason: reason || (unsupportedInteraction ? (command?.interaction_reason || "Required command parameters are not supported") : (missingExecutor ? "No executable producer command boundary available" : (!executionAllowed ? "Execution not allowed by command contract" : "")))
     };
   }
 

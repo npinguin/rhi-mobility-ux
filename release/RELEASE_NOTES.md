@@ -1,24 +1,25 @@
-# v1.0.0-rc.45 — Picker transport and visual consistency closure
+# v1.0.0-rc.46 — Direct Mobility Command V2 closure
 
-This candidate fixes the target-runtime defects observed with rc.44 on Mobility M0.9.41.
+This candidate moves Mobility command presentation and execution onto the canonical backend command boundary introduced by Mobility M0.9.42 and carried unchanged into M0.9.43.
 
-The backend publishes canonical profile ids, while Home Assistant select entities accept their display labels. rc.44 passed the semantic id directly to `select.select_option`, producing errors such as `peblar_business_socket_22kw is not valid`. rc.45 keeps the semantic id as UX/backend truth but translates it to the contract-published choice label only at the Home Assistant transport boundary.
+The UX now discovers `MOBILITY_COMMAND_V2` by contract id and treats it as the sole command authority whenever published. Command support, readiness, blocked reason and placement come from that V2 contract. The frozen `sensor.mobility_command_index` and vehicle/charger command-slot indexes are compatibility-only and are not consulted when Command V2 exists.
 
-Vehicle and Charger picker saves are now sequenced:
+Execution is routed through the producer-owned Home Assistant service:
 
 ```text
-profile semantic value
-→ awaited HA write
-→ appearance/image key
-→ awaited HA write
-→ close picker only on success
+UX command
+→ MOBILITY_COMMAND_V2 exact asset_id + command_key
+→ rhi_mobility.execute_command
+→ Mobility command controller
+→ physical producer binding
+→ backend-owned execution/readback lifecycle
 ```
 
-Vehicle rendering also rejects a stale image key from a different model when `asset.profile_id` identifies a known canonical visual family. This prevents a Volkswagen profile from continuing to display Renault artwork after a partial/failed previous write.
+The UX never receives or reconstructs raw physical service bindings. Charger Start/Stop/Unlock/Restart/Identify are therefore no longer dependent on partial V1 slot/index materialization. Vehicle engineering commands remain outside quick actions according to producer-owned placement.
 
-The Charger picker uses the same hierarchy presentation grammar as the Vehicle picker.
+Existing rc.45 picker transport, readback sequencing and cross-model artwork protection are preserved.
 
-Required backend: `M0.9.41`.
-Rollback: `v1.0.0-rc.44`.
+Required/tested backend: `M0.9.43`.
+Rollback: `v1.0.0-rc.45`.
 
-Target qualification remains mandatory: save Vehicle and Charger profile + appearance, verify canonical readback, refresh/reload, and restart persistence.
+Target Home Assistant qualification remains mandatory. It must prove Command V2 discovery, complete charger command visibility, producer-owned execution, picker write/readback persistence, refresh/reload/restart behavior and rollback before stable promotion.
