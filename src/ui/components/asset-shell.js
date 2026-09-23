@@ -377,15 +377,19 @@ class HomeBrainAssetShell {
       modelSelect?.addEventListener("change", ()=>refreshHierarchy("model"));
       variantSelect?.addEventListener("change", ()=>refreshHierarchy("variant"));
       colorSelect?.addEventListener("change", updatePreview);
-      saveButton?.addEventListener("click", ()=>{
+      saveButton?.addEventListener("click", async ()=>{
         if (saveButton.disabled) return;
         const profileId = saveButton.getAttribute("data-vehicle-profile-id") || "";
         const key = saveButton.getAttribute("data-vehicle-key") || "";
         if (!assetId || !key) return;
+        saveButton.disabled = true;
         const profileProp = this.rt.semanticProperty(assetId, "asset.profile_id");
         const currentProfile = String(profileProp?.value || "");
-        if (profileId && profileId !== currentProfile && !this.rt.writePublishedProperty(assetId, "asset.profile_id", profileId)) return;
-        this.rt.writePublishedProperty(assetId, "vehicle.image_key", key);
+        const profileOk = !profileId || profileId === currentProfile || await this.rt.writePublishedPropertyAsync(assetId, "asset.profile_id", profileId);
+        if (!profileOk) { saveButton.disabled = false; return; }
+        const imageOk = await this.rt.writePublishedPropertyAsync(assetId, "vehicle.image_key", key);
+        if (!imageOk) { saveButton.disabled = false; return; }
+        saveButton.classList.add("sent");
       });
     });
 
@@ -454,15 +458,19 @@ class HomeBrainAssetShell {
       modelSelect?.addEventListener("change", ()=>refreshHierarchy("model"));
       variantSelect?.addEventListener("change", ()=>refreshHierarchy("variant"));
       appearanceSelect?.addEventListener("change", updatePreview);
-      saveButton?.addEventListener("click", ()=>{
+      saveButton?.addEventListener("click", async ()=>{
         if (saveButton.disabled) return;
         const profileId = saveButton.getAttribute("data-charger-profile-id") || "";
         const key = saveButton.getAttribute("data-charger-key") || "";
         if (!assetId || !key) return;
+        saveButton.disabled = true;
         const profileProp = this.rt.semanticProperty(assetId, "asset.profile_id");
         const currentProfile = String(profileProp?.value || "");
-        if (profileId && profileId !== currentProfile && !this.rt.writePublishedProperty(assetId, "asset.profile_id", profileId)) return;
-        this.rt.writePublishedProperty(assetId, "charger.image_key", key);
+        const profileOk = !profileId || profileId === currentProfile || await this.rt.writePublishedPropertyAsync(assetId, "asset.profile_id", profileId);
+        if (!profileOk) { saveButton.disabled = false; return; }
+        const imageOk = await this.rt.writePublishedPropertyAsync(assetId, "charger.image_key", key);
+        if (!imageOk) { saveButton.disabled = false; return; }
+        saveButton.classList.add("sent");
       });
     });
 

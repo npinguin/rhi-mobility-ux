@@ -167,6 +167,8 @@ if(!v2PropertyRt.isWritableProperty(imageProp)) throw new Error('canonical V2 im
 const profileProp=v2PropertyRt.semanticProperty('vehicle_id4','asset.profile_id');
 if(!profileProp || !v2PropertyRt.isWritableProperty(profileProp)) throw new Error('canonical V2 profile property write capability not consumed');
 if(v2PropertyRt.propertyEditorChoices(profileProp)?.[0]?.brand!=='Volkswagen') throw new Error('structured V2 profile identity choices not preserved');
+if(!v2PropertyRt.writePublishedProperty('vehicle_id4','asset.profile_id','volkswagen_id4_pro_my2026')) throw new Error('V2 profile write dispatch failed');
+if(v2PropertyCalls.at(-1)?.domain!=='select' || v2PropertyCalls.at(-1)?.service!=='select_option' || v2PropertyCalls.at(-1)?.data?.option!=='Volkswagen ID.4 Pro') throw new Error('semantic profile id must translate to the HA select display option');
 if(!v2PropertyRt.writePublishedProperty('vehicle_id4','vehicle.image_key','volkswagen.id4.2024-2026.ev.glacier-white')) throw new Error('V2 image write dispatch failed');
 if(v2PropertyCalls.at(-1)?.domain!=='text' || v2PropertyCalls.at(-1)?.service!=='set_value' || v2PropertyCalls.at(-1)?.data?.entity_id!=='text.rhi_mobility_vehicle_id4_vehicle_image_key' || v2PropertyCalls.at(-1)?.data?.value!=='volkswagen.id4.2024-2026.ev.glacier-white') throw new Error('V2 semantic image write used wrong transport');
 console.log('PASS canonical per-asset V2 semantic property read/write consumption');
