@@ -1,3 +1,13 @@
+## 1.0.0-rc.44 — V2 picker closure
+
+- fixes the Charger Management picker open/close render guard so the panel actually materializes on click;
+- moves Vehicle and Charger picker product selection onto Mobility-owned `asset.profile_id` and keeps colour/appearance on `vehicle.image_key` / `charger.image_key`;
+- adds a V2-native semantic-property resolver before legacy compatibility fallback;
+- requires backend M0.9.41, whose canonical scalar property sensors expose complete write capability and structured profile choices;
+- preserves local draft editing and prevents normal HA refresh from reconstructing an active picker;
+- saves profile intent first, then appearance, and relies on canonical backend readback as durable truth;
+- removes the obsolete appearance-only/read-only V1 picker assumption.
+
 ## 1.0.0-rc.43 — UX-first status simplification on Mobility V2
 
 - migrates user-facing Mobility status consumption to backend M0.9.40 direct V2 surfaces: `MOBILITY_PUBLIC_RUNTIME_V2`, `MOBILITY_EXPERIENCE_V2` and `MOBILITY_POLICY_V2`;

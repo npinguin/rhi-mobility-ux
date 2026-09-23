@@ -68,9 +68,9 @@ MOBILITY_EXPERIENCE_V2     = user-facing conclusions
 UX                         = select / aggregate / format / present
 ```
 
-rc.43 consumes the direct Runtime V2 / Experience V2 / Policy V2 Home Assistant surfaces introduced in backend M0.9.40. The frozen V1 facade remains compatibility-only for older consumers. New UX work must not introduce V1-only status dependencies or reconstruct product conclusions locally.
+rc.44 consumes the direct Runtime V2 / Experience V2 / Policy V2 surfaces and the canonical per-asset V2 semantic property write surface introduced in backend M0.9.41. The frozen V1 facade remains compatibility-only for older consumers. New UX work must not introduce V1-only status dependencies or reconstruct product conclusions locally.
 
-Existing configuration controls may still use backend-published write metadata, options and write targets where no V2 configuration-write replacement exists. `asset.profile_id` and `vehicle.selected_charger` may remain visible/editable while unset. Runtime controls remain fail-closed without V1 write capability.
+Configuration controls consume backend-published canonical V2 write metadata, options and write targets. `asset.profile_id`, `vehicle.image_key` and `charger.image_key` are the picker persistence surfaces. Frozen V1 may remain a compatibility fallback for older deployments but is not semantic authority. Runtime controls remain fail-closed without published write capability.
 
 Actual/readback is the normal operational truth. Requested intent is transient during editing/pending write and must not replace canonical actual state.
 
@@ -93,10 +93,10 @@ Global supervisor status, trust, attention, opportunity and recommendation are b
 ### Product/contract rule
 
 - One Mobility model sits behind every tab; screens are projections only.
-- Overview evolves from the current V1 implementation; do not replace it with a mock redesign.
+- Overview evolves from the current implementation; do not replace it with a mock redesign.
 - Missing backend capabilities render N/A/empty and go to `documentation/BACKEND_INTERFACE_BACKLOG.md`.
 - Do not mock user→vehicle links, HA-user permissions, management capabilities or future V2.x fields.
-- `No charger` is a first-class selected-charger state only when V1 publishes backend-owned unset metadata.
+- `No charger` is a first-class selected-charger state only when Mobility publishes backend-owned unset metadata.
 - URL route is authoritative product state: refresh must preserve the current tab and relevant position.
 - The connected HA user may influence focus/sorting only after the backend publishes HA-native relationship and rights contracts.
 - Shared RHI header/footer remain unchanged unless a transversal RHI UX change is explicitly approved. Mobility may only simplify the outer Lovelace top menu as part of this program.

@@ -121,3 +121,52 @@ if(v2rt.vehicleRelationshipV2('vehicle_id4')?.observed_identity_proven!==false) 
 if(!v2rt.setMobilityPolicy('range.low_range_km','120')) throw new Error('Policy V2 write boundary unavailable');
 if(v2Hass.lastCall?.domain!=='rhi_mobility' || v2Hass.lastCall?.service!=='set_policy' || v2Hass.lastCall?.data?.policy_key!=='range.low_range_km') throw new Error('Policy V2 write must use rhi_mobility.set_policy');
 console.log('PASS Mobility Runtime/Experience/Policy V2 direct contract consumption');
+
+
+const v2PropertyCalls=[];
+const v2PropertyHass={states:{
+  'sensor.mobility_asset_index':{state:'ready',attributes:{assets_json:[{asset_id:'vehicle_id4',asset_type:'vehicle',display_name:'ID.4'}]}},
+  'sensor.rhi_mobility_vehicle_id4_image_key':{
+    entity_id:'sensor.rhi_mobility_vehicle_id4_image_key',
+    state:'volkswagen.id4.2024-2026.ev.scale-silver',
+    attributes:{
+      canonical_contract:'MOBILITY_PUBLIC_RUNTIME_V2',
+      asset_id:'vehicle_id4',
+      asset_type:'vehicle',
+      property_key:'vehicle.image_key',
+      editable:true,
+      write_supported:true,
+      write_binding_type:'text',
+      write_service_domain:'text',
+      write_service_action:'set_value',
+      write_target_entity:'text.rhi_mobility_vehicle_id4_vehicle_image_key'
+    }
+  },
+  'sensor.rhi_mobility_vehicle_id4_profile_id':{
+    entity_id:'sensor.rhi_mobility_vehicle_id4_profile_id',
+    state:'volkswagen_id4_pro_my2026',
+    attributes:{
+      canonical_contract:'MOBILITY_PUBLIC_RUNTIME_V2',
+      asset_id:'vehicle_id4',
+      asset_type:'vehicle',
+      property_key:'asset.profile_id',
+      editable:true,
+      write_supported:true,
+      write_binding_type:'select',
+      write_service_domain:'select',
+      write_service_action:'select_option',
+      write_target_entity:'select.rhi_mobility_vehicle_id4_asset_profile_id',
+      choices:[{value:'volkswagen_id4_pro_my2026',label:'Volkswagen ID.4 Pro',brand:'Volkswagen',model:'ID.4',variant:'Pro',model_year:2026}]
+    }
+  }
+},callService:(domain,service,data)=>v2PropertyCalls.push({domain,service,data})};
+const v2PropertyRt=new Runtime(v2PropertyHass,{});
+const imageProp=v2PropertyRt.semanticProperty('vehicle_id4','vehicle.image_key');
+if(!imageProp || imageProp._source_entity_id!=='sensor.rhi_mobility_vehicle_id4_image_key') throw new Error('canonical V2 semantic image property not resolved directly');
+if(!v2PropertyRt.isWritableProperty(imageProp)) throw new Error('canonical V2 image property write capability not consumed');
+const profileProp=v2PropertyRt.semanticProperty('vehicle_id4','asset.profile_id');
+if(!profileProp || !v2PropertyRt.isWritableProperty(profileProp)) throw new Error('canonical V2 profile property write capability not consumed');
+if(v2PropertyRt.propertyEditorChoices(profileProp)?.[0]?.brand!=='Volkswagen') throw new Error('structured V2 profile identity choices not preserved');
+if(!v2PropertyRt.writePublishedProperty('vehicle_id4','vehicle.image_key','volkswagen.id4.2024-2026.ev.glacier-white')) throw new Error('V2 image write dispatch failed');
+if(v2PropertyCalls.at(-1)?.domain!=='text' || v2PropertyCalls.at(-1)?.service!=='set_value' || v2PropertyCalls.at(-1)?.data?.entity_id!=='text.rhi_mobility_vehicle_id4_vehicle_image_key' || v2PropertyCalls.at(-1)?.data?.value!=='volkswagen.id4.2024-2026.ev.glacier-white') throw new Error('V2 semantic image write used wrong transport');
+console.log('PASS canonical per-asset V2 semantic property read/write consumption');

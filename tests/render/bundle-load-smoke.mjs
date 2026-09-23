@@ -38,8 +38,11 @@ if(!overviewHtml.includes('ov-vehicle-row')) throw new Error('Overview vehicle r
 // editor for vehicle.image_key.
 const Shell=vm.runInContext('HomeBrainAssetShell',context);
 const detailRt={
-  propertyByCompoundKey:()=>({asset_id:'vehicle_test',property_key:'vehicle.image_key',value:'vehicle_audi_q8',editable:true}),
-  visualImageKey:()=> 'vehicle_audi_q8',
+  semanticProperty:(_asset,key)=>key==='asset.profile_id'
+    ? {asset_id:'vehicle_test',property_key:key,value:'audi_q8_55_tfsi_e_quattro_my2025',editable:true,write_supported:true,write_binding_type:'select',write_service_domain:'select',write_service_action:'select_option',write_target_entity:'select.vehicle_profile',choices:[{value:'audi_q8_55_tfsi_e_quattro_my2025',label:'Audi Q8'}]}
+    : {asset_id:'vehicle_test',property_key:key,value:'audi.q8.4m.2024-2026.tfsi-e.daytona-grey',editable:true,write_supported:true,write_binding_type:'text',write_service_domain:'text',write_service_action:'set_value',write_target_entity:'text.vehicle_image'},
+  propertyEditorChoices:(prop)=>prop?.choices || [],
+  visualImageKey:()=> 'audi.q8.4m.2024-2026.tfsi-e.daytona-grey',
   isWritableProperty:()=> true,
   valueWithoutUnit:(v)=>v,
   uxEditorControlKind:()=> 'text',
@@ -56,8 +59,11 @@ for(const needle of ['data-vehicle-picker-brand','data-vehicle-picker-model','da
 }
 const Picker=vm.runInContext('HomeBrainVehicleVisualPicker',context);
 const id4Rt={
-  propertyByCompoundKey:()=>({asset_id:'vehicle_id4',property_key:'vehicle.image_key',value:'vw_id4_business_pro_silver_grey',editable:true}),
-  visualImageKey:()=> 'vw_id4_business_pro_silver_grey',
+  semanticProperty:(_asset,key)=>key==='asset.profile_id'
+    ? {asset_id:'vehicle_id4',property_key:key,value:'volkswagen_id4_pro_my2026',editable:true,write_supported:true,write_binding_type:'select',write_service_domain:'select',write_service_action:'select_option',write_target_entity:'select.id4_profile',choices:[{value:'volkswagen_id4_pro_my2026',label:'Volkswagen ID.4 Pro'}]}
+    : {asset_id:'vehicle_id4',property_key:key,value:'volkswagen.id4.2024-2026.ev.scale-silver',editable:true,write_supported:true,write_binding_type:'text',write_service_domain:'text',write_service_action:'set_value',write_target_entity:'text.id4_image'},
+  propertyEditorChoices:(prop)=>prop?.choices || [],
+  visualImageKey:()=> 'volkswagen.id4.2024-2026.ev.scale-silver',
   isWritableProperty:()=> true,
   assetUrl:(p)=>'/assets/'+p,
   escape:(v)=>String(v??'')
