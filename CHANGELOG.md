@@ -1,8 +1,9 @@
-## 1.0.0-rc.36 — Hero runtime URL resolution hotfix
+## 1.0.0-rc.36 — Restore nested assets + hero URL fix
 
-- Fixed tab heroes resolving an already packaged HACS URL a second time.
-- Added an executable contract asserting exact final hero `<img src>` values and rejecting `asset--hacsfiles--` regressions.
-- No asset bytes, mappings or backend semantics changed.
+- Restored the proven nested runtime package layout under `assets/`; rc.35 flat asset packaging is not retained.
+- Fixed double resolution of already-complete HACS hero URLs in the shared page-hero renderer.
+- Added regression checks for exact final hero URLs and the corresponding installed nested files.
+- Preserved all nine approved hero master bytes and semantic mappings.
 
 ## 1.0.0-rc.35 — HACS runtime asset delivery hotfix
 
