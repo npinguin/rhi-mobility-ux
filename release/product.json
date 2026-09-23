@@ -1,10 +1,10 @@
 {
   "product": "rhi-mobility-ux",
   "contract": "MOBILITY_PUBLIC_RUNTIME_V2",
-  "minimum_backend": "M0.9.40",
-  "tested_backend": "M0.9.40",
+  "minimum_backend": "M0.9.41",
+  "tested_backend": "M0.9.41",
   "stage": "test_candidate",
-  "rollback_release": "v1.0.0-rc.42",
+  "rollback_release": "v1.0.0-rc.43",
   "runtime_artifact": "dist/rhi-mobility-ux.js",
   "runtime_checksum_artifact": "dist/rhi-mobility-ux.js.sha256",
   "hacs_repository_type": "dashboard",
