@@ -574,17 +574,20 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
       });
     });
     this.shadowRoot.querySelectorAll("button[data-charger-picker-save]").forEach((btn) => {
-      btn.addEventListener("click", (ev) => {
+      btn.addEventListener("click", async (ev) => {
         ev.preventDefault(); ev.stopPropagation();
         if (btn.disabled) return;
         const assetId = btn.getAttribute("data-charger-picker-save") || "";
         const profileId = btn.getAttribute("data-charger-profile-id") || "";
         const key = btn.getAttribute("data-charger-key") || "";
         if (!assetId || !key) return;
+        btn.disabled = true;
         const profileProp = rt.semanticProperty(assetId, "asset.profile_id");
         const currentProfile = String(profileProp?.value || "");
-        if (profileId && profileId !== currentProfile && !rt.writePublishedProperty(assetId, "asset.profile_id", profileId)) return;
-        if (!rt.writePublishedProperty(assetId, "charger.image_key", key)) return;
+        const profileOk = !profileId || profileId === currentProfile || await rt.writePublishedPropertyAsync(assetId, "asset.profile_id", profileId);
+        if (!profileOk) { btn.disabled = false; return; }
+        const imageOk = await rt.writePublishedPropertyAsync(assetId, "charger.image_key", key);
+        if (!imageOk) { btn.disabled = false; return; }
         btn.classList.add("sent");
         this._chargerPickerDraft.delete(assetId);
         setTimeout(()=>{ this._chargerPickerAsset=""; this._forceRender=true; this._lastSignature=""; if(this._hass)this.hass=this._hass; },450);
