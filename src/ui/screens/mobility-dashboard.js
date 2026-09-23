@@ -1046,9 +1046,24 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     this.shadowRoot.querySelectorAll("select[data-vehicle-picker-color]").forEach((select)=>select.addEventListener("change",()=>{
       const assetId = select.getAttribute("data-vehicle-picker-color") || "";
       const current = this._vehiclePickerDraft.get(assetId) || {};
-      this._vehiclePickerDraft.set(assetId,{...current,color_id:select.value});
-      this._forceRender = true; this._lastSignature = "";
-      if (this._hass) this.hass = this._hass;
+      const draft = {...current,color_id:select.value};
+      this._vehiclePickerDraft.set(assetId,draft);
+      const asset = rt.vehicleById(assetId) || rt.assetById(assetId) || { asset_id:assetId, asset_type:"vehicle" };
+      const visual = new HomeBrainVehicleVisualPicker(rt).selection(asset,draft);
+      const panel = select.closest("[data-picker-panel]");
+      const keyNode = panel?.querySelector(".vehicle-picker-key code");
+      const saveButton = panel?.querySelector("[data-vehicle-picker-save]");
+      if (keyNode) keyNode.textContent = visual.key || "Unavailable";
+      if (saveButton) {
+        saveButton.setAttribute("data-vehicle-key", visual.key || "");
+        saveButton.disabled = !visual.writable || !visual.key;
+      }
+      const card = panel?.closest(".vehicle-card");
+      const preview = card?.querySelector(".vehicle-image img");
+      if (preview) {
+        if (visual?.vehicle?.package_file) preview.src = rt.cache(visual.vehicle.package_file);
+        preview.style.filter = visual?.color?.filter || "none";
+      }
     }));
     this.shadowRoot.querySelectorAll("button[data-vehicle-picker-save]").forEach((btn)=>btn.addEventListener("click",()=>{
       if (btn.disabled) return;
