@@ -72,7 +72,7 @@ for(const needle of ['--rhi-content-gap:10px','--rhi-control-h:40px','.vehicle-c
 
 
 const strategyHero=presentationApi.hbMobilityPageHero({escape:(v)=>String(v)},'strategies');
-if(!strategyHero.includes('src="/hacsfiles/rhi-mobility-ux/asset--heroes--mobility-strategies.png"')) throw new Error('strategy hero did not render exact installed HACS asset URL');
-if(strategyHero.includes('asset--hacsfiles--')) throw new Error('hero URL double-resolution regression detected');
+if(!strategyHero.includes('src="/hacsfiles/rhi-mobility-ux/assets/heroes/mobility-strategies.png"')) throw new Error('strategy hero did not render exact installed HACS asset URL');
+if(strategyHero.includes('/assets//') || strategyHero.includes('/hacsfiles/rhi-mobility-ux/assets//')) throw new Error('hero URL resolution regression detected');
 const overviewHeroExact=presentationApi.hbMobilityPageHero({escape:(v)=>String(v)},'overview');
-if(!overviewHeroExact.includes('src="/hacsfiles/rhi-mobility-ux/asset--heroes--mobility-overview.png"')) throw new Error('overview hero did not render exact installed HACS asset URL');
+if(!overviewHeroExact.includes('src="/hacsfiles/rhi-mobility-ux/assets/heroes/mobility-overview.png"')) throw new Error('overview hero did not render exact installed HACS asset URL');
