@@ -21,10 +21,11 @@ Read in this order:
 13. `documentation/HACS_INSTALLATION.md`
 14. `documentation/HISTORY_AND_LESSONS.md`
 15. `documentation/KNOWN_DEFECTS.md`
-16. `release/product.json`
-17. `release/QUALIFICATION.json`
-18. `release/RELEASE_NOTES.md`
-19. `CHANGELOG.md`
+16. `documentation/OPEN_ISSUES.json`
+17. `release/product.json`
+18. `release/QUALIFICATION.json`
+19. `release/RELEASE_NOTES.md`
+20. `CHANGELOG.md`
 
 ## Footer authority
 
@@ -165,7 +166,7 @@ If any of those requires guessing, release governance is not clean.
 Before changing behavior:
 
 1. verify current package/backend identity from the machine authorities;
-2. read `documentation/HISTORY_AND_LESSONS.md` and `documentation/KNOWN_DEFECTS.md`;
+2. read `documentation/HISTORY_AND_LESSONS.md`, `documentation/KNOWN_DEFECTS.md` and `documentation/OPEN_ISSUES.json`;
 3. inspect `release/QUALIFICATION.json` for target-runtime gates still pending;
 4. classify the requested change against source/test ownership;
 5. confirm whether the path is V2-native or still using a compatibility fallback;
