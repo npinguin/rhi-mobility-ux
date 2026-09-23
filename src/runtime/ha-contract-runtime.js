@@ -716,12 +716,15 @@ class HomeBrainAssetRuntime {
       JSON.stringify(canonical ? this.energyAssetPublicationRows(canonical) : this.energyAssetPublicationRows("")),
       JSON.stringify(this.mobilityRuntimeV2()),
       JSON.stringify(this.mobilityExperienceV2()),
-      JSON.stringify(this.mobilityPolicyV2())
+      JSON.stringify(this.mobilityPolicyV2()),
+      JSON.stringify(this.mobilityCommandV2())
     ];
     return parts.join("|");
   }
 
   publicCommandRows() {
+    const v2 = this.commandV2Rows("");
+    if (v2 !== null) return v2;
     const rows = [];
     const entity = this.entity("sensor.mobility_command_index");
     const attrs = entity?.attributes || {};
@@ -799,6 +802,7 @@ class HomeBrainAssetRuntime {
       },
       relationships: { published: relationships.length, consumed: relationships.length, missing: 0 },
       commands: {
+        authority: this.mobilityCommandV2() ? "MOBILITY_COMMAND_V2" : "MOBILITY_PUBLIC_RUNTIME_V1_COMPAT",
         published: commands.length, consumed: commands.length, missing: 0,
         hidden_frontend_false: commands.filter((c)=>this.contractBool(c.frontend_allowed, true) === false).length,
         visible_disabled: visibleCommands.filter((c)=>this.contractBool(c.execution_allowed, false) === false).length,
