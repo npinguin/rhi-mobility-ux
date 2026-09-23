@@ -26,7 +26,7 @@ if(!chargerBlock.includes('this._chargerPickerDraft.set')) throw new Error('char
 if(!dashboard.includes('if (!forceRender && this._vehiclePickerAsset && this._lastRenderOk) return;')) throw new Error('open vehicle picker must block normal HA card reconstruction');
 if(!chargers.includes('if (this._chargerPickerAsset && this._lastRenderOk) return;')) throw new Error('open charger picker must block normal HA card reconstruction');
 if(!router.includes('activeDetailControl?.closest?.(".detail-vehicle-picker,.detail-charger-picker")')) throw new Error('focused detail picker must survive runtime refresh');
-for(const needle of ['MOBILITY_PUBLIC_RUNTIME_V2','write_supported','write_service_domain','write_target_entity']) {
+for(const needle of ['MOBILITY_PUBLIC_RUNTIME_V2','v2SemanticProperty(assetId = "", propertyKey = "")','semanticProperty(assetId = "", propertyKey = "")','write_supported','write_service_domain','write_target_entity']) {
   if(!runtime.includes(needle)) throw new Error(`runtime duplicate property resolution no longer prefers canonical writable metadata: missing ${needle}`);
 }
 if(!runtime.includes('rows.slice().sort((a,b)=>score(b)-score(a))[0]')) throw new Error('compound property lookup must choose the richest canonical duplicate');
@@ -36,4 +36,6 @@ for(const needle of ['Domain public runtime V2','local draft + live preview','mu
   if(!blueprint.includes(needle)) throw new Error(`semantic picker blueprint regression: missing ${needle}`);
 }
 
+if(!dashboard.includes('data-vehicle-profile-id')) throw new Error('vehicle picker save must carry canonical Mobility profile intent');
+if(!chargers.includes('data-charger-profile-id')) throw new Error('charger picker save must carry canonical Mobility profile intent');
 console.log('PASS V2 semantic picker editing session stays local and reusable');
