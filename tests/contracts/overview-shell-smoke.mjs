@@ -6,19 +6,19 @@ const presentation=fs.readFileSync(new URL('../../src/app/presentation.js',impor
 for (const needle of [
   'hbMobilityPageHero(rt, "overview")',
   'Mobility Overview',
-  'ov-domain-statusbar ${status.attentionCount ? "has-attention" : "no-attention"}',
+  'class="ov-status-grid ov-domain-statusbar"',
   '<small>Charging</small>',
   '<small>Range</small>',
-  '<small>Comfort</small>',
-  '<small>Attention</small>',
+  '<small>Security</small>',
+  '<small>Maintenance</small>',
   'overviewChargingStatus(rt, vehicles, chargers)',
   'overviewRangeStatus(rt, vehicles)',
-  'overviewOutsideTemperature()',
-  'overviewNextDeparture(rt, vehicles)',
   'overviewSecurityStatus(rt, vehicles)',
-  'unsafeValues = new Set',
   'overviewMaintenanceStatus(rt, vehicles)',
-  'const days = Math.min(...values);',
+  'rt.mobilityFleetV2()',
+  'rt.mobilityExperienceV2()',
+  'rt.mobilityPolicyV2()',
+  'observed_identity_proven === true',
   'class="ov-quickbar energy-like"',
   'class="ov-panel ov-core-vehicles ov-overview-vehicles"',
   '<h2>Vehicles</h2>',
@@ -30,6 +30,11 @@ for (const needle of [
 ]) if (!dashboard.includes(needle)) throw new Error(`canonical Overview missing: ${needle}`);
 
 for (const forbidden of [
+  'thresholdKm = 100',
+  'unsafeValues = new Set',
+  'const days = Math.min(...values)',
+  '<small>Comfort</small>',
+  '<small>Attention</small>',
   'meta:`<strong>${rt.escape(fleetLabel)}',
   '<small>Vehicles</small><b>',
   '<small>Charging now</small>',
@@ -38,14 +43,10 @@ for (const forbidden of [
   '<h2>Next action</h2>',
   '<h2>Recent activity</h2>',
   'class="ov-conclusion"',
-  'Energy today',
-  'All ready</small>',
-  '3 available</small>',
-  '<small>Security</small>',
-  '<small>Maintenance</small>'
-]) if (dashboard.includes(forbidden)) throw new Error(`obsolete/mock Overview content returned: ${forbidden}`);
+  'Energy today'
+]) if (dashboard.includes(forbidden)) throw new Error(`obsolete/inferred Overview content returned: ${forbidden}`);
 
 if(!presentation.includes('asset_key:"overview"')) throw new Error('Overview is not bound to the canonical hero key');
 if(!presentation.includes('Know if your vehicles are ready, secure and comfortable')) throw new Error('Overview hero product purpose drifted from shared presentation contract');
 
-console.log('PASS pixel-perfect Mobility Overview contract');
+console.log('PASS Mobility Overview consumes V2 conclusions and preserves the four agreed user questions');
