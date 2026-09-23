@@ -357,7 +357,7 @@ class HomeBrainAssetShell {
         if (keyNode) keyNode.textContent = key || "Unavailable";
         if (saveButton) {
           saveButton.setAttribute("data-vehicle-key", key);
-          saveButton.disabled = !key;
+          saveButton.disabled = !key || !picker.selection({asset_id:assetId}).writable;
         }
         const hero = this.root.querySelector('[data-vehicle-visual-preview="1"]');
         if (hero && vehicle) {
