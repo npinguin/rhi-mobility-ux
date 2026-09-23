@@ -26,7 +26,7 @@ class HomeBrainChargerVisualPicker {
 
   profileIdForCharger(charger, profileProp) {
     if (!charger) return "";
-    const available = new Set((this.rt.propertyEditorChoices(profileProp) || []).map((row)=>String(row?.value ?? row || "")));
+    const available = new Set((this.rt.propertyEditorChoices(profileProp) || []).map((row)=>String((row?.value ?? row) || "")));
     const candidates = Array.isArray(charger.profile_ids) ? charger.profile_ids : [];
     return candidates.find((id)=>available.has(String(id))) || "";
   }
