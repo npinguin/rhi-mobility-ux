@@ -59,7 +59,7 @@ function rhiMobilityImageCatalog() {
  */
 const RHI_MOBILITY_VEHICLE_VISUALS = Object.freeze([
   {
-    id:"audi.q8.4m.2024-2026.tfsi-e", label:"Audi Q8 TFSI-e", brand:"Audi", model:"Q8",
+    id:"audi.q8.4m.2024-2026.tfsi-e", label:"Audi Q8 TFSI-e", brand:"Audi", model:"Q8", profile_ids:["audi_q8_55_tfsi_e_quattro_my2025","audi_q8_tfsi_55e_2025_phev"],
     generation:"4M", years:"2024–2026", variant:"TFSI-e", image_key:"vehicle_audi_q8", selectable:true, visual_quality:"verified_model",
     colors:[
       { id:"daytona-grey", label:"Daytona Grey", filter:"none" },
@@ -70,7 +70,7 @@ const RHI_MOBILITY_VEHICLE_VISUALS = Object.freeze([
     ]
   },
   {
-    id:"bmw.x1.u11.2025-2026.phev", label:"BMW X1 PHEV", brand:"BMW", model:"X1",
+    id:"bmw.x1.u11.2025-2026.phev", label:"BMW X1 PHEV", brand:"BMW", model:"X1", profile_ids:["bmw_x1_xdrive25e_my2026","bmw_x1_2025_phev"],
     generation:"U11", years:"2025–2026", variant:"PHEV", image_key:"vehicle_bmw_x1_phev", selectable:true, visual_quality:"verified_model",
     colors:[
       { id:"mineral-white", label:"Mineral White", filter:"none" },
@@ -81,7 +81,7 @@ const RHI_MOBILITY_VEHICLE_VISUALS = Object.freeze([
     ]
   },
   {
-    id:"mercedes.gla.h247.2023-2026.phev", label:"Mercedes-Benz GLA PHEV", brand:"Mercedes-Benz", model:"GLA",
+    id:"mercedes.gla.h247.2023-2026.phev", label:"Mercedes-Benz GLA PHEV", brand:"Mercedes-Benz", model:"GLA", profile_ids:["mercedes_gla_250e_my2025","mercedes_gla_2021_phev"],
     generation:"H247", years:"2023–2026", variant:"PHEV", image_key:"vehicle_mercedes_gla", selectable:true, visual_quality:"verified_model",
     colors:[
       { id:"mountain-grey", label:"Mountain Grey", filter:"none" },
@@ -92,7 +92,7 @@ const RHI_MOBILITY_VEHICLE_VISUALS = Object.freeze([
     ]
   },
   {
-    id:"renault.scenic.e-tech.2024-2026.techno", label:"Renault Scenic E-Tech", brand:"Renault", model:"Scenic",
+    id:"renault.scenic.e-tech.2024-2026.techno", label:"Renault Scenic E-Tech", brand:"Renault", model:"Scenic", profile_ids:["renault_scenic_techno_ev"],
     generation:"E-Tech", years:"2024–2026", variant:"Techno EV", image_key:"vehicle_renault_scenic_techno_ev", selectable:true, visual_quality:"verified_model",
     colors:[
       { id:"pearl-white", label:"Pearl White", filter:"none" },
@@ -103,7 +103,7 @@ const RHI_MOBILITY_VEHICLE_VISUALS = Object.freeze([
     ]
   },
   {
-    id:"volkswagen.id4.2024-2026.ev", label:"Volkswagen ID.4", brand:"Volkswagen", model:"ID.4",
+    id:"volkswagen.id4.2024-2026.ev", label:"Volkswagen ID.4", brand:"Volkswagen", model:"ID.4", profile_ids:["volkswagen_id4_pro_my2026","vw_id4_business_pro_77kwh"],
     generation:"ID.4", years:"2024–2026", variant:"EV", image_key:"vehicle_vw_id4", selectable:true, visual_quality:"verified_model",
     colors:[
       { id:"costa-azul", label:"Costa Azul", filter:"none" },
@@ -114,7 +114,7 @@ const RHI_MOBILITY_VEHICLE_VISUALS = Object.freeze([
     ]
   },
   {
-    id:"generic.guest.current.phev-1phase", label:"Guest PHEV 1-phase", brand:"Generic", model:"Guest PHEV",
+    id:"generic.guest.current.phev-1phase", label:"Guest PHEV 1-phase", brand:"Generic", model:"Guest PHEV", profile_ids:["guest_phev_1phase"],
     generation:"Current", years:"Any", variant:"PHEV 1-phase", image_key:"vehicle_guest", selectable:true, visual_quality:"generic",
     colors:[
       { id:"slate-grey", label:"Slate Grey", filter:"none" },
@@ -125,7 +125,7 @@ const RHI_MOBILITY_VEHICLE_VISUALS = Object.freeze([
     ]
   },
   {
-    id:"generic.guest.current.ev-3phase", label:"Guest EV 3-phase", brand:"Generic", model:"Guest EV",
+    id:"generic.guest.current.ev-3phase", label:"Guest EV 3-phase", brand:"Generic", model:"Guest EV", profile_ids:["guest_ev_3phase"],
     generation:"Current", years:"Any", variant:"EV 3-phase", image_key:"vehicle_guest", selectable:true, visual_quality:"generic",
     colors:[
       { id:"slate-grey", label:"Slate Grey", filter:"none" },
@@ -207,7 +207,7 @@ function rhiMobilityVehicleVisualKey(vehicleId = "", colorId = "") {
  */
 const RHI_MOBILITY_CHARGER_VISUALS = Object.freeze([
   {
-    id:"wallbox.commander2", label:"Wallbox Commander 2", brand:"Wallbox", model:"Commander 2",
+    id:"wallbox.commander2", label:"Wallbox Commander 2", brand:"Wallbox", model:"Commander 2", profile_ids:["wallbox_commander2_22kw","wallbox_ocpp"],
     variant:"", years:"Current", selectable:true, visual_quality:"verified_model",
     appearances:[
       { id:"white", label:"White", image_key:"charger_wallbox_white" },
@@ -215,14 +215,14 @@ const RHI_MOBILITY_CHARGER_VISUALS = Object.freeze([
     ]
   },
   {
-    id:"peblar.business.socket", label:"Peblar Business", brand:"Peblar", model:"Business",
+    id:"peblar.business.socket", label:"Peblar Business", brand:"Peblar", model:"Business", profile_ids:["peblar_business_socket_22kw","peblar_22kw"],
     variant:"Socket", years:"Current", selectable:true, visual_quality:"verified_model",
     appearances:[
       { id:"factory", label:"Factory finish", image_key:"charger_peblar" }
     ]
   },
   {
-    id:"fibaro.wall-plug-2.zwave-plus.be-fr", label:"Fibaro Wall Plug 2", brand:"Fibaro", model:"Wall Plug 2",
+    id:"fibaro.wall-plug-2.zwave-plus.be-fr", label:"Fibaro Wall Plug 2", brand:"Fibaro", model:"Wall Plug 2", profile_ids:["fibaro_utility_plug"],
     variant:"Z-Wave Plus BE/FR", years:"Current", selectable:true, visual_quality:"verified_model",
     appearances:[
       { id:"white", label:"White", image_key:"charger_utility_plug" }
@@ -284,6 +284,17 @@ function rhiMobilityChargerVisualKey(chargerId = "", appearanceId = "") {
   if (!charger) return "";
   const appearance = charger.appearances.find((row)=>row.id===String(appearanceId)) || charger.appearances[0];
   return appearance ? charger.id + "." + appearance.id : "";
+}
+
+
+function rhiMobilityVehicleVisualForProfile(profileId = "") {
+  const id=String(profileId || "").trim();
+  return rhiMobilityVehicleVisualCatalog().find((row)=>(row.profile_ids || []).includes(id)) || null;
+}
+
+function rhiMobilityChargerVisualForProfile(profileId = "") {
+  const id=String(profileId || "").trim();
+  return rhiMobilityChargerVisualCatalog().find((row)=>(row.profile_ids || []).includes(id)) || null;
 }
 
 function rhiMobilityResolveChargerVisual(asset = {}, rawKey = "") {
