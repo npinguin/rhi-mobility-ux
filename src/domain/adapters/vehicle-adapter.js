@@ -112,6 +112,64 @@ class HomeBrainVehicleAdapter {
       { chargerDetailRoute, chargerDisplay }
     );
 
+    const rangeKm = this.rt.numericPropertyValueAny(assetId, [
+      "vehicle.range_total_km",
+      "vehicle.ev_range_km",
+      "vehicle.full_range_km",
+      "vehicle.nominal_range_km"
+    ], null);
+    const rangeTile = Number.isFinite(rangeKm)
+      ? {
+          label:"Range",
+          value:`${Math.round(rangeKm)} km`,
+          subvalue:rangeKm < 100 ? "Below 100 km" : "At least 100 km",
+          icon:"mdi:road-variant",
+          tone:rangeKm < 100 ? "attention" : "neutral"
+        }
+      : { label:"Range", value:"Unknown", subvalue:"No range reading", icon:"mdi:road-variant", tone:"neutral" };
+
+    const selectedId = isReal(relationship.selected) ? this.rt.canonicalAssetId(relationship.selected) : "";
+    const selectedEntry = selectedId ? (this.rt.chargerById(selectedId) || this.rt.assetById(selectedId)) : null;
+    const selectedLabel = selectedEntry?.short_name || selectedEntry?.display_name || relationship.selected_display_name || selectedId || "";
+    const chargingContext = this.rt.liveChargingContextForVehicle(assetId);
+    const chargingFault = String(chargingContext?.status || "").toLowerCase().includes("fault");
+    const chargingTile = {
+      label:"Charging",
+      value:physicalChargerId ? (chargerDisplay || "Connected") : (selectedId ? selectedLabel : "No charger"),
+      subvalue:physicalChargerId
+        ? [chargingContext?.status, Number.isFinite(chargingContext?.power) ? `${Number(chargingContext.power).toFixed(1)} kW` : ""].filter(Boolean).join(" · ")
+        : (selectedId ? "Configured · not physically confirmed" : "No charger assigned"),
+      icon:"mdi:ev-station",
+      tone:chargingFault ? "attention" : "neutral",
+      detailRoute:chargerDetailRoute,
+      detailTitle:chargerDisplay ? `Open ${chargerDisplay} details` : "Open charger details"
+    };
+
+    const accessRows = (this.rt.propertyRows(assetId) || []).filter((row)=>/(lock_state|door_state|window_state|hood_state|trunk_state)/.test(String(row.property_key || "").toLowerCase()));
+    const unsafeValues = new Set(["unlocked","open","ajar","not_locked","not locked","not_closed","not closed"]);
+    const unsafeRows = accessRows.filter((row)=>unsafeValues.has(String(row.value ?? "").trim().toLowerCase()));
+    const securityTile = unsafeRows.length
+      ? { label:"Security", value:"Unsafe", subvalue:unsafeRows.map((row)=>row.friendly_name || row.display_name || row.property_key).slice(0,2).join(" · "), icon:"mdi:lock-alert-outline", tone:"attention" }
+      : accessRows.length
+        ? { label:"Security", value:"No unsafe state", subvalue:`${accessRows.length} access facts`, icon:"mdi:lock-outline", tone:"neutral" }
+        : { label:"Security", value:"Unknown", subvalue:"No access evidence", icon:"mdi:lock-outline", tone:"neutral" };
+
+    const maintenanceValues = [
+      this.rt.numericPropertyValue(assetId, "vehicle.inspection_due_days", null),
+      this.rt.numericPropertyValue(assetId, "vehicle.oil_service_due_days", null),
+      this.rt.numericPropertyValue(assetId, "vehicle.oil_change_due_days", null)
+    ].filter(Number.isFinite);
+    const maintenanceDays = maintenanceValues.length ? Math.min(...maintenanceValues) : null;
+    const maintenanceTile = maintenanceDays === null
+      ? { label:"Maintenance", value:"Unknown", subvalue:"No due date", icon:"mdi:wrench-outline", tone:"neutral" }
+      : maintenanceDays < 0
+        ? { label:"Maintenance", value:`${Math.abs(Math.round(maintenanceDays))}d overdue`, subvalue:"Action required", icon:"mdi:wrench-outline", tone:"attention" }
+        : maintenanceDays < 90
+          ? { label:"Maintenance", value:`Due in ${Math.round(maintenanceDays)}d`, subvalue:"Within 90 days", icon:"mdi:wrench-outline", tone:"attention" }
+          : { label:"Maintenance", value:`Next +${Math.round(maintenanceDays)}d`, subvalue:"Scheduled", icon:"mdi:wrench-outline", tone:"neutral" };
+
+    const headerStatus = [rangeTile, chargingTile, securityTile, maintenanceTile];
+
     return {
       type:"vehicle", id, present, display, subtitle:profile, readiness:lifecycle,
       image:this.rt.cache(img), fallbackImage:this.rt.cache(this.rt.assetUrl("vehicles/vehicle_fallback.png")), imageOpacity:present ? 1 : 0.34, imageGray:present ? 0 : 0.25, imageFilter,
@@ -119,8 +177,7 @@ class HomeBrainVehicleAdapter {
       chargerDisplay, chargerDetailRoute,
       backPath:this.config.dashboard_path || "/mobility-supervisor/dashboard", backLabel:this.config.back_label || "← Back to Dashboard", detailRoute:this.rt.detailRoute(reg), lifecycle, registryEntry:reg,
       breadcrumb:["Home", "Vehicles", display],
-      // Vehicle hero strip is intelligence only: Range | Energy | Security | Maintenance | Freshness.
-      status:this.rt.vehicleIntelligenceStatusTiles(assetId),
+      status:headerStatus,
       actions,
       sections:[this.rt.lifecycleContractGapSection(assetId)].filter(Boolean).concat(componentSections).concat([
         { key:"activity", title:"Recent Activity", icon:"mdi:history", header:"Activity contract", rows:this.latestActivityRows(assetId), details:[] }
