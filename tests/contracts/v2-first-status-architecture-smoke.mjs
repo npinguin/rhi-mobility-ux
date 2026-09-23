@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 
+const runtime=fs.readFileSync(new URL('../../src/runtime/ha-contract-runtime.js',import.meta.url),'utf8');
 const dashboard=fs.readFileSync(new URL('../../src/ui/screens/mobility-dashboard.js',import.meta.url),'utf8');
 const chargers=fs.readFileSync(new URL('../../src/ui/screens/charger-maintenance.js',import.meta.url),'utf8');
 const router=fs.readFileSync(new URL('../../src/ui/screens/router.js',import.meta.url),'utf8');
@@ -8,46 +9,57 @@ const vehicleAdapter=fs.readFileSync(new URL('../../src/domain/adapters/vehicle-
 const chargerAdapter=fs.readFileSync(new URL('../../src/domain/adapters/charger-adapter.js',import.meta.url),'utf8');
 
 for (const needle of [
-  'overviewRangeStatus(rt, vehicles = [])',
-  'vehicle.range_total_km',
-  'thresholdKm = 100',
-  'unsafeValues = new Set',
-  'vehicle.inspection_due_days',
-  'days < 90',
-  'attentionCount:security.unsafeCount + maintenance.actionableCount',
+  'MOBILITY_PUBLIC_RUNTIME_V2',
+  'MOBILITY_EXPERIENCE_V2',
+  'MOBILITY_POLICY_V2',
+  'mobilityRuntimeV2()',
+  'mobilityExperienceV2()',
+  'mobilityPolicyV2()',
+  'vehicleExperienceV2(assetId = "")',
+  'chargerExperienceV2(assetId = "")',
+  'vehicleRelationshipV2(assetId = "")',
+  'setMobilityPolicy(policyKey = "", value = "")'
+]) if (!runtime.includes(needle)) throw new Error(`V2 UX contract consumer missing: ${needle}`);
+
+for (const needle of [
+  'rt.mobilityFleetV2()',
+  'rt.mobilityExperienceV2()',
+  'rt.mobilityPolicyV2()',
+  'observed_identity_proven === true',
   'label:"Fleet"',
   'label:"Profiles"',
   'label:"Charging setup"',
-  'const selected = String(rel?.selected || "")',
-  'Vehicle Management'
-]) if (!dashboard.includes(needle)) throw new Error(`rc.43 UX status contract missing: ${needle}`);
+  '<small>Security</small>',
+  '<small>Maintenance</small>'
+]) if (!dashboard.includes(needle)) throw new Error(`rc.43 V2-driven dashboard contract missing: ${needle}`);
 
 for (const forbidden of [
-  'label:"Configuration", value:"V2 contract gap"',
-  'label:"Data health", value:"V2 contract gap"',
-  'Low-range policy pending V2',
+  'thresholdKm = 100',
+  'unsafeValues = new Set',
+  'vehicle.inspection_due_days',
+  'vehicle.oil_service_due_days',
+  'const days = Math.min(...values)',
+  'const selected = String(rel?.selected || "")',
   'backend #107',
-  '/unlocked|\\bopen\\b|door|window|check vehicle/i',
-  '/tire|tyre|pressure|oil|inspection|service|maintenance.*due|overdue|check/i',
-  'assignment?.editor_value ?? assignment?.value'
-]) if (dashboard.includes(forbidden)) throw new Error(`rc.43 UX header leaked backend/inference noise: ${forbidden}`);
+  'Low-range policy pending V2'
+]) if (dashboard.includes(forbidden)) throw new Error(`frontend product inference returned: ${forbidden}`);
 
 for (const needle of [
+  'rt.mobilityFleetV2()',
+  'rt.mobilityExperienceV2()?.chargers',
+  'row?.fault?.state',
   'label:"Profiles"',
   'label:"Availability"',
   'label:"Runtime"',
-  'connectedCount} connected · ${chargingCount} charging',
-  'charger.available_for_connection',
   'if (faultCount) chargerHeaderCards.push'
-]) if (!chargers.includes(needle)) throw new Error(`rc.43 Charger Management status architecture missing: ${needle}`);
+]) if (!chargers.includes(needle)) throw new Error(`Charger Management V2 status architecture missing: ${needle}`);
 
 for (const forbidden of [
-  'V2 contract gap',
-  'backend #107',
+  'charger.available_for_connection',
+  'snapshot?.operating?.resolved && String(snapshot.operating.value || "").toLowerCase() === "fault"',
   'capacity V2 gap',
-  'label:"Operational"',
-  'label:"Power now"'
-]) if (chargers.includes(forbidden)) throw new Error(`rc.43 charger header noise returned: ${forbidden}`);
+  'backend #107'
+]) if (chargers.includes(forbidden)) throw new Error(`charger management inferred product status returned: ${forbidden}`);
 
 for (const needle of [
   'label:"Today"',
@@ -59,27 +71,17 @@ for (const needle of [
   'label:"Value"',
   'label:"Vehicles"',
   'label:"Activity"'
-]) if (!router.includes(needle)) throw new Error(`rc.43 routed status simplification missing: ${needle}`);
+]) if (!router.includes(needle)) throw new Error(`routed status simplification missing: ${needle}`);
 
-for (const forbidden of ['label:"Contract"','label:"Profile contract"','label:"Policy contract"','label:"Source"']) {
-  if (router.includes(forbidden)) throw new Error(`technical contract KPI returned to header: ${forbidden}`);
+if (!vehicleAdapter.includes('this.rt.vehicleExperienceV2(assetId)')) throw new Error('vehicle detail must consume Experience V2');
+for (const forbidden of ['rangeKm < 100','maintenanceDays < 90','unsafeValues = new Set']) {
+  if (vehicleAdapter.includes(forbidden)) throw new Error(`vehicle detail reintroduced UX inference: ${forbidden}`);
 }
+if (!chargerAdapter.includes('this.rt.chargerExperienceV2(assetId)')) throw new Error('charger detail must consume Experience V2');
+if (!chargerAdapter.includes('String(fault.state || "").toLowerCase() === "active"')) throw new Error('charger detail fault must use Experience V2 fault state');
 
 if (!presentation.includes('title:"Vehicle Management"') || !presentation.includes('title:"Charger Management"')) throw new Error('management hero naming drift');
 if (!presentation.includes('status-count-${visible.length}')) throw new Error('status grid must size to useful card count');
 if (!presentation.includes('.rhi-top-status-item.ok .rhi-top-status-icon{background:#EEF3FF;color:#315FBA}')) throw new Error('normal/OK status colour must stay neutral');
 
-for (const needle of [
-  'label:"Range"',
-  'label:"Charging"',
-  'label:"Security"',
-  'label:"Maintenance"',
-  'rangeKm < 100',
-  'maintenanceDays < 90'
-]) if (!vehicleAdapter.includes(needle)) throw new Error(`vehicle detail header simplification missing: ${needle}`);
-
-for (const needle of ['label:"State"','label:"Power"','label:"Vehicle"','headerStatus.push']) {
-  if (!chargerAdapter.includes(needle)) throw new Error(`charger detail header simplification missing: ${needle}`);
-}
-
-console.log('PASS rc.43 UX-first status architecture: compact, factual and neutral unless actionable');
+console.log('PASS rc.43 V2 contract ownership: backend concludes, UX selects/aggregates/formats/presents');
