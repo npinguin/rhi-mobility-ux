@@ -1,6 +1,6 @@
 {
-  "candidate_version": "1.0.0-rc.33",
-  "candidate_tag": "v1.0.0-rc.33",
+  "candidate_version": "1.0.0-rc.34",
+  "candidate_tag": "v1.0.0-rc.34",
   "candidate_sha": "pending",
   "target_home_assistant": "pending",
   "hacs_install": "pending",
@@ -66,5 +66,10 @@
   "overview_approved_hero": "pending",
   "overview_responsive_runtime": "pending",
   "overview_hero_binary_valid": "pending",
-  "overview_hero_runtime_render": "pending"
+  "overview_hero_runtime_render": "pending",
+  "canonical_hero_library": "pending",
+  "canonical_hero_source_dist_parity": "pending",
+  "canonical_hero_all_tabs_runtime_render": "pending",
+  "vehicle_detail_scene_runtime_render": "pending",
+  "charging_detail_scene_runtime_render": "pending"
 }

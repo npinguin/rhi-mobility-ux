@@ -74,6 +74,42 @@ for(const row of visualRows){
   }
 }
 
+const heroRows=vm.runInContext('rhiMobilityHeroCatalog()',sandbox,{timeout:1000});
+if(!Array.isArray(heroRows)) throw new Error('hero asset catalog did not evaluate to an array');
+const expectedHeroFiles=new Set([
+  'heroes/mobility-overview.png',
+  'heroes/mobility-vehicles.png',
+  'heroes/mobility-chargers.png',
+  'heroes/mobility-planning.png',
+  'heroes/mobility-strategies.png',
+  'heroes/mobility-history.png',
+  'heroes/mobility-log.png',
+  'heroes/mobility-vehicle-detail.png',
+  'heroes/mobility-charging-detail.png'
+]);
+const heroFiles=sourceFiles.filter((rel)=>rel.startsWith('heroes/'));
+if(heroFiles.length!==expectedHeroFiles.size) throw new Error(`hero asset inventory drifted: ${heroFiles.length}; expected exactly ${expectedHeroFiles.size}`);
+for(const rel of heroFiles){
+  if(!expectedHeroFiles.has(rel)) throw new Error(`legacy/dead hero artwork still packaged: ${rel}`);
+}
+if(heroRows.length!==expectedHeroFiles.size) throw new Error(`hero catalog count drifted: ${heroRows.length}; expected exactly ${expectedHeroFiles.size}`);
+if(new Set(heroRows.map((row)=>row.package_path)).size!==expectedHeroFiles.size) throw new Error('hero catalog must map one semantic key to one unique package asset');
+const heroDigests=new Map();
+for(const row of heroRows){
+  const rel=String(row.package_path || '');
+  if(!expectedHeroFiles.has(rel)) throw new Error(`hero catalog references non-canonical asset: ${row.key} -> ${rel}`);
+  if(!sourceFiles.includes(rel)) throw new Error(`hero catalog references missing asset: ${row.key} -> ${rel}`);
+  const absolute=path.join(srcRoot,rel);
+  const dim=pngDimensions(absolute);
+  if(!dim || dim.width!==2172 || dim.height!==724) throw new Error(`hero master must remain exact 2172x724 PNG: ${rel}`);
+  const stat=fs.statSync(absolute);
+  if(stat.size>3*1024*1024) throw new Error(`hero artwork too large (>3 MiB): ${rel} = ${stat.size} bytes`);
+  const digest=crypto.createHash('sha256').update(fs.readFileSync(absolute)).digest('hex');
+  if(heroDigests.has(digest)) throw new Error(`hero assets share identical bytes: ${heroDigests.get(digest)} and ${rel}`);
+  heroDigests.set(digest,rel);
+}
+console.log('PASS canonical hero policy: 9 unique semantic masters, exact 2172x724 PNG inventory, source/dist parity');
+
 const imagePathByKey=new Map(imageRows.map((row)=>[String(row.image_key),String(row.package_file)]));
 const verified=visualRows.filter((row)=>row.selectable && row.visual_quality==='verified_model');
 const expectedVerifiedIds=[

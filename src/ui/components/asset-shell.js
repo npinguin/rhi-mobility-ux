@@ -232,12 +232,15 @@ class HomeBrainAssetShell {
         )
       : "";
 
+    const detailHeroScene = rhiMobilityHeroAsset(model.type === "charger" ? "charging_detail" : "vehicle_detail");
+
     this.root.innerHTML = `
       <ha-card>
         <div class="page">
           <div class="hi-version-block" style="position:absolute;top:18px;right:22px;text-align:right;font-size:10.5px;line-height:1.25;font-weight:400;color:var(--secondary-text-color,#6B7280);opacity:.82;background:none;border:0;box-shadow:none;padding:0;margin:0;z-index:3;pointer-events:none;"><div>UX ${this.rt.escape(UX_VERSION)}</div><div>Backend ${this.rt.escape(this.rt.backendVersion())}</div></div>
           ${hbMobilityNav(model.type === "charger" ? "chargers" : "vehicles")}
-          <section class="hero">
+          <section class="hero detail-scene-hero">
+            <img class="detail-hero-scene" src="${this.rt.escape(detailHeroScene)}" alt="" aria-hidden="true" />
             <div class="hero-left">
               <div class="hero-topline">
                 <div class="breadcrumb">${(model.breadcrumb || []).map((b, i) => `${i ? "<span>›</span>" : ""}<b${i === (model.breadcrumb.length - 1) ? "" : " class='crumb-light'"}>${this.rt.escape(b)}</b>`).join("")}</div>
@@ -527,6 +530,8 @@ class HomeBrainAssetShell {
       .page { max-width:1540px; gap:16px; padding-top:14px; }
       .release-badge { top:10px; right:34px; font-weight:600; }
       .hero { min-height:390px; display:block; padding:28px 34px 26px; border:0; border-radius:0; background:linear-gradient(180deg,#fff 0%,#f7fbff 78%,#fff 100%); box-shadow:none; overflow:hidden; }
+      .detail-hero-scene { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center; opacity:.11; pointer-events:none; z-index:0; }
+      .detail-scene-hero .hero-left,.detail-scene-hero .hero-image,.detail-scene-hero .hero-charger-image { position:relative; z-index:2; }
       .hero:after { content:""; position:absolute; left:44%; right:4%; bottom:22px; height:24px; border-radius:50%; background:rgba(15,35,80,.075); filter:blur(18px); z-index:0; }
       .hero-left { position:relative; z-index:2; width:58%; min-width:520px; }
       .hero-topline { margin-bottom:22px; max-width:720px; }

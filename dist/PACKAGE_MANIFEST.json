@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "product": "rhi-mobility-ux",
-  "version": "1.0.0-rc.33",
+  "version": "1.0.0-rc.34",
   "source_manifest_schema": 1,
   "hacs_package_root": "dist",
   "hacs_filename": "rhi-mobility-ux.js",
@@ -12,7 +12,7 @@
     "heroes",
     "vehicles"
   ],
-  "runtime_sha256": "ec58157707b97ee2f167cfae872497ce1ba2b12f31f0639fb38209fc53eca4fe",
+  "runtime_sha256": "049832678f4a98e0f5fa3e551d38cca28ae552049287974f0a7652ec364c877f",
   "files": [
     {
       "path": "assets/branding/company-logo.svg",
@@ -39,20 +39,40 @@
       "bytes": 2453
     },
     {
-      "path": "assets/heroes/mobility-chargers.svg",
-      "bytes": 1787
+      "path": "assets/heroes/mobility-chargers.png",
+      "bytes": 2358013
     },
     {
-      "path": "assets/heroes/mobility-overview-approved.webp",
-      "bytes": 13582
+      "path": "assets/heroes/mobility-charging-detail.png",
+      "bytes": 2249680
     },
     {
-      "path": "assets/heroes/mobility-overview.svg",
-      "bytes": 2038
+      "path": "assets/heroes/mobility-history.png",
+      "bytes": 2296486
     },
     {
-      "path": "assets/heroes/mobility-vehicles.svg",
-      "bytes": 1693
+      "path": "assets/heroes/mobility-log.png",
+      "bytes": 2198926
+    },
+    {
+      "path": "assets/heroes/mobility-overview.png",
+      "bytes": 2330222
+    },
+    {
+      "path": "assets/heroes/mobility-planning.png",
+      "bytes": 2418236
+    },
+    {
+      "path": "assets/heroes/mobility-strategies.png",
+      "bytes": 2230620
+    },
+    {
+      "path": "assets/heroes/mobility-vehicle-detail.png",
+      "bytes": 2256288
+    },
+    {
+      "path": "assets/heroes/mobility-vehicles.png",
+      "bytes": 2280184
     },
     {
       "path": "assets/vehicles/vehicle_audi_q8.png",
@@ -80,7 +100,7 @@
     },
     {
       "path": "rhi-mobility-ux.js",
-      "bytes": 681318
+      "bytes": 682900
     },
     {
       "path": "rhi-mobility-ux.js.sha256",

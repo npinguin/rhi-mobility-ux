@@ -40,7 +40,7 @@ for (const forbidden of [
   '3 available</small>'
 ]) if (dashboard.includes(forbidden)) throw new Error(`obsolete/mock Overview content returned: ${forbidden}`);
 
-if(!presentation.includes('asset:"heroes/mobility-overview-approved.webp"')) throw new Error('Overview is not bound to the approved generated hero asset');
+if(!presentation.includes('asset_key:"overview"')) throw new Error('Overview is not bound to the canonical hero key');
 if(!presentation.includes('Know if your vehicles are ready, secure and comfortable')) throw new Error('Overview hero product purpose drifted from shared presentation contract');
 
 console.log('PASS pixel-perfect Mobility Overview contract');

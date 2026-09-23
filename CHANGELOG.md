@@ -1,3 +1,13 @@
+## 1.0.0-rc.34 — Canonical nine-image Mobility hero library
+
+- Replaced legacy/reused tab hero artwork with the approved nine-image canonical Mobility hero library.
+- Added unique hero scenes for Overview, Vehicles, Chargers, Planning, Strategies, History and Log.
+- Added dedicated Vehicle Detail and Charging Detail scenes while preserving asset-specific vehicle/charger identity artwork.
+- Centralized hero resolution in the package-owned semantic hero catalog.
+- Removed superseded active SVG/WebP hero assets.
+- Added release gates for exact nine-image inventory, unique semantic mapping, 2172×724 PNG masters and source/dist byte parity.
+- No Mobility runtime semantics or backend contract ownership changed.
+
 ## 1.0.0-rc.33 — Overview hero binary hotfix
 
 - Replaced the corrupt/truncated rc.32 Overview hero WebP with validated image bytes.
