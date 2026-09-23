@@ -1,6 +1,6 @@
 {
   "name": "rhi-mobility-ux",
-  "version": "1.0.0-rc.35",
+  "version": "1.0.0-rc.36",
   "private": false,
   "description": "Robotix Home Intelligence Mobility UX for Home Assistant",
   "license": "GPL-3.0-only",
@@ -19,7 +19,7 @@
     "release:sync": "node tools/sync-release-metadata.mjs",
     "check:test-ownership": "node tools/check-test-ownership.mjs",
     "test:contract": "node tests/contracts/runtime-contract-smoke.mjs && node tests/contracts/command-placement-smoke.mjs && node tests/contracts/configuration-editables-smoke.mjs && node tests/contracts/supervisor-authority-smoke.mjs && node tests/contracts/energy-planning-projection-smoke.mjs && node tests/contracts/energy-mobility-insights-projection-smoke.mjs && node tests/contracts/energy-mobility-strategy-projection-smoke.mjs",
-    "test:ux": "node tests/contracts/navigation-shell-smoke.mjs && node tests/contracts/overview-shell-smoke.mjs && node tests/contracts/screen-preservation-smoke.mjs && node tests/contracts/layout-hardening-smoke.mjs && node tests/contracts/vehicle-management-smoke.mjs && node tests/view-models/charger-materialization.mjs",
+    "test:ux": "node tests/contracts/navigation-shell-smoke.mjs && node tests/contracts/overview-shell-smoke.mjs && node tests/contracts/screen-preservation-smoke.mjs && node tests/contracts/layout-hardening-smoke.mjs && node tests/contracts/vehicle-management-smoke.mjs && node tests/view-models/charger-materialization.mjs && node tests/view-models/charger-overview-availability.mjs",
     "test:package": "node tools/check-version.mjs && npm run check:syntax && npm run check:architecture && npm run check:hygiene && npm run check:branding && npm run check:footer && npm run check:test-ownership && npm run check:source-ownership && npm run check:asset-policy && npm run check:hacs-package && npm run test:hacs-install && node tests/render/bundle-load-smoke.mjs && node tools/verify-dist.mjs",
     "test:release": "npm run check:release-governance && npm run check:qualification && npm run check:documentation-drift && node tests/contracts/release-qualification-lifecycle.mjs",
     "check:source-ownership": "node tools/check-source-ownership.mjs",
