@@ -1,17 +1,16 @@
-# v1.0.0-rc.41 — V2-first status architecture
+# v1.0.0-rc.42 — picker write/readback + refresh stability
 
-This candidate is the rc.41 stop/go implementation around backend contract-gap issue #107.
+This candidate builds on the already-published rc.41 V2-first status architecture and fixes only Vehicle/Charger visual picker writability plus editing-session refresh behavior.
 
 Tested backend baseline: `M0.9.39`.
 
-- Mobility Overview is organized around Charging, Range and Comfort, with Attention rendered only when backend-published security or maintenance intelligence reports an actionable state.
-- Security and maintenance no longer infer meaning from display text or regular expressions.
-- Vehicle Management top status is Configuration / Charging setup / Data health. Missing configuration-completeness and data-health product facts remain explicit V2 contract gaps rather than frontend reconstructions.
-- Charging setup counts exact selected charger relationships and no longer treats editor sentinel values as assignments.
-- Charger Management top status is Configuration / Site / Runtime, with a conditional Issue card only for canonical charger fault state.
-- Aggregate actual charger power remains a Mobility fact; site capacity remains an explicit V2/Energy contract gap.
-- No new V1-only dependency is introduced. Existing public V1 facade consumption remains transitional until backend #107 confirms direct V2 authority and migration paths.
+- Canonical duplicate-property resolution prefers the richest V2-backed row, including complete write metadata when Mobility publishes it.
+- Vehicle and Charger management picker sessions are not reconstructed by normal Home Assistant state churn while open.
+- Focused Vehicle/Charger Detail pickers are protected from runtime refresh reconstruction.
+- Vehicle identity remains backend/profile owned; the vehicle picker edits appearance only.
+- Charger visual selection remains presentation-only and does not redefine backend charger identity.
+- rc.41 status semantics are preserved unchanged.
 
-Rollback: `v1.0.0-rc.40`.
+Rollback: `v1.0.0-rc.41`.
 
-Target Home Assistant qualification and V2 contract confirmation remain mandatory before stable promotion.
+Target Home Assistant qualification must prove write → canonical readback → reload/restart persistence for both vehicle and charger visuals before stable promotion.

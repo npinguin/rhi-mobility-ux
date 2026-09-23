@@ -365,7 +365,9 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
     });
 
     const activeEl = this.shadowRoot?.activeElement;
-    if (this._lastSignature === signature && this._lastRenderOk && !(activeEl && ["SELECT", "INPUT"].includes(activeEl.tagName))) return;
+    if (activeEl && ["SELECT", "INPUT"].includes(activeEl.tagName) && this._lastRenderOk) return;
+    if (this._chargerPickerAsset && this._lastRenderOk) return;
+    if (this._lastSignature === signature && this._lastRenderOk) return;
     this._lastSignature = signature;
     this._lastRenderOk = true;
 

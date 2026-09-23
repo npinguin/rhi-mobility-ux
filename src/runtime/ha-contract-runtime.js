@@ -2462,8 +2462,22 @@ class HomeBrainAssetRuntime {
     const canonical = this.canonicalAssetId(assetId);
     const wanted = String(propertyKey || "").trim();
     if (!canonical || !wanted) return null;
-    const rows = this.propertyRows(canonical);
-    return rows.find((r)=>String(r.property_key || "") === wanted || String(r._compound_key || "") === `${canonical}:${wanted}`) || null;
+    const rows = this.propertyRows(canonical).filter((r)=>String(r.property_key || "") === wanted || String(r._compound_key || "") === `${canonical}:${wanted}`);
+    if (!rows.length) return null;
+    // Frozen V1 can expose the same canonical V2 property through more than one
+    // index. Prefer the richest canonical row so complete write metadata is not
+    // shadowed by a read-only duplicate.
+    const score = (row) => {
+      let value = 0;
+      if (String(row.canonical_contract || "").toUpperCase() === "MOBILITY_PUBLIC_RUNTIME_V2") value += 16;
+      if (this.contractBool(row.write_supported, false)) value += 8;
+      if (this.contractBool(row.editable, false)) value += 4;
+      if (row.write_service_domain && row.write_service_action && row.write_target_entity) value += 4;
+      if (row.value !== undefined && row.value !== null && String(row.value).trim() !== "") value += 2;
+      if (this.contractBool(row.available, false)) value += 1;
+      return value;
+    };
+    return rows.slice().sort((a,b)=>score(b)-score(a))[0] || null;
   }
 
   normalizePropertyRow(row = {}) {
