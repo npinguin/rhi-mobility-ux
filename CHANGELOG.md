@@ -1,3 +1,12 @@
+## 1.0.0-rc.45 — Picker transport and visual consistency closure
+
+- translate canonical semantic profile ids to Home Assistant select option labels at the transport boundary;
+- await profile persistence before writing vehicle/charger appearance keys;
+- keep failed writes visible instead of silently closing the picker;
+- reject stale cross-model vehicle artwork when the current Mobility profile identifies another vehicle;
+- align Charger picker hierarchy layout with the Vehicle picker;
+- preserve M0.9.41 as the backend baseline.
+
 ## 1.0.0-rc.44 — V2 picker closure
 
 - fixes the Charger Management picker open/close render guard so the panel actually materializes on click;
