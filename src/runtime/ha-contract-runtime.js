@@ -44,6 +44,9 @@ class HomeBrainAssetRuntime {
 
   contractAuthorityRegistry() {
     return {
+      fleet_runtime_v2: { contract_id: "MOBILITY_PUBLIC_RUNTIME_V2", role: "authority" },
+      product_experience_v2: { contract_id: "MOBILITY_EXPERIENCE_V2", role: "authority" },
+      product_policy_v2: { contract_id: "MOBILITY_POLICY_V2", role: "authority" },
       identity_navigation: { entity_id: "sensor.mobility_asset_index", role: "authority" },
       vehicle_properties: { entity_id: "vehicle_component_property_indexes", role: "authority" },
       charger_properties: { entity_id: "sensor.mobility_charger_property_index", role: "authority" },
