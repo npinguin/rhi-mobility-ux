@@ -634,6 +634,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     const connected = Number(fleet.connected_charger_count);
     const charging = Number(fleet.charging_charger_count);
     const available = Number(fleet.available_charger_count);
+    const chargingFallback = chargerRows.filter((row)=>String(row?.charging_intelligence?.state || "").toLowerCase() === "running").length;
     const powerState = String(fleet.aggregate_power_state || "unknown").toLowerCase();
     const power = Number(fleet.aggregate_actual_charging_power_kw);
     const powerDisplay = Number.isFinite(power) && powerState !== "unknown"
@@ -648,10 +649,10 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
 
     return {
       connected:Number.isFinite(connected) ? connected : connectedRows.length,
-      charging:Number.isFinite(charging) ? charging : chargerRows.filter((row)=>String(row?.charging_intelligence?.state || "").toLowerCase() === "running").length,
+      charging:Number.isFinite(charging) ? charging : chargingFallback,
       available:Number.isFinite(available) ? available : availableRows.length,
       powerDisplay,
-      stateDisplay:`${Number.isFinite(charging) ? charging : 0} charging · ${Number.isFinite(connected) ? connected : connectedRows.length} connected`,
+      stateDisplay:`${Number.isFinite(charging) ? charging : chargingFallback} charging · ${Number.isFinite(connected) ? connected : connectedRows.length} connected`,
       currentContext,
       availabilityDisplay,
       powerState
