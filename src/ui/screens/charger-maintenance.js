@@ -351,6 +351,19 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
       drafts: Array.from(this._limitDrafts || []),
       feedback: Array.from(this._commandFeedback || []).filter(([, until]) => Date.now() < until)
     });
+    const chargerHeaderCards = [
+      { icon:"mdi:clipboard-check-outline", label:"Configuration", value:"V2 contract gap", sub:`${activeChargers.length} active chargers · backend #107`, tone:"neutral" },
+      { icon:"mdi:transmission-tower", label:"Site", value:`${totalPower.toFixed(1)} kW now`, sub:`${availableCount} available · capacity V2 gap`, tone:"neutral" },
+      { icon:"mdi:ev-plug-type2", label:"Runtime", value:`${connectedCount} connected · ${chargingCount} charging`, sub:`${availableCount} available`, tone:faultCount ? "warn" : "neutral" }
+    ];
+    if (faultCount) chargerHeaderCards.push({
+      icon:"mdi:alert-circle-outline",
+      label:"Issue",
+      value:`${faultCount} fault${faultCount === 1 ? "" : "s"}`,
+      sub:"Canonical charger operating state",
+      tone:"warn"
+    });
+
     const activeEl = this.shadowRoot?.activeElement;
     if (this._lastSignature === signature && this._lastRenderOk && !(activeEl && ["SELECT", "INPUT"].includes(activeEl.tagName))) return;
     this._lastSignature = signature;
@@ -361,12 +374,7 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
         <div class="hi-version-block" style="position:absolute;top:18px;right:22px;text-align:right;font-size:10.5px;line-height:1.25;font-weight:400;color:var(--secondary-text-color,#6B7280);opacity:.82;background:none;border:0;box-shadow:none;padding:0;margin:0;z-index:3;pointer-events:none;"><div>UX ${rt.escape(UX_VERSION)}</div><div>Backend ${rt.escape(rt.backendVersion())}</div></div>
         ${hbMobilityNav(this.config?.nav_active || "chargers")}
         ${hbMobilityPageHero(rt, "chargers")}
-        ${hbMobilityStatusGrid(rt, [
-          { icon:"mdi:clipboard-check-outline", label:"Configuration", value:"V2 contract gap", sub:`${activeChargers.length} active chargers · backend #107`, tone:"neutral" },
-          { icon:"mdi:transmission-tower", label:"Site", value:`${totalPower.toFixed(1)} kW now`, sub:`${availableCount} available · capacity V2 gap`, tone:"neutral" },
-          { icon:"mdi:ev-plug-type2", label:"Runtime", value:`${connectedCount} connected · ${chargingCount} charging`, sub:`${availableCount} available`, tone:faultCount ? "warn" : "neutral" },
-          ${faultCount ? `{ icon:"mdi:alert-circle-outline", label:"Issue", value:"${faultCount} fault${faultCount === 1 ? "" : "s"}", sub:"Canonical charger operating state", tone:"warn" }` : ""}
-        ].filter(Boolean), "chargers-top-status")}
+        ${hbMobilityStatusGrid(rt, chargerHeaderCards, "chargers-top-status")}
         ${hbMobilityQuickActions(rt, [
           { icon:"mdi:cog-outline", label:"Manage chargers & profiles", path:"/config/integrations/integration/rhi_mobility", primary:true },
           { icon:"mdi:car-electric", label:"Vehicles", path:hbMobilityPath("/dashboard") },
