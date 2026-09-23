@@ -1,16 +1,22 @@
-# v1.0.0-rc.42 — picker write/readback + refresh stability
+# v1.0.0-rc.43 — UX-first status simplification
 
-This candidate builds on the already-published rc.41 V2-first status architecture and fixes only Vehicle/Charger visual picker writability plus editing-session refresh behavior.
+This candidate applies the Mobility status design from the UX perspective only. It does not expose backend implementation gaps or contract plumbing as user-facing status.
 
 Tested backend baseline: `M0.9.39`.
 
-- Canonical duplicate-property resolution prefers the richest V2-backed row, including complete write metadata when Mobility publishes it.
-- Vehicle and Charger management picker sessions are not reconstructed by normal Home Assistant state churn while open.
-- Focused Vehicle/Charger Detail pickers are protected from runtime refresh reconstruction.
-- Vehicle identity remains backend/profile owned; the vehicle picker edits appearance only.
-- Charger visual selection remains presentation-only and does not redefine backend charger identity.
-- rc.41 status semantics are preserved unchanged.
+- Overview: Charging / Range / Comfort / conditional Attention.
+- Vehicle Management: Fleet / Profiles / Charging setup.
+- Charger Management: Profiles / Availability / Runtime / conditional Issue.
+- Planning: Today / Still to plan / Tomorrow.
+- Strategies: Configured / Effective.
+- History: Energy / Value / Vehicles.
+- Log: recent Activity plus Attention only when a concrete backend-published action exists.
+- Vehicle Detail: Range / Charging / Security / Maintenance.
+- Charger Detail: State / Power / Vehicle, with Issue added only for a real health problem.
+- Normal, available, connected, scheduled and OK states stay visually neutral. Colour is reserved for action.
+- UX presentation thresholds: low range <100 km; maintenance due soon <90 days.
+- rc.42 picker persistence and refresh stability are preserved.
 
-Rollback: `v1.0.0-rc.41`.
+Rollback: `v1.0.0-rc.42`.
 
-Target Home Assistant qualification must prove write → canonical readback → reload/restart persistence for both vehicle and charger visuals before stable promotion.
+Target Home Assistant qualification must verify the information hierarchy and colours on desktop/mobile with real runtime data before stable promotion.
