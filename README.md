@@ -35,7 +35,10 @@ See `documentation/HACS_INSTALLATION.md`.
 ```text
 rhi-mobility backend
         ↓
-MOBILITY_PUBLIC_RUNTIME_V1
+MOBILITY_PUBLIC_RUNTIME_V2
+MOBILITY_EXPERIENCE_V2
+MOBILITY_POLICY_V2
+canonical per-asset V2 configuration
         ↓
 runtime contract boundary
         ↓
@@ -51,10 +54,12 @@ Screens and components may not access Home Assistant Mobility contract entities 
 Mobility UX has one semantic model behind the current workspaces. Overview, Vehicles and Chargers are the three Mobility workspaces; detail views are projections of the same backend-owned truth. Charging remains a Mobility capability inside those projections, not a standalone workspace.
 
 Read:
-- `documentation/PRODUCT_VISION.md` for user focus, tab intent, No charger semantics, route persistence and V1/V2.x rules;
-- `documentation/BACKEND_INTERFACE_BACKLOG.md` for required backend interfaces that must remain N/A/empty in V1 until published.
+- `documentation/PRODUCT_VISION.md` for user focus, tab intent, No charger semantics and route persistence;
+- `documentation/HISTORY_AND_LESSONS.md` for durable engineering history and failed patterns;
+- `documentation/KNOWN_DEFECTS.md` for authoritative open issues, including the incomplete V2 interface migration;
+- `documentation/BACKEND_INTERFACE_BACKLOG.md` for backend interfaces that remain unavailable until explicitly published.
 
-No future backend capability is mocked in the UX.
+No future backend capability is mocked in the UX. Frozen V1 is compatibility-only; new UX behavior is V2-first.
 
 ## Development
 
