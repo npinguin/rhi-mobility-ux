@@ -1,0 +1,163 @@
+{
+  "kind": "RHI_MOBILITY_UX_OPEN_ISSUES",
+  "schema_version": "1.0.0",
+  "policy": {
+    "accepted_debt": 0,
+    "authority": "documentation/KNOWN_DEFECTS.md",
+    "runtime_evidence": "release/QUALIFICATION.json",
+    "rule": "An issue closes only with explicit owner, exit criteria, owned regression evidence and target-runtime evidence where applicable."
+  },
+  "issues": [
+    {
+      "id": "MUX-001",
+      "title": "Vehicle/charger picker runtime qualification",
+      "status": "open",
+      "owner_area": "picker_session",
+      "evidence": [
+        "release/QUALIFICATION.json"
+      ],
+      "exit_criteria": [
+        "vehicle and charger open/edit/save works on target HA",
+        "canonical readback matches selection",
+        "refresh/reload/restart preserve persisted state",
+        "failed write remains visible and editor does not falsely commit"
+      ]
+    },
+    {
+      "id": "MUX-002",
+      "title": "V2 interface migration",
+      "status": "open",
+      "owner_area": "runtime",
+      "evidence": [
+        "src/OWNERSHIP.json",
+        "documentation/ARCHITECTURE.md"
+      ],
+      "exit_criteria": [
+        "new UX paths are V2-first",
+        "remaining V1 dependencies are compatibility-only and enumerated",
+        "no V1-only primary authority in docs/code",
+        "affected paths have target V2 runtime proof"
+      ]
+    },
+    {
+      "id": "MUX-003",
+      "title": "Semantic versus HA transport value",
+      "status": "open",
+      "owner_area": "runtime",
+      "evidence": [
+        "documentation/SEMANTIC_PICKER_BLUEPRINT.md",
+        "release/QUALIFICATION.json"
+      ],
+      "exit_criteria": [
+        "semantic IDs remain canonical truth",
+        "select transport uses exact published HA option",
+        "target vehicle and charger profile saves succeed without invalid-option error",
+        "canonical semantic readback proven"
+      ]
+    },
+    {
+      "id": "MUX-004",
+      "title": "Canonical visual rendering and blank/wrong imagery",
+      "status": "open",
+      "owner_area": "vehicle_management",
+      "evidence": [
+        "documentation/VEHICLE_ARTWORK_SOURCES.json",
+        "release/QUALIFICATION.json"
+      ],
+      "exit_criteria": [
+        "known vehicles never show another real model",
+        "known visual key never renders blank when package asset exists",
+        "neutral fallback is used for unresolved identity",
+        "picker/card/detail agree after refresh"
+      ]
+    },
+    {
+      "id": "MUX-005",
+      "title": "Charger component placement",
+      "status": "open",
+      "owner_area": "runtime",
+      "evidence": [
+        "documentation/KNOWN_DEFECTS.md"
+      ],
+      "exit_criteria": [
+        "valid charger properties no longer fall into Engineering/Unmapped on target runtime",
+        "placement contract regression test exists"
+      ]
+    },
+    {
+      "id": "MUX-006",
+      "title": "Charger command materialization",
+      "status": "open",
+      "owner_area": "runtime",
+      "evidence": [
+        "documentation/KNOWN_DEFECTS.md"
+      ],
+      "exit_criteria": [
+        "Restart/Identify/Unlock appear when backend publishes them",
+        "command readiness and invoke come only from Mobility command contract",
+        "target runtime proof exists"
+      ]
+    },
+    {
+      "id": "MUX-007",
+      "title": "Requested versus actual cross-screen parity",
+      "status": "open",
+      "owner_area": "v2_first_status_architecture",
+      "evidence": [
+        "release/QUALIFICATION.json"
+      ],
+      "exit_criteria": [
+        "requested intent never replaces actual readback",
+        "connected charger charger.power_kw remains actual power authority",
+        "overview/detail parity proven on target runtime"
+      ]
+    },
+    {
+      "id": "MUX-008",
+      "title": "Cross-screen runtime parity",
+      "status": "open",
+      "owner_area": "release",
+      "evidence": [
+        "release/QUALIFICATION.json"
+      ],
+      "exit_criteria": [
+        "immutable candidate installed on target HA",
+        "Overview/Vehicles/Chargers/detail routes exercised",
+        "refresh/navigation/browser reload preserved",
+        "rollback proven"
+      ]
+    },
+    {
+      "id": "MUX-009",
+      "title": "Behavior-test hardening for high-risk runtime paths",
+      "status": "open",
+      "owner_area": "test_governance",
+      "evidence": [
+        "documentation/TEST_GOVERNANCE.md",
+        "tests/OWNERSHIP.json"
+      ],
+      "exit_criteria": [
+        "critical picker V2 write/readback behavior is executable-tested",
+        "visual selection behavior is executable-tested",
+        "source-string assertions remain only for literal owned declarations",
+        "no duplicate invariant ownership introduced"
+      ]
+    },
+    {
+      "id": "MUX-010",
+      "title": "Premium visual system and charger artwork provenance",
+      "status": "open",
+      "owner_area": "asset_package",
+      "evidence": [
+        "documentation/VEHICLE_ARTWORK_SOURCES.json",
+        "tools/check-asset-policy.mjs"
+      ],
+      "exit_criteria": [
+        "premium visual master/context policy documented",
+        "charger source/licence/provenance tracked",
+        "cards/pickers/detail/hero share one visual family per product",
+        "runtime-generated canonical identity imagery remains forbidden"
+      ]
+    }
+  ]
+}
