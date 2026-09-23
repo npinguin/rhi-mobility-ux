@@ -32,7 +32,7 @@ for(const needle of ['MOBILITY_PUBLIC_RUNTIME_V2','v2SemanticProperty(assetId = 
   if(!runtime.includes(needle)) throw new Error(`runtime duplicate property resolution no longer prefers canonical writable metadata: missing ${needle}`);
 }
 if(!runtime.includes('rows.slice().sort((a,b)=>score(b)-score(a))[0]')) throw new Error('compound property lookup must choose the richest canonical duplicate');
-if(!assetShell.includes('saveButton.disabled = !key || !picker.selection({asset_id:assetId}).writable')) throw new Error('vehicle detail picker must honor canonical write capability');
+if(!assetShell.includes('saveButton.disabled = !visual.writable')) throw new Error('detail picker must honor the V2 profile + appearance selection write capability');
 
 for(const needle of ['Domain public runtime V2','local draft + live preview','must not trigger a complete Home Assistant card render','Reuse by Energy']) {
   if(!blueprint.includes(needle)) throw new Error(`semantic picker blueprint regression: missing ${needle}`);
