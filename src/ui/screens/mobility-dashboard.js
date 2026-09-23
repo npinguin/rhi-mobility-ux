@@ -1161,16 +1161,19 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
         updatePreview();
       });
     });
-    this.shadowRoot.querySelectorAll("button[data-vehicle-picker-save]").forEach((btn)=>btn.addEventListener("click",()=>{
+    this.shadowRoot.querySelectorAll("button[data-vehicle-picker-save]").forEach((btn)=>btn.addEventListener("click",async ()=>{
       if(btn.disabled) return;
       const assetId=btn.getAttribute("data-vehicle-picker-save") || "";
       const profileId=btn.getAttribute("data-vehicle-profile-id") || "";
       const key=btn.getAttribute("data-vehicle-key") || "";
       if(!assetId || !key) return;
+      btn.disabled=true;
       const profileProp=rt.semanticProperty(assetId,"asset.profile_id");
       const currentProfile=String(profileProp?.value || "");
-      if(profileId && profileId!==currentProfile && !rt.writePublishedProperty(assetId,"asset.profile_id",profileId)) return;
-      if(!rt.writePublishedProperty(assetId,"vehicle.image_key",key)) return;
+      const profileOk=!profileId || profileId===currentProfile || await rt.writePublishedPropertyAsync(assetId,"asset.profile_id",profileId);
+      if(!profileOk){btn.disabled=false;return;}
+      const imageOk=await rt.writePublishedPropertyAsync(assetId,"vehicle.image_key",key);
+      if(!imageOk){btn.disabled=false;return;}
       btn.classList.add("sent");
       this._vehiclePickerDraft.delete(assetId);
       setTimeout(()=>{this._vehiclePickerAsset="";this._forceRender=true;this._lastSignature="";if(this._hass)this.hass=this._hass;},450);
