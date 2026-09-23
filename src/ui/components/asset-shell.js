@@ -351,20 +351,25 @@ class HomeBrainAssetShell {
       };
 
       const updatePreview = () => {
-        const catalog = picker.catalog();
-        const vehicle = catalog.find((row)=>row.id === String(variantSelect?.value || "")) || null;
-        const color = vehicle?.colors?.find((row)=>row.id === String(colorSelect?.value || "")) || null;
-        const key = vehicle && color ? rhiMobilityVehicleVisualKey(vehicle.id, color.id) : "";
-        if (keyNode) keyNode.textContent = key || "Unavailable";
+        const asset = this.rt.vehicleById(assetId) || this.rt.assetById(assetId) || {asset_id:assetId,asset_type:"vehicle"};
+        const draft = {
+          brand:String(brandSelect?.value || ""),
+          model:String(modelSelect?.value || ""),
+          variant_id:String(variantSelect?.value || ""),
+          color_id:String(colorSelect?.value || "")
+        };
+        const visual = picker.selection(asset,draft);
+        if (keyNode) keyNode.textContent = visual.key || "Unavailable";
         if (saveButton) {
-          saveButton.setAttribute("data-vehicle-key", key);
-          saveButton.disabled = !key || !picker.selection({asset_id:assetId}).writable;
+          saveButton.setAttribute("data-vehicle-key", visual.key || "");
+          saveButton.setAttribute("data-vehicle-profile-id", visual.profile_id || "");
+          saveButton.disabled = !visual.writable;
         }
         const hero = this.root.querySelector('[data-vehicle-visual-preview="1"]');
-        if (hero && vehicle) {
-          if (vehicle.package_file) hero.src = this.rt.cache(vehicle.package_file);
+        if (hero && visual.vehicle) {
+          if (visual.vehicle.package_file) hero.src = this.rt.cache(visual.vehicle.package_file);
           const gray = hero.getAttribute("data-image-gray") || "0";
-          hero.style.filter = `grayscale(${gray}) ${color?.filter || "none"} drop-shadow(0 24px 30px rgba(15,35,80,.15))`;
+          hero.style.filter = `grayscale(${gray}) ${visual.color?.filter || "none"} drop-shadow(0 24px 30px rgba(15,35,80,.15))`;
         }
       };
 
@@ -374,8 +379,13 @@ class HomeBrainAssetShell {
       colorSelect?.addEventListener("change", updatePreview);
       saveButton?.addEventListener("click", ()=>{
         if (saveButton.disabled) return;
+        const profileId = saveButton.getAttribute("data-vehicle-profile-id") || "";
         const key = saveButton.getAttribute("data-vehicle-key") || "";
-        if (assetId && key) this.rt.writePublishedProperty(assetId, "vehicle.image_key", key);
+        if (!assetId || !key) return;
+        const profileProp = this.rt.semanticProperty(assetId, "asset.profile_id");
+        const currentProfile = String(profileProp?.value || "");
+        if (profileId && profileId !== currentProfile && !this.rt.writePublishedProperty(assetId, "asset.profile_id", profileId)) return;
+        this.rt.writePublishedProperty(assetId, "vehicle.image_key", key);
       });
     });
 
@@ -391,17 +401,22 @@ class HomeBrainAssetShell {
       const placeholder = (label)=>`<option value="" selected disabled>${this.rt.escape(label)}</option>`;
 
       const updatePreview = () => {
-        const catalog = picker.catalog();
-        const charger = catalog.find((row)=>row.id === String(variantSelect?.value || "")) || null;
-        const appearance = charger?.appearances?.find((row)=>row.id === String(appearanceSelect?.value || "")) || null;
-        const key = charger && appearance ? rhiMobilityChargerVisualKey(charger.id, appearance.id) : "";
-        if (keyNode) keyNode.textContent = key || "Unavailable";
+        const asset = this.rt.chargerById(assetId) || this.rt.assetById(assetId) || {asset_id:assetId,asset_type:"charger"};
+        const draft = {
+          brand:String(brandSelect?.value || ""),
+          model:String(modelSelect?.value || ""),
+          variant_id:String(variantSelect?.value || ""),
+          appearance_id:String(appearanceSelect?.value || "")
+        };
+        const visual = picker.selection(asset,draft);
+        if (keyNode) keyNode.textContent = visual.key || "Unavailable";
         if (saveButton) {
-          saveButton.setAttribute("data-charger-key", key);
-          saveButton.disabled = !key || !picker.selection({asset_id:assetId}).writable;
+          saveButton.setAttribute("data-charger-key", visual.key || "");
+          saveButton.setAttribute("data-charger-profile-id", visual.profile_id || "");
+          saveButton.disabled = !visual.writable;
         }
         const hero = this.root.querySelector('[data-charger-visual-preview="1"]');
-        if (hero && appearance?.package_file) hero.src = this.rt.cache(appearance.package_file);
+        if (hero && visual.appearance?.package_file) hero.src = this.rt.cache(visual.appearance.package_file);
       };
 
       const refreshHierarchy = (level) => {
@@ -441,8 +456,13 @@ class HomeBrainAssetShell {
       appearanceSelect?.addEventListener("change", updatePreview);
       saveButton?.addEventListener("click", ()=>{
         if (saveButton.disabled) return;
+        const profileId = saveButton.getAttribute("data-charger-profile-id") || "";
         const key = saveButton.getAttribute("data-charger-key") || "";
-        if (assetId && key) this.rt.writePublishedProperty(assetId, "charger.image_key", key);
+        if (!assetId || !key) return;
+        const profileProp = this.rt.semanticProperty(assetId, "asset.profile_id");
+        const currentProfile = String(profileProp?.value || "");
+        if (profileId && profileId !== currentProfile && !this.rt.writePublishedProperty(assetId, "asset.profile_id", profileId)) return;
+        this.rt.writePublishedProperty(assetId, "charger.image_key", key);
       });
     });
 
