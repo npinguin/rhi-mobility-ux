@@ -1,25 +1,16 @@
-# v1.0.0-rc.46 — Direct Mobility Command V2 closure
+# v1.0.0-rc.47 — Direct V2 property, placement and relationship closure
 
-This candidate moves Mobility command presentation and execution onto the canonical backend command boundary introduced by Mobility M0.9.42 and carried unchanged into M0.9.43.
+This candidate removes another legacy-authority layer from Mobility UX on backend M0.9.43.
 
-The UX now discovers `MOBILITY_COMMAND_V2` by contract id and treats it as the sole command authority whenever published. Command support, readiness, blocked reason and placement come from that V2 contract. The frozen `sensor.mobility_command_index` and vehicle/charger command-slot indexes are compatibility-only and are not consulted when Command V2 exists.
+Canonical per-asset Home Assistant property entities carrying `canonical_contract=MOBILITY_PUBLIC_RUNTIME_V2` are now the primary property surface. Their backend-published `component_id` and `section_id` drive Vehicle and Charger detail placement directly. Frozen V1 property/component indexes are used only when the direct V2 surface is absent.
 
-Execution is routed through the producer-owned Home Assistant service:
+A V2 property with missing placement metadata now fails visibly as a **Layout contract gap**. The UX does not invent an Engineering/Unmapped destination. Engineering-visible properties remain isolated from product sections.
 
-```text
-UX command
-→ MOBILITY_COMMAND_V2 exact asset_id + command_key
-→ rhi_mobility.execute_command
-→ Mobility command controller
-→ physical producer binding
-→ backend-owned execution/readback lifecycle
-```
+Vehicle↔charger relationship consumption also moves to `MOBILITY_PUBLIC_RUNTIME_V2.vehicle_charger_relationships`. Configured, effective and physically connected identities remain distinct; a physical vehicle identity is accepted only when `observed_identity_proven=true`. The V1 relationship index is compatibility-only on older backends.
 
-The UX never receives or reconstructs raw physical service bindings. Charger Start/Stop/Unlock/Restart/Identify are therefore no longer dependent on partial V1 slot/index materialization. Vehicle engineering commands remain outside quick actions according to producer-owned placement.
-
-Existing rc.45 picker transport, readback sequencing and cross-model artwork protection are preserved.
+rc.46 direct `MOBILITY_COMMAND_V2` execution is preserved unchanged.
 
 Required/tested backend: `M0.9.43`.
-Rollback: `v1.0.0-rc.45`.
+Rollback: `v1.0.0-rc.46`.
 
-Target Home Assistant qualification remains mandatory. It must prove Command V2 discovery, complete charger command visibility, producer-owned execution, picker write/readback persistence, refresh/reload/restart behavior and rollback before stable promotion.
+Target Home Assistant qualification remains mandatory before stable promotion.
