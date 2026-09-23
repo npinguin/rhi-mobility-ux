@@ -1,6 +1,6 @@
 {
-  "candidate_version": "1.0.0-rc.42",
-  "candidate_tag": "v1.0.0-rc.42",
+  "candidate_version": "1.0.0-rc.43",
+  "candidate_tag": "v1.0.0-rc.43",
   "candidate_sha": "pending",
   "target_home_assistant": "pending",
   "hacs_install": "pending",
@@ -93,5 +93,13 @@
   "charger_picker_writable_contract": "pending",
   "vehicle_picker_refresh_stability": "pending",
   "charger_picker_refresh_stability": "pending",
-  "detail_picker_refresh_stability": "pending"
+  "detail_picker_refresh_stability": "pending",
+  "status_information_architecture": "pending",
+  "status_neutral_colour_default": "pending",
+  "overview_three_line_status": "pending",
+  "vehicle_management_status": "pending",
+  "charger_management_status": "pending",
+  "routed_status_simplification": "pending",
+  "vehicle_detail_status": "pending",
+  "charger_detail_status": "pending"
 }
