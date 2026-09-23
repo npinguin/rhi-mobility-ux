@@ -428,10 +428,20 @@ class HomeBrainAssetRuntime {
 
   visualImageKey(asset = {}, role = "image") {
     const profile = this.profileForAsset(asset) || {};
-    // One visual authority: explicit/persisted image key, then current profile image key.
-    // Hero/thumbnail are presentation roles over the same canonical model artwork.
+    const profileId = String(asset?.profile_id || asset?.raw?.profile_id || "").trim();
+    const profileVisual = String(asset?.asset_type || "").toLowerCase() === "vehicle" && typeof rhiMobilityVehicleVisualForProfile === "function"
+      ? rhiMobilityVehicleVisualForProfile(profileId)
+      : null;
+    // Persisted appearance may refine colour only inside the profile-owned visual family.
+    // A stale image_key from another model must never override the current Mobility profile.
     const candidates = [asset.image_key, asset.raw?.image_key, profile.image_key];
     const explicit = String(candidates.find((v) => v !== undefined && v !== null && String(v).trim() && !this.isGenericVehicleImageKey(v)) || "").trim();
+    if (profileVisual) {
+      const parsed = typeof rhiMobilityParseVehicleVisualKey === "function" ? rhiMobilityParseVehicleVisualKey(explicit) : null;
+      if (parsed?.vehicle?.id === profileVisual.id) return parsed.key;
+      const firstColor = profileVisual.colors?.[0]?.id || "";
+      if (firstColor && typeof rhiMobilityVehicleVisualKey === "function") return rhiMobilityVehicleVisualKey(profileVisual.id, firstColor);
+    }
     if (explicit) return explicit;
     const fallback = [asset.fallback_image_key, asset.raw?.fallback_image_key, profile.fallback_image_key]
       .find((v) => v !== undefined && v !== null && String(v).trim());
