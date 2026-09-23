@@ -1736,6 +1736,20 @@ class HomeBrainAssetRuntime {
     };
   }
 
+  propertyTransportValue(prop = {}, value = "") {
+    const domainText = String(prop?.write_service_domain || "").toLowerCase();
+    const actionText = String(prop?.write_service_action || "").toLowerCase();
+    if (!(actionText.includes("select") || domainText.includes("select"))) return value;
+    const choices = this.propertyEditorChoices(prop);
+    const valueField = String(prop.value_field || "value");
+    const transportField = String(prop.transport_value_field || "transport_value");
+    const wanted = String(value ?? "");
+    const row = choices.find((choice)=>choice && typeof choice === "object" && String(choice[valueField] ?? "") === wanted);
+    if (!row) return value;
+    const transport = row[transportField];
+    return transport === undefined || transport === null || String(transport) === "" ? value : transport;
+  }
+
   writePropertyValue(prop = {}, value = "") {
     if (!prop || !this.hass || !this.isWritableProperty(prop)) return false;
     const domain = prop.write_service_domain;
@@ -1745,17 +1759,47 @@ class HomeBrainAssetRuntime {
     if (!payload.entity_id) payload.entity_id = target;
     const domainText = String(domain || "").toLowerCase();
     const actionText = String(action || "").toLowerCase();
+    const transportValue = this.propertyTransportValue(prop, value);
     if (!["button", "input_button"].includes(domainText)) {
       const explicitField = String(prop.write_value_field || "").trim();
-      if (explicitField) payload[explicitField] = value;
-      else if (actionText.includes("select") || domainText.includes("select")) payload.option = value;
-      else if (actionText.includes("datetime") || domainText.includes("datetime")) payload.datetime = value;
-      else if (actionText.includes("time")) payload.time = value;
+      if (explicitField) payload[explicitField] = transportValue;
+      else if (actionText.includes("select") || domainText.includes("select")) payload.option = transportValue;
+      else if (actionText.includes("datetime") || domainText.includes("datetime")) payload.datetime = transportValue;
+      else if (actionText.includes("time")) payload.time = transportValue;
       else if (actionText.includes("turn_")) { /* entity_id only */ }
-      else payload.value = value;
+      else payload.value = transportValue;
     }
     this.hass.callService(domain, action, payload);
     return true;
+  }
+
+  async writePropertyValueAsync(prop = {}, value = "") {
+    if (!prop || !this.hass || !this.isWritableProperty(prop)) return false;
+    const domain = prop.write_service_domain;
+    const action = prop.write_service_action;
+    const target = prop.write_target_entity;
+    const payload = { ...(prop.write_service_data && typeof prop.write_service_data === "object" ? prop.write_service_data : {}) };
+    if (!payload.entity_id) payload.entity_id = target;
+    const domainText = String(domain || "").toLowerCase();
+    const actionText = String(action || "").toLowerCase();
+    const transportValue = this.propertyTransportValue(prop, value);
+    if (!["button", "input_button"].includes(domainText)) {
+      const explicitField = String(prop.write_value_field || "").trim();
+      if (explicitField) payload[explicitField] = transportValue;
+      else if (actionText.includes("select") || domainText.includes("select")) payload.option = transportValue;
+      else if (actionText.includes("datetime") || domainText.includes("datetime")) payload.datetime = transportValue;
+      else if (actionText.includes("time")) payload.time = transportValue;
+      else if (actionText.includes("turn_")) { /* entity_id only */ }
+      else payload.value = transportValue;
+    }
+    await this.hass.callService(domain, action, payload);
+    return true;
+  }
+
+  async writePublishedPropertyAsync(assetId = "", propertyKey = "", value = "") {
+    const prop = this.semanticProperty(this.canonicalAssetId(assetId), propertyKey);
+    if (!prop) return false;
+    return this.writePropertyValueAsync(prop, value);
   }
 
   writePublishedProperty(assetId = "", propertyKey = "", value = "") {
