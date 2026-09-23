@@ -313,11 +313,13 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
     const inactiveChargers = chargers.filter((c) => rt.lifecycleStatus(c) !== "active" && rt.lifecycleStatus(c) !== "retired");
     const fleet = rt.mobilityFleetV2();
     const experienceRows = rt.mobilityExperienceV2()?.chargers || [];
+    const activeIds = new Set(activeChargers.map((charger)=>String(charger.asset_id || "")));
+    const activeExperienceRows = experienceRows.filter((row)=>activeIds.has(String(row?.asset_id || "")));
     const experienceById = new Map(experienceRows.map((row)=>[String(row?.asset_id || ""),row]));
-    const connectedCount = Number.isFinite(Number(fleet.connected_charger_count)) ? Number(fleet.connected_charger_count) : experienceRows.filter((row)=>String(row?.connection_intelligence?.state || "").toLowerCase() === "asset_connected").length;
-    const chargingCount = Number.isFinite(Number(fleet.charging_charger_count)) ? Number(fleet.charging_charger_count) : experienceRows.filter((row)=>String(row?.charging_intelligence?.state || "").toLowerCase() === "running").length;
-    const availableCount = Number.isFinite(Number(fleet.available_charger_count)) ? Number(fleet.available_charger_count) : experienceRows.filter((row)=>String(row?.availability_intelligence?.state || "").toLowerCase() === "ok").length;
-    const faultRows = experienceRows.filter((row)=>String(row?.fault?.state || "").toLowerCase() === "active");
+    const connectedCount = Number.isFinite(Number(fleet.connected_charger_count)) ? Number(fleet.connected_charger_count) : activeExperienceRows.filter((row)=>String(row?.connection_intelligence?.state || "").toLowerCase() === "asset_connected").length;
+    const chargingCount = Number.isFinite(Number(fleet.charging_charger_count)) ? Number(fleet.charging_charger_count) : activeExperienceRows.filter((row)=>String(row?.charging_intelligence?.state || "").toLowerCase() === "running").length;
+    const availableCount = Number.isFinite(Number(fleet.available_charger_count)) ? Number(fleet.available_charger_count) : activeExperienceRows.filter((row)=>String(row?.availability_intelligence?.state || "").toLowerCase() === "ok").length;
+    const faultRows = activeExperienceRows.filter((row)=>String(row?.fault?.state || "").toLowerCase() === "active");
     const faultCount = faultRows.length;
     const aggregatePowerState = String(fleet.aggregate_power_state || "unknown").toLowerCase();
     const aggregatePower = Number(fleet.aggregate_actual_charging_power_kw);
@@ -349,7 +351,7 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
       feedback: Array.from(this._commandFeedback || []).filter(([, until]) => Date.now() < until)
     });
     const labelFor = (row) => String(row?.short_name || row?.display_name || row?.name || row?.asset_id || "—").trim();
-    const activeExperience = activeChargers.map((charger)=>experienceById.get(charger.asset_id)).filter(Boolean);
+    const activeExperience = activeExperienceRows;
     const profiledRows = activeExperience.filter((row)=>!!String(row?.configuration_status?.profile_id || "").trim());
     const unprofiledRows = activeExperience.filter((row)=>!String(row?.configuration_status?.profile_id || "").trim());
     const availableRows = activeExperience.filter((row)=>String(row?.availability_intelligence?.state || "").toLowerCase() === "ok");
