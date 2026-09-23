@@ -34,6 +34,60 @@ function assertValidWebp(root, rel){
 }
 for(const rel of sourceFiles) assertValidWebp(srcRoot,rel);
 for(const rel of distFiles) assertValidWebp(distRoot,rel);
+
+function webpDimensions(root, rel){
+  const bytes=fs.readFileSync(path.join(root,rel));
+  let offset=12;
+  while(offset + 8 <= bytes.length){
+    const type=bytes.toString('ascii',offset,offset+4);
+    const size=bytes.readUInt32LE(offset+4);
+    const data=offset+8;
+    if(type==='VP8 '){
+      if(bytes[data+3]!==0x9d || bytes[data+4]!==0x01 || bytes[data+5]!==0x2a) throw new Error(`Invalid VP8 frame header: ${rel}`);
+      return {width:bytes.readUInt16LE(data+6)&0x3fff,height:bytes.readUInt16LE(data+8)&0x3fff};
+    }
+    if(type==='VP8L'){
+      const bits=bytes.readUInt32LE(data+1);
+      return {width:(bits&0x3fff)+1,height:((bits>>>14)&0x3fff)+1};
+    }
+    if(type==='VP8X'){
+      const width=1+bytes[data+4]+(bytes[data+5]<<8)+(bytes[data+6]<<16);
+      const height=1+bytes[data+7]+(bytes[data+8]<<8)+(bytes[data+9]<<16);
+      return {width,height};
+    }
+    offset=data+size+(size&1);
+  }
+  throw new Error(`WebP dimensions unavailable: ${rel}`);
+}
+
+const canonicalHeroFiles=[
+  'heroes/mobility-overview-canonical.webp',
+  'heroes/mobility-vehicles-canonical.webp',
+  'heroes/mobility-chargers-canonical.webp',
+  'heroes/mobility-planning-canonical.webp',
+  'heroes/mobility-strategies-canonical.webp',
+  'heroes/mobility-history-canonical.webp',
+  'heroes/mobility-log-canonical.webp',
+  'heroes/mobility-vehicle-detail-canonical.webp',
+  'heroes/mobility-charger-detail-canonical.webp'
+];
+const heroFiles=sourceFiles.filter((rel)=>rel.startsWith('heroes/'));
+for(const rel of canonicalHeroFiles){
+  if(!sourceFiles.includes(rel)) throw new Error(`canonical hero missing from source package: ${rel}`);
+  if(!distFiles.includes(rel)) throw new Error(`canonical hero missing from dist package: ${rel}`);
+  const sourceDim=webpDimensions(srcRoot,rel);
+  const distDim=webpDimensions(distRoot,rel);
+  if(sourceDim.width !== sourceDim.height*3) throw new Error(`canonical hero must be exact 3:1: ${rel} = ${sourceDim.width}x${sourceDim.height}`);
+  if(sourceDim.width!==distDim.width || sourceDim.height!==distDim.height) throw new Error(`canonical hero dimensions drifted in dist: ${rel}`);
+}
+for(const rel of heroFiles){
+  if(!canonicalHeroFiles.includes(rel)) throw new Error(`legacy/non-canonical hero still packaged: ${rel}`);
+}
+const presentationSource=fs.readFileSync(path.join(root,'src/app/presentation.js'),'utf8');
+if(/heroes\/[^"'\s]+\.svg/.test(presentationSource) || presentationSource.includes('mobility-overview-approved.webp')){
+  throw new Error('legacy hero fallback remains in presentation mapping');
+}
+console.log('PASS canonical hero policy: exact 9 WebP heroes, exact 3:1 ratio, no legacy fallback, source/dist parity');
 if(JSON.stringify(sourceFiles)!==JSON.stringify(distFiles)) throw new Error('src/assets and dist/assets file inventories differ');
 
 for(const rel of sourceFiles){
