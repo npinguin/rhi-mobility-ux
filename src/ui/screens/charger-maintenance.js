@@ -351,16 +351,32 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
       drafts: Array.from(this._limitDrafts || []),
       feedback: Array.from(this._commandFeedback || []).filter(([, until]) => Date.now() < until)
     });
+    const labelFor = (charger) => String(charger?.short_name || charger?.display_name || charger?.name || charger?.asset_id || "—").trim();
+    const profiledChargers = activeChargers.filter((charger)=>{
+      const profile = charger?.profile_id ?? charger?.profile ?? rt.propertyByCompoundKey(charger.asset_id, "asset.profile_id")?.value;
+      return !!String(profile ?? "").trim();
+    });
+    const unprofiledChargers = activeChargers.filter((charger)=>!profiledChargers.includes(charger));
+    const availableChargers = activeChargers.filter((charger)=>{
+      const available = rt.canonicalChargerPropertyValue(charger.asset_id, "charger.available_for_connection");
+      return available.resolved && ["true","1","yes","on"].includes(String(available.value).toLowerCase());
+    });
+    const faultChargers = activeChargers.filter((charger)=>{
+      const snapshot = rt.chargerProductSnapshot(charger.asset_id);
+      return snapshot?.operating?.resolved && String(snapshot.operating.value || "").toLowerCase() === "fault";
+    });
+    const names = (rows)=>rows.slice(0,3).map(labelFor).join(" · ");
+
     const chargerHeaderCards = [
-      { icon:"mdi:clipboard-check-outline", label:"Configuration", value:"V2 contract gap", sub:`${activeChargers.length} active chargers · backend #107`, tone:"neutral" },
-      { icon:"mdi:transmission-tower", label:"Site", value:`${totalPower.toFixed(1)} kW now`, sub:`${availableCount} available · capacity V2 gap`, tone:"neutral" },
-      { icon:"mdi:ev-plug-type2", label:"Runtime", value:`${connectedCount} connected · ${chargingCount} charging`, sub:`${availableCount} available`, tone:faultCount ? "warn" : "neutral" }
+      { icon:"mdi:card-account-details-outline", label:"Profiles", value:`${profiledChargers.length}/${activeChargers.length} configured`, sub:unprofiledChargers.length ? `${names(unprofiledChargers)} without profile` : "All active chargers profiled", tone:"neutral" },
+      { icon:"mdi:ev-station", label:"Availability", value:`${availableCount}/${activeChargers.length} available`, sub:availableChargers.length ? names(availableChargers) : "No charger currently available", tone:"neutral" },
+      { icon:"mdi:lightning-bolt", label:"Runtime", value:`${totalPower.toFixed(1)} kW now`, sub:`${connectedCount} connected · ${chargingCount} charging`, tone:"neutral" }
     ];
     if (faultCount) chargerHeaderCards.push({
       icon:"mdi:alert-circle-outline",
       label:"Issue",
       value:`${faultCount} fault${faultCount === 1 ? "" : "s"}`,
-      sub:"Canonical charger operating state",
+      sub:names(faultChargers),
       tone:"warn"
     });
 
@@ -379,7 +395,7 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
         ${hbMobilityStatusGrid(rt, chargerHeaderCards, "chargers-top-status")}
         ${hbMobilityQuickActions(rt, [
           { icon:"mdi:cog-outline", label:"Manage chargers & profiles", path:"/config/integrations/integration/rhi_mobility", primary:true },
-          { icon:"mdi:car-electric", label:"Vehicles", path:hbMobilityPath("/dashboard") },
+          { icon:"mdi:car-electric", label:"Vehicle Management", path:hbMobilityPath("/dashboard") },
           { icon:"mdi:calendar-clock", label:"Charging plan", path:hbMobilityPath("/planning") },
           { icon:"mdi:target", label:"Strategies", path:hbMobilityPath("/strategies") }
         ])}
