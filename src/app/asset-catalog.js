@@ -1,3 +1,31 @@
+// Canonical Mobility page/detail hero library. The UX owns the presentation mapping;
+// domain/runtime semantics remain backend-owned. Every semantic hero key maps to
+// exactly one package asset and screens must resolve through this catalog.
+const RHI_MOBILITY_HERO_CATALOG = Object.freeze({
+  overview: "heroes/mobility-overview.png",
+  vehicles: "heroes/mobility-vehicles.png",
+  chargers: "heroes/mobility-chargers.png",
+  planning: "heroes/mobility-planning.png",
+  strategies: "heroes/mobility-strategies.png",
+  history: "heroes/mobility-history.png",
+  log: "heroes/mobility-log.png",
+  vehicle_detail: "heroes/mobility-vehicle-detail.png",
+  charging_detail: "heroes/mobility-charging-detail.png"
+});
+
+function rhiMobilityHeroCatalog() {
+  return Object.entries(RHI_MOBILITY_HERO_CATALOG).map(([key, package_path])=>({
+    key,
+    package_path,
+    package_file:rhiMobilityAssetUrl(package_path)
+  }));
+}
+
+function rhiMobilityHeroAsset(key = "") {
+  const packagePath = RHI_MOBILITY_HERO_CATALOG[String(key || "").trim()] || "";
+  return packagePath ? rhiMobilityAssetUrl(packagePath) : "";
+}
+
 // Package-owned visual catalog. Backend owns image_key; this layer maps keys to immutable package assets.
 const RHI_MOBILITY_IMAGE_CATALOG = Object.freeze([
   { image_key:"vehicle_audi_q8", package_path:"vehicles/vehicle_audi_q8.png", fallback_image_key:"vehicle_fallback" },
