@@ -123,7 +123,11 @@
       "owns": [
         "normative path currency",
         "source/package terminology",
-        "migration-sequence documentation"
+        "migration-sequence documentation",
+        "engineer handover currency",
+        "engineering history and durable lessons",
+        "authoritative open-issue visibility",
+        "V2 migration documentation invariants"
       ]
     },
     "vehicle_management": {

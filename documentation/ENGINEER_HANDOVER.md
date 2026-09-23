@@ -19,11 +19,12 @@ Read in this order:
 11. `tests/OWNERSHIP.json`
 12. `documentation/BRANDING.md`
 13. `documentation/HACS_INSTALLATION.md`
-14. `documentation/KNOWN_DEFECTS.md`
-15. `release/product.json`
-16. `release/QUALIFICATION.json`
-17. `release/RELEASE_NOTES.md`
-18. `CHANGELOG.md`
+14. `documentation/HISTORY_AND_LESSONS.md`
+15. `documentation/KNOWN_DEFECTS.md`
+16. `release/product.json`
+17. `release/QUALIFICATION.json`
+18. `release/RELEASE_NOTES.md`
+19. `CHANGELOG.md`
 
 ## Footer authority
 
@@ -68,7 +69,7 @@ MOBILITY_EXPERIENCE_V2     = user-facing conclusions
 UX                         = select / aggregate / format / present
 ```
 
-rc.44 consumes the direct Runtime V2 / Experience V2 / Policy V2 surfaces and the canonical per-asset V2 semantic property write surface introduced in backend M0.9.41. The frozen V1 facade remains compatibility-only for older consumers. New UX work must not introduce V1-only status dependencies or reconstruct product conclusions locally.
+Current UX direction is V2-first: Runtime V2 / Experience V2 / Policy V2 plus canonical per-asset V2 semantic configuration. The frozen V1 facade remains compatibility-only for older consumers. New UX work must not introduce V1-only status dependencies or reconstruct product conclusions locally. Current release/backend identity must always be read from `package.json` and `release/product.json`, never from this handover.
 
 Configuration controls consume backend-published canonical V2 write metadata, options and write targets. `asset.profile_id`, `vehicle.image_key` and `charger.image_key` are the picker persistence surfaces. Frozen V1 may remain a compatibility fallback for older deployments but is not semantic authority. Runtime controls remain fail-closed without published write capability.
 
@@ -105,7 +106,10 @@ Global supervisor status, trust, attention, opportunity and recommendation are b
 
 `documentation/KNOWN_DEFECTS.md` is authoritative for unresolved product defects. These are unresolved defects, not accepted feature debt. Do not silently close them through frontend inference or fallback logic.
 
-In particular, frontend-derived supervisory meaning and requested-versus-actual cleanup must only be closed when the backend public contract supplies the required authority and regression tests prove the UX consumes it correctly.
+In particular:
+- V2 interface migration remains an explicit open issue until remaining V1 property-index/V1-shaped assumptions are removed or isolated as compatibility-only and target runtime proof exists;
+- frontend-derived supervisory meaning and requested-versus-actual cleanup may only be closed when backend public contracts supply the required authority and owned regression tests prove the UX consumes it correctly;
+- picker persistence is not closed by a green service call; canonical readback plus refresh/reload/restart proof is required.
 
 Engineering/Unmapped remains a fail-visible safety net for unplaced published properties; it is not a substitute for correct product placement.
 
@@ -155,6 +159,19 @@ The next engineer must be able to determine without tribal knowledge:
 - how to roll back through HACS.
 
 If any of those requires guessing, release governance is not clean.
+
+## First task for a new engineer
+
+Before changing behavior:
+
+1. verify current package/backend identity from the machine authorities;
+2. read `documentation/HISTORY_AND_LESSONS.md` and `documentation/KNOWN_DEFECTS.md`;
+3. inspect `release/QUALIFICATION.json` for target-runtime gates still pending;
+4. classify the requested change against source/test ownership;
+5. confirm whether the path is V2-native or still using a compatibility fallback;
+6. add/adjust the owned anti-drift regression before considering the issue structurally closed.
+
+Do not start premium visual work while a related identity, persistence or canonical-render defect is still open.
 
 ## Source/package ownership
 

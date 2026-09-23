@@ -53,7 +53,7 @@ No screen may independently redefine lifecycle, relationship identity, readiness
 - Charger product conclusions and fault: `MOBILITY_EXPERIENCE_V2.chargers[]`.
 - Thresholds and required coverage: `MOBILITY_POLICY_V2.policy`.
 - UX owns select / aggregate / format / present only; it does not recreate product states.
-- Scalar property indexes remain valid for detailed factual values and controls, not for re-deriving Experience V2.
+- Canonical per-asset V2 semantic properties own detailed factual/configuration read/write. Frozen V1/scalar compatibility indexes may be consumed only as an explicit compatibility fallback while the V2 interface migration remains open; they may not become authority for new behavior.
 - Command placement: backend command-slot indexes only.
 - Command readiness/invoke: Mobility Command Index only.
 - Command activity/result: Mobility Activity Index only.
