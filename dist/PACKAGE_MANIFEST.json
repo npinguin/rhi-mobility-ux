@@ -80,7 +80,7 @@
     },
     {
       "path": "assets/vehicles/vehicle_bmw_x1_phev.webp",
-      "bytes": 39002
+      "bytes": 13392
     },
     {
       "path": "assets/vehicles/vehicle_fallback.png",
@@ -88,15 +88,15 @@
     },
     {
       "path": "assets/vehicles/vehicle_mercedes_gla.webp",
-      "bytes": 37180
+      "bytes": 11610
     },
     {
       "path": "assets/vehicles/vehicle_renault_scenic_techno_ev.webp",
-      "bytes": 37736
+      "bytes": 9966
     },
     {
       "path": "assets/vehicles/vehicle_vw_id4.webp",
-      "bytes": 34358
+      "bytes": 10330
     },
     {
       "path": "rhi-mobility-ux.js",
