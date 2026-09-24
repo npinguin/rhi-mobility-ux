@@ -133,6 +133,10 @@ for(const row of verified){
   const digest=crypto.createHash('sha256').update(fs.readFileSync(path.join(srcRoot,rel))).digest('hex');
   if(digest===fallbackDigest) throw new Error(`verified vehicle visual resolves to fallback bytes: ${row.id}`);
   if(verifiedDigests.has(digest)) throw new Error(`verified vehicle visuals share identical artwork: ${verifiedDigests.get(digest)} and ${row.id}`);
+  const dimensions=rasterDimensions(path.join(srcRoot,rel));
+  if(!dimensions || dimensions.width!==640 || dimensions.height!==380) {
+    throw new Error(`verified vehicle master must be exact 640x380 transparent-canvas asset: ${rel} = ${dimensions ? dimensions.width+'x'+dimensions.height : 'unknown'}`);
+  }
   verifiedDigests.set(digest,row.id);
 }
 
@@ -149,13 +153,51 @@ for(const rel of vehicleFiles){
   if(!allowedVehicleFiles.has(rel)) throw new Error(`legacy/dead vehicle artwork still packaged: ${rel}`);
 }
 if(vehicleFiles.length!==allowedVehicleFiles.size) throw new Error(`vehicle asset inventory drifted: ${vehicleFiles.length}; expected ${allowedVehicleFiles.size}`);
-console.log(`PASS asset policy: 5 current real vehicles have distinct canonical package artwork; vehicle inventory is legacy-free and one-master-per-model`);
+console.log(`PASS asset policy: 5 current real vehicles use distinct canonical 640x380 masters; vehicle inventory is legacy-free and one-master-per-model`);
 
 
 function pngDimensions(file) {
   const bytes=fs.readFileSync(file);
   if(bytes.length<24 || bytes.toString('ascii',1,4)!=='PNG') return null;
   return { width:bytes.readUInt32BE(16), height:bytes.readUInt32BE(20) };
+}
+
+function webpDimensions(file) {
+  const bytes=fs.readFileSync(file);
+  if(bytes.length<30 || bytes.toString('ascii',0,4)!=='RIFF' || bytes.toString('ascii',8,12)!=='WEBP') return null;
+  let offset=12;
+  while(offset+8<=bytes.length) {
+    const type=bytes.toString('ascii',offset,offset+4);
+    const size=bytes.readUInt32LE(offset+4);
+    const data=offset+8;
+    if(type==='VP8X' && data+10<=bytes.length) {
+      return {
+        width:1 + bytes[data+4] + (bytes[data+5]<<8) + (bytes[data+6]<<16),
+        height:1 + bytes[data+7] + (bytes[data+8]<<8) + (bytes[data+9]<<16)
+      };
+    }
+    if(type==='VP8L' && data+5<=bytes.length && bytes[data]===0x2f) {
+      const b1=bytes[data+1], b2=bytes[data+2], b3=bytes[data+3], b4=bytes[data+4];
+      return {
+        width:1 + b1 + ((b2 & 0x3f)<<8),
+        height:1 + (b2>>6) + (b3<<2) + ((b4 & 0x0f)<<10)
+      };
+    }
+    if(type==='VP8 ' && data+10<=bytes.length && bytes[data+3]===0x9d && bytes[data+4]===0x01 && bytes[data+5]===0x2a) {
+      return {
+        width:bytes.readUInt16LE(data+6) & 0x3fff,
+        height:bytes.readUInt16LE(data+8) & 0x3fff
+      };
+    }
+    offset=data+size+(size%2);
+  }
+  return null;
+}
+function rasterDimensions(file) {
+  const ext=path.extname(file).toLowerCase();
+  if(ext==='.png') return pngDimensions(file);
+  if(ext==='.webp') return webpDimensions(file);
+  return null;
 }
 function svgDimensions(file) {
   const text=fs.readFileSync(file,'utf8');
