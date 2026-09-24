@@ -7,24 +7,30 @@ vm.runInContext(mobilityRuntimeSource()+'\n;globalThis.HomeBrainAssetRuntime=Hom
 const Runtime=ctx.HomeBrainAssetRuntime;
 
 const hass={states:{
-  'sensor.mobility_intelligence_index':{state:'ready',attributes:{
-    intelligence_json:JSON.stringify([
-      {scope:'mobility',status:'OK',trust:'Trusted',attention:'None',opportunity:'Charge later',recommended_action:'Wait',recommended_reason:'Lower-price window expected'}
-    ])
+  'sensor.rhi_mobility_supervision_v2':{state:'ready',attributes:{
+    contract_id:'MOBILITY_SUPERVISION_V2',
+    publisher:'rhi_mobility',
+    status:{available:true,value:'ready'},
+    system_trust:{available:true,value:'trusted'},
+    attention:{available:true,value:'none',reasons:[]},
+    current_activity:{available:true,activity:{asset_id:'vehicle_1',activity_type:'charging',activity_state:'active'}},
+    charging_plan:{available:false,reason:'owned_by_energy'},
+    opportunity:{available:false,reason:'owned_by_energy'},
+    recommended_action:{available:false,reason:'owned_by_energy'}
   }}
 }};
 const rt=new Runtime(hass,{});
 for(const [key,expected] of [
-  ['status','OK'],
-  ['trust','Trusted'],
-  ['attention','None'],
-  ['opportunity','Charge later'],
-  ['recommended_action','Wait'],
-  ['recommended_reason','Lower-price window expected']
+  ['status','ready'],
+  ['trust','trusted'],
+  ['attention','none'],
+  ['activity','active']
 ]) {
   const actual=rt.supervisorOutcome('mobility',key,'Unknown');
   if(actual!==expected) throw new Error(`global supervisor ${key} drift: ${actual}`);
 }
+if(rt.supervisorOutcome('mobility','opportunity','')!=='') throw new Error('Energy-owned opportunity must not be invented by Mobility UX');
+if(rt.supervisorOutcome('mobility','recommended_action','')!=='') throw new Error('Energy-owned recommendation must not be invented by Mobility UX');
 
 const missing=new Runtime({states:{}},{});
 if(missing.supervisorOutcome('mobility','status','Unknown')!=='Unknown') throw new Error('missing global supervisor status must fail closed');
@@ -40,9 +46,6 @@ for(const forbidden of [
   if(dashboard.includes(forbidden)) throw new Error(`frontend-derived supervisor fallback remains: ${forbidden}`);
 }
 if(!dashboard.includes('Backend supervisor recommendation unavailable.')) throw new Error('missing fail-closed recommendation presentation');
-// Overview domain-status semantics are owned by
-// tests/contracts/v2-first-status-architecture-smoke.mjs. This test owns only
-// global supervisor authority and fail-closed recommendation consumption.
-if(!dashboard.includes('rt.supervisorOutcome("mobility", "recommended_action", "")')) throw new Error('Mobility recommendation is not backend-owned/fail-closed');
+if(!dashboard.includes('rt.supervisorOutcome("mobility", "recommended_action", "")')) throw new Error('Mobility recommendation path must remain fail-closed while Energy owns recommendation semantics');
 
-console.log('PASS backend-owned global supervisor intelligence and fail-closed UX regression');
+console.log('PASS Mobility Supervision V2 status/trust/attention authority and Energy-owned recommendation fail-closed boundary');

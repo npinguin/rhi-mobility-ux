@@ -111,15 +111,8 @@ These items may become a V2.x contract only through an explicit backend contract
 No future V2.x field may be guessed, reverse-engineered from raw Home Assistant entities, or locally persisted as a second truth by UX.
 
 
-## Runtime V2 property-completeness evidence
+## Runtime V2 property-completeness evidence — fulfilled in Mobility M0.9.44
 
-UX now treats direct per-asset V2 property entities as the only primary property surface once they are present. It deliberately does **not** merge missing fields from frozen V1 indexes because that would create dual authority.
+Mobility M0.9.44 publishes per-asset `property_publication` evidence on Runtime V2, including expected and catalog property keys plus explicit `v1_fallback_allowed=false`.
 
-For robust startup/runtime diagnostics, the backend should publish machine-readable per-asset completeness evidence derived from its existing canonical/materialized property catalog, for example:
-
-- expected/materialized property keys for the asset;
-- publication revision;
-- materialized entity count;
-- missing/failed entity keys, if any.
-
-This is diagnostic evidence only; it does not change product semantics. Until such evidence is public, UX can fail visibly on missing placement for entities it can see, but it cannot prove that an absent V2 entity should have existed.
+UX rc.49 consumes this evidence and compares expected keys with materialized direct V2 property entities. An expected-but-missing entity is now an explicit publication gap; it is never silently filled from a frozen V1 index.
