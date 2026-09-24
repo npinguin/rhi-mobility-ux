@@ -85,6 +85,18 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
     return value === null || value === undefined ? "N/A" : `${Number(value).toFixed(1)} kWh`;
   }
 
+  vehicleIdentity(rt, assetId = "", row = {}, meta = "") {
+    const id = String(assetId || row.asset_id || row.target_asset_id || row.flexible_asset_id || row.consumer_asset_id || "").trim();
+    const registry = id ? (rt.vehicleById?.(id) || rt.assetById?.(id, "vehicle") || rt.assetById?.(id) || null) : null;
+    const asset = { ...(registry || {}), ...(row || {}), asset_id: id || registry?.asset_id || "" };
+    const name = String(row.display_name || row.name || row.label || registry?.display_name || rt.assetDisplayName?.(id) || id || "Vehicle");
+    const image = rt.visualImageUrl?.(asset, "vehicle", "image", "vehicle_fallback") || "";
+    const picture = image
+      ? `<span class="rhiVehicleThumb"><img src="${rt.escape(image)}" alt=""></span>`
+      : `<span class="rhiVehicleThumb rhiVehicleThumbFallback"><ha-icon icon="mdi:car-electric"></ha-icon></span>`;
+    return `<span class="rhiVehicleIdentity">${picture}<span><b>${rt.escape(name)}</b>${meta ? `<small>${rt.escape(meta)}</small>` : ""}</span></span>`;
+  }
+
   renderTopStatus(rt, view) {
     if (view === "planning") {
       const plan = this.energyPlanning(rt);
@@ -194,7 +206,7 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
       const id = String(row.asset_id || row.target_asset_id || row.flexible_asset_id || row.consumer_asset_id || row.participant_id || "Mobility asset");
       const name = String(row.display_name || row.name || row.label || rt.assetDisplayName?.(id) || id);
       const state = String(row.planning_state || row.state || row.status || row.reason_label || "Published");
-      return `<div class="rhi-data-row"><b>${rt.escape(name)}</b><span>${rt.escape(state)}</span></div>`;
+      return `<div class="rhi-data-row rhiVehicleRow">${this.vehicleIdentity(rt,id,row)}<span>${rt.escape(state)}</span></div>`;
     }).join("");
     const contractGap = plan.available
       ? (plan.exactIdentityJoin && !mobilityRows.length ? "Energy planning is available, but no published planning row currently matches a canonical Mobility asset id." : "")
@@ -231,7 +243,7 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
       const assetId = String(row.asset_id || "");
       const name = String(row.display_name || row.asset_label || rt.assetDisplayName?.(assetId) || assetId);
       const state = String(row.effective_state || row.configured_state || row.influence_state || row.reason_label || row.policy_id || "Published");
-      return `<div class="rhi-data-row"><b>${rt.escape(name)}</b><span>${rt.escape(state)}</span></div>`;
+      return `<div class="rhi-data-row rhiVehicleRow">${this.vehicleIdentity(rt,assetId,row)}<span>${rt.escape(state)}</span></div>`;
     }).join("");
     const unavailable = !strategy.profilesAvailable && !strategy.effectiveAvailable
       ? "Energy strategy contracts are unavailable. Mobility does not invent a strategy or infer one from charging behavior."
@@ -259,8 +271,9 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
       const energy = this.fmtKwh(row.energyKwh);
       const value = row.attributedEur === null ? "N/A" : `€${Number(row.attributedEur).toFixed(2)}`;
       const quality = row.measurementState || row.trustState || "UNAVAILABLE";
+      const id = String(row.assetId || row.asset_id || row.vehicle_asset_id || row.source_asset_id || "");
       return `<article class="rhi-insight-vehicle">
-        <div class="rhi-insight-vehicle-head"><div><small>VEHICLE</small><h3>${rt.escape(row.name)}</h3></div><span>${rt.escape(quality)}</span></div>
+        <div class="rhi-insight-vehicle-head"><div>${this.vehicleIdentity(rt,id,row)}</div><span>${rt.escape(quality)}</span></div>
         <div class="rhi-insight-metrics">
           <div><small>Measured energy</small><b>${rt.escape(energy)}</b></div>
           <div><small>Attributed value</small><b>${rt.escape(value)}</b></div>
@@ -316,6 +329,7 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
       .status-strip.dashboard-status-strip{margin:8px 0 10px!important}
       .support-facts{margin-top:8px!important}
       .insights-grid{grid-template-columns:minmax(0,1.45fr) minmax(280px,.55fr)}
+      .rhiVehicleIdentity{display:flex;align-items:center;gap:10px;min-width:0}.rhiVehicleIdentity>span:last-child{min-width:0}.rhiVehicleIdentity b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.rhiVehicleIdentity small{display:block;margin-top:2px;font-size:9px;color:#718096}.rhiVehicleThumb{width:64px;height:42px;display:flex;align-items:center;justify-content:center;flex:0 0 64px;border-radius:10px;background:#f5f8fc;border:1px solid #e5ebf4;overflow:hidden}.rhiVehicleThumb img{display:block;max-width:60px;max-height:38px;object-fit:contain}.rhiVehicleThumbFallback ha-icon{--mdc-icon-size:22px;color:#5f6d84}.rhiVehicleRow{align-items:center!important;min-height:56px!important}.rhiVehicleRow>span:last-child{justify-self:end}.rhi-insight-vehicle-head .rhiVehicleIdentity{min-width:0}
       .rhi-insight-vehicle-list{display:grid;gap:7px;margin-top:10px}
       .rhi-insight-vehicle{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;border:1px solid #edf1f6;border-radius:var(--rhi-radius-md);background:var(--rhi-soft);padding:10px 12px}
       .rhi-insight-vehicle-head{min-width:0;display:flex;align-items:center;justify-content:space-between;gap:8px}.rhi-insight-vehicle-head small{font-size:8.5px;letter-spacing:.09em;color:#718096}.rhi-insight-vehicle-head h3{margin:1px 0 0;font-size:13px}.rhi-insight-vehicle-head>span{font-size:9px;color:#64748b}

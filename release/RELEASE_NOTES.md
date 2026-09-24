@@ -1,17 +1,17 @@
-# v1.0.0-rc.52 — picture-first asset identity TEST CANDIDATE
+# v1.0.0-rc.53 — vehicle visuals everywhere TEST CANDIDATE
 
 ## Scope
 
-rc.52 completes the Mobility side of the visual identity pattern by making the selected product picture visible while appearance configuration is being edited.
+rc.53 makes a canonical vehicle picture part of vehicle identity across routed Mobility UX instead of limiting visuals to dashboard/detail/picker surfaces.
 
-- Vehicle & colour shows a live selected vehicle preview.
-- Charger & colour shows a live selected charger preview.
-- Preview artwork updates immediately with brand/model/variant/colour changes.
-- Existing profile-first then appearance write sequencing is unchanged.
-- Canonical backend readback remains required before a write is considered successful.
+- Planning vehicle rows render picture + human name + state.
+- History / Vehicle energy & value rows render picture + human name + metrics.
+- Effective-strategy rows for concrete Mobility assets render the same canonical picture.
+- Backend release identity falls back from `sensor.mobility_release_contract` to canonical `sensor.mobility_release_identity` before showing Unknown.
+- All artwork remains package-local and visual_ref-aware.
 
 Required/tested backend: `M0.10.1`.
-Rollback: `v1.0.0-rc.51`.
+Rollback: `v1.0.0-rc.52`.
 
 Accepted technical debt: 0.
 Accepted feature debt: 0.
