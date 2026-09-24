@@ -3948,17 +3948,26 @@ class HomeBrainAssetRuntime {
     const canonical = this.canonicalAssetId(assetId || "");
     if (canonical && canonical !== "mobility") return this.factContractValue(canonical, key, fallback);
 
-    // Global supervisor meaning is backend-owned and may only come from the
-    // published Mobility Intelligence Index. Never derive it from local facts.
-    for (const row of this.intelligenceRowsFor("")) {
-      const scope = String(row?.asset_id || row?.subject_asset_id || row?.scope || row?.id || "").trim().toLowerCase();
-      if (scope && !["mobility", "global"].includes(scope)) continue;
-      const raw = this.parseSupervisorValue(row, "mobility", key);
-      if (raw === undefined || raw === null || String(raw).trim() === "") continue;
-      // "None" is a valid backend supervisor outcome (for example Attention=None),
-      // not missing data. Preserve the published value exactly.
-      return String(raw).trim();
+    // M0.9.44+: global product supervision is a direct producer-owned V2 contract.
+    // UX never derives readiness/trust/attention from local facts.
+    const supervision = this.mobilitySupervisionV2();
+    if (!supervision) return fallback;
+    const wanted = String(key || "status").trim().toLowerCase();
+    const aliases = {
+      trust:"system_trust",
+      systemtrust:"system_trust",
+      activity:"current_activity"
+    };
+    const field = aliases[wanted] || wanted;
+    const raw = supervision[field];
+    if (raw === undefined || raw === null) return fallback;
+    if (typeof raw === "object") {
+      if (raw.value !== undefined && raw.value !== null) return String(raw.value);
+      if (field === "current_activity" && raw.activity) {
+        return String(raw.activity.activity_state || raw.activity.state || raw.activity.activity_type || "active");
+      }
     }
+    if (typeof raw === "string" || typeof raw === "number") return String(raw);
     return fallback;
   }
 
