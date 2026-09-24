@@ -1,3 +1,15 @@
+## 1.0.0-rc.48 — UX authority, visual identity and canonical write closure
+
+- move Overview vehicle Range/Energy/Security/Maintenance signals fully onto Experience V2;
+- remove the primary-dashboard fallback to legacy vehicle intelligence;
+- make persisted V2 charger appearance outrank legacy charger instance aliases;
+- enforce vehicle and charger profile-family visual identity across stale/partial writes;
+- require canonical backend readback for generic property, lifecycle, assignment and charge-power writes;
+- fail visibly when service acceptance is not followed by canonical readback;
+- add behavioral conflict tests for semantic and visual authority;
+- make Product Vision V2-first and gate V1-primary documentation drift;
+- record V2 property-publication completeness as an explicit backend diagnostic interface gap.
+
 ## 1.0.0-rc.47 — Direct V2 property, placement and relationship closure
 
 - prefer direct per-asset `MOBILITY_PUBLIC_RUNTIME_V2` property entities over frozen V1 property indexes;
