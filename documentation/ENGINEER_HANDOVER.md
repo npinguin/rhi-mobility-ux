@@ -69,9 +69,9 @@ MOBILITY_EXPERIENCE_V2     = user-facing conclusions
 UX                         = select / aggregate / format / present
 ```
 
-Current UX direction is V2-first: Runtime V2 / Experience V2 / Policy V2 plus canonical per-asset V2 semantic configuration. The frozen V1 facade remains compatibility-only for older consumers. New UX work must not introduce V1-only status dependencies or reconstruct product conclusions locally. Current release/backend identity must always be read from `package.json` and `release/product.json`, never from this handover.
+The supported runtime path is V2-only on Mobility M0.9.44+: Runtime V2, Experience V2, Policy V2, Command V2, Activity V2, Profile Catalog V2, Supervision V2 and canonical per-asset V2 semantic configuration. Frozen V1 code may exist only for unsupported older-backend compatibility and must never execute as fallback once Runtime V2 is present. Current release/backend identity must always be read from `package.json` and `release/product.json`, never from this handover.
 
-Configuration controls consume backend-published canonical V2 write metadata, options and write targets. `asset.profile_id`, `vehicle.image_key` and `charger.image_key` are the picker persistence surfaces. Frozen V1 may remain a compatibility fallback for older deployments but is not semantic authority. Runtime controls remain fail-closed without published write capability.
+Configuration controls consume backend-published canonical V2 write metadata, options and write targets. `asset.profile_id`, `vehicle.image_key` and `charger.image_key` are the picker persistence surfaces. Frozen V1 may remain as old-backend compatibility code, but the current M0.9.44+ release path never uses it as fallback authority. Runtime controls remain fail-closed without published write capability.
 
 Actual/readback is the normal operational truth. Requested intent is transient during editing/pending write and must not replace canonical actual state.
 
@@ -88,7 +88,7 @@ Actual/readback is the normal operational truth. Requested intent is transient d
 - Asset source/licence/provenance is tracked in `documentation/VEHICLE_ARTWORK_SOURCES.json`.
 - `tools/check-asset-policy.mjs` is fail-closed on current-scope completeness, distinct bytes and the exact canonical vehicle-file inventory.
 
-Global supervisor status, trust, attention, opportunity and recommendation are backend-owned. The UX may present factual charging information, but it may not turn those facts into a substitute recommendation. Missing supervisor intelligence fails closed as unavailable/Unknown.
+Global supervisor status, trust and attention are Mobility Supervision V2-owned. Planning opportunity and recommendation are Energy-owned. The UX may present factual charging information, but it may not turn those facts into a substitute recommendation. Missing supervisor intelligence fails closed as unavailable/Unknown.
 
 
 ### Product/contract rule
