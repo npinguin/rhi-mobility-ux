@@ -401,13 +401,6 @@ class HomeBrainAssetRuntime {
     return this.vehicleExperienceV2(canonical)?.charging_relationship || null;
   }
 
-  setMobilityPolicy(policyKey = "", value = "") {
-    const key = String(policyKey || "").trim();
-    if (!key || !this.hass?.callService) return false;
-    this.hass.callService("rhi_mobility", "set_policy", { policy_key:key, value });
-    return true;
-  }
-
   parseListValue(value) {
     if (value === undefined || value === null || value === "") return [];
     if (Array.isArray(value)) return value;
@@ -2017,41 +2010,6 @@ class HomeBrainAssetRuntime {
     const prop = this.semanticProperty(canonical, propertyKey);
     if (!prop) return false;
     return this.writePropertyValueAsync(prop, value, { ...options, asset_id:canonical, property_key:propertyKey });
-  }
-
-  writePropertyValue(prop = {}, value = "") {
-    if (!prop || !this.hass || !this.isWritableProperty(prop)) return false;
-    const domain = prop.write_service_domain;
-    const action = prop.write_service_action;
-    const target = prop.write_target_entity;
-    const payload = { ...(prop.write_service_data && typeof prop.write_service_data === "object" ? prop.write_service_data : {}) };
-    if (!payload.entity_id) payload.entity_id = target;
-    const domainText = String(domain || "").toLowerCase();
-    const actionText = String(action || "").toLowerCase();
-    const transportValue = this.propertyTransportValue(prop, value);
-    if (!["button", "input_button"].includes(domainText)) {
-      const explicitField = String(prop.write_value_field || "").trim();
-      if (explicitField) payload[explicitField] = transportValue;
-      else if (actionText.includes("select") || domainText.includes("select")) payload.option = transportValue;
-      else if (actionText.includes("datetime") || domainText.includes("datetime")) payload.datetime = transportValue;
-      else if (actionText.includes("time")) payload.time = transportValue;
-      else if (actionText.includes("turn_")) { /* entity_id only */ }
-      else payload.value = transportValue;
-    }
-    this.hass.callService(domain, action, payload);
-    return true;
-  }
-
-  writePublishedProperty(assetId = "", propertyKey = "", value = "") {
-    const prop = this.semanticProperty(this.canonicalAssetId(assetId), propertyKey);
-    if (!prop) return false;
-    return this.writePropertyValue(prop, value);
-  }
-
-  writeLifecycleStatus(assetOrId = "", desiredStatus = "") {
-    const model = this.lifecycleWriteModel(assetOrId, desiredStatus);
-    if (model.disabled) return false;
-    return this.writePropertyValue(model.prop, model.desired);
   }
 
   async writeLifecycleStatusAsync(assetOrId = "", desiredStatus = "") {
