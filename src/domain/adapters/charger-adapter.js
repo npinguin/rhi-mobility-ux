@@ -154,7 +154,7 @@ class HomeBrainChargerAdapter {
       // R22.12.11.24: charger detail sections come from the charger component contract.
       // UX must not infer charger layout from flat property family/group names.
       sections:[this.rt.lifecycleContractGapSection(assetId)].filter(Boolean).concat(
-        this.rt.addRelatedAssetDetailLinks(this.rt.chargerComponentDetailSections(assetId), { vehicleDetailRoute: relatedVehicle.detailRoute, vehicleDisplay: relatedVehicle.displayName })
+        this.rt.addRelatedAssetDetailLinks(this.rt.chargerComponentDetailSections(assetId), { vehicleDetailRoute: relatedVehicle.detailRoute, vehicleDisplay: relatedVehicle.displayName, vehicleAssetId:relatedVehicle.assetId })
       ).concat([
         { key:"activity", title:"Recent Activity", icon:"mdi:history", header:"Activity contract", rows:this.latestActivityRows(assetId), details:[] }
       ])
