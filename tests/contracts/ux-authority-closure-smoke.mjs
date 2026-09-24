@@ -3,6 +3,7 @@ import { mobilityRuntimeSource, sourceModule } from '../helpers/source-fixtures.
 
 const dashboard = sourceModule('ui/screens/mobility-dashboard.js');
 const adapterSource = sourceModule('domain/adapters/vehicle-adapter.js');
+const chargerAdapterSource = sourceModule('domain/adapters/charger-adapter.js');
 
 const ctx={console,globalThis:{},setTimeout,clearTimeout};
 ctx.globalThis=ctx;
@@ -10,18 +11,34 @@ vm.createContext(ctx);
 vm.runInContext(
   mobilityRuntimeSource()
   +'\n'+adapterSource
+  +'\n'+chargerAdapterSource
   +'\n;globalThis.HomeBrainAssetRuntime=HomeBrainAssetRuntime;globalThis.HomeBrainVehicleAdapter=HomeBrainVehicleAdapter;'
-  +'globalThis.rhiMobilityParseChargerVisualKey=rhiMobilityParseChargerVisualKey;',
+  +'globalThis.HomeBrainChargerAdapter=HomeBrainChargerAdapter;globalThis.rhiMobilityParseChargerVisualKey=rhiMobilityParseChargerVisualKey;',
   ctx
 );
 const Runtime=ctx.HomeBrainAssetRuntime;
 const VehicleAdapter=ctx.HomeBrainVehicleAdapter;
+const ChargerAdapter=ctx.HomeBrainChargerAdapter;
 
 // 1) Charger V2 appearance must outrank legacy instance aliases.
 const parsedCharger=ctx.rhiMobilityParseChargerVisualKey('peblar.business.socket.factory','charger_driveway_right');
 if(parsedCharger?.charger?.id!=='peblar.business.socket') {
   throw new Error('persisted V2 charger.image_key was overridden by legacy charger instance alias');
 }
+
+const chargerId='charger_driveway_right';
+const chargerState=(entity_id,state,property_key)=>({
+  entity_id,state,
+  attributes:{canonical_contract:'MOBILITY_PUBLIC_RUNTIME_V2',asset_id:chargerId,asset_type:'charger',property_key,component_id:'identity',section_id:'overview',visibility:'product'}
+});
+const chargerHass={states:{
+  'sensor.rhi_mobility_charger_driveway_right_profile':chargerState('sensor.rhi_mobility_charger_driveway_right_profile','peblar_business_socket_22kw','asset.profile_id'),
+  'sensor.rhi_mobility_charger_driveway_right_image':chargerState('sensor.rhi_mobility_charger_driveway_right_image','wallbox.commander2.black','charger.image_key')
+},callService:async()=>{}};
+const chargerRt=new Runtime(chargerHass,{});
+const chargerModel=new ChargerAdapter(chargerRt,'driveway_right',{registry_entry:{asset_id:chargerId,asset_type:'charger',display_name:'Driveway Right',profile_id:'peblar_business_socket_22kw',lifecycle_state:'Active'}});
+const chargerVisual=chargerModel.chargerVisual();
+if(chargerVisual?.charger?.id!=='peblar.business.socket') throw new Error('stale cross-family charger image overrode canonical profile identity');
 
 // 2) Vehicle profile identity must outrank a stale cross-model appearance key.
 const vehicleId='vehicle_test';
