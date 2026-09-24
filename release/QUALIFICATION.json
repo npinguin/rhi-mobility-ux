@@ -1,7 +1,7 @@
 {
-  "candidate_version": "1.0.0-rc.48",
-  "candidate_tag": "v1.0.0-rc.48",
-  "candidate_sha": "04ac58800efa016681e472c123f009ec6b17f18a",
+  "candidate_version": "1.0.0-rc.49",
+  "candidate_tag": "v1.0.0-rc.49",
+  "candidate_sha": "pending",
   "target_home_assistant": "pending",
   "hacs_install": "pending",
   "hacs_update": "pending",
@@ -125,5 +125,12 @@
   "charger_v2_visual_precedence": "pending",
   "canonical_write_readback": "pending",
   "generic_property_write_failure_visibility": "pending",
-  "v2_property_completeness_evidence": "pending"
+  "v2_property_completeness_evidence": "pending",
+  "mobility_activity_v2_surface": "pending",
+  "mobility_profile_catalog_v2_surface": "pending",
+  "mobility_supervision_v2_surface": "pending",
+  "runtime_v2_assets_primary": "pending",
+  "runtime_v2_relationships_primary": "pending",
+  "mobility_energy_v2_external_boundary": "pending",
+  "zero_v1_runtime_fallback_on_m0944": "pending"
 }
