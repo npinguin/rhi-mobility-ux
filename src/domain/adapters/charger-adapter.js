@@ -9,11 +9,18 @@ class HomeBrainChargerAdapter {
   displayName() { const reg = this.registryEntry(); return reg?.display_name || this.config.fallback_name || this.rt.titleize(this.assetId()); }
   chargerVisual() {
     const reg = this.registryEntry() || {};
-    const prop = this.rt.propertyByCompoundKey(this.assetId(), "charger.image_key");
+    const assetId = this.assetId();
+    const prop = this.rt.semanticProperty(assetId, "charger.image_key");
     const raw = prop?.value ?? this.rt.visualImageKey(reg, "image") ?? reg?.image_key ?? "";
-    return typeof rhiMobilityResolveChargerVisual === "function"
-      ? rhiMobilityResolveChargerVisual(reg.asset_id ? reg : { ...reg, asset_id:this.assetId() }, raw)
+    const parsed = typeof rhiMobilityResolveChargerVisual === "function"
+      ? rhiMobilityResolveChargerVisual(reg.asset_id ? reg : { ...reg, asset_id:assetId }, raw)
       : null;
+    const profileId = String(this.rt.semanticProperty(assetId, "asset.profile_id")?.value ?? reg?.profile_id ?? reg?.raw?.profile_id ?? "").trim();
+    const profileCharger = typeof rhiMobilityChargerVisualForProfile === "function" ? rhiMobilityChargerVisualForProfile(profileId) : null;
+    if (!profileCharger) return parsed;
+    if (parsed?.charger?.id === profileCharger.id) return parsed;
+    const appearance = profileCharger.appearances?.[0] || null;
+    return appearance ? { key:profileCharger.id + "." + appearance.id, charger:profileCharger, appearance } : null;
   }
   chargerImageFromId() {
     const reg = this.registryEntry() || { asset_id:this.assetId() };
@@ -81,7 +88,7 @@ class HomeBrainChargerAdapter {
     const sessionEnergy = this.rt.canonicalChargerPropertyDisplay(assetId, "charger.session_energy_kwh", "—");
     const currentLimit = this.rt.canonicalChargerPropertyDisplay(assetId, "charger.current_limit_a", "—");
     const connector = connectionState;
-    const limitSource = "sensor.mobility_charger_property_index";
+    const limitSource = "MOBILITY_PUBLIC_RUNTIME_V2";
     const phases = "—";
     const voltage = "—";
     const current = this.rt.canonicalChargerPropertyDisplay(assetId, "charger.actual_current_a", "—");
