@@ -1,19 +1,19 @@
-# v1.0.0-rc.54 — normalized vehicle masters and write-path cleanup TEST CANDIDATE
+# v1.0.0-rc.55 — canonical visual library refresh TEST CANDIDATE
 
 ## Scope
 
-rc.54 closes the vehicle-artwork consistency and optimistic-write cleanup identified in the Mobility UX audit.
+rc.55 completes the current Mobility vehicle and charger artwork refresh.
 
-- Replaces BMW X1 PHEV, Mercedes-Benz GLA PHEV, Renault Scenic E-Tech and Volkswagen ID.4 artwork with normalized transparent 640×380 canonical masters.
-- Uses one governed vehicle geometry: centered presentation, preserved aspect ratio, maximum 590×300 vehicle box and shared baseline y=340.
-- Standardizes the four updated vehicle masters on package-local WebP and removes superseded BMW/Mercedes PNG masters.
-- Keeps one master per real model; Overview, Management, Detail, Planning, History and pickers resolve the same canonical artwork.
-- Removes legacy optimistic/no-readback property write helpers; user writes remain on the asynchronous canonical backend-readback path.
-- Adds a regression gate that forbids reintroducing no-readback write paths.
-- Hardens asset policy so verified current vehicle masters must remain exact 640×380 package assets.
+- Replaces the Audi Q8 with the new normalized transparent canonical master.
+- Guest PHEV and Guest EV now intentionally resolve to one covered Audi Q8 master.
+- Replaces Wallbox Commander 2 white/black, Peblar Business and Fibaro Wall Plug 2 with new transparent product masters.
+- Keeps all vehicle masters on the governed 640×380 canvas.
+- Standardizes current charger masters on an exact 1254×1254 transparent WebP canvas.
+- Removes the superseded Audi PNG and charger SVG masters.
+- Preserves package-local artwork authority and source/dist parity.
 
 Required/tested backend: `M0.10.1`.
-Rollback: `v1.0.0-rc.53`.
+Rollback: `v1.0.0-rc.54`.
 
 Accepted technical debt: 0.
 Accepted feature debt: 0.
