@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "product": "rhi-mobility-ux",
-  "version": "1.0.0-rc.47",
+  "version": "1.0.0-rc.48",
   "source_manifest_schema": 1,
   "hacs_package_root": "dist",
   "hacs_filename": "rhi-mobility-ux.js",
@@ -12,7 +12,7 @@
     "heroes",
     "vehicles"
   ],
-  "runtime_sha256": "ae6bad88b0038fe8fd7163233ec6aee9021d34d58370ca3a3820aaf46d542f08",
+  "runtime_sha256": "e3d50b8431796e02f52b32cece6452bf969e10c9f6448ec0a838b64dc5bd906a",
   "files": [
     {
       "path": "assets/branding/company-logo.svg",
@@ -100,7 +100,7 @@
     },
     {
       "path": "rhi-mobility-ux.js",
-      "bytes": 744693
+      "bytes": 750334
     },
     {
       "path": "rhi-mobility-ux.js.sha256",
