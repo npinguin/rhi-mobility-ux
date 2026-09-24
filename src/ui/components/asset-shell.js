@@ -475,16 +475,25 @@ class HomeBrainAssetShell {
     });
 
     this.root.querySelectorAll("[data-write-asset][data-write-key]").forEach((el) => {
-      const send = () => {
+      const send = async () => {
         const assetId = el.getAttribute("data-write-asset");
         const propertyKey = el.getAttribute("data-write-key");
-        if (!assetId || !propertyKey) return;
+        if (!assetId || !propertyKey || el.disabled) return;
         let value = el.type === "checkbox" ? el.checked : el.value;
         if (el.getAttribute("data-write-toggle") === "1") value = !el.classList.contains("on");
-        // V1 readback remains the only durable UI truth. The browser control may
-        // show the user's active edit while the write is pending, but UX does not
-        // mutate a second local state after dispatch.
-        this.rt.writePublishedProperty(assetId, propertyKey, value);
+        // Canonical backend readback is the only durable truth. The control stays
+        // pending until the requested semantic value is observed on the published
+        // property; rejected/time-out writes fail visibly and are never committed locally.
+        el.disabled = true;
+        el.classList.remove("sent","failed");
+        const ok = await this.rt.writePublishedPropertyAsync(assetId, propertyKey, value);
+        if (ok) {
+          el.classList.add("sent");
+        } else {
+          el.classList.add("failed");
+          el.title = "Write rejected or canonical readback did not confirm the requested value.";
+          el.disabled = false;
+        }
       };
       el.addEventListener(el.tagName === "BUTTON" ? "click" : "change", send);
     });
