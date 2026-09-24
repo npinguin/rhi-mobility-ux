@@ -131,8 +131,27 @@ class HomeBrainAssetShell {
       <div class="row ${row.detailRoute ? "has-detail-link" : ""}">
         <ha-icon icon="${row.icon}"></ha-icon>
         <div class="label">${this.rt.escape(row.label)}</div>
-        <div class="value row-value-with-link"><span>${this.rt.escape(row.value ?? "—")}</span>${row.detailRoute ? `<button class="row-detail-link" data-nav="${this.rt.escape(row.detailRoute)}" title="${this.rt.escape(row.detailTitle || "Open related asset details")}"><ha-icon icon="mdi:plus"></ha-icon></button>` : ""}</div>
+        <div class="value row-value-with-link">${this.relatedAssetVisual(row)}<span>${this.rt.escape(row.value ?? "—")}</span>${row.detailRoute ? `<button class="row-detail-link" data-nav="${this.rt.escape(row.detailRoute)}" title="${this.rt.escape(row.detailTitle || "Open related asset details")}"><ha-icon icon="mdi:plus"></ha-icon></button>` : ""}</div>
       </div>`;
+  }
+
+  relatedAssetVisual(row = {}) {
+    const kind = String(row.related_asset_type || "").toLowerCase();
+    const assetId = String(row.related_asset_id || "");
+    if (!assetId || !["vehicle","charger"].includes(kind)) return "";
+    const asset = kind === "vehicle"
+      ? (this.rt.vehicleById(assetId) || this.rt.assetById(assetId) || {asset_id:assetId,asset_type:"vehicle"})
+      : (this.rt.chargerById(assetId) || this.rt.assetById(assetId) || {asset_id:assetId,asset_type:"charger"});
+    let url = "";
+    let filter = "none";
+    if (kind === "vehicle") {
+      url = this.rt.visualImageUrl(asset,"vehicle","image","vehicle_fallback");
+      const local = typeof rhiMobilityResolveVehicleVisual === "function" ? rhiMobilityResolveVehicleVisual(asset,this.rt.visualImageKey(asset,"image")) : null;
+      filter = local?.color?.filter || "none";
+    } else {
+      url = this.rt.visualImageUrl(asset,"charger","image","charger_fallback");
+    }
+    return url ? `<span class="relatedAssetVisual"><img src="${this.rt.escape(url)}" alt="" style="filter:${this.rt.escape(filter)}"></span>` : "";
   }
 
   renderSection(section) {
@@ -539,7 +558,7 @@ class HomeBrainAssetShell {
       .metric.has-detail-link{grid-template-columns:34px minmax(0,1fr) 30px;}
       .metric-detail-link,.row-detail-link{width:28px;height:28px;border-radius:999px;border:1px solid rgba(14,35,72,.10);background:rgba(255,255,255,.92);color:#1467F5;box-shadow:0 6px 14px rgba(15,35,80,.08);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex:0 0 auto;}
       .metric-detail-link ha-icon,.row-detail-link ha-icon{--mdc-icon-size:16px;}
-      .row-value-with-link{display:flex;align-items:center;justify-content:flex-end;gap:8px;min-width:0;}
+      .row-value-with-link{display:flex;align-items:center;justify-content:flex-end;gap:8px;min-width:0;}.relatedAssetVisual{width:40px;height:30px;display:inline-flex;align-items:center;justify-content:center;border:1px solid #e5edf7;border-radius:9px;background:#f7f9fc;overflow:hidden;flex:0 0 auto}.relatedAssetVisual img{width:100%;height:100%;object-fit:contain}
       .row-value-with-link span{min-width:0;overflow:hidden;text-overflow:ellipsis;}
       .hero-image { min-height:260px;display:flex;align-items:center;justify-content:center; }
       .hero-image img { width:100%;height:285px;object-fit:contain;object-position:center; }
