@@ -88,11 +88,15 @@ class HomeBrainVehicleVisualPicker {
     const assetId=current.asset_id;
     const close=options.showClose===false ? "" : `<button class="vehicle-picker-close" data-vehicle-picker-close="${this.rt.escape(assetId)}" title="Close"><ha-icon icon="mdi:close"></ha-icon></button>`;
     const placeholder=(label,selected)=>`<option value="" ${selected?"selected":""} disabled>${label}</option>`;
+    const preview = current.vehicle?.package_file
+      ? `<div class="vehicle-picker-preview" style="height:116px;display:flex;align-items:center;justify-content:center;margin:10px 0 14px;border:1px solid #dbe6f3;border-radius:14px;background:#f8fbff;overflow:hidden"><img src="${this.rt.escape(current.vehicle.package_file)}" alt="" style="max-width:86%;max-height:100px;object-fit:contain;filter:${this.rt.escape(current.color?.filter || "none")}"></div>`
+      : "";
     return `<section class="vehicle-picker-panel ${options.context==="detail"?"detail-vehicle-picker":""}" data-picker-panel="${this.rt.escape(assetId)}">
       <div class="vehicle-picker-head">
         <div><small>APPEARANCE</small><h3>Vehicle & colour</h3><p>Choose the Mobility product profile and its visual appearance. Product identity is persisted by Mobility V2; artwork remains UX-owned.</p></div>
         ${close}
       </div>
+      ${preview}
       <div class="vehicle-picker-grid vehicle-picker-hierarchy">
         <label><span>Brand</span><select data-vehicle-picker-brand="${this.rt.escape(assetId)}" ${!current.profile_writable?"disabled":""}>
           ${placeholder("Choose brand…",!current.brand)}
