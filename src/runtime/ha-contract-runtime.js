@@ -166,7 +166,9 @@ class HomeBrainAssetRuntime {
     return {
       contract_id: attrs.contract_id,
       canonical: attrs.canonical === true,
+      assets: Array.isArray(attrs.assets) ? attrs.assets : [],
       fleet: attrs.fleet && typeof attrs.fleet === "object" ? attrs.fleet : {},
+      relationships: Array.isArray(attrs.relationships) ? attrs.relationships : [],
       vehicle_charger_relationships: Array.isArray(attrs.vehicle_charger_relationships) ? attrs.vehicle_charger_relationships : [],
       ux_inference_forbidden: attrs.ux_inference_forbidden === true
     };
@@ -215,6 +217,39 @@ class HomeBrainAssetRuntime {
       commands: Array.isArray(attrs.commands) ? attrs.commands : [],
       raw_service_bindings_exposed: attrs.raw_service_bindings_exposed === true
     };
+  }
+
+  mobilityActivityV2() {
+    const state = this.contractEntity("MOBILITY_ACTIVITY_V2", [
+      "sensor.rhi_mobility_activity_v2"
+    ]);
+    const attrs = state?.attributes || {};
+    if (String(attrs.contract_id || "") !== "MOBILITY_ACTIVITY_V2") return null;
+    return {
+      ...attrs,
+      activities: Array.isArray(attrs.activities) ? attrs.activities : []
+    };
+  }
+
+  mobilityProfileCatalogV2() {
+    const state = this.contractEntity("MOBILITY_PROFILE_CATALOG_V2", [
+      "sensor.rhi_mobility_profile_catalog_v2"
+    ]);
+    const attrs = state?.attributes || {};
+    if (String(attrs.contract_id || "") !== "MOBILITY_PROFILE_CATALOG_V2") return null;
+    return {
+      ...attrs,
+      profiles: Array.isArray(attrs.profiles) ? attrs.profiles : []
+    };
+  }
+
+  mobilitySupervisionV2() {
+    const state = this.contractEntity("MOBILITY_SUPERVISION_V2", [
+      "sensor.rhi_mobility_supervision_v2"
+    ]);
+    const attrs = state?.attributes || {};
+    if (String(attrs.contract_id || "") !== "MOBILITY_SUPERVISION_V2") return null;
+    return attrs;
   }
 
   commandV2Label(commandKey = "") {
@@ -431,23 +466,10 @@ class HomeBrainAssetRuntime {
   assetIndexRows(kind = "all") {
     const cacheKey = `assetIndexRows:${kind}`;
     if (this._memo.has(cacheKey)) return this._memo.get(cacheKey);
-    const entity = this.entity("sensor.mobility_asset_index");
-    const attrs = entity?.attributes || {};
-    const list = this.parseListValue(attrs.assets_json);
-    let rows = list.map((v, index) => {
-      if (typeof v === "string") {
-        const asset_id = v;
-        return this.normalizeAssetEntry({
-          asset_id,
-          asset_type: asset_id.startsWith("vehicle_") ? "vehicle" : asset_id.startsWith("charger_") ? "charger" : asset_id.startsWith("person_") ? "person" : "unknown",
-          display_name: asset_id,
-          frontend_allowed: true,
-          lifecycle_state: "Active",
-          sort_order: index
-        });
-      }
-      return this.normalizeAssetEntry({ sort_order: index, ...(v || {}) });
-    }).filter(Boolean);
+    const runtime = this.mobilityRuntimeV2();
+    let rows = (runtime?.assets || []).map((v, index) =>
+      this.normalizeAssetEntry({ sort_order:index, ...(v || {}) })
+    ).filter(Boolean);
     if (kind === "vehicle") rows = rows.filter((a) => String(a.asset_type || "").toLowerCase() === "vehicle");
     if (kind === "charger") rows = rows.filter((a) => String(a.asset_type || "").toLowerCase() === "charger");
     if (kind === "person") rows = rows.filter((a) => String(a.asset_type || "").toLowerCase() === "person");
@@ -488,10 +510,7 @@ class HomeBrainAssetRuntime {
   profileRows() {
     const key = "profileRows";
     if (this._memo.has(key)) return this._memo.get(key);
-    const rows = [
-      ...this.canonicalRowsFromAttrs("sensor.mobility_vehicle_profile_index", ["profiles", "profile_index", "rows"], "vehicle_profiles"),
-      ...this.canonicalRowsFromAttrs("sensor.mobility_charger_profile_index", ["profiles", "profile_index", "rows"], "charger_profiles")
-    ];
+    const rows = this.mobilityProfileCatalogV2()?.profiles || [];
     this._memo.set(key, rows);
     return rows;
   }
@@ -1697,22 +1716,7 @@ class HomeBrainAssetRuntime {
 
   activityRowsFor(assetId = "") {
     const canonical = this.canonicalAssetId(assetId);
-    const attrs = this.entity("sensor.mobility_activity_index")?.attributes || {};
-    const rows = [];
-    const collect = (value) => {
-      const parsed = this.parseJsonValue(value, value);
-      if (Array.isArray(parsed)) rows.push(...parsed);
-      else if (parsed && typeof parsed === "object") {
-        if (Array.isArray(parsed.rows)) rows.push(...parsed.rows);
-        if (Array.isArray(parsed.activities)) rows.push(...parsed.activities);
-        for (const [key, val] of Object.entries(parsed)) {
-          if (["rows","activities"].includes(key)) continue;
-          if (Array.isArray(val)) rows.push(...val.map((r)=>({ asset_id:r?.asset_id || key, ...r })));
-          else if (val && typeof val === "object") rows.push({ asset_id:val.asset_id || key, ...val });
-        }
-      }
-    };
-    for (const attrName of ["activities", "activities_json", "current_activities", "current_activities_json", "rows", "rows_json", "activity_by_asset", "activities_by_asset"]) collect(attrs[attrName]);
+    const rows = [...(this.mobilityActivityV2()?.activities || [])];
     return rows.filter((a)=>!canonical || String(a.asset_id || a.subject_asset_id || a.related_asset_id || "") === canonical || String(a.related_asset_id || "") === canonical);
   }
 
@@ -3049,8 +3053,8 @@ class HomeBrainAssetRuntime {
 
   relationshipRows(assetId = "") {
     const canonical = assetId ? this.canonicalAssetId(assetId) : "";
-    return this.canonicalRowsFromAttrs("sensor.mobility_relationship_index", ["relationships", "relationship_index", "rows"], "relationships")
-      .filter((r) => !canonical || String(r.source_asset_id || r.asset_id || "") === String(canonical) || String(r.target_asset_id || "") === String(canonical));
+    const rows = this.mobilityRuntimeV2()?.relationships || [];
+    return rows.filter((r) => !canonical || String(r.source_asset_id || r.asset_id || "") === String(canonical) || String(r.target_asset_id || "") === String(canonical));
   }
 
   relationshipFor(assetId) {
