@@ -1,3 +1,15 @@
+## 1.0.0-rc.49 — Mobility M0.9.44 complete V2 consumption closure
+
+- raise the supported/tested Mobility backend baseline to M0.9.44;
+- take asset discovery from Runtime V2 `assets` and relationships from Runtime V2 `relationships`;
+- consume Activity V2, Profile Catalog V2 and product Supervision V2 directly;
+- consume `MOBILITY_ENERGY_V2` instead of the frozen Energy publication facade;
+- use Experience V2 as the only user-facing intelligence source;
+- stop filling missing V2 properties/commands from V1 once Runtime V2 is present;
+- consume per-asset property-publication completeness evidence so missing expected V2 entities fail visibly;
+- keep V1 only as old-backend compatibility code outside the M0.9.44+ supported path;
+- reset target Home Assistant qualification for the complete V2 consumer set.
+
 ## 1.0.0-rc.48 — UX authority, visual identity and canonical write closure
 
 - move Overview vehicle Range/Energy/Security/Maintenance signals fully onto Experience V2;
