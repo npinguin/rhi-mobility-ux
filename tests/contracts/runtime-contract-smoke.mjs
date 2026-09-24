@@ -118,9 +118,8 @@ if(v2rt.vehicleExperienceV2('vehicle_id4')?.security_intelligence?.state!=='secu
 if(v2rt.chargerExperienceV2('charger_peb')?.fault?.state!=='none') throw new Error('Experience V2 charger contract not consumed');
 if(v2rt.mobilityPolicyV2()?.policy?.maintenance?.due_soon_days!==90) throw new Error('Policy V2 contract not consumed');
 if(v2rt.vehicleRelationshipV2('vehicle_id4')?.observed_identity_proven!==false) throw new Error('Runtime V2 relationship identity proof not preserved');
-if(!v2rt.setMobilityPolicy('range.low_range_km','120')) throw new Error('Policy V2 write boundary unavailable');
-if(v2Hass.lastCall?.domain!=='rhi_mobility' || v2Hass.lastCall?.service!=='set_policy' || v2Hass.lastCall?.data?.policy_key!=='range.low_range_km') throw new Error('Policy V2 write must use rhi_mobility.set_policy');
-console.log('PASS Mobility Runtime/Experience/Policy V2 direct contract consumption');
+if(v2Hass.lastCall) throw new Error('Policy V2 read contract must not imply an optimistic write path');
+console.log('PASS Mobility Runtime/Experience/Policy V2 direct contract consumption with no optimistic policy write API');
 
 
 const v2PropertyCalls=[];
