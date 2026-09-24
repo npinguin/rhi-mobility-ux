@@ -28,3 +28,15 @@ assert.match(runtime, /rhiMobilityResolveVisualRef/);
 assert.match(runtime, /rhiMobilityLocalVisualKeyFromRef/);
 
 console.log("PASS canonical visual_ref resolution");
+
+const runtimeSource = fs.readFileSync("src/runtime/ha-contract-runtime.js","utf8");
+assert.match(runtimeSource, /transport_value/);
+
+const vehiclePicker = fs.readFileSync("src/ui/components/vehicle-visual-picker.js","utf8");
+const chargerPicker = fs.readFileSync("src/ui/components/charger-visual-picker.js","utf8");
+assert.match(vehiclePicker, /vehicle-picker-preview/);
+assert.match(vehiclePicker, /current\.color\?\.filter/);
+assert.match(chargerPicker, /vehicle-picker-preview/);
+assert.match(chargerPicker, /current\.appearance\?\.package_file/);
+
+console.log("PASS appearance preview and exact select transport contract");
