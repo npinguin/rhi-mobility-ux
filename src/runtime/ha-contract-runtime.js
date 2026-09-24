@@ -591,6 +591,11 @@ class HomeBrainAssetRuntime {
   }
 
   visualImageKey(asset = {}, role = "image") {
+    const visualRef = String(asset?.visual_ref || asset?.raw?.visual_ref || "").trim();
+    const refKey = typeof rhiMobilityLocalVisualKeyFromRef === "function"
+      ? rhiMobilityLocalVisualKeyFromRef(visualRef)
+      : "";
+    if (refKey) return refKey;
     const profile = this.profileForAsset(asset) || {};
     const profileId = String(asset?.profile_id || asset?.raw?.profile_id || "").trim();
     const profileVisual = String(asset?.asset_type || "").toLowerCase() === "vehicle" && typeof rhiMobilityVehicleVisualForProfile === "function"
@@ -613,8 +618,12 @@ class HomeBrainAssetRuntime {
   }
 
   visualImageUrl(asset = {}, kind = "vehicle", role = "image", fallback = "") {
-    // R22.8 typed property contract: images resolve through mobility_image_catalog only.
-    // Backend owns image keys only; URL/path fields are ignored.
+    // visual_ref is the canonical cross-domain identity. Package paths remain UX-owned.
+    const visualRef = String(asset?.visual_ref || asset?.raw?.visual_ref || "").trim();
+    const resolvedRef = visualRef && typeof rhiMobilityResolveVisualRef === "function"
+      ? rhiMobilityResolveVisualRef(visualRef)
+      : null;
+    if (resolvedRef?.package_file) return this.cache(resolvedRef.package_file);
     const key = this.visualImageKey(asset, role);
     const fallbackKey = asset.fallback_image_key || asset.raw?.fallback_image_key || fallback || `${kind}_fallback`;
     return this.imageUrlFromCatalog(key, fallbackKey);
@@ -654,6 +663,7 @@ class HomeBrainAssetRuntime {
       profile: entry.profile || entry.profile_display_name || identityBlock.profile || "",
       profile_id: entry.profile_id || identityBlock.profile_id || "",
       profile_display_name: entry.profile_display_name || identityBlock.profile_display_name || entry.profile || identityBlock.profile || "",
+      visual_ref: entry.visual_ref || identityBlock.visual_ref || "",
       image_key: entry.image_key || identityBlock.image_key || "",
       hero_image_key: entry.hero_image_key || identityBlock.hero_image_key || "",
       thumbnail_image_key: entry.thumbnail_image_key || identityBlock.thumbnail_image_key || "",
