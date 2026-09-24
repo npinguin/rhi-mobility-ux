@@ -46,9 +46,10 @@ Permissions may differ per Home Assistant user. UX renders only backend-authoriz
 There is one Mobility semantic model behind the UX.
 
 ```text
-MOBILITY_PUBLIC_RUNTIME_V1
-        ↓
-runtime contract boundary
+MOBILITY_PUBLIC_RUNTIME_V2 = canonical facts
+MOBILITY_EXPERIENCE_V2     = product conclusions
+MOBILITY_POLICY_V2         = interpretation rules
+MOBILITY_COMMAND_V2        = executable actions
         ↓
 domain adapters / canonical UX models
         ↓
@@ -73,7 +74,7 @@ Mobility Insights combines two authoritative domains without merging their owner
 
 Cross-domain presentation is joined only through exact canonical asset ids. Missing Energy planning, metering or value renders N/A/unavailable; Mobility UX does not reconstruct it.
 
-## Overview V1
+## Overview
 
 Overview evolves in place from the current product. It is not rewritten from scratch.
 
@@ -83,7 +84,7 @@ Overview answers:
 
 > **Is my vehicle ready for me, and does anything need my attention now?**
 
-Current V1 sections remain:
+Current Overview sections remain:
 
 - Vehicles
 - Charging now
@@ -164,10 +165,10 @@ The picker hierarchy is Brand → Model → Variant → Colour. Opening a picker
 
 ## Shared Vehicle and Charger visual library
 
-Vehicle and Charger presentation follows one governed UX-owned pattern. The current release line stays on frozen `MOBILITY_PUBLIC_RUNTIME_V1`; the visual library must not require new V1 product semantics.
+Vehicle and Charger presentation follows one governed UX-owned pattern. Canonical V2 identity/configuration is primary; frozen V1 remains compatibility-only for older deployments.
 
 ```text
-frozen V1 object
+canonical V2 identity/configuration
       ↓
 runtime/domain adapter
       ↓
@@ -186,7 +187,7 @@ The same presentation pattern applies to both object types:
 - technical specifications do not become visual identity;
 - every screen uses the same resolver;
 - `image_key` is an explicit persisted presentation choice only when the backend contract supports writing it;
-- read-only V1 presentation properties may drive current rendering but UX never creates a browser-local second truth.
+- persisted V2 presentation properties are canonical when published; compatibility aliases may only decode older stored keys and may never override a valid V2 key.
 
 Current Charger catalog coverage is:
 
@@ -198,13 +199,13 @@ Power/current/phase capabilities stay backend/profile/runtime facts and are inte
 
 The visual-library update workflow, quality gates and future cross-domain reuse are governed by `documentation/VISUAL_LIBRARY_GOVERNANCE.md`. Charger product/artwork provenance is tracked in `documentation/CHARGER_ARTWORK_SOURCES.json`.
 
-## V1 vs V2.x
+## V2-first compatibility boundary
 
-V1 consumes only `MOBILITY_PUBLIC_RUNTIME_V1`.
+Current UX is V2-first. `MOBILITY_PUBLIC_RUNTIME_V2`, `MOBILITY_EXPERIENCE_V2`, `MOBILITY_POLICY_V2` and `MOBILITY_COMMAND_V2` are the product authorities.
 
-Features requiring new backend truth are not mocked in V1. They render N/A/empty where appropriate and are tracked in `documentation/BACKEND_INTERFACE_BACKLOG.md`.
+Frozen V1 surfaces exist only as explicit compatibility fallbacks for older deployments. A V1 projection may never override a published V2 value, conclusion, relationship, command or appearance choice.
 
-A later V2.x may adopt new backend contracts explicitly. V1 and V2.x must never be silently mixed.
+Features requiring backend truth that is not present in V2 render N/A/contract gap and are tracked in `documentation/BACKEND_INTERFACE_BACKLOG.md`. UX does not reconstruct that truth locally.
 
 
 ## Mobility presentation principle
