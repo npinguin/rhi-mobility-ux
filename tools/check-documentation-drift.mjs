@@ -13,6 +13,7 @@ const normative=[
   'documentation/HACS_INSTALLATION.md',
   'documentation/HISTORY_AND_LESSONS.md',
   'documentation/KNOWN_DEFECTS.md',
+  'documentation/OPEN_ISSUES.json',
   'documentation/SEMANTIC_PICKER_BLUEPRINT.md',
   'documentation/RELEASE_GOVERNANCE.md',
   'documentation/SOURCE_PACKAGE_GOVERNANCE.md',
@@ -79,6 +80,8 @@ if(!backlog.includes('HA-native user') || !backlog.includes('do not mock') || !b
 const knownDefects=fs.readFileSync(path.join(root,'documentation/KNOWN_DEFECTS.md'),'utf8');
 const history=fs.readFileSync(path.join(root,'documentation/HISTORY_AND_LESSONS.md'),'utf8');
 const pickerBlueprint=fs.readFileSync(path.join(root,'documentation/SEMANTIC_PICKER_BLUEPRINT.md'),'utf8');
+const hacsInstallation=fs.readFileSync(path.join(root,'documentation/HACS_INSTALLATION.md'),'utf8');
+const openIssues=JSON.parse(fs.readFileSync(path.join(root,'documentation/OPEN_ISSUES.json'),'utf8'));
 
 for(const token of [
   'V2 interface migration is incomplete',
@@ -100,6 +103,24 @@ for(const token of [
 for(const token of ['local draft','canonical backend readback','Reuse by Energy']){
   if(!pickerBlueprint.includes(token)) failures.push(`SEMANTIC_PICKER_BLUEPRINT missing reusable invariant: ${token}`);
 }
+
+for(const token of ['asset.profile_id','vehicle.image_key','charger.image_key','ordered semantic write set','transport_value','Service acceptance alone is not persistence proof']){
+  if(!pickerBlueprint.includes(token)) failures.push(`SEMANTIC_PICKER_BLUEPRINT missing current picker invariant: ${token}`);
+}
+if(pickerBlueprint.includes('brand: read-only') || pickerBlueprint.includes('model: read-only') || pickerBlueprint.includes('variant: read-only')) failures.push('SEMANTIC_PICKER_BLUEPRINT returned obsolete appearance-only vehicle picker');
+if(hacsInstallation.includes('/mobility-supervisor/charging') || hacsInstallation.includes('Vehicles, Chargers, Charging')) failures.push('HACS_INSTALLATION returned obsolete standalone Charging workspace');
+const requiredIssueIds=['MUX-001','MUX-002','MUX-003','MUX-004','MUX-005','MUX-006','MUX-007','MUX-008','MUX-009','MUX-010'];
+const issueRows=Array.isArray(openIssues?.issues)?openIssues.issues:[];
+for(const id of requiredIssueIds){
+  const row=issueRows.find((item)=>item?.id===id);
+  if(!row) failures.push(`OPEN_ISSUES missing required issue ${id}`);
+  else {
+    if(row.status!=='open') failures.push(`OPEN_ISSUES ${id} must remain open until evidence-driven closure`);
+    if(!row.owner_area) failures.push(`OPEN_ISSUES ${id} missing owner_area`);
+    if(!Array.isArray(row.exit_criteria) || !row.exit_criteria.length) failures.push(`OPEN_ISSUES ${id} missing exit criteria`);
+  }
+}
+if(openIssues?.policy?.accepted_debt!==0) failures.push('OPEN_ISSUES accepted_debt must remain zero');
 const runtimeOwns=ownership?.owners?.runtime?.owns || [];
 for(const token of ['MOBILITY_PUBLIC_RUNTIME_V2 access','MOBILITY_EXPERIENCE_V2 access','MOBILITY_POLICY_V2 access','frozen V1 compatibility fallback only']){
   if(!runtimeOwns.includes(token)) failures.push(`src/OWNERSHIP runtime boundary missing: ${token}`);
