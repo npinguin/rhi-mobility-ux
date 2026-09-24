@@ -1,3 +1,12 @@
+## 1.0.0-rc.53 — Mobility-wide asset identity closure
+
+- applies vehicle/charger pictures to inactive vehicles, selected charger assignments, issue references and related-asset detail rows;
+- carries related vehicle/charger asset ids through the existing detail-link decoration so the shared asset shell can render the actual related asset picture;
+- centralizes inline vehicle/charger picture rendering instead of adding screen-specific artwork rules;
+- preserves canonical backend relationships and existing visual_ref/image-key ownership;
+- adds release-blocking Mobility-wide asset identity regression coverage;
+- preserves Mobility M0.10.1 compatibility and zero accepted technical/feature debt.
+
 ## 1.0.0-rc.52 — picture-first asset identity
 
 - adds a live product image preview directly inside Vehicle & colour and Charger & colour pickers;
