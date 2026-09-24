@@ -87,11 +87,14 @@ class HomeBrainChargerVisualPicker {
     const assetId=current.asset_id;
     const close=options.showClose===false ? "" : `<button class="vehicle-picker-close" data-charger-picker-close="${this.rt.escape(assetId)}" title="Close"><ha-icon icon="mdi:close"></ha-icon></button>`;
     const placeholder=(label,selected)=>`<option value="" ${selected?"selected":""} disabled>${label}</option>`;
+    const previewFile=current.appearance?.package_file || "";
+    const preview=current.charger ? `<div class="visual-picker-preview"><img data-picker-visual-preview="charger" src="${this.rt.escape(typeof this.rt.cache === 'function' ? this.rt.cache(previewFile) : previewFile)}" alt="${this.rt.escape(current.charger.label || current.charger.model || "Charger")}"><div><small>Selected appearance</small><b>${this.rt.escape(current.charger.label || current.charger.model || "Charger")}</b><span>${this.rt.escape(current.appearance?.label || "")}</span></div></div>` : "";
     return `<section class="vehicle-picker-panel charger-picker-panel ${options.context==="detail"?"detail-vehicle-picker detail-charger-picker":""}" data-charger-picker-panel="${this.rt.escape(assetId)}">
       <div class="vehicle-picker-head">
         <div><small>APPEARANCE</small><h3>Charger & colour</h3><p>Choose the Mobility charger profile and its real appearance. Product identity is persisted by Mobility V2; artwork remains UX-owned.</p></div>
         ${close}
       </div>
+      ${preview}
       <div class="vehicle-picker-grid vehicle-picker-hierarchy">
         <label><span>Brand</span><select data-charger-picker-brand="${this.rt.escape(assetId)}" ${!current.profile_writable?"disabled":""}>
           ${placeholder("Choose brand…",!current.brand)}

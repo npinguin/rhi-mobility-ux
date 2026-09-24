@@ -1,3 +1,12 @@
+## 1.0.0-rc.52 — picture-first asset identity
+
+- adds a live product image preview directly inside Vehicle & colour and Charger & colour pickers;
+- keeps picker previews synchronized while brand/model/variant/colour selections change;
+- reuses the same package-owned artwork and canonical `visual_ref`/image-key bridge already used by Mobility cards;
+- keeps existing profile/image write sequencing and canonical backend readback unchanged;
+- adds a release-blocking picture-first picker regression check;
+- preserves Mobility M0.10.1 compatibility and zero accepted technical/feature debt.
+
 ## 1.0.0-rc.51 — canonical cross-domain visual_ref pilot
 
 - consume backend-published `visual_ref` before legacy `image_key` for vehicle and charger rendering;
