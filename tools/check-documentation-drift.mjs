@@ -69,6 +69,10 @@ if(!architecture.includes('V2 interface migration remains open')) failures.push(
 const vision=fs.readFileSync(path.join(root,'documentation/PRODUCT_VISION.md'),'utf8');
 const backlog=fs.readFileSync(path.join(root,'documentation/BACKEND_INTERFACE_BACKLOG.md'),'utf8');
 if(!vision.includes('One model, one ownership') || !vision.includes('No charger') || !vision.includes('refresh')) failures.push('PRODUCT_VISION missing locked Mobility UX invariants');
+if(vision.includes('V1 consumes only `MOBILITY_PUBLIC_RUNTIME_V1`') || vision.includes('current release line stays on frozen `MOBILITY_PUBLIC_RUNTIME_V1`')) failures.push('PRODUCT_VISION still declares V1 as current product authority');
+for(const token of ['MOBILITY_PUBLIC_RUNTIME_V2 = canonical facts','MOBILITY_EXPERIENCE_V2','MOBILITY_POLICY_V2','MOBILITY_COMMAND_V2','Frozen V1 surfaces exist only as explicit compatibility fallbacks']){
+  if(!vision.includes(token)) failures.push(`PRODUCT_VISION missing V2-first authority token: ${token}`);
+}
 if(!backlog.includes('HA-native user') || !backlog.includes('do not mock') || !backlog.includes('V2.x')) failures.push('BACKEND_INTERFACE_BACKLOG missing interface governance');
 
 
