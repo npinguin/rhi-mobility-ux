@@ -1,3 +1,11 @@
+## 1.0.0-rc.51 — canonical cross-domain visual_ref pilot
+
+- consume backend-published `visual_ref` before legacy `image_key` for vehicle and charger rendering;
+- resolve only the Mobility namespace against the package-local visual catalog;
+- keep `vehicle.image_key` and `charger.image_key` write compatibility for the existing visual pickers;
+- reject foreign visual namespaces and keep package artwork fully UX-owned;
+- pair the candidate with Mobility M0.10.1 and reset target Home Assistant qualification.
+
 ## 1.0.0-rc.50 — Runtime V2 asset-type contract closure
 
 - accept producer `concept_id` as canonical asset type input;
