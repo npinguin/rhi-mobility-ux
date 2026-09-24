@@ -1,3 +1,12 @@
+## 1.0.0-rc.55 — canonical visual library refresh
+
+- replaces Audi Q8 with the new normalized 640×380 transparent master;
+- maps Guest PHEV and Guest EV to one covered Audi Q8 visual;
+- replaces Wallbox Commander 2 white/black, Peblar Business and Fibaro Wall Plug 2 with normalized 1254×1254 transparent WebP masters;
+- removes superseded Audi PNG and charger SVG artwork;
+- hardens asset governance for guest identity and exact charger canvas geometry;
+- preserves Mobility M0.10.1 compatibility and zero accepted technical/feature debt.
+
 ## 1.0.0-rc.54 — normalized vehicle masters and write-path cleanup
 
 - normalizes BMW X1 PHEV, Mercedes-Benz GLA PHEV, Renault Scenic E-Tech and Volkswagen ID.4 to one transparent 640×380 canonical vehicle canvas;
