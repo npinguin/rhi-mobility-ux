@@ -28,18 +28,18 @@ function rhiMobilityHeroAsset(key = "") {
 
 // Package-owned visual catalog. Backend owns image_key; this layer maps keys to immutable package assets.
 const RHI_MOBILITY_IMAGE_CATALOG = Object.freeze([
-  { image_key:"vehicle_audi_q8", package_path:"vehicles/vehicle_audi_q8.png", fallback_image_key:"vehicle_fallback" },
+  { image_key:"vehicle_audi_q8", package_path:"vehicles/vehicle_audi_q8.webp", fallback_image_key:"vehicle_fallback" },
   { image_key:"vehicle_bmw_x1_phev", package_path:"vehicles/vehicle_bmw_x1_phev.webp", fallback_image_key:"vehicle_fallback" },
   { image_key:"vehicle_mercedes_gla", package_path:"vehicles/vehicle_mercedes_gla.webp", fallback_image_key:"vehicle_fallback" },
   { image_key:"vehicle_vw_id4", package_path:"vehicles/vehicle_vw_id4.webp", fallback_image_key:"vehicle_fallback" },
   { image_key:"vehicle_renault_scenic_techno_ev", package_path:"vehicles/vehicle_renault_scenic_techno_ev.webp", fallback_image_key:"vehicle_fallback" },
-  { image_key:"vehicle_guest", package_path:"vehicles/vehicle_fallback.png", fallback_image_key:"vehicle_fallback" },
+  { image_key:"vehicle_guest", package_path:"vehicles/vehicle_guest.webp", fallback_image_key:"vehicle_fallback" },
   { image_key:"vehicle_fallback", package_path:"vehicles/vehicle_fallback.png", fallback_image_key:"vehicle_fallback" },
-  { image_key:"charger_wallbox", package_path:"chargers/charger_wallbox_white.svg", fallback_image_key:"charger_fallback" },
+  { image_key:"charger_wallbox", package_path:"chargers/charger_wallbox_white.webp", fallback_image_key:"charger_fallback" },
   { image_key:"charger_wallbox_white", package_path:"chargers/charger_wallbox_white.svg", fallback_image_key:"charger_wallbox" },
-  { image_key:"charger_wallbox_black", package_path:"chargers/charger_wallbox_black.svg", fallback_image_key:"charger_wallbox" },
-  { image_key:"charger_peblar", package_path:"chargers/charger_peblar.svg", fallback_image_key:"charger_fallback" },
-  { image_key:"charger_utility_plug", package_path:"chargers/charger_utility_plug.svg", fallback_image_key:"charger_fallback" },
+  { image_key:"charger_wallbox_black", package_path:"chargers/charger_wallbox_black.webp", fallback_image_key:"charger_wallbox" },
+  { image_key:"charger_peblar", package_path:"chargers/charger_peblar.webp", fallback_image_key:"charger_fallback" },
+  { image_key:"charger_utility_plug", package_path:"chargers/charger_utility_plug.webp", fallback_image_key:"charger_fallback" },
   { image_key:"charger_fallback", package_path:"chargers/charger_fallback.png", fallback_image_key:"charger_fallback" }
 ]);
 
@@ -115,7 +115,7 @@ const RHI_MOBILITY_VEHICLE_VISUALS = Object.freeze([
   },
   {
     id:"generic.guest.current.phev-1phase", label:"Guest PHEV 1-phase", brand:"Generic", model:"Guest PHEV", profile_ids:["guest_phev_1phase"],
-    generation:"Current", years:"Any", variant:"PHEV 1-phase", image_key:"vehicle_guest", selectable:true, visual_quality:"generic",
+    generation:"Current", years:"Any", variant:"PHEV 1-phase", image_key:"vehicle_guest", selectable:true, visual_quality:"verified_guest",
     colors:[
       { id:"slate-grey", label:"Slate Grey", filter:"none" },
       { id:"carbon-black", label:"Carbon Black", filter:"brightness(.42) contrast(1.16)" },
