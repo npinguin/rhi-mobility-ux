@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "product": "rhi-mobility-ux",
-  "version": "1.0.0-rc.54",
+  "version": "1.0.0-rc.55",
   "source_manifest_schema": 1,
   "hacs_package_root": "dist",
   "hacs_filename": "rhi-mobility-ux.js",
@@ -12,7 +12,7 @@
     "heroes",
     "vehicles"
   ],
-  "runtime_sha256": "39ec915dcccf4bc79bd547b4881f8db14c9ff7abab953a8aaf641f230d35010a",
+  "runtime_sha256": "8ad01aa137662750caf2cb1591d12b858b466baa4a4d751d81095e446b2a75c8",
   "files": [
     {
       "path": "assets/branding/company-logo.svg",
@@ -23,20 +23,20 @@
       "bytes": 132329
     },
     {
-      "path": "assets/chargers/charger_peblar.svg",
-      "bytes": 2252
+      "path": "assets/chargers/charger_peblar.webp",
+      "bytes": 16256
     },
     {
-      "path": "assets/chargers/charger_utility_plug.svg",
-      "bytes": 2210
+      "path": "assets/chargers/charger_utility_plug.webp",
+      "bytes": 33424
     },
     {
-      "path": "assets/chargers/charger_wallbox_black.svg",
-      "bytes": 2453
+      "path": "assets/chargers/charger_wallbox_black.webp",
+      "bytes": 34382
     },
     {
-      "path": "assets/chargers/charger_wallbox_white.svg",
-      "bytes": 2453
+      "path": "assets/chargers/charger_wallbox_white.webp",
+      "bytes": 35298
     },
     {
       "path": "assets/heroes/mobility-chargers.png",
@@ -75,8 +75,8 @@
       "bytes": 2280184
     },
     {
-      "path": "assets/vehicles/vehicle_audi_q8.png",
-      "bytes": 261604
+      "path": "assets/vehicles/vehicle_audi_q8.webp",
+      "bytes": 24636
     },
     {
       "path": "assets/vehicles/vehicle_bmw_x1_phev.webp",
@@ -85,6 +85,10 @@
     {
       "path": "assets/vehicles/vehicle_fallback.png",
       "bytes": 113622
+    },
+    {
+      "path": "assets/vehicles/vehicle_guest.webp",
+      "bytes": 14644
     },
     {
       "path": "assets/vehicles/vehicle_mercedes_gla.webp",
@@ -100,7 +104,7 @@
     },
     {
       "path": "rhi-mobility-ux.js",
-      "bytes": 756433
+      "bytes": 756451
     },
     {
       "path": "rhi-mobility-ux.js.sha256",
