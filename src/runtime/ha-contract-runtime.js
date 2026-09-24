@@ -757,8 +757,10 @@ class HomeBrainAssetRuntime {
 
 
   releaseContract() {
-    const e = this.entity("sensor.mobility_release_contract");
-    const attrs = e?.attributes || {};
+    const contractEntity = this.entity("sensor.mobility_release_contract");
+    const identityEntity = this.entity("sensor.mobility_release_identity");
+    const e = contractEntity || identityEntity;
+    const attrs = { ...(identityEntity?.attributes || {}), ...(contractEntity?.attributes || {}) };
     const backend = this.cleanValue(
       attrs.backend_release ||
       attrs.backend_version ||
@@ -767,7 +769,8 @@ class HomeBrainAssetRuntime {
       attrs.release ||
       attrs.version ||
       attrs.package_version ||
-      e?.state ||
+      contractEntity?.state ||
+      identityEntity?.state ||
       "",
       "Unknown"
     ) || "Unknown";
