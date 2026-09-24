@@ -192,6 +192,15 @@
         "engineering property isolation",
         "V1 property non-override when V2 exists"
       ]
+    },
+    "ux_authority_closure": {
+      "owner": "tests/contracts/ux-authority-closure-smoke.mjs",
+      "owns": [
+        "Overview Experience V2 semantic parity",
+        "vehicle profile-family visual identity safety",
+        "charger persisted-V2 visual precedence over instance aliases",
+        "canonical readback required for UX property writes"
+      ]
     }
   }
 }
