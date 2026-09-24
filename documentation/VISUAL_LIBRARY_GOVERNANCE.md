@@ -60,8 +60,10 @@ Technical values such as charging power, current, battery capacity or phase coun
 6. Generic fallback art is explicit and may not masquerade as verified product art.
 7. External media requires recorded provenance and verified redistribution rights before import.
 8. Package artwork is validated for inventory, dimensions, duplicate bytes and package equality.
-9. Current charger runtime assets target at least 1200 px on the longest edge and at most 600 KiB. Higher-resolution source masters may be retained externally or regenerated when needed.
-10. Visual quality gates are not reduced to make existing weak assets pass.
+9. Every verified Mobility vehicle runtime master uses the exact **640×380 transparent canvas**. The vehicle is aspect-ratio preserved, horizontally centered, fitted within a maximum **590×300** presentation box and aligned to the common **y=340 baseline**. This keeps apparent vehicle scale stable across Overview, Management, Detail, Planning, History and picker previews.
+10. Source photography or generated source masters may have arbitrary dimensions, but they are never shipped directly. They must first be normalized into the canonical vehicle canvas. Screen-specific resized files remain forbidden; all surfaces crop/scale the same normalized master.
+11. Current charger runtime assets target at least 1200 px on the longest edge and at most 600 KiB. Higher-resolution source masters may be retained externally or regenerated when needed.
+12. Visual quality gates are not reduced to make existing weak assets pass.
 
 ## Picker rules
 
