@@ -90,7 +90,7 @@ class HomeBrainVehicleVisualPicker {
     const placeholder=(label,selected)=>`<option value="" ${selected?"selected":""} disabled>${label}</option>`;
     const previewFile=current.vehicle?.package_file || "";
     const previewFilter=current.color?.filter || "none";
-    const preview=current.vehicle ? `<div class="visual-picker-preview"><img data-picker-visual-preview="vehicle" src="${this.rt.escape(this.rt.cache(previewFile))}" alt="${this.rt.escape(current.vehicle.label || current.vehicle.model || "Vehicle")}" style="filter:${this.rt.escape(previewFilter)}"><div><small>Selected appearance</small><b>${this.rt.escape(current.vehicle.label || current.vehicle.model || "Vehicle")}</b><span>${this.rt.escape(current.color?.label || "")}</span></div></div>` : "";
+    const preview=current.vehicle ? `<div class="visual-picker-preview"><img data-picker-visual-preview="vehicle" src="${this.rt.escape(typeof this.rt.cache === 'function' ? this.rt.cache(previewFile) : previewFile)}" alt="${this.rt.escape(current.vehicle.label || current.vehicle.model || "Vehicle")}" style="filter:${this.rt.escape(previewFilter)}"><div><small>Selected appearance</small><b>${this.rt.escape(current.vehicle.label || current.vehicle.model || "Vehicle")}</b><span>${this.rt.escape(current.color?.label || "")}</span></div></div>` : "";
     return `<section class="vehicle-picker-panel ${options.context==="detail"?"detail-vehicle-picker":""}" data-picker-panel="${this.rt.escape(assetId)}">
       <div class="vehicle-picker-head">
         <div><small>APPEARANCE</small><h3>Vehicle & colour</h3><p>Choose the Mobility product profile and its visual appearance. Product identity is persisted by Mobility V2; artwork remains UX-owned.</p></div>
