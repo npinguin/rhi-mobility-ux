@@ -1,18 +1,19 @@
-# v1.0.0-rc.52 — picture-first asset identity TEST CANDIDATE
+# RHI Mobility UX v1.0.0-rc.53 — Mobility-wide asset identity TEST CANDIDATE
 
 ## Scope
 
-rc.52 completes the Mobility side of the visual identity pattern by making the selected product picture visible while appearance configuration is being edited.
+rc.53 makes vehicle and charger imagery part of the shared Mobility asset identity language, not only the main vehicle cards.
 
-- Vehicle & colour shows a live selected vehicle preview.
-- Charger & colour shows a live selected charger preview.
-- Preview artwork updates immediately with brand/model/variant/colour changes.
-- Existing profile-first then appearance write sequencing is unchanged.
-- Canonical backend readback remains required before a write is considered successful.
+- inactive vehicle rows show the vehicle picture;
+- selected charger controls show the selected charger picture;
+- issue references show the vehicle picture;
+- related Vehicle/Charger rows on asset detail screens carry related asset identity and show the matching picture;
+- existing overview, vehicle cards, charger cards, detail heroes and appearance-picker previews remain picture-first.
 
-Required/tested backend: `M0.10.1`.
-Rollback: `v1.0.0-rc.51`.
+Compatibility:
+- Mobility backend: M0.10.1
+- Rollback: v1.0.0-rc.52
+- Accepted technical debt: 0
+- Accepted feature debt: 0
 
-Accepted technical debt: 0.
-Accepted feature debt: 0.
-Target Home Assistant qualification remains mandatory.
+Target Home Assistant runtime proof remains mandatory.
