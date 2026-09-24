@@ -1507,7 +1507,8 @@ class HomeBrainAssetRuntime {
   }
 
   uxEditorControlKind(prop = {}) {
-    // MOBILITY_PUBLIC_RUNTIME_V1 write metadata is the sole editor authority.
+    // Backend-published canonical write metadata is the sole editor authority.
+    // Direct V2 semantic properties are primary; frozen V1 metadata is compatibility-only.
     // Do not infer editor type from property names, units, integrations or values.
     const binding = String(prop.write_binding_type || prop.editor || "").trim().toLowerCase();
     if (binding === "select") return "select";
@@ -1597,8 +1598,8 @@ class HomeBrainAssetRuntime {
   }
 
   propertyEditorChoices(prop = {}) {
-    // V1-published choices/options are authoritative. UX never derives profile,
-    // charger or other configuration options from integrations or device identity.
+    // Backend-published choices/options are authoritative. Direct V2 metadata is primary.
+    // UX never derives profile, charger or other configuration options from integrations or device identity.
     const direct = this.parseJsonValue(prop.choices, prop.choices || null);
     if (Array.isArray(direct)) return direct;
     const options = this.parseJsonValue(prop.options, prop.options || null);
@@ -1894,7 +1895,29 @@ class HomeBrainAssetRuntime {
     return semanticValue;
   }
 
-  async writePropertyValueAsync(prop = {}, value = "") {
+  canonicalWriteValueEqual(actual, expected) {
+    if (typeof expected === "boolean") return String(actual).toLowerCase() === String(expected).toLowerCase();
+    const a = Number(String(actual ?? "").replace(",", "."));
+    const e = Number(String(expected ?? "").replace(",", "."));
+    if (String(actual ?? "").trim() !== "" && String(expected ?? "").trim() !== "" && Number.isFinite(a) && Number.isFinite(e)) {
+      return Math.abs(a - e) <= 0.000001;
+    }
+    return String(actual ?? "").trim() === String(expected ?? "").trim();
+  }
+
+  async waitForCanonicalPropertyReadback(assetId = "", propertyKey = "", expected = "", options = {}) {
+    const canonical = this.canonicalAssetId(assetId);
+    const attempts = Math.max(1, Number(options.attempts || 20));
+    const delayMs = Math.max(25, Number(options.delay_ms || 150));
+    for (let attempt = 0; attempt < attempts; attempt += 1) {
+      const row = this.v2SemanticProperty(canonical, propertyKey) || this.semanticProperty(canonical, propertyKey);
+      if (row && this.canonicalWriteValueEqual(row.value, expected)) return true;
+      if (attempt < attempts - 1) await new Promise((resolve)=>setTimeout(resolve, delayMs));
+    }
+    return false;
+  }
+
+  async writePropertyValueAsync(prop = {}, value = "", options = {}) {
     if (!prop || !this.hass || !this.isWritableProperty(prop)) return false;
     const domain = prop.write_service_domain;
     const action = prop.write_service_action;
@@ -1915,17 +1938,26 @@ class HomeBrainAssetRuntime {
     }
     try {
       await this.hass.callService(domain, action, payload);
-      return true;
+      if (options.readback === false) return true;
+      const assetId = this.canonicalAssetId(prop.asset_id || options.asset_id || "");
+      const propertyKey = String(prop.property_key || options.property_key || "").trim();
+      if (!assetId || !propertyKey) return false;
+      const confirmed = await this.waitForCanonicalPropertyReadback(assetId, propertyKey, value, options);
+      if (!confirmed) {
+        console.error("[RHI Mobility UX] canonical property readback timeout", {property_key:propertyKey,asset_id:assetId,expected:value});
+      }
+      return confirmed;
     } catch (error) {
       console.error("[RHI Mobility UX] property write failed", {property_key:prop.property_key,asset_id:prop.asset_id,error});
       return false;
     }
   }
 
-  async writePublishedPropertyAsync(assetId = "", propertyKey = "", value = "") {
-    const prop = this.semanticProperty(this.canonicalAssetId(assetId), propertyKey);
+  async writePublishedPropertyAsync(assetId = "", propertyKey = "", value = "", options = {}) {
+    const canonical = this.canonicalAssetId(assetId);
+    const prop = this.semanticProperty(canonical, propertyKey);
     if (!prop) return false;
-    return this.writePropertyValueAsync(prop, value);
+    return this.writePropertyValueAsync(prop, value, { ...options, asset_id:canonical, property_key:propertyKey });
   }
 
   writePropertyValue(prop = {}, value = "") {
@@ -1961,6 +1993,15 @@ class HomeBrainAssetRuntime {
     const model = this.lifecycleWriteModel(assetOrId, desiredStatus);
     if (model.disabled) return false;
     return this.writePropertyValue(model.prop, model.desired);
+  }
+
+  async writeLifecycleStatusAsync(assetOrId = "", desiredStatus = "") {
+    const model = this.lifecycleWriteModel(assetOrId, desiredStatus);
+    if (model.disabled) return false;
+    return this.writePropertyValueAsync(model.prop, model.desired, {
+      asset_id:this.canonicalAssetId(typeof assetOrId === "string" ? assetOrId : assetOrId?.asset_id || ""),
+      property_key:model.prop?.property_key || "lifecycle_status"
+    });
   }
 
   lifecycleContractGapSection(assetId = "") {
@@ -2863,17 +2904,33 @@ class HomeBrainAssetRuntime {
     return { ...delegated, consumer_asset_id: canonical, authority_asset_id: canonical, delegated: true };
   }
 
-  writePropertyControl(model = {}, value = null) {
-    if (!model?.resolved || !model?.prop || !model.writable) return false;
+  normalizedPropertyControlValue(model = {}, value = null) {
     let next = Number(value);
-    if (!Number.isFinite(next)) return false;
+    if (!Number.isFinite(next)) return null;
     if (Number.isFinite(model.min)) next = Math.max(model.min, next);
     if (Number.isFinite(model.max)) next = Math.min(model.max, next);
     if (Number.isFinite(model.step) && model.step > 0 && Number.isFinite(model.min)) {
       next = model.min + Math.round((next - model.min) / model.step) * model.step;
       next = Number(next.toFixed(6));
     }
+    return next;
+  }
+
+  writePropertyControl(model = {}, value = null) {
+    if (!model?.resolved || !model?.prop || !model.writable) return false;
+    const next = this.normalizedPropertyControlValue(model, value);
+    if (next === null) return false;
     return this.writePropertyValue(model.prop, next);
+  }
+
+  async writePropertyControlAsync(model = {}, value = null) {
+    if (!model?.resolved || !model?.prop || !model.writable) return false;
+    const next = this.normalizedPropertyControlValue(model, value);
+    if (next === null) return false;
+    return this.writePropertyValueAsync(model.prop, next, {
+      asset_id:model.asset_id || model.prop?.asset_id || "",
+      property_key:model.property_key || model.prop?.property_key || ""
+    });
   }
 
   v2SemanticProperty(assetId = "", propertyKey = "") {

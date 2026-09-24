@@ -94,14 +94,17 @@ class HomeBrainVehicleAdapter {
     const imageKeyProp = this.rt.propertyByCompoundKey(assetId, "vehicle.image_key");
     const imageKey = imageKeyProp?.value ?? this.rt.visualImageKey(reg, "image") ?? reg?.image_key ?? "";
     const visual = typeof rhiMobilityParseVehicleVisualKey === "function" ? rhiMobilityParseVehicleVisualKey(imageKey) : null;
-    // UX owns rendering. A resolved verified catalog key must drive both the
-    // actual model artwork and its colour treatment. Profile/source artwork is
-    // only the deterministic fallback when the persisted key is legacy/unknown.
-    const visualPackageFile = visual?.vehicle?.selectable !== false && visual?.vehicle?.visual_quality !== "fallback_only"
+    const profileId = String(this.rt.semanticProperty(assetId, "asset.profile_id")?.value ?? reg?.profile_id ?? reg?.raw?.profile_id ?? "").trim();
+    const profileVisual = typeof rhiMobilityVehicleVisualForProfile === "function" ? rhiMobilityVehicleVisualForProfile(profileId) : null;
+    // Persisted appearance may refine colour only inside the backend profile-owned
+    // vehicle family. A stale cross-model key must never outrank canonical identity.
+    const visualMatchesProfile = !profileVisual || visual?.vehicle?.id === profileVisual.id;
+    const visualPackageFile = visualMatchesProfile && visual?.vehicle?.selectable !== false && visual?.vehicle?.visual_quality !== "fallback_only"
       ? String(visual?.vehicle?.package_file || "")
       : "";
-    const img = visualPackageFile || profileImage;
-    const imageFilter = visual?.color?.filter || "none";
+    const canonicalProfilePackage = String(profileVisual?.package_file || "");
+    const img = visualPackageFile || canonicalProfilePackage || profileImage;
+    const imageFilter = visualMatchesProfile ? (visual?.color?.filter || "none") : "none";
     const actions = this.rt.commandActionsFor(assetId, "quick_actions").map((cmd, index) => ({
       label: cmd.label || this.rt.titleize(cmd.command_id || cmd.command_key),
       icon: this.rt.commandIcon(cmd), entity: cmd.intent_entity, command: cmd,

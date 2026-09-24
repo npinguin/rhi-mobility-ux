@@ -22,14 +22,20 @@ This file is the authoritative list of unresolved Mobility UX product/runtime is
    - UX must translate only at the generic write boundary and must never promote a display label to semantic truth.
    - The current rc.45 transport fix is static/CI proven; target runtime proof remains required.
 
-4. **Canonical visual rendering is not yet product-acceptable.**
-   - Blank vehicle imagery during/after edit is a release blocker when a canonical visual key is available.
-   - Wrong-model fallbacks are forbidden. Missing/invalid artwork must fail visibly to a neutral placeholder rather than display another real model.
-   - Current device imagery quality is below the intended premium standard. Functional identity/render correctness must be proven before premium asset replacement is accepted.
+4. **Canonical visual rendering still requires target proof and premium asset polish.**
+   - rc.48 enforces profile-family identity for vehicles and persisted-V2 precedence for chargers.
+   - Wrong-model/cross-family fallbacks are forbidden. Missing/invalid artwork must fail visibly to a neutral placeholder rather than display another real model.
+   - Current device imagery quality remains below the intended premium standard. Functional identity/render correctness must be proven before premium asset replacement is accepted.
 
-5. **Charger component placement can still surface valid product properties under Engineering/Unmapped** depending on deployed component contract/materialization.
+5. **Direct V2 property placement is structurally closed in rc.47, target proof remains open.**
+   - Product placement is driven by backend-published `component_id` + `section_id`.
+   - Missing placement fails visibly as a Layout contract gap; UX does not invent Engineering/Unmapped.
+   - Target HA must still prove the deployed backend materializes the expected V2 property entities and placements.
 
-6. **Some charger commands such as Restart, Identify or Unlock may still be missing** if the deployed placement/runtime parsing path does not materialize them correctly.
+6. **Direct Command V2 is structurally closed in rc.46, target proof remains open.**
+   - Start/Stop/Unlock/Restart/Identify come from `MOBILITY_COMMAND_V2` and execute through `rhi_mobility.execute_command`.
+   - Frozen V1 command/slot indexes are compatibility-only.
+   - Target HA must still prove all expected commands are published and executable for the installed assets.
 
 7. **Requested versus actual/readback cross-screen parity still needs runtime proof.**
    - Requested charge power is control intent.

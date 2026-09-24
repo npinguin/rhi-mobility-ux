@@ -1,6 +1,6 @@
 {
-  "candidate_version": "1.0.0-rc.47",
-  "candidate_tag": "v1.0.0-rc.47",
+  "candidate_version": "1.0.0-rc.48",
+  "candidate_tag": "v1.0.0-rc.48",
   "candidate_sha": "pending",
   "target_home_assistant": "pending",
   "hacs_install": "pending",
@@ -118,5 +118,12 @@
   "v2_component_placement": "pending",
   "v2_relationship_surface_primary": "pending",
   "no_v1_property_override": "pending",
-  "no_engineering_unmapped_invention": "pending"
+  "no_engineering_unmapped_invention": "pending",
+  "overview_experience_v2_parity": "pending",
+  "vehicle_visual_profile_family_safety": "pending",
+  "charger_visual_profile_family_safety": "pending",
+  "charger_v2_visual_precedence": "pending",
+  "canonical_write_readback": "pending",
+  "generic_property_write_failure_visibility": "pending",
+  "v2_property_completeness_evidence": "pending"
 }

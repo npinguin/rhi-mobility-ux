@@ -268,7 +268,11 @@ function rhiMobilitySelectableChargerVisualCatalog() {
 function rhiMobilityParseChargerVisualKey(value = "", assetId = "") {
   const raw = String(value || "").trim();
   const instanceAlias = RHI_MOBILITY_CHARGER_VISUAL_ALIASES[String(assetId || "").trim()];
-  const canonical = instanceAlias || RHI_MOBILITY_CHARGER_VISUAL_ALIASES[raw] || raw;
+  // Persisted V2 appearance is authoritative. Instance aliases are a last-resort
+  // compatibility input for old deployments that do not publish charger.image_key.
+  const canonical = raw
+    ? (RHI_MOBILITY_CHARGER_VISUAL_ALIASES[raw] || raw)
+    : (instanceAlias || "");
   for (const charger of rhiMobilityChargerVisualCatalog()) {
     const prefix = charger.id + ".";
     if (!canonical.startsWith(prefix)) continue;

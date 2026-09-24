@@ -86,9 +86,10 @@ if(runtime.includes('profileImageCompatibilityKey')) throw new Error('legacy pro
 for(const dead of ['default_vehicle.png','vehicle_unknown_profile_hero.png','vehicle_audi_q8_hero.png','vehicle_bmw_ix1_phev_hero.png','vehicle_guest_hero.png']){
   if(catalog.includes(dead)||runtime.includes(dead)||dashboard.includes(dead)||shell.includes(dead)) throw new Error(`legacy artwork path returned: ${dead}`);
 }
-if(!adapter.includes('imageFilter = visual?.color?.filter || "none"')) throw new Error('vehicle detail model no longer carries selected visual colour');
-if(!adapter.includes('const visualPackageFile = visual?.vehicle?.selectable !== false')) throw new Error('persisted vehicle visual no longer resolves to verified catalog artwork');
-if(!adapter.includes('const img = visualPackageFile || profileImage')) throw new Error('vehicle adapter no longer prefers the already-resolved package URL over profile/source fallback');
+if(!adapter.includes('const visualMatchesProfile = !profileVisual || visual?.vehicle?.id === profileVisual.id')) throw new Error('vehicle detail no longer guards persisted artwork by canonical profile family');
+if(!adapter.includes('const imageFilter = visualMatchesProfile ? (visual?.color?.filter || "none") : "none"')) throw new Error('vehicle detail colour filter is not constrained to the canonical profile family');
+if(!adapter.includes('const visualPackageFile = visualMatchesProfile && visual?.vehicle?.selectable !== false')) throw new Error('persisted vehicle visual is not constrained by canonical profile family');
+if(!adapter.includes('const img = visualPackageFile || canonicalProfilePackage || profileImage')) throw new Error('vehicle adapter no longer preserves canonical profile-family fallback ordering');
 if(adapter.includes('this.rt.assetUrl(visualPackageFile)')) throw new Error('vehicle adapter reintroduced double-prefix package URL resolution');
 if(!shell.includes('model.imageFilter || "none"')) throw new Error('vehicle detail shell no longer renders selected visual colour');
 if(!shell.includes('key === "vehicle.image_key"')) throw new Error('vehicle detail does not intercept vehicle.image_key for picker rendering');
