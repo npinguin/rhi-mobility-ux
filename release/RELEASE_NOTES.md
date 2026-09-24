@@ -1,15 +1,15 @@
-# v1.0.0-rc.50 — Runtime V2 asset-type contract closure
+# v1.0.0-rc.51 — canonical cross-domain visual_ref TEST CANDIDATE
 
-rc.50 fixes the target-runtime regression where Mobility M0.9.44 published Runtime V2 assets with `concept_id` while rc.49 filtered navigation by `asset_type`, causing all vehicles and chargers to disappear.
+## Scope
 
-## Correction
+rc.51 validates the Foundation F1.8.14 visual identity pattern in Mobility without moving artwork or semantic ownership into Foundation.
 
-- normalize Runtime V2 asset type from `asset_type` or `concept_id`;
-- prove vehicle and charger discovery against the real producer field shape;
-- retain V2-only authority and zero V1 fallback;
-- require corrected Mobility M0.9.45, which now publishes both fields and migrates canonical V2 entity IDs.
+- Mobility backend M0.10.1 publishes package-neutral `visual_ref` on canonical V2 assets and the Mobility→Energy boundary.
+- Mobility UX renders `visual_ref` first against its local packaged catalog.
+- Existing `vehicle.image_key` / `charger.image_key` picker writes remain supported as configuration compatibility.
+- Unknown or foreign visual namespaces never silently resolve to another product.
 
-Required/tested backend: `M0.9.45`.
-Rollback: `v1.0.0-rc.49`.
+Required/tested backend: `M0.10.1`.
+Rollback: `v1.0.0-rc.50`.
 
 Target Home Assistant qualification remains mandatory.
