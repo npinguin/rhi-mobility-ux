@@ -3765,8 +3765,10 @@ class HomeBrainAssetRuntime {
   addRelatedAssetDetailLinks(sections = [], context = {}) {
     const chargerRoute = String(context.chargerDetailRoute || "");
     const chargerDisplay = String(context.chargerDisplay || "");
+    const chargerAssetId = String(context.chargerAssetId || "");
     const vehicleRoute = String(context.vehicleDetailRoute || "");
     const vehicleDisplay = String(context.vehicleDisplay || "");
+    const vehicleAssetId = String(context.vehicleAssetId || "");
     const decorateRow = (row) => {
       if (!row || typeof row !== "object" || row.detailRoute) return row;
       const label = String(row.label || "").toLowerCase();
@@ -3774,10 +3776,10 @@ class HomeBrainAssetRuntime {
       const isMissing = !value || ["—", "none", "unknown", "unavailable", "not available"].includes(value.toLowerCase());
       if (isMissing) return row;
       if (chargerRoute && (label.includes("active charger") || label.includes("connected charger") || label === "charger" || label.includes("effective charger"))) {
-        return { ...row, detailRoute: chargerRoute, detailTitle: `Open ${chargerDisplay || "charger"} details` };
+        return { ...row, detailRoute: chargerRoute, detailTitle: `Open ${chargerDisplay || "charger"} details`, related_asset_type:"charger", related_asset_id:this.canonicalAssetId(chargerAssetId) };
       }
       if (vehicleRoute && (label.includes("active vehicle") || label.includes("connected vehicle") || label === "vehicle" || label.includes("effective vehicle"))) {
-        return { ...row, detailRoute: vehicleRoute, detailTitle: `Open ${vehicleDisplay || "vehicle"} details` };
+        return { ...row, detailRoute: vehicleRoute, detailTitle: `Open ${vehicleDisplay || "vehicle"} details`, related_asset_type:"vehicle", related_asset_id:this.canonicalAssetId(vehicleAssetId) };
       }
       return row;
     };
