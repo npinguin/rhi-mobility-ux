@@ -1,10 +1,10 @@
 {
   "product": "rhi-mobility-ux",
   "contract": "MOBILITY_PUBLIC_RUNTIME_V2",
-  "minimum_backend": "M0.9.43",
-  "tested_backend": "M0.9.43",
+  "minimum_backend": "M0.9.44",
+  "tested_backend": "M0.9.44",
   "stage": "test_candidate",
-  "rollback_release": "v1.0.0-rc.47",
+  "rollback_release": "v1.0.0-rc.48",
   "runtime_artifact": "dist/rhi-mobility-ux.js",
   "runtime_checksum_artifact": "dist/rhi-mobility-ux.js.sha256",
   "hacs_repository_type": "dashboard",
@@ -17,6 +17,10 @@
     "MOBILITY_PUBLIC_RUNTIME_V2",
     "MOBILITY_EXPERIENCE_V2",
     "MOBILITY_POLICY_V2",
-    "MOBILITY_COMMAND_V2"
+    "MOBILITY_COMMAND_V2",
+    "MOBILITY_ACTIVITY_V2",
+    "MOBILITY_PROFILE_CATALOG_V2",
+    "MOBILITY_SUPERVISION_V2",
+    "MOBILITY_ENERGY_V2"
   ]
 }
