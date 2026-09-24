@@ -102,7 +102,8 @@ class HomeBrainVehicleAdapter {
     const visualPackageFile = visualMatchesProfile && visual?.vehicle?.selectable !== false && visual?.vehicle?.visual_quality !== "fallback_only"
       ? String(visual?.vehicle?.package_file || "")
       : "";
-    const img = visualPackageFile || profileImage;
+    const canonicalProfilePackage = String(profileVisual?.package_file || "");
+    const img = visualPackageFile || canonicalProfilePackage || profileImage;
     const imageFilter = visualMatchesProfile ? (visual?.color?.filter || "none") : "none";
     const actions = this.rt.commandActionsFor(assetId, "quick_actions").map((cmd, index) => ({
       label: cmd.label || this.rt.titleize(cmd.command_id || cmd.command_key),
