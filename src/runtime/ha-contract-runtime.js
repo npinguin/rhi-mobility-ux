@@ -187,6 +187,36 @@ class HomeBrainAssetRuntime {
     };
   }
 
+  propertyPublicationEvidence(assetId = "") {
+    const canonical = this.canonicalAssetId(assetId);
+    if (!canonical) return null;
+    const asset = (this.mobilityRuntimeV2()?.assets || []).find((row) => String(row?.asset_id || "") === canonical);
+    const publication = asset?.property_publication;
+    if (!publication || typeof publication !== "object") return null;
+    return {
+      ...publication,
+      expected_property_keys: Array.isArray(publication.expected_property_keys) ? publication.expected_property_keys : [],
+      catalog_property_keys: Array.isArray(publication.catalog_property_keys) ? publication.catalog_property_keys : [],
+      v1_fallback_allowed: publication.v1_fallback_allowed === true
+    };
+  }
+
+  propertyPublicationGap(assetId = "") {
+    const canonical = this.canonicalAssetId(assetId);
+    const evidence = this.propertyPublicationEvidence(canonical);
+    if (!evidence) return { status:"unavailable", missing:[], unexpected:[] };
+    const actual = new Set(this.v2PropertyRows(canonical).map((row)=>String(row.property_key || "")).filter(Boolean));
+    const expected = new Set(evidence.expected_property_keys.map(String));
+    return {
+      status:[...expected].every((key)=>actual.has(key)) ? "complete" : "incomplete",
+      missing:[...expected].filter((key)=>!actual.has(key)).sort(),
+      unexpected:[...actual].filter((key)=>!expected.has(key)).sort(),
+      expected_count:expected.size,
+      actual_count:actual.size,
+      authority:evidence.authority || "MOBILITY_PUBLIC_RUNTIME_V2"
+    };
+  }
+
   mobilityExperienceV2() {
     const state = this.contractEntity("MOBILITY_EXPERIENCE_V2", [
       "sensor.rhi_mobility_experience_v2",
