@@ -112,7 +112,7 @@ class HomeBrainVehicleAdapter {
     }));
     const componentSections = this.rt.addRelatedAssetDetailLinks(
       this.rt.vehicleComponentDetailSections(assetId),
-      { chargerDetailRoute, chargerDisplay }
+      { chargerDetailRoute, chargerDisplay, chargerAssetId:chargerContextId }
     );
 
     const experience = this.rt.vehicleExperienceV2(assetId);
