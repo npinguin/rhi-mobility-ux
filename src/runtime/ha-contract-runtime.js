@@ -1945,6 +1945,8 @@ class HomeBrainAssetRuntime {
       return String(value ?? "") === wanted;
     });
     if (match && typeof match === "object" && match !== null) {
+      const transport = match.transport_value ?? match.transportValue;
+      if (transport !== undefined && transport !== null && String(transport).trim() !== "") return transport;
       const label = match.label ?? match.display_name ?? match.name;
       if (label !== undefined && label !== null && String(label).trim() !== "") return label;
     }
