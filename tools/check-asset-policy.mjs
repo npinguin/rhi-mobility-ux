@@ -142,9 +142,10 @@ for(const row of verified){
 
 const vehicleFiles=sourceFiles.filter((rel)=>rel.startsWith('vehicles/'));
 const allowedVehicleFiles=new Set([
-  'vehicles/vehicle_audi_q8.png',
+  'vehicles/vehicle_audi_q8.webp',
   'vehicles/vehicle_bmw_x1_phev.webp',
   'vehicles/vehicle_fallback.png',
+  'vehicles/vehicle_guest.webp',
   'vehicles/vehicle_mercedes_gla.webp',
   'vehicles/vehicle_renault_scenic_techno_ev.webp',
   'vehicles/vehicle_vw_id4.webp'
@@ -153,7 +154,15 @@ for(const rel of vehicleFiles){
   if(!allowedVehicleFiles.has(rel)) throw new Error(`legacy/dead vehicle artwork still packaged: ${rel}`);
 }
 if(vehicleFiles.length!==allowedVehicleFiles.size) throw new Error(`vehicle asset inventory drifted: ${vehicleFiles.length}; expected ${allowedVehicleFiles.size}`);
-console.log(`PASS asset policy: 5 current real vehicles use distinct canonical 640x380 masters; vehicle inventory is legacy-free and one-master-per-model`);
+const guestRows=visualRows.filter((row)=>row.selectable && row.visual_quality==='verified_guest');
+if(guestRows.length!==2) throw new Error(`guest vehicle artwork governance drifted: ${guestRows.length}; expected 2 guest profiles`);
+for(const row of guestRows){
+  const rel=imagePathByKey.get(String(row.image_key));
+  if(rel!=='vehicles/vehicle_guest.webp') throw new Error(`guest profile must resolve to covered Audi Q8 master: ${row.id} -> ${rel}`);
+  const dimensions=rasterDimensions(path.join(srcRoot,rel));
+  if(!dimensions || dimensions.width!==640 || dimensions.height!==380) throw new Error(`guest vehicle master must be exact 640x380: ${rel}`);
+}
+console.log(`PASS asset policy: 5 current real vehicles plus covered-Audi guest profiles use governed canonical 640x380 masters`);
 
 
 function pngDimensions(file) {
@@ -233,10 +242,10 @@ for(const row of chargerVisualRows){
     const stat=fs.statSync(absolute);
     if(stat.size>600*1024) throw new Error(`charger artwork too large (>600 KiB): ${rel} = ${stat.size} bytes`);
     const ext=path.extname(rel).toLowerCase();
-    const dim=ext==='.png' ? pngDimensions(absolute) : ext==='.svg' ? svgDimensions(absolute) : null;
+    const dim=(ext==='.png' || ext==='.webp') ? rasterDimensions(absolute) : ext==='.svg' ? svgDimensions(absolute) : null;
     if(!dim) throw new Error(`charger master must expose deterministic dimensions: ${rel}`);
     const longEdge=Math.max(dim.width,dim.height);
-    if(longEdge<1200) throw new Error(`charger artwork below 1200 px/logical-unit minimum long edge: ${rel} = ${dim.width}x${dim.height}`);
+    if(dim.width!==1254 || dim.height!==1254) throw new Error(`charger master must remain exact 1254x1254 transparent-canvas asset: ${rel} = ${dim.width}x${dim.height}`);
   }
 }
 for(const key of ['charger_wallbox_white','charger_wallbox_black','charger_peblar','charger_utility_plug']){
@@ -245,13 +254,13 @@ for(const key of ['charger_wallbox_white','charger_wallbox_black','charger_pebla
 const chargerFiles=sourceFiles.filter((rel)=>rel.startsWith('chargers/'));
 const allowedChargerFiles=new Set([
   'chargers/charger_fallback.png',
-  'chargers/charger_wallbox_white.svg',
-  'chargers/charger_wallbox_black.svg',
-  'chargers/charger_peblar.svg',
-  'chargers/charger_utility_plug.svg'
+  'chargers/charger_wallbox_white.webp',
+  'chargers/charger_wallbox_black.webp',
+  'chargers/charger_peblar.webp',
+  'chargers/charger_utility_plug.webp'
 ]);
 for(const rel of chargerFiles){
   if(!allowedChargerFiles.has(rel)) throw new Error(`legacy/dead charger artwork still packaged: ${rel}`);
 }
 if(chargerFiles.length!==allowedChargerFiles.size) throw new Error(`charger asset inventory drifted: ${chargerFiles.length}; expected ${allowedChargerFiles.size}`);
-console.log('PASS charger visual policy: 3 supported products, governed appearances, exact legacy-free inventory, <=600 KiB and >=1200 px/logical-unit master edge');
+console.log('PASS charger visual policy: 3 supported products, governed appearances, exact legacy-free 1254x1254 WebP masters and source/dist parity');
