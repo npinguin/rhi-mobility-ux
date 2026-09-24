@@ -17,9 +17,9 @@ No new UX feature may add a V1-only dependency or reconstruct a missing V2 produ
 
 The existing V1 facade remains a temporary compatibility source for already-consumed facts only; it is not the target architecture.
 
-This backlog captures product capabilities required by Mobility UX that are not authoritative in `MOBILITY_PUBLIC_RUNTIME_V1` today.
+This backlog captures product capabilities required by Mobility UX that are not yet authoritative in the current V2 public contracts.
 
-Rule: **do not mock these in UX**. Until the backend publishes the contract, the relevant V1 surface remains empty, unavailable or N/A.
+Rule: **do not mock these in UX**. Until the backend publishes the contract, the relevant V2 surface remains empty, unavailable, N/A or an explicit contract gap.
 
 ## Priority — Overview completion
 
@@ -59,7 +59,7 @@ Unknown authorization fails closed.
 
 Overview needs truthful counts such as free / in use / unavailable.
 
-V1 currently has canonical charger operating state. UX may present a shared, documented V1 projection for known canonical states, but a future backend interface should publish explicit product availability semantics if those categories become richer than operating state.
+Runtime V2 currently exposes canonical charger operating/connection facts. UX may present only the documented product projection supported by those facts; richer availability categories require an explicit backend product semantic.
 
 Unknown/unmapped charger state renders N/A and must not be counted as free.
 
@@ -108,4 +108,18 @@ Publish or complete authoritative contracts for:
 
 These items may become a V2.x contract only through an explicit backend contract release and corresponding UX compatibility declaration.
 
-No V2.x field may be guessed, reverse-engineered from raw Home Assistant entities, or locally persisted as a second truth by V1 UX.
+No future V2.x field may be guessed, reverse-engineered from raw Home Assistant entities, or locally persisted as a second truth by UX.
+
+
+## Runtime V2 property-completeness evidence
+
+UX now treats direct per-asset V2 property entities as the only primary property surface once they are present. It deliberately does **not** merge missing fields from frozen V1 indexes because that would create dual authority.
+
+For robust startup/runtime diagnostics, the backend should publish machine-readable per-asset completeness evidence derived from its existing canonical/materialized property catalog, for example:
+
+- expected/materialized property keys for the asset;
+- publication revision;
+- materialized entity count;
+- missing/failed entity keys, if any.
+
+This is diagnostic evidence only; it does not change product semantics. Until such evidence is public, UX can fail visibly on missing placement for entities it can see, but it cannot prove that an absent V2 entity should have existed.
