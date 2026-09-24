@@ -649,7 +649,7 @@ class HomeBrainAssetRuntime {
       schema_version: entry.schema_version || 1,
       asset_id,
       domain: entry.domain || assetBlock.domain || "mobility",
-      asset_type: entry.asset_type || assetBlock.type || entry.type || "unknown",
+      asset_type: entry.asset_type || entry.concept_id || assetBlock.type || entry.type || "unknown",
       display_name: entry.display_name || identityBlock.display_name || entry.name || asset_id,
       profile: entry.profile || entry.profile_display_name || identityBlock.profile || "",
       profile_id: entry.profile_id || identityBlock.profile_id || "",

@@ -1,8 +1,8 @@
 {
   "product": "rhi-mobility-ux",
   "contract": "MOBILITY_PUBLIC_RUNTIME_V2",
-  "minimum_backend": "M0.9.44",
-  "tested_backend": "M0.9.44",
+  "minimum_backend": "M0.9.45",
+  "tested_backend": "M0.9.45",
   "stage": "test_candidate",
   "rollback_release": "v1.0.0-rc.48",
   "runtime_artifact": "dist/rhi-mobility-ux.js",

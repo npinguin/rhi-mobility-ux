@@ -7,7 +7,7 @@ const Runtime=ctx.HomeBrainAssetRuntime;
 
 const v2Asset={
   asset_id:'vehicle_v2',
-  asset_type:'vehicle',
+  concept_id:'vehicle',
   display_name:'Canonical V2 vehicle',
   property_publication:{
     expected_property_keys:['vehicle.soc_pct','vehicle.image_key'],
@@ -16,13 +16,14 @@ const v2Asset={
     v1_fallback_allowed:false
   }
 };
+const v2Charger={asset_id:'charger_v2',concept_id:'charger',display_name:'Canonical V2 charger'};
 const relationship={source_asset_id:'vehicle_v2',target_asset_id:'charger_v2',relationship_type:'vehicle_effective_charger'};
 const profile={profile_id:'vehicle.v2',asset_type:'vehicle',identity:{brand:'V2',model:'Canonical'}};
 const activity={asset_id:'vehicle_v2',activity_type:'charging',activity_state:'active'};
 const states={
   'sensor.rhi_mobility_runtime_v2':{state:'ready',attributes:{
-    contract_id:'MOBILITY_PUBLIC_RUNTIME_V2',canonical:true,assets:[v2Asset],relationships:[relationship],
-    fleet:{active_vehicle_count:1,active_charger_count:0},vehicle_charger_relationships:[]
+    contract_id:'MOBILITY_PUBLIC_RUNTIME_V2',canonical:true,assets:[v2Asset,v2Charger],relationships:[relationship],
+    fleet:{active_vehicle_count:1,active_charger_count:1},vehicle_charger_relationships:[]
   }},
   'sensor.rhi_mobility_activity_v2':{state:'ready',attributes:{contract_id:'MOBILITY_ACTIVITY_V2',publisher:'rhi_mobility',activities:[activity]}},
   'sensor.rhi_mobility_profile_catalog_v2':{state:'ready',attributes:{contract_id:'MOBILITY_PROFILE_CATALOG_V2',publisher:'rhi_mobility',profiles:[profile]}},
@@ -54,7 +55,9 @@ const states={
 const rt=new Runtime({states},{});
 
 const assets=rt.assetIndexRows('all');
-if(assets.length!==1 || assets[0].asset_id!=='vehicle_v2') throw new Error('Runtime V2 assets are not primary');
+if(assets.length!==2 || assets[0].asset_id!=='vehicle_v2') throw new Error('Runtime V2 assets are not primary');
+if(rt.assetIndexRows('vehicle').map((row)=>row.asset_id).join(',')!=='vehicle_v2') throw new Error('concept_id vehicle was lost during Runtime V2 normalization');
+if(rt.assetIndexRows('charger').map((row)=>row.asset_id).join(',')!=='charger_v2') throw new Error('concept_id charger was lost during Runtime V2 normalization');
 const profiles=rt.profileRows();
 if(profiles.length!==1 || profiles[0].profile_id!=='vehicle.v2') throw new Error('Profile Catalog V2 is not primary');
 const activities=rt.activityRowsFor('vehicle_v2');
@@ -76,4 +79,4 @@ if(gap.status!=='incomplete' || gap.missing.length!==1 || gap.missing[0]!=='vehi
 if(rt.publicCommandRows().length!==0) throw new Error('V1 command fallback remained active while Runtime V2 exists');
 if(rt.propertyPublicationEvidence('vehicle_v2')?.v1_fallback_allowed!==false) throw new Error('V1 fallback authority changed');
 
-console.log('PASS M0.9.44 complete V2 consumption and zero V1 authority fallback');
+console.log('PASS M0.9.45 Runtime V2 asset contract and zero V1 authority fallback');

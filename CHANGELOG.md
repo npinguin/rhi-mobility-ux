@@ -1,3 +1,10 @@
+## 1.0.0-rc.50 — Runtime V2 asset-type contract closure
+
+- accept producer `concept_id` as canonical asset type input;
+- retain `asset_type` support for corrected M0.9.45 producer rows;
+- test representative vehicle + charger discovery using the real producer shape;
+- require Mobility M0.9.45 and keep zero V1 fallback.
+
 ## 1.0.0-rc.49 — Mobility M0.9.44 complete V2 consumption closure
 
 - raise the supported/tested Mobility backend baseline to M0.9.44;
