@@ -1,3 +1,12 @@
+## 1.0.0-rc.53 — vehicle visuals everywhere
+
+- renders the canonical vehicle picture everywhere routed Mobility UX names a concrete vehicle, including Planning, History and effective-strategy rows;
+- centralizes routed vehicle identity through the existing visual_ref-aware Mobility resolver instead of screen-specific text-only labels;
+- keeps the same picture for the same vehicle across dashboard, detail, planning and history surfaces;
+- resolves backend release identity from the canonical release contract with canonical release-identity fallback, preventing spurious Backend Unknown when release metadata is available;
+- adds release-blocking coverage for routed vehicle visuals and release identity;
+- preserves Mobility M0.10.1 compatibility and zero accepted technical/feature debt.
+
 ## 1.0.0-rc.52 — picture-first asset identity
 
 - adds a live product image preview directly inside Vehicle & colour and Charger & colour pickers;
