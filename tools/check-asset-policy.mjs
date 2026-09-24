@@ -143,9 +143,9 @@ for(const row of verified){
 const vehicleFiles=sourceFiles.filter((rel)=>rel.startsWith('vehicles/'));
 const allowedVehicleFiles=new Set([
   'vehicles/vehicle_audi_q8.png',
-  'vehicles/vehicle_bmw_x1_phev.png',
+  'vehicles/vehicle_bmw_x1_phev.webp',
   'vehicles/vehicle_fallback.png',
-  'vehicles/vehicle_mercedes_gla.png',
+  'vehicles/vehicle_mercedes_gla.webp',
   'vehicles/vehicle_renault_scenic_techno_ev.webp',
   'vehicles/vehicle_vw_id4.webp'
 ]);
