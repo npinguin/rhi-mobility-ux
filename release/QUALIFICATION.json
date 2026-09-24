@@ -1,6 +1,6 @@
 {
-  "candidate_version": "1.0.0-rc.50",
-  "candidate_tag": "v1.0.0-rc.50",
+  "candidate_version": "1.0.0-rc.51",
+  "candidate_tag": "v1.0.0-rc.51",
   "candidate_sha": "pending",
   "target_home_assistant": "pending",
   "hacs_install": "pending",
@@ -132,5 +132,7 @@
   "runtime_v2_assets_primary": "pending",
   "runtime_v2_relationships_primary": "pending",
   "mobility_energy_v2_external_boundary": "pending",
-  "zero_v1_runtime_fallback_on_m0944": "pending"
+  "zero_v1_runtime_fallback_on_m0944": "pending",
+  "visual_ref_runtime_resolution": "pending",
+  "visual_ref_energy_cross_domain": "pending"
 }

@@ -307,3 +307,53 @@ function rhiMobilityResolveChargerVisual(asset = {}, rawKey = "") {
   if (parsed?.appearance?.package_file) return parsed;
   return null;
 }
+
+
+/**
+ * Canonical cross-domain visual identity bridge.
+ * Backend contracts publish package-neutral visual_ref values; this UX resolves
+ * only Mobility-owned refs to its own local artwork. No backend URL/path is used.
+ */
+function rhiMobilityLocalVisualKeyFromRef(visualRef = "") {
+  const ref = String(visualRef || "").trim();
+  if (ref.startsWith("mobility.vehicle.")) return ref.slice("mobility.vehicle.".length);
+  if (ref.startsWith("mobility.charger.")) return ref.slice("mobility.charger.".length);
+  return "";
+}
+
+function rhiMobilityVisualRefFromLocalKey(kind = "vehicle", localKey = "") {
+  const key = String(localKey || "").trim();
+  if (!key) return "";
+  if (key.startsWith("mobility.")) return key;
+  return `mobility.${String(kind || "vehicle").toLowerCase()}.${key}`;
+}
+
+function rhiMobilityResolveVisualRef(visualRef = "") {
+  const ref = String(visualRef || "").trim();
+  const local = rhiMobilityLocalVisualKeyFromRef(ref);
+  if (!local) return null;
+  if (ref.startsWith("mobility.vehicle.")) {
+    if (local === "generic.fallback") {
+      const fallback = rhiMobilityImageCatalog().find((row)=>row.image_key==="vehicle_fallback") || null;
+      return fallback ? { visual_ref:ref, kind:"vehicle", package_file:fallback.package_file, filter:"none" } : null;
+    }
+    const parsed = rhiMobilityParseVehicleVisualKey(local);
+    return parsed?.vehicle?.image_key
+      ? {
+          visual_ref:ref,
+          kind:"vehicle",
+          package_file:rhiMobilityImageCatalog().find((row)=>row.image_key===parsed.vehicle.image_key)?.package_file || "",
+          filter:parsed.color?.filter || "none",
+          visual:parsed
+        }
+      : null;
+  }
+  if (local === "generic.fallback") {
+    const fallback = rhiMobilityImageCatalog().find((row)=>row.image_key==="charger_fallback") || null;
+    return fallback ? { visual_ref:ref, kind:"charger", package_file:fallback.package_file, filter:"none" } : null;
+  }
+  const parsed = rhiMobilityParseChargerVisualKey(local);
+  return parsed?.appearance?.package_file
+    ? { visual_ref:ref, kind:"charger", package_file:parsed.appearance.package_file, filter:"none", visual:parsed }
+    : null;
+}
