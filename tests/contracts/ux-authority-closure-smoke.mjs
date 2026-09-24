@@ -9,7 +9,7 @@ const ctx={console,globalThis:{},setTimeout,clearTimeout};
 ctx.globalThis=ctx;
 vm.createContext(ctx);
 vm.runInContext(
-  mobilityRuntimeSource()
+  'const UX_VERSION="test";\n'+mobilityRuntimeSource()
   +'\n'+adapterSource
   +'\n'+chargerAdapterSource
   +'\n;globalThis.HomeBrainAssetRuntime=HomeBrainAssetRuntime;globalThis.HomeBrainVehicleAdapter=HomeBrainVehicleAdapter;'
