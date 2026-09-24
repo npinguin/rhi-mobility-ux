@@ -54,6 +54,33 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
 
   chargerImageFromId(id) { return this.chargerImage(id); }
 
+  assetPicture(rt, assetOrId, kind = "vehicle", size = "sm", label = "") {
+    const asset = typeof assetOrId === "object"
+      ? assetOrId
+      : (kind === "charger"
+          ? (rt.chargerById(assetOrId) || rt.assetById(assetOrId) || {asset_id:assetOrId,asset_type:"charger"})
+          : (rt.vehicleById(assetOrId) || rt.assetById(assetOrId) || {asset_id:assetOrId,asset_type:"vehicle"}));
+    const assetId = String(asset?.asset_id || assetOrId || "");
+    const display = label || asset?.display_name || (kind === "charger" ? rt.chargerLabel(assetId) : rt.vehicleLabel(assetId)) || assetId;
+    let image = "";
+    let filter = "none";
+    if (kind === "charger") image = this.chargerImage(asset);
+    else {
+      const visual = this.vehicleVisualSelection(rt, asset);
+      image = visual?.vehicle?.package_file || (typeof rt.visualImageUrl === "function" ? rt.visualImageUrl(asset,"vehicle","image","vehicle_fallback") : "");
+      filter = visual?.color?.filter || "none";
+    }
+    const src = image ? (String(image).startsWith("/") ? image : rt.cache(image)) : "";
+    return `<span class="mobilityAssetPicture mobilityAssetPicture-${rt.escape(size)}">${src ? `<img src="${rt.escape(src)}" alt="${rt.escape(display)}" style="filter:${rt.escape(filter)}">` : `<ha-icon icon="${kind==="charger"?"mdi:ev-station":"mdi:car-electric"}"></ha-icon>`}</span>`;
+  }
+
+  assetIdentityInline(rt, assetOrId, kind = "vehicle", label = "", meta = "") {
+    const asset = typeof assetOrId === "object" ? assetOrId : (kind === "charger" ? rt.chargerById(assetOrId) : rt.vehicleById(assetOrId));
+    const assetId = String(asset?.asset_id || assetOrId || "");
+    const display = label || asset?.display_name || (kind === "charger" ? rt.chargerLabel(assetId) : rt.vehicleLabel(assetId)) || assetId;
+    return `<span class="mobilityAssetIdentity">${this.assetPicture(rt,asset||assetOrId,kind,"xs",display)}<span><b>${rt.escape(display)}</b>${meta?`<small>${rt.escape(meta)}</small>`:""}</span></span>`;
+  }
+
   displaySubtitle(asset, model = null) {
     const profile = String(asset?.profile || model?.subtitle || "").trim();
     return profile || model?.subtitle || asset?.asset_type || "Vehicle";
@@ -260,11 +287,13 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
       return `<div class="mini-control charger-select readonly" title="vehicle.selected_charger is not published"><ha-icon icon="mdi:ev-station"></ha-icon><strong>N/A</strong></div>`;
     }
     if (!model.writable) {
-      return `<div class="mini-control charger-select readonly" title="Selected charger from vehicle property contract"><ha-icon icon="mdi:ev-station"></ha-icon><strong>${rt.escape(model.display)}</strong></div>`;
+      const charger = rt.chargerById(model.editor_value) || rt.assetById(model.editor_value) || {asset_id:model.editor_value,asset_type:"charger",display_name:model.display};
+      return `<div class="mini-control charger-select readonly" title="Selected charger from vehicle property contract">${this.assetPicture(rt,charger,"charger","xs",model.display)}<strong>${rt.escape(model.display)}</strong></div>`;
     }
     const current = String(model.editor_value ?? "");
     const currentKnown = model.choices.some((choice)=>choice.value === current);
-    return `<div class="mini-control charger-select" title="Selected charger from vehicle property contract"><ha-icon icon="mdi:ev-station"></ha-icon><select data-property-asset="${rt.escape(assetId)}" data-property-key="vehicle.selected_charger" aria-label="Selected charger">${current && !currentKnown ? `<option value="${rt.escape(current)}" selected disabled>${rt.escape(model.display || current)}</option>` : ""}${model.choices.map((choice)=>`<option value="${rt.escape(choice.value)}" ${choice.value === current ? "selected" : ""}>${rt.escape(choice.label)}</option>`).join("")}</select></div>`;
+    const currentAsset = current ? (rt.chargerById(current) || rt.assetById(current) || {asset_id:current,asset_type:"charger",display_name:model.display}) : null;
+    return `<div class="mini-control charger-select" title="Selected charger from vehicle property contract">${currentAsset ? this.assetPicture(rt,currentAsset,"charger","xs",model.display) : '<ha-icon icon="mdi:ev-station"></ha-icon>'}<select data-property-asset="${rt.escape(assetId)}" data-property-key="vehicle.selected_charger" aria-label="Selected charger">${current && !currentKnown ? `<option value="${rt.escape(current)}" selected disabled>${rt.escape(model.display || current)}</option>` : ""}${model.choices.map((choice)=>`<option value="${rt.escape(choice.value)}" ${choice.value === current ? "selected" : ""}>${rt.escape(choice.label)}</option>`).join("")}</select></div>`;
   }
 
   renderVehicleControlRow(rt, vehicleAsset, chargers) {
@@ -326,6 +355,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     const activateButton = this.lifecycleToggleButton(rt, asset, "activate-soft manage-lifecycle");
     return `<article class="inactive-row compact-present-row lifecycle-collapsed-row">
       <span class="inactive-state">${rt.escape(lifecycleLabel)}</span>
+      ${this.assetPicture(rt,asset,"vehicle","sm",display)}
       <div class="inactive-copy"><h3>${rt.escape(display)}</h3><p>${rt.escape(subtitle)}</p></div>
       <div class="inactive-actions">${activateButton}<button class="action icon-only" data-nav="${rt.escape(route)}" title="Open details"><ha-icon icon="mdi:plus"></ha-icon><span>Details</span></button></div>
     </article>`;
@@ -931,7 +961,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
       }
       const att = String(attention).toLowerCase();
       if (!["none", "ok", "not applicable"].includes(att)) {
-        rows.push(`<li><b>${rt.escape(label)}</b><span>${rt.escape(reason || attention)}</span></li>`);
+        rows.push(`<li>${this.assetIdentityInline(rt,a,"vehicle",label,reason || attention)}</li>`);
       }
     }
     if (rows.length) return rows.join("");
@@ -1935,7 +1965,8 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     .ov-kpis{position:relative;z-index:3;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;padding:0 12px 12px}.ov-kpi{min-height:72px;border:1px solid #E1E9F3;border-radius:14px;background:rgba(255,255,255,.96);display:grid;grid-template-columns:38px 1fr;gap:10px;align-items:center;padding:10px 14px}.ov-kpi>ha-icon{--mdc-icon-size:24px;color:#0B65EA}.ov-kpi>div{display:grid;grid-template-columns:1fr auto;column-gap:8px;align-items:baseline;min-width:0}.ov-kpi span{font-size:11px;color:#48617F;font-weight:550}.ov-kpi b{font-size:22px;color:#0B1830;font-weight:700;white-space:nowrap}.ov-kpi small{grid-column:1/-1;margin-top:2px;color:#718199;font-size:10px;font-weight:500}
     .ov-quickbar{border:1px solid #DFE8F3;border-radius:17px;background:#fff;min-height:62px;display:flex;align-items:center;gap:10px;padding:9px 14px;box-shadow:0 10px 26px rgba(15,35,80,.035)}.ov-quick-title{text-transform:uppercase;color:#536B89;font-size:10px;font-weight:700;letter-spacing:.06em;margin-right:6px}.ov-nav-action{height:40px;border:1px solid #DDE7F3;border-radius:12px;background:#fff;color:#173251;padding:0 14px;display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:600;cursor:pointer}.ov-nav-action ha-icon{--mdc-icon-size:17px;color:#0B65EA}.ov-nav-action.primary{background:#0B65EA;color:#fff;border-color:#0B65EA}.ov-nav-action.primary ha-icon{color:#fff}.ov-nav-action.ov-more{margin-left:auto}
     .ov-two-col{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}.ov-panel{border:1px solid #E0E8F2;border-radius:18px;background:#fff;box-shadow:0 12px 30px rgba(15,35,80,.045);padding:12px;min-width:0}.ov-panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:2px 2px 9px}.ov-panel-head h2{margin:0;font-size:18px;line-height:1.15;font-weight:650;color:#0E1C33}.ov-panel-head p{margin:2px 0 0;font-size:10.5px;color:#718199}.ov-panel-head button{height:32px;border:1px solid #DDE7F2;background:#fff;border-radius:10px;color:#244B79;font-size:10.5px;font-weight:600;display:flex;align-items:center;gap:3px;padding:0 9px;cursor:pointer}.ov-panel-head button ha-icon{--mdc-icon-size:15px}
-    .ov-vehicle-list,.ov-charger-list,.ov-activity-list{display:grid;gap:7px}.ov-vehicle-row{display:grid;grid-template-columns:minmax(170px,1.4fr) minmax(88px,.7fr) minmax(82px,.62fr) minmax(100px,.72fr) minmax(105px,.8fr);grid-template-areas:"main security comfort maintenance charging" "assign assign assign actions actions";gap:7px;align-items:stretch;border:1px solid #E7EDF5;border-radius:13px;padding:7px;background:#FCFDFF}.ov-vehicle-main{grid-area:main;border:0;background:transparent;display:grid;grid-template-columns:64px minmax(0,1fr);gap:9px;align-items:center;text-align:left;padding:0;cursor:pointer;min-width:0}.ov-vehicle-image{height:48px;display:flex;align-items:center;justify-content:center}.ov-vehicle-image img{max-width:72px;max-height:48px;object-fit:contain;filter:drop-shadow(0 6px 8px rgba(15,35,80,.14))}.ov-vehicle-image ha-icon{--mdc-icon-size:34px;color:#8799B4}.ov-vehicle-copy{min-width:0}.ov-vehicle-copy b{display:block;color:#12213A;font-size:12.5px;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ov-vehicle-copy small{display:block;margin-top:2px;color:#60728C;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .ov-vehicle-list,.ov-charger-list,.ov-activity-list{display:grid;gap:7px}.ov-vehicle-row{display:grid;grid-template-columns:minmax(170px,1.4fr) minmax(88px,.7fr) minmax(82px,.62fr) minmax(100px,.72fr) minmax(105px,.8fr);grid-template-areas:"main security comfort maintenance charging" "assign assign assign actions actions";gap:7px;align-items:stretch;border:1px solid #E7EDF5;border-radius:13px;padding:7px;background:#FCFDFF}.ov-vehicle-main{grid-area:main;border:0;background:transparent;display:grid;grid-template-columns:64px minmax(0,1fr);gap:9px;align-items:center;text-align:left;padding:0;cursor:pointer;min-width:0}.ov-vehicle-image{height:48px;display:flex;align-items:center;justify-content:center}.mobilityAssetPicture{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;border:1px solid #e3eaf4;border-radius:10px;background:#f6f9fd;overflow:hidden}.mobilityAssetPicture img{width:100%;height:100%;object-fit:contain}.mobilityAssetPicture ha-icon{color:#1467F5}.mobilityAssetPicture-xs{width:38px;height:30px;padding:2px}.mobilityAssetPicture-sm{width:58px;height:44px;padding:3px}.mobilityAssetIdentity{display:inline-flex;align-items:center;gap:8px;min-width:0}.mobilityAssetIdentity>span:last-child{min-width:0}.mobilityAssetIdentity b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mobilityAssetIdentity small{display:block;color:#66728B;font-size:10px;margin-top:2px}.inactive-row{grid-template-columns:auto auto minmax(0,1fr) auto!important}.mini-control.charger-select{gap:7px!important}
+      .ov-vehicle-image img{max-width:72px;max-height:48px;object-fit:contain;filter:drop-shadow(0 6px 8px rgba(15,35,80,.14))}.ov-vehicle-image ha-icon{--mdc-icon-size:34px;color:#8799B4}.ov-vehicle-copy{min-width:0}.ov-vehicle-copy b{display:block;color:#12213A;font-size:12.5px;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ov-vehicle-copy small{display:block;margin-top:2px;color:#60728C;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .ov-signal{border-left:1px solid #E8EEF6;display:grid;grid-template-columns:17px minmax(0,1fr);grid-template-rows:auto auto;column-gap:5px;align-content:center;min-width:0;padding-left:8px}.ov-signal ha-icon{grid-row:1/3;align-self:center;--mdc-icon-size:15px;color:#476383}.ov-signal span{font-size:8.5px;color:#708098}.ov-signal b{font-size:10.5px;color:#203651;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ov-signal.warn b{color:#A85B00}.ov-signal.bad b{color:#B42318}
     .ov-charging-state{grid-area:charging;border-left:1px solid #E8EEF6;display:flex;align-items:center;gap:5px;padding-left:8px;color:#294767;min-width:0}.ov-charging-state ha-icon{--mdc-icon-size:15px;color:#0B65EA}.ov-charging-state span{font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ov-assignment{grid-area:assign;min-width:0}.ov-assignment .mini-control{height:36px!important;min-height:36px!important;border-radius:10px!important}.ov-row-actions{grid-area:actions;display:flex;gap:6px;justify-content:flex-end;align-items:center}.ov-row-actions .action{height:36px!important;min-height:36px!important;font-size:10.5px!important;padding:0 9px!important;white-space:nowrap}.ov-row-actions .ov-detail{width:36px!important;min-width:36px!important;max-width:36px!important}
     .ov-charger-row{display:grid;grid-template-columns:48px minmax(0,1fr) auto 34px;gap:9px;align-items:center;border:1px solid #E7EDF5;border-radius:12px;padding:6px 7px}.ov-charger-image{height:44px;display:flex;align-items:center;justify-content:center}.ov-charger-image img{max-height:43px;max-width:38px;object-fit:contain}.ov-charger-image ha-icon{display:none;--mdc-icon-size:26px;color:#8799B4}.ov-charger-copy{min-width:0}.ov-charger-copy b{display:block;font-size:11.5px;color:#172B47;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ov-charger-copy small{display:flex;align-items:center;gap:5px;margin-top:2px;font-size:9.5px;color:#5F728D}.ov-dot{width:7px;height:7px;border-radius:99px;background:#16B86B}.ov-charger-power{text-align:right;display:grid}.ov-charger-power b{font-size:11px;color:#172B47}.ov-charger-power small{font-size:8.5px;color:#78879B}.ov-charger-row .ov-detail{width:32px!important;min-width:32px!important;max-width:32px!important;height:32px!important;min-height:32px!important;padding:0!important}
