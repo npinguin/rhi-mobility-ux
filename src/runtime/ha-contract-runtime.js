@@ -2889,7 +2889,7 @@ class HomeBrainAssetRuntime {
     const cacheKey = `propertyRows:${canonical || "all"}`;
     if (this._memo.has(cacheKey)) return this._memo.get(cacheKey);
     const v2 = this.v2PropertyRows(canonical);
-    if (this.mobilityRuntimeV2()) {
+    if (v2.length || this.mobilityRuntimeV2()) {
       this._memo.set(cacheKey, v2);
       return v2;
     }
