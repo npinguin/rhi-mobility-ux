@@ -374,7 +374,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     const visualImage = pickerOpen && visual?.vehicle?.package_file ? visual.vehicle.package_file : image;
     return `<article class="vehicle-card premium-vehicle-card">
       <div class="status-top-row vehicle-intelligence-strip">
-        ${(Array.isArray(model?.status) ? model.status : rt.vehicleIntelligenceStatusTiles(assetId)).slice(0, 5).map((tile) => this.intelligenceStatusRow(rt, tile)).join("")}
+        ${(Array.isArray(model?.status) ? model.status : []).slice(0, 5).map((tile) => this.intelligenceStatusRow(rt, tile)).join("")}
       </div>
       <div class="hero-split-row">
         <div class="vehicle-hero-panel">
