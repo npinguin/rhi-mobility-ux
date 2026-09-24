@@ -182,6 +182,16 @@
         "neutral status colour unless backend-owned Experience V2 state is actionable",
         "UX select / aggregate / format / present ownership with no product-state inference"
       ]
+    },
+    "v2_property_placement": {
+      "owner": "tests/view-models/v2-property-placement.mjs",
+      "owns": [
+        "direct MOBILITY_PUBLIC_RUNTIME_V2 property authority",
+        "component_id/section_id product placement",
+        "fail-visible missing placement",
+        "engineering property isolation",
+        "V1 property non-override when V2 exists"
+      ]
     }
   }
 }

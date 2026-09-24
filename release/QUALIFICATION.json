@@ -1,6 +1,6 @@
 {
-  "candidate_version": "1.0.0-rc.46",
-  "candidate_tag": "v1.0.0-rc.46",
+  "candidate_version": "1.0.0-rc.47",
+  "candidate_tag": "v1.0.0-rc.47",
   "candidate_sha": "pending",
   "target_home_assistant": "pending",
   "hacs_install": "pending",
@@ -113,5 +113,10 @@
   "mobility_command_v2_surface": "pending",
   "command_v2_no_v1_fallback": "pending",
   "command_v2_producer_execution": "pending",
-  "charger_command_surface_complete": "pending"
+  "charger_command_surface_complete": "pending",
+  "v2_property_surface_primary": "pending",
+  "v2_component_placement": "pending",
+  "v2_relationship_surface_primary": "pending",
+  "no_v1_property_override": "pending",
+  "no_engineering_unmapped_invention": "pending"
 }

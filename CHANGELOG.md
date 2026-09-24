@@ -1,3 +1,14 @@
+## 1.0.0-rc.47 — Direct V2 property, placement and relationship closure
+
+- prefer direct per-asset `MOBILITY_PUBLIC_RUNTIME_V2` property entities over frozen V1 property indexes;
+- drive product detail placement from backend-published `component_id` + `section_id`;
+- fail visibly on missing V2 placement instead of inventing Engineering/Unmapped;
+- isolate backend-marked engineering properties from normal product sections;
+- consume Runtime V2 vehicle↔charger relationships directly and preserve configured/effective/physical distinctions;
+- keep physical identity fail-closed unless `observed_identity_proven=true`;
+- retain V1 property/component/relationship indexes only as compatibility fallbacks when V2 is absent;
+- preserve rc.46 Command V2 execution and rc.45 picker/visual protections.
+
 ## 1.0.0-rc.46 — Direct Mobility Command V2 closure
 
 - consume backend `MOBILITY_COMMAND_V2` directly and fail closed without V1 fallback once the V2 contract is present;
