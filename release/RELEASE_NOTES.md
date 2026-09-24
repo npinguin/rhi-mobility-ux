@@ -1,22 +1,15 @@
-# v1.0.0-rc.49 — Mobility M0.9.44 complete V2 consumption closure
+# v1.0.0-rc.50 — Runtime V2 asset-type contract closure
 
-This candidate completes the first-party Mobility UX migration onto the canonical public V2 surfaces introduced by Mobility M0.9.44.
+rc.50 fixes the target-runtime regression where Mobility M0.9.44 published Runtime V2 assets with `concept_id` while rc.49 filtered navigation by `asset_type`, causing all vehicles and chargers to disappear.
 
-## Canonical authority
+## Correction
 
-- Runtime V2 owns asset inventory, fleet and relationships.
-- Experience V2 owns user-facing conclusions.
-- Policy V2 owns interpretation thresholds.
-- Command V2 owns executable command readiness.
-- Activity V2 owns activity history/current activity.
-- Profile Catalog V2 owns product profile browsing.
-- Supervision V2 owns global status, trust and attention.
-- Energy V2 is the external Mobility→Energy publication boundary.
-- direct per-asset V2 property entities own semantic read/write state.
+- normalize Runtime V2 asset type from `asset_type` or `concept_id`;
+- prove vehicle and charger discovery against the real producer field shape;
+- retain V2-only authority and zero V1 fallback;
+- require corrected Mobility M0.9.45, which now publishes both fields and migrates canonical V2 entity IDs.
 
-When Runtime V2 is present, missing V2 data is not backfilled from V1. Per-asset property-publication evidence distinguishes an unsupported property from an expected property that failed to materialize.
+Required/tested backend: `M0.9.45`.
+Rollback: `v1.0.0-rc.49`.
 
-Required/tested backend: `M0.9.44`.
-Rollback: `v1.0.0-rc.48`.
-
-Target Home Assistant qualification remains mandatory before stable promotion.
+Target Home Assistant qualification remains mandatory.
