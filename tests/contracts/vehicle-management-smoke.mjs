@@ -88,7 +88,7 @@ for(const dead of ['default_vehicle.png','vehicle_unknown_profile_hero.png','veh
 }
 if(!adapter.includes('const visualMatchesProfile = !profileVisual || visual?.vehicle?.id === profileVisual.id')) throw new Error('vehicle detail no longer guards persisted artwork by canonical profile family');
 if(!adapter.includes('const imageFilter = visualMatchesProfile ? (visual?.color?.filter || "none") : "none"')) throw new Error('vehicle detail colour filter is not constrained to the canonical profile family');
-if(!adapter.includes('const visualPackageFile = visual?.vehicle?.selectable !== false')) throw new Error('persisted vehicle visual no longer resolves to verified catalog artwork');
+if(!adapter.includes('const visualPackageFile = visualMatchesProfile && visual?.vehicle?.selectable !== false')) throw new Error('persisted vehicle visual is not constrained by canonical profile family');
 if(!adapter.includes('const img = visualPackageFile || canonicalProfilePackage || profileImage')) throw new Error('vehicle adapter no longer preserves canonical profile-family fallback ordering');
 if(adapter.includes('this.rt.assetUrl(visualPackageFile)')) throw new Error('vehicle adapter reintroduced double-prefix package URL resolution');
 if(!shell.includes('model.imageFilter || "none"')) throw new Error('vehicle detail shell no longer renders selected visual colour');
