@@ -1,6 +1,6 @@
 {
   "product": "rhi-mobility-ux",
-  "source_candidate_version": "1.0.0-rc.53",
+  "source_candidate_version": "1.0.0-rc.54",
   "stage": "test_candidate",
   "publication_authority": "github_releases",
   "publication_status": "derive_from_github_release",

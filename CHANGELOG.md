@@ -1,3 +1,12 @@
+## 1.0.0-rc.54 — normalized vehicle masters and write-path cleanup
+
+- normalizes BMW X1 PHEV, Mercedes-Benz GLA PHEV, Renault Scenic E-Tech and Volkswagen ID.4 to one transparent 640×380 canonical vehicle canvas;
+- standardizes the four updated masters on WebP and removes superseded BMW/Mercedes PNG artwork;
+- enforces shared vehicle geometry and exact canonical asset dimensions through the package policy gate;
+- removes optimistic/no-readback property write helpers so writable UX paths depend on canonical backend readback;
+- adds regression coverage preventing legacy write helpers from returning;
+- preserves Mobility M0.10.1 compatibility, package-local visual ownership and zero accepted technical/feature debt.
+
 ## 1.0.0-rc.53 — vehicle visuals everywhere
 
 - renders the canonical vehicle picture everywhere routed Mobility UX names a concrete vehicle, including Planning, History and effective-strategy rows;

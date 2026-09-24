@@ -18,8 +18,14 @@ for (const needle of [
   'vehicleExperienceV2(assetId = "")',
   'chargerExperienceV2(assetId = "")',
   'vehicleRelationshipV2(assetId = "")',
-  'setMobilityPolicy(policyKey = "", value = "")'
+  'writePublishedPropertyAsync(assetId = "", propertyKey = "", value = "", options = {})'
 ]) if (!runtime.includes(needle)) throw new Error(`V2 UX contract consumer missing: ${needle}`);
+
+for (const forbidden of [
+  'setMobilityPolicy(policyKey = "", value = "")',
+  'writePublishedProperty(assetId = "", propertyKey = "", value = "")',
+  'writePropertyValue(prop = {}, value = "")'
+]) if (runtime.includes(forbidden)) throw new Error(`optimistic/no-readback write API returned: ${forbidden}`);
 
 for (const needle of [
   'rt.mobilityFleetV2()',

@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "product": "rhi-mobility-ux",
-  "version": "1.0.0-rc.53",
+  "version": "1.0.0-rc.54",
   "source_manifest_schema": 1,
   "hacs_package_root": "dist",
   "hacs_filename": "rhi-mobility-ux.js",
@@ -12,7 +12,7 @@
     "heroes",
     "vehicles"
   ],
-  "runtime_sha256": "17bea1b01c761e723b167fc74206eed09be22c35052c77a2e61886c1ea5009d8",
+  "runtime_sha256": "39ec915dcccf4bc79bd547b4881f8db14c9ff7abab953a8aaf641f230d35010a",
   "files": [
     {
       "path": "assets/branding/company-logo.svg",
@@ -79,28 +79,28 @@
       "bytes": 261604
     },
     {
-      "path": "assets/vehicles/vehicle_bmw_x1_phev.png",
-      "bytes": 267503
+      "path": "assets/vehicles/vehicle_bmw_x1_phev.webp",
+      "bytes": 13392
     },
     {
       "path": "assets/vehicles/vehicle_fallback.png",
       "bytes": 113622
     },
     {
-      "path": "assets/vehicles/vehicle_mercedes_gla.png",
-      "bytes": 238575
+      "path": "assets/vehicles/vehicle_mercedes_gla.webp",
+      "bytes": 11610
     },
     {
       "path": "assets/vehicles/vehicle_renault_scenic_techno_ev.webp",
-      "bytes": 9128
+      "bytes": 9966
     },
     {
       "path": "assets/vehicles/vehicle_vw_id4.webp",
-      "bytes": 9580
+      "bytes": 7964
     },
     {
       "path": "rhi-mobility-ux.js",
-      "bytes": 758498
+      "bytes": 756433
     },
     {
       "path": "rhi-mobility-ux.js.sha256",

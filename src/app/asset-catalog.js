@@ -29,8 +29,8 @@ function rhiMobilityHeroAsset(key = "") {
 // Package-owned visual catalog. Backend owns image_key; this layer maps keys to immutable package assets.
 const RHI_MOBILITY_IMAGE_CATALOG = Object.freeze([
   { image_key:"vehicle_audi_q8", package_path:"vehicles/vehicle_audi_q8.png", fallback_image_key:"vehicle_fallback" },
-  { image_key:"vehicle_bmw_x1_phev", package_path:"vehicles/vehicle_bmw_x1_phev.png", fallback_image_key:"vehicle_fallback" },
-  { image_key:"vehicle_mercedes_gla", package_path:"vehicles/vehicle_mercedes_gla.png", fallback_image_key:"vehicle_fallback" },
+  { image_key:"vehicle_bmw_x1_phev", package_path:"vehicles/vehicle_bmw_x1_phev.webp", fallback_image_key:"vehicle_fallback" },
+  { image_key:"vehicle_mercedes_gla", package_path:"vehicles/vehicle_mercedes_gla.webp", fallback_image_key:"vehicle_fallback" },
   { image_key:"vehicle_vw_id4", package_path:"vehicles/vehicle_vw_id4.webp", fallback_image_key:"vehicle_fallback" },
   { image_key:"vehicle_renault_scenic_techno_ev", package_path:"vehicles/vehicle_renault_scenic_techno_ev.webp", fallback_image_key:"vehicle_fallback" },
   { image_key:"vehicle_guest", package_path:"vehicles/vehicle_fallback.png", fallback_image_key:"vehicle_fallback" },
