@@ -400,17 +400,26 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
   }
 
   overviewVehicleSignals(rt, assetId) {
-    const tiles = rt.vehicleIntelligenceStatusTiles(assetId) || [];
-    const byLabel = (label) => tiles.find((tile) => String(tile?.label || "").toLowerCase() === String(label).toLowerCase()) || null;
+    const experience = rt.vehicleExperienceV2(assetId) || {};
+    const tile = (intel = {}, label, icon, actionable = []) => {
+      const state = String(intel?.state || "").toLowerCase();
+      return {
+        label,
+        icon,
+        value:String(intel?.summary || "Unavailable"),
+        subvalue:String(intel?.reason || ""),
+        tone:actionable.includes(state) ? "attention" : "neutral"
+      };
+    };
     const climate = (rt.propertyRows(assetId) || []).find((row) => {
       if (!row || row.value === undefined || row.value === null || String(row.value).trim() === "") return false;
       return rt.propertyFamily(row) === "climate" && rt.propertyDetailLevel(row) !== "technical";
     }) || null;
     return {
-      range: byLabel("Range"),
-      energy: byLabel("Energy"),
-      security: byLabel("Security"),
-      maintenance: byLabel("Maintenance"),
+      range:tile(experience.range_intelligence, "Range", "mdi:road-variant", ["low"]),
+      energy:tile(experience.energy_intelligence, "Energy", "mdi:battery-charging", ["attention","low"]),
+      security:tile(experience.security_intelligence, "Security", "mdi:lock-outline", ["unsafe"]),
+      maintenance:tile(experience.maintenance_intelligence, "Maintenance", "mdi:wrench-outline", ["overdue","due_soon"]),
       climate: (() => {
         if (!climate) return "N/A";
         const display = String(rt.propertyDisplayValue(climate) || "").trim();
@@ -969,7 +978,9 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
               const assetId = v.asset_id;
               const cmds = rt.commandRegistry(assetId).map((cmd) => [cmd.command_id, cmd.frontend_allowed, cmd.execution_allowed, cmd.execution_status || "", cmd.blocked_reason || cmd.execution_reason || ""]);
               const relationship = rt.vehicleChargerRelationship(assetId);
-              const intelligence = rt.vehicleIntelligenceStatusTiles(assetId).map((tile) => [tile.label, tile.value, tile.subvalue, tile.tone]);
+              const experience = rt.vehicleExperienceV2(assetId) || {};
+              const intelligence = ["range_intelligence","energy_intelligence","security_intelligence","maintenance_intelligence","charging_intelligence"]
+                .map((key)=>[key, experience?.[key]?.state || "", experience?.[key]?.summary || "", experience?.[key]?.reason || ""]);
               const compactMetrics = rt.vehicleOverviewMetricSlots(assetId).map((slot)=>[slot.property_key, slot.resolved ? slot.display : "—"]);
               return [assetId, v.display_name, rt.lifecycleStatus(v), relationship.connected, relationship.effective, intelligence, compactMetrics,
                 rt.supervisorOutcome(assetId, "status", ""), rt.supervisorOutcome(assetId, "trust", ""), rt.supervisorOutcome(assetId, "attention", ""), cmds];
@@ -1178,61 +1189,71 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
       this._vehiclePickerDraft.delete(assetId);
       setTimeout(()=>{this._vehiclePickerAsset="";this._forceRender=true;this._lastSignature="";if(this._hass)this.hass=this._hass;},450);
     }));
-    this.shadowRoot.querySelectorAll("button[data-lifecycle-asset]").forEach((btn)=>btn.addEventListener("click",()=>{
+    this.shadowRoot.querySelectorAll("button[data-lifecycle-asset]").forEach((btn)=>btn.addEventListener("click",async ()=>{
       if (btn.disabled) return;
       const assetId = btn.getAttribute("data-lifecycle-asset") || "";
       const value = btn.getAttribute("data-lifecycle-value") || "";
       if (!assetId || !value) return;
-      const ok = rt.writeLifecycleStatus(assetId, value);
-      if (!ok) return;
-      btn.classList.add("sent");
+      btn.disabled = true;
+      btn.classList.remove("failed");
+      const ok = await rt.writeLifecycleStatusAsync(assetId, value);
+      if (!ok) {
+        btn.disabled = false;
+        btn.classList.add("failed");
+        btn.title = "Write rejected or canonical readback did not confirm the requested lifecycle state.";
+      } else {
+        btn.classList.add("sent");
+      }
       this._forceRender = true;
       this._holdRenderUntil = 0;
-      setTimeout(()=>{ if (this.isConnected) this.hass = this._hass; }, 650);
+      this._lastSignature = "";
+      if (this._hass) this.hass = this._hass;
     }));
 
-    this.shadowRoot.querySelectorAll("button[data-property-step],button[data-charge-power-step],button[data-current-step]").forEach((btn)=>btn.addEventListener("click",()=>{
+    this.shadowRoot.querySelectorAll("button[data-property-step],button[data-charge-power-step],button[data-current-step]").forEach((btn)=>btn.addEventListener("click",async ()=>{
       const vehicleAsset = btn.getAttribute("data-vehicle-asset") || btn.getAttribute("data-charger-asset");
       const propertyKey = btn.getAttribute("data-property-step") || "";
-      const unit = btn.getAttribute("data-unit") || "kW";
       const delta = Number(btn.getAttribute("data-delta") || 0);
       const min = Number(btn.getAttribute("data-min") || 0);
       const max = Number(btn.getAttribute("data-max") || 100);
       const attrValue = Number(btn.getAttribute("data-charge-power-value") || btn.getAttribute("data-current-value"));
       const cur = Number.isFinite(attrValue) ? attrValue : null;
       const next = Math.max(min, Math.min(max, (cur ?? min) + delta));
-      if (vehicleAsset) this._currentOverrides.set(vehicleAsset, next);
-      const wrap = btn.closest(".mini-current-stepper");
-      if (wrap) {
-        const strong = wrap.querySelector("strong");
-        if (strong) strong.textContent = `${Number.isInteger(next) ? next : Number(next).toFixed(2).replace(/\.00$/, "")} ${unit}`;
-        wrap.querySelectorAll("button[data-property-step],button[data-charge-power-step],button[data-current-step]").forEach((b)=>{
-          b.setAttribute("data-charge-power-value", String(next));
-          b.setAttribute("data-current-value", String(next));
-          const d = Number(b.getAttribute("data-delta") || 0);
-          b.disabled = (d < 0 && next <= min + 0.000001) || (d > 0 && next >= max - 0.000001);
-        });
-      }
-      this._holdRenderUntil = Date.now() + 1200;
       if (!propertyKey || !vehicleAsset) return;
       const model = propertyKey === "vehicle.requested_charge_power_kw"
         ? rt.vehicleChargePowerControlModel(vehicleAsset)
         : rt.propertyControlModel(vehicleAsset, propertyKey);
-      rt.writePropertyControl(model, next);
-      setTimeout(()=>{ if (this.isConnected) this.hass = this._hass; }, 900);
+      const wrap = btn.closest(".mini-current-stepper");
+      const buttons = [...(wrap?.querySelectorAll("button[data-property-step],button[data-charge-power-step],button[data-current-step]") || [])];
+      buttons.forEach((b)=>{ b.disabled = true; b.classList.remove("failed"); });
+      const ok = await rt.writePropertyControlAsync(model, next);
+      if (!ok) {
+        buttons.forEach((b)=>{ b.classList.add("failed"); b.title = "Write rejected or canonical readback did not confirm the requested value."; });
+      }
+      this._forceRender = true;
+      this._holdRenderUntil = 0;
+      this._lastSignature = "";
+      if (this._hass) this.hass = this._hass;
     }));
     this.shadowRoot.querySelectorAll("select[data-property-asset][data-property-key]").forEach((select)=>{
       const hold = ()=>{ this._holdRenderUntil = Date.now() + 1200; };
       select.addEventListener("pointerdown", hold);
       select.addEventListener("focus", hold);
-      select.addEventListener("change",()=>{
+      select.addEventListener("change",async ()=>{
         const assetId = select.getAttribute("data-property-asset") || "";
         const propertyKey = select.getAttribute("data-property-key") || "";
         if (!assetId || !propertyKey || select.disabled) return;
-        rt.writePublishedProperty(assetId, propertyKey, select.value);
+        select.disabled = true;
+        select.classList.remove("failed");
+        const ok = await rt.writePublishedPropertyAsync(assetId, propertyKey, select.value);
+        if (!ok) {
+          select.classList.add("failed");
+          select.title = "Write rejected or canonical readback did not confirm the selected value.";
+        }
         this._forceRender = true;
         this._holdRenderUntil = 0;
-        setTimeout(()=>{ if (this.isConnected) this.hass = this._hass; }, 250);
+        this._lastSignature = "";
+        if (this._hass) this.hass = this._hass;
       });
     });
   }
