@@ -1,4 +1,4 @@
-# RHI Mobility UX v1.0.0-rc.53 — Mobility-wide asset identity TEST CANDIDATE
+# v1.0.0-rc.53 — Mobility-wide asset identity TEST CANDIDATE
 
 ## Scope
 
