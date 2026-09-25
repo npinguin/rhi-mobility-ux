@@ -157,6 +157,25 @@ if(header.includes('Backend release contract unavailable.')) throw new Error('mi
 if(!runtime.includes('release: attrs.release && typeof attrs.release === "object" ? attrs.release : {}')) throw new Error('Runtime V2 release metadata consumption missing');
 if(!runtime.includes('sensor.rhi_mobility_health')) throw new Error('current Mobility health surface is not runtime authority');
 console.log('PASS Overview truth model: uncertainty, aggregate completeness and runtime health separation');
+for(const needle of [
+  'data-policy-toggle',
+  'renderPolicySettings(rt)',
+  'rt.mobilityPolicyV2()',
+  'data-policy-save',
+  'rt.policyEditor(key)',
+  'rt.writePolicyAsync(key, value)',
+  'Backend-owned thresholds and coverage rules'
+]) if(!dashboard.includes(needle)) throw new Error('Overview Policy V2 editor regression: missing '+needle);
+for(const needle of [
+  'editors: Array.isArray(attrs.editors) ? attrs.editors : []',
+  'policyEditor(policyKey = "")',
+  'waitForPolicyReadback',
+  'writePolicyAsync',
+  'this.hass.callService(domain, action, payload)',
+  'Number(policy?.revision || 0) > Number(revisionBefore || 0)'
+]) if(!runtime.includes(needle)) throw new Error('Policy V2 canonical write/readback regression: missing '+needle);
+console.log('PASS Overview policy settings are backend-described and canonical-readback confirmed');
+
 
 
 
