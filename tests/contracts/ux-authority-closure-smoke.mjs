@@ -79,15 +79,23 @@ if(!String(model.image||'').includes('vehicle_vw_id4.webp')) {
 if(String(model.image||'').includes('renault')) throw new Error('Renault artwork rendered for VW profile');
 if(String(model.imageFilter||'')!=='none') throw new Error('stale cross-model colour filter leaked across profile family');
 
-// 3) Overview row semantics must be Experience V2 only.
+// 3) Overview must consume the shared VehicleProjection, not reinterpret Experience V2.
 const start=dashboard.indexOf('  overviewVehicleSignals(rt, assetId) {');
 const end=dashboard.indexOf('\n  renderOverviewVehicleRow(',start);
 if(start<0||end<0) throw new Error('overviewVehicleSignals function not found');
 const overviewSignals=dashboard.slice(start,end);
-if(!overviewSignals.includes('rt.vehicleExperienceV2(assetId)')) throw new Error('Overview signals do not consume Experience V2');
+if(!overviewSignals.includes('new HomeBrainVehicleAdapter')) throw new Error('Overview does not use the shared Vehicle adapter projection');
+if(!overviewSignals.includes('projection?.signals')) throw new Error('Overview does not select canonical projected signals');
+if(overviewSignals.includes('rt.vehicleExperienceV2(')) throw new Error('Overview still reinterprets Experience V2 directly');
 if(overviewSignals.includes('vehicleIntelligenceStatusTiles')) throw new Error('Overview signals still consume legacy vehicle intelligence');
-for(const key of ['range_intelligence','energy_intelligence','security_intelligence','maintenance_intelligence']) {
-  if(!overviewSignals.includes(key)) throw new Error(`Overview Experience V2 signal missing: ${key}`);
+
+const vehicleProjection=model.projection;
+if(!vehicleProjection || !Array.isArray(vehicleProjection.source_contracts)) throw new Error('VehicleProjection missing source contract evidence');
+for(const contract of ['MOBILITY_PUBLIC_RUNTIME_V2','MOBILITY_EXPERIENCE_V2','MOBILITY_COMMAND_V2']) {
+  if(!vehicleProjection.source_contracts.includes(contract)) throw new Error(`VehicleProjection missing authority: ${contract}`);
+}
+for(const key of ['range','energy','security','comfort','maintenance','charging']) {
+  if(!vehicleProjection.signals?.[key]) throw new Error(`VehicleProjection signal missing: ${key}`);
 }
 
 // 4) Service acceptance is not success until canonical readback confirms semantic truth.
@@ -127,7 +135,7 @@ writeHass.callService=async()=>{}; // accepted transport, no canonical state cha
 const rejected=await writeRt.writePublishedPropertyAsync(writeId,'asset.display_name','Never confirmed',{attempts:2,delay_ms:1});
 if(rejected) throw new Error('service acceptance without canonical readback was treated as durable success');
 
-console.log('PASS Experience V2 is the Overview semantic authority');
+console.log('PASS shared VehicleProjection is the Overview semantic authority');
 console.log('PASS vehicle profile family rejects stale cross-model artwork');
 console.log('PASS persisted charger V2 appearance outranks legacy instance aliases');
 console.log('PASS UX writes require canonical readback, not service acceptance');
