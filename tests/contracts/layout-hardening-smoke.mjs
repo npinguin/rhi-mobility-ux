@@ -15,14 +15,25 @@ for(const needle of [
   '.outcome-header .metric',
   'grid-template-columns:28px minmax(0,1fr)!important',
   '--rhi-company-logo-max-width:286px',
-  'grid-template-columns:minmax(270px,.72fr) minmax(430px,1.28fr)',
-  '.hi-module-tabs{width:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px',
+  'grid-template-columns:minmax(168px,.52fr) minmax(0,1.48fr)',
+  '.hi-module-tabs{width:100%;min-width:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px',
   'justify-content:center'
 ]) {
   if(!header.includes(needle)) throw new Error(`layout-hardening regression: missing ${needle}`);
 }
 
 console.log('PASS shared shell geometry');
+
+for(const needle of [
+  'grid-template-columns:minmax(0,1fr) clamp(var(--rhi-company-area-min),23%,var(--rhi-company-area-max))',
+  '.hi-product-area{min-width:0;overflow:hidden}',
+  'min-width:0;\n      width:100%;\n      min-height:46px',
+  '.hi-module-tab span{min-width:0;display:block;overflow:hidden;text-overflow:ellipsis}',
+  '.domain-tab-icon{--mdc-icon-size:16px'
+]) {
+  if(!header.includes(needle)) throw new Error(`responsive navigation integrity regression: missing ${needle}`);
+}
+console.log('PASS Mobility navigation cannot paint underneath branding');
 
 for(const needle of [
   'HB_MOBILITY_PAGE_HEROES',
@@ -47,6 +58,21 @@ if(header.includes('key: "charging"')) throw new Error('non-existent Charging ta
 if(presentation.includes('title:"Charging"')) throw new Error('non-existent Charging tab returned to shared hero contract');
 console.log('PASS shared omni-device presentation grammar for Overview, Vehicles and Chargers');
 
+for(const needle of [
+  '--rhi-font-card:15px',
+  '--rhi-font-body:12.5px',
+  '--rhi-font-small:11px',
+  '--rhi-weight-strong:620',
+  '--rhi-icon-action:18px',
+  'font-weight:610!important',
+  'height:188px!important',
+  '@media(max-height:900px) and (min-width:761px)',
+  'height:164px!important'
+]) {
+  if(!presentation.includes(needle)) throw new Error(`rc.57 design-language regression: missing ${needle}`);
+}
+console.log('PASS rc.57 sharp readable responsive design language');
+
 
 if(presentation.includes('\\n')) throw new Error('shared presentation source contains escaped-newline serialization and would not execute as a real module');
 const presentationApi = new Function(
@@ -66,7 +92,8 @@ for(const key of ['overview','vehicles','chargers','planning','strategies','hist
 if(!assetShell.includes('rhiMobilityHeroAsset(model.type === "charger" ? "charging_detail" : "vehicle_detail")')) throw new Error('detail shell no longer resolves canonical detail hero scenes');
 console.log('PASS shared presentation module executes, not only parses');
 
-for(const needle of ['--rhi-content-gap:10px','--rhi-control-h:40px','.vehicle-card,.charger-card','.section-title,.vehicle-workspace-head,.ov-panel-head']){
+for(const needle of ['--rhi-content-gap:8px','--rhi-control-h:38px','.vehicle-card,.charger-card','.section-title,.vehicle-workspace-head,.ov-panel-head']){
+
   if(!presentation.includes(needle)) throw new Error(`Overview-reference shared style regression: missing ${needle}`);
 }
 
