@@ -479,7 +479,7 @@ class HomeBrainAssetRuntime {
   renderRuntimeHealthWarning() {
     const summary = this.runtimeHealthSummary();
     if (!["DEGRADED","BLOCKED"].includes(summary.status)) return "";
-    const deployment = String(this.entity("sensor.mobility_runtime_deployment_health")?.state || summary.status);
+    const deployment = String((this.entity("sensor.rhi_mobility_health") || this.entity("sensor.mobility_runtime_health"))?.state || summary.status);
     return `<div class="hi-contract-warning" title="Mobility runtime health warning"><div><strong>Runtime ${summary.status === "BLOCKED" ? "failed" : "degraded"}</strong> — ${this.escape(summary.message)}</div><div class="hi-contract-warning-list"><span>Runtime health: ${this.escape(deployment)}</span></div></div>`;
   }
 
