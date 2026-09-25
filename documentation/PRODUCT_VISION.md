@@ -208,6 +208,35 @@ Frozen V1 surfaces exist only as explicit compatibility fallbacks for older depl
 Features requiring backend truth that is not present in V2 render N/A/contract gap and are tracked in `documentation/BACKEND_INTERFACE_BACKLOG.md`. UX does not reconstruct that truth locally.
 
 
+## Mobility design language
+
+The top-level Mobility tabs share one visual language without forcing one identical page template.
+
+The normal composition is:
+
+```text
+Status
+→ Quick Actions
+→ Filters, when the body needs them
+→ Body
+```
+
+A layer is optional when the user question does not require it, but the same semantic layer may not be repeated on one page. Page-level actions belong in Quick Actions; asset-specific actions and commands remain inside the body card that owns them.
+
+The design language is intentionally restrained:
+
+- premium means precision, restraint and clarity rather than decoration;
+- default presentation is calm; attention colour must be earned by an actionable backend state;
+- typography is sharp and readable, with medium/semibold emphasis instead of heavy bold blocks;
+- secondary text may be quiet but may not become illegibly small;
+- white space, baselines, control heights and icon sizes follow shared tokens instead of screen-local tuning;
+- visible vehicle and charger artwork is used as immediate human asset recognition, not as decorative background truth;
+- product images use bounded canvases and consistent scaling so they remain recognizable without dominating the page;
+- phone portrait, tablet portrait, tablet landscape and desktop must preserve the same hierarchy without overlap, hidden navigation or oversized imagery;
+- company branding is a sibling layout region and may never cover or hide Mobility, Intelligence or Insights navigation.
+
+Overview is the current visual reference direction. Other top-level tabs converge on its calm premium language while retaining their own functional body composition.
+
 ## Mobility presentation principle
 
 **Compact + premium + usable** is the cross-screen presentation rule.
