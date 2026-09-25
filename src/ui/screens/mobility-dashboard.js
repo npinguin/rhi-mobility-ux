@@ -578,28 +578,27 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
 
   overviewChargingStatus(rt, vehicles = [], chargers = []) {
     const fleet = rt.mobilityFleetV2();
-    const experience = rt.mobilityExperienceV2();
-    const chargerRows = (experience?.chargers || []).filter((row)=>String(row?.lifecycle_status || "active").toLowerCase() !== "disabled");
-    const relationships = rt.mobilityRuntimeV2()?.vehicle_charger_relationships || [];
-    const connectedRows = chargerRows.filter((row)=>String(row?.connection_intelligence?.state || "").toLowerCase() === "asset_connected");
-    const availableRows = chargerRows.filter((row)=>String(row?.availability_intelligence?.state || "").toLowerCase() === "ok");
-    const label = (row)=>this.overviewShortLabel(row, row?.display_name || row?.asset_id || "—");
-    const vehicleLabel = (assetId)=>{
-      const row=(experience?.vehicles || []).find((item)=>String(item?.asset_id || "")===String(assetId || ""));
-      return this.overviewShortLabel(row || {}, row?.display_name || rt.vehicleLabel(assetId) || assetId);
-    };
-    const chargerLabel = (assetId)=>{
-      const row=chargerRows.find((item)=>String(item?.asset_id || "")===String(assetId || ""));
-      return this.overviewShortLabel(row || {}, row?.display_name || rt.chargerLabel(assetId) || assetId);
-    };
-    const provenMappings = relationships
-      .filter((row)=>row?.observed_identity_proven === true && row?.physically_connected_charger_id)
-      .map((row)=>`${vehicleLabel(row.vehicle_id || row.asset_id)}→${chargerLabel(row.physically_connected_charger_id)}`);
+    const factory = new HomeBrainAssetFactory(rt);
+    const chargerModels = chargers.map((charger)=>factory.adapterFor(charger, this.config)?.build?.()).filter(Boolean);
+    const vehicleModels = vehicles.map((vehicle)=>factory.adapterFor(vehicle, this.config)?.build?.()).filter(Boolean);
+    const connectedRows = chargerModels.filter((model)=>String(model?.projection?.intelligence?.connection?.state || "").toLowerCase() === "asset_connected");
+    const availableRows = chargerModels.filter((model)=>String(model?.projection?.availability?.bucket || "").toLowerCase() === "free");
+    const label = (model)=>this.overviewShortLabel(
+      { display_name:model?.display, asset_id:model?.projection?.identity?.asset_id },
+      model?.display || model?.projection?.identity?.asset_id || "—"
+    );
+    const provenMappings = vehicleModels
+      .filter((model)=>model?.projection?.relationships?.identity_proven && model?.projection?.relationships?.physically_connected_charger_id)
+      .map((model)=>{
+        const chargerId = model.projection.relationships.physically_connected_charger_id;
+        const chargerModel = chargerModels.find((candidate)=>candidate?.projection?.identity?.asset_id === chargerId);
+        return `${this.overviewShortLabel({display_name:model.display},model.display)}→${label(chargerModel || {display:rt.chargerLabel(chargerId),projection:{identity:{asset_id:chargerId}}})}`;
+      });
 
     const connected = Number(fleet.connected_charger_count);
     const charging = Number(fleet.charging_charger_count);
     const available = Number(fleet.available_charger_count);
-    const chargingFallback = chargerRows.filter((row)=>String(row?.charging_intelligence?.state || "").toLowerCase() === "running").length;
+    const chargingFallback = chargerModels.filter((model)=>String(model?.projection?.intelligence?.charging?.state || "").toLowerCase() === "running").length;
     const powerState = String(fleet.aggregate_power_state || "unknown").toLowerCase();
     const power = Number(fleet.aggregate_actual_charging_power_kw);
     const powerDisplay = Number.isFinite(power) && powerState !== "unknown"
@@ -625,42 +624,41 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
   }
 
   overviewRangeStatus(rt, vehicles = []) {
-    const experience = rt.mobilityExperienceV2();
+    const factory = new HomeBrainAssetFactory(rt);
+    const models = vehicles.map((vehicle)=>factory.adapterFor(vehicle, this.config)?.build?.()).filter(Boolean);
     const policy = rt.mobilityPolicyV2();
-    const activeIds = new Set(vehicles.map((vehicle)=>this.assetId(vehicle)));
-    const rows = (experience?.vehicles || []).filter((row)=>activeIds.has(String(row?.asset_id || "")));
-    const threshold = Number(policy?.policy?.range?.low_range_km ?? rows.find((row)=>Number.isFinite(Number(row?.range_intelligence?.threshold_km)))?.range_intelligence?.threshold_km);
-    const ok = rows.filter((row)=>String(row?.range_intelligence?.state || "").toLowerCase() === "ok");
-    const low = rows.filter((row)=>String(row?.range_intelligence?.state || "").toLowerCase() === "low")
-      .map((row)=>({ name:this.overviewShortLabel(row, row.display_name || row.asset_id), summary:String(row?.range_intelligence?.summary || "Low range") }));
-    const unknown = rows.filter((row)=>!["ok","low"].includes(String(row?.range_intelligence?.state || "").toLowerCase()));
+    const threshold = Number(policy?.policy?.range?.low_range_km);
+    const rows = models.map((model)=>({ model, signal:model?.projection?.signals?.range || {} }));
+    const ok = rows.filter(({signal})=>String(signal.state || "").toLowerCase() === "ok");
+    const low = rows.filter(({signal})=>String(signal.state || "").toLowerCase() === "low")
+      .map(({model,signal})=>({ name:this.overviewShortLabel({display_name:model.display}, model.display), summary:String(signal.display || signal.value || "Low range") }));
+    const unknown = rows.filter(({signal})=>!["ok","low"].includes(String(signal.state || "").toLowerCase()));
     const total = vehicles.length;
     return {
       thresholdKm:Number.isFinite(threshold) ? threshold : null,
       sufficient:ok.length,
       low,
-      unknown:Math.max(unknown.length, total - rows.length),
+      unknown:unknown.length,
       total,
       headline:Number.isFinite(threshold) ? `${ok.length}/${total} ≥${threshold} km` : `${ok.length}/${total} range OK`,
       line1:low.length ? low.slice(0,2).map((row)=>`${row.name} ${row.summary}`).join(" · ") : "No low-range vehicle",
-      line2:Math.max(unknown.length, total - rows.length) ? `${Math.max(unknown.length, total - rows.length)} range unknown` : (Number.isFinite(threshold) ? `Policy threshold ${threshold} km` : "Range policy applied")
+      line2:unknown.length ? `${unknown.length} range unknown` : (Number.isFinite(threshold) ? `Policy threshold ${threshold} km` : "Range policy applied")
     };
   }
 
   overviewSecurityStatus(rt, vehicles = []) {
-    const activeIds = new Set(vehicles.map((vehicle)=>this.assetId(vehicle)));
-    const rows = (rt.mobilityExperienceV2()?.vehicles || []).filter((row)=>activeIds.has(String(row?.asset_id || "")));
+    const factory = new HomeBrainAssetFactory(rt);
     const groups = { secure:[], unsafe:[], incomplete:[], unknown:[] };
-    for (const row of rows) {
-      const state = String(row?.security_intelligence?.state || "unknown").toLowerCase();
+    for (const vehicle of vehicles) {
+      const model = factory.adapterFor(vehicle, this.config)?.build?.() || null;
+      const signal = model?.projection?.signals?.security || {};
+      const state = String(signal.state || "unknown").toLowerCase();
       const bucket = Object.prototype.hasOwnProperty.call(groups,state) ? state : "unknown";
       groups[bucket].push({
-        name:this.overviewShortLabel(row, row.display_name || row.asset_id),
-        summary:String(row?.security_intelligence?.summary || state)
+        name:this.overviewShortLabel({display_name:model?.display}, model?.display || this.assetId(vehicle)),
+        summary:String(signal.display || signal.value || state)
       });
     }
-    const missing = Math.max(0, vehicles.length - rows.length);
-    for (let i=0;i<missing;i+=1) groups.unknown.push({name:"Unknown",summary:"No Experience V2 row"});
     return {
       unsafe:groups.unsafe,
       unsafeCount:groups.unsafe.length,
@@ -671,21 +669,19 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
   }
 
   overviewMaintenanceStatus(rt, vehicles = []) {
-    const activeIds = new Set(vehicles.map((vehicle)=>this.assetId(vehicle)));
-    const rows = (rt.mobilityExperienceV2()?.vehicles || []).filter((row)=>activeIds.has(String(row?.asset_id || "")));
+    const factory = new HomeBrainAssetFactory(rt);
     const groups = { overdue:[], due_soon:[], scheduled:[], ok:[], unknown:[] };
-    for (const row of rows) {
-      const intel = row?.maintenance_intelligence || {};
-      const state = String(intel.state || "unknown").toLowerCase();
+    for (const vehicle of vehicles) {
+      const model = factory.adapterFor(vehicle, this.config)?.build?.() || null;
+      const signal = model?.projection?.signals?.maintenance || {};
+      const state = String(signal.state || "unknown").toLowerCase();
       const bucket = Object.prototype.hasOwnProperty.call(groups,state) ? state : "unknown";
       groups[bucket].push({
-        name:this.overviewShortLabel(row, row.display_name || row.asset_id),
-        summary:String(intel.summary || state),
-        intelligence:intel
+        name:this.overviewShortLabel({display_name:model?.display}, model?.display || this.assetId(vehicle)),
+        summary:String(signal.display || signal.value || state),
+        intelligence:signal
       });
     }
-    const missing = Math.max(0, vehicles.length - rows.length);
-    for (let i=0;i<missing;i+=1) groups.unknown.push({name:"Unknown",summary:"No Experience V2 row"});
     return {
       overdue:groups.overdue,
       dueSoon:groups.due_soon,
