@@ -29,15 +29,20 @@ for (const forbidden of [
 
 for (const needle of [
   'rt.mobilityFleetV2()',
-  'rt.mobilityExperienceV2()',
   'rt.mobilityPolicyV2()',
-  'observed_identity_proven === true',
+  'model?.projection?.signals',
+  'model?.projection?.relationships',
+  'model?.projection?.commands',
   'label:"Fleet"',
   'label:"Profiles"',
   'label:"Charging setup"',
   '<small>Security</small>',
   '<small>Maintenance</small>'
-]) if (!dashboard.includes(needle)) throw new Error(`rc.43 V2-driven dashboard contract missing: ${needle}`);
+]) if (!dashboard.includes(needle)) throw new Error(`V2-driven dashboard projection contract missing: ${needle}`);
+if(dashboard.includes('rt.mobilityExperienceV2(') || dashboard.includes('rt.vehicleExperienceV2(')) {
+  throw new Error('dashboard reintroduced direct Experience V2 interpretation outside VehicleProjection');
+}
+if(!vehicleAdapter.includes('observed_identity_proven === true')) throw new Error('VehicleProjection lost physical relationship identity proof');
 
 for (const forbidden of [
   'thresholdKm = 100',
@@ -52,13 +57,16 @@ for (const forbidden of [
 
 for (const needle of [
   'rt.mobilityFleetV2()',
-  'rt.mobilityExperienceV2()?.chargers',
-  'row?.fault?.state',
+  'factory.adapterFor(charger, this.config)?.build?.()',
+  'model?.projection?.experience',
   'label:"Profiles"',
   'label:"Availability"',
   'label:"Runtime"',
   'if (faultCount) chargerHeaderCards.push'
-]) if (!chargers.includes(needle)) throw new Error(`Charger Management V2 status architecture missing: ${needle}`);
+]) if (!chargers.includes(needle)) throw new Error(`Charger Management V2 projection architecture missing: ${needle}`);
+if(chargers.includes('rt.mobilityExperienceV2(') || chargers.includes('rt.chargerExperienceV2(')) {
+  throw new Error('Charger Management reintroduced direct Experience V2 interpretation outside ChargerProjection');
+}
 
 for (const forbidden of [
   'charger.available_for_connection',
@@ -90,4 +98,4 @@ if (!presentation.includes('title:"Vehicle Management"') || !presentation.includ
 if (!presentation.includes('status-count-${visible.length}')) throw new Error('status grid must size to useful card count');
 if (!presentation.includes('.rhi-top-status-item.ok .rhi-top-status-icon,.rhi-top-status-item.neutral .rhi-top-status-icon{background:#F0F5FC;color:#355D96}')) throw new Error('normal/OK status colour must stay neutral');
 
-console.log('PASS rc.43 V2 contract ownership: backend concludes, UX selects/aggregates/formats/presents');
+console.log('PASS V2 contract ownership: backend concludes, asset projectors normalize, UX selects/aggregates/formats/presents');
