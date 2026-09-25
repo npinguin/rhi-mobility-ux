@@ -37,6 +37,16 @@ Question: what is each configured Vehicle, what is its state, and what can I man
 - Actual charging power = physically connected Charger canonical fact.
 - No separate component-index truth path when Runtime V2 exists.
 
+### Vehicle charging relationship semantics
+
+Vehicle↔Charger relationship presentation is tri-state:
+
+- **Connected** only when Runtime V2 publishes a proven physical Vehicle identity for the Charger relationship.
+- **Connection unknown** when a charger is configured/effective but physical Vehicle identity is not proven.
+- **Not connected** may only be shown when the backend publishes explicit negative physical-connection evidence.
+
+Absence of `physically_connected_charger_id` is not itself proof of disconnection.
+
 ### Charger Management
 Question: what is each Charger doing and what can I operate?
 
