@@ -98,8 +98,11 @@ const runtimeSource=fs.readFileSync(new URL('../../src/runtime/ha-contract-runti
 if(!runtimeSource.includes('detailQuickActions(assetId = "")')) throw new Error('detail quick-action projection is not explicit');
 if(!vehicleAdapterSource.includes('this.rt.detailQuickActions(assetId)')) throw new Error('vehicle detail does not use permanent quick actions');
 if(!chargerAdapterSource.includes('this.rt.detailQuickActions(assetId)')) throw new Error('charger detail does not use permanent quick actions');
-if(shellSource.includes('metric-detail-link') && shellSource.includes('metric-detail-link" data-nav') && shellSource.includes('mdi:plus"></ha-icon></button>')) throw new Error('ambiguous plus navigation remains in detail status');
-if(!shellSource.includes('metric-detail-link') || !shellSource.includes('mdi:chevron-right')) throw new Error('related-asset detail navigation is not explicit');
+const metricLinkStart=shellSource.indexOf('metric-detail-link" data-nav');
+const metricLinkSnippet=metricLinkStart>=0?shellSource.slice(metricLinkStart,metricLinkStart+700):'';
+if(!metricLinkSnippet) throw new Error('detail status related-asset navigation missing');
+if(metricLinkSnippet.includes('mdi:plus')) throw new Error('ambiguous plus navigation remains in detail status');
+if(!metricLinkSnippet.includes('mdi:chevron-right')) throw new Error('related-asset detail navigation is not explicit');
 
 console.log('PASS MOBILITY_COMMAND_V2 is sole command authority when published');
 console.log('PASS Start/Stop/Unlock/Restart/Identify survive without V1 slot materialization');
