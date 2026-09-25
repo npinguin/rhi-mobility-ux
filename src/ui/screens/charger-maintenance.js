@@ -18,9 +18,8 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
   chargerId(charger) { return String(this.assetId(charger)).replace(/^charger_/, ""); }
 
   chargerRuntimeReady(rt, charger) {
-    // R43.2.53 readiness for the product card means the canonical operational
-    // property exists. Source/fact presence is not a substitute.
-    return rt.canonicalChargerPropertyValue(this.assetId(charger), "charger.operating_state").resolved;
+    const model = new HomeBrainChargerAdapter(rt, this.chargerId(charger), { ...this.config, registry_entry:charger }).build();
+    return model?.projection?.facts?.operating?.resolved === true;
   }
 
 
@@ -203,27 +202,27 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
   renderCharger(rt, charger) {
     const id = this.chargerId(charger);
     const assetId = this.assetId(charger);
-    const name = charger.display_name || rt.titleize(assetId);
-    const runtimeReady = this.chargerRuntimeReady(rt, charger);
-    // Each concern resolves independently from its exact R43.2.53 owner. A gap in
-    // operating_state must not erase a valid connection/power/relationship value.
-    const chargerSnapshot = rt.chargerProductSnapshot(assetId);
-    const status = chargerSnapshot.operating.display;
-    const connectionState = chargerSnapshot.connection.display;
-    const connectedVehicle = chargerSnapshot.connected_vehicle.display;
-    const power = chargerSnapshot.power.display;
-    const actualCurrent = this.chargerProperty(rt, assetId, "charger.actual_current_a", "—");
-    const currentLimit = this.chargerProperty(rt, assetId, "charger.current_limit_a", "—");
-    const offeredCurrent = this.chargerProperty(rt, assetId, "charger.offered_current_a", "—");
+    const model = new HomeBrainChargerAdapter(rt, id, { ...this.config, registry_entry:charger }).build();
+    const projection = model?.projection || {};
+    const facts = projection.facts || {};
+    const name = model?.display || charger.display_name || rt.titleize(assetId);
+    const runtimeReady = facts.operating?.resolved === true;
+    const status = facts.operating?.display || "—";
+    const connectionState = facts.connection?.display || "—";
+    const connectedVehicle = facts.connected_vehicle?.display || "—";
+    const power = facts.power?.display || "—";
+    const actualCurrent = facts.actual_current?.display || "—";
+    const currentLimit = facts.current_limit?.display || "—";
+    const offeredCurrent = facts.offered_current?.display || "—";
     const activePhases = "—";
-    const session = this.chargerProperty(rt, assetId, "charger.session_energy_kwh", "—");
+    const session = facts.session_energy?.display || "—";
     const connected = connectionState;
     const enabled = "—";
-    const healthSummary = { value:chargerSnapshot.health.display, reason:chargerSnapshot.health.reason, resolved:chargerSnapshot.health.resolved };
+    const healthSummary = { value:facts.health?.display || "—", reason:facts.health?.reason || "", resolved:facts.health?.resolved === true };
     const freshness = "—";
     const trust = healthSummary.value;
     const connector = connectionState;
-    const primary = rt.commandActionsFor(assetId, "quick_actions");
+    const primary = projection.commands || [];
     // R43.2.54: all normal product commands render exactly once from
     // charger_actions.commands. Maintenance/diagnostic sections contain context only.
     const maintenance = [];
@@ -312,13 +311,23 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
     const activeChargers = chargers.filter((c) => rt.lifecycleStatus(c) === "active");
     const inactiveChargers = chargers.filter((c) => rt.lifecycleStatus(c) !== "active" && rt.lifecycleStatus(c) !== "retired");
     const fleet = rt.mobilityFleetV2();
-    const experienceRows = rt.mobilityExperienceV2()?.chargers || [];
-    const activeIds = new Set(activeChargers.map((charger)=>String(charger.asset_id || "")));
-    const activeExperienceRows = experienceRows.filter((row)=>activeIds.has(String(row?.asset_id || "")));
-    const experienceById = new Map(experienceRows.map((row)=>[String(row?.asset_id || ""),row]));
-    const connectedCount = Number.isFinite(Number(fleet.connected_charger_count)) ? Number(fleet.connected_charger_count) : activeExperienceRows.filter((row)=>String(row?.connection_intelligence?.state || "").toLowerCase() === "asset_connected").length;
-    const chargingCount = Number.isFinite(Number(fleet.charging_charger_count)) ? Number(fleet.charging_charger_count) : activeExperienceRows.filter((row)=>String(row?.charging_intelligence?.state || "").toLowerCase() === "running").length;
-    const availableCount = Number.isFinite(Number(fleet.available_charger_count)) ? Number(fleet.available_charger_count) : activeExperienceRows.filter((row)=>String(row?.availability_intelligence?.state || "").toLowerCase() === "ok").length;
+    const activeModels = activeChargers.map((charger)=>({
+      charger,
+      model: factory.adapterFor(charger, this.config)?.build?.() || null
+    }));
+    const activeExperienceRows = activeModels.map(({charger, model})=>({
+      asset_id: charger.asset_id,
+      ...(model?.projection?.experience || {})
+    }));
+    const connectedCount = Number.isFinite(Number(fleet.connected_charger_count))
+      ? Number(fleet.connected_charger_count)
+      : activeModels.filter(({model})=>String(model?.projection?.intelligence?.connection?.state || "").toLowerCase() === "asset_connected").length;
+    const chargingCount = Number.isFinite(Number(fleet.charging_charger_count))
+      ? Number(fleet.charging_charger_count)
+      : activeModels.filter(({model})=>String(model?.projection?.intelligence?.charging?.state || "").toLowerCase() === "running").length;
+    const availableCount = Number.isFinite(Number(fleet.available_charger_count))
+      ? Number(fleet.available_charger_count)
+      : activeModels.filter(({model})=>String(model?.projection?.availability?.bucket || "").toLowerCase() === "free").length;
     const faultRows = activeExperienceRows.filter((row)=>String(row?.fault?.state || "").toLowerCase() === "active");
     const faultCount = faultRows.length;
     const aggregatePowerState = String(fleet.aggregate_power_state || "unknown").toLowerCase();
@@ -329,21 +338,10 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
 
     const signature = JSON.stringify({
       assets: chargers.map((c) => {
-        const assetId = c.asset_id;
-        const id = String(assetId || "").replace(/^charger_/, "");
-        const commands = rt.commandRegistry(assetId).map((cmd) => [cmd.command_id, cmd.frontend_allowed, cmd.execution_allowed, cmd.execution_status || "", cmd.blocked_reason || cmd.execution_reason || ""]);
-        return [assetId, c.display_name, c.profile, c.location, rt.lifecycleStatus(c),
-          rt.chargerOperationalStatus(assetId),
-          rt.chargerConnectionState(assetId),
-          rt.chargerConnectedVehicleLabel(assetId),
-          this.chargerProperty(rt, assetId, "charger.power_kw", ""),
-          this.chargerProperty(rt, assetId, "charger.actual_current_a", this.chargerProperty(rt, assetId, "charger.current_a", "")),
-          this.chargerProperty(rt, assetId, "charger.current_limit_a", ""),
-          this.chargerProperty(rt, assetId, "charger.session_energy_kwh", ""),
-          rt.chargerHealthSummary(assetId).value,
-          rt.chargerHealthSummary(assetId).reason,
-          experienceById.get(assetId),
-          commands];
+        const model = factory.adapterFor(c, this.config)?.build?.() || null;
+        const projection = model?.projection || {};
+        return [c.asset_id, model?.display || c.display_name, projection?.lifecycle?.state || rt.lifecycleStatus(c), projection?.facts, projection?.intelligence, projection?.relationships, projection?.availability,
+          (projection?.commands || []).map((cmd)=>[cmd.command_id, cmd.frontend_allowed, cmd.execution_allowed, cmd.execution_status || "", cmd.blocked_reason || cmd.execution_reason || ""])];
       }),
       fleet,
       open: Array.from(this._openPanels || []).sort(),
