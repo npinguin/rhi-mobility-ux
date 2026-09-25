@@ -130,6 +130,8 @@ class HomeBrainVehicleAdapter {
       || ["overdue","due_soon"].includes(maintenance.state)
       || demand === "needed";
 
+    const profileProperty = this.rt.semanticProperty(assetId, "asset.profile_id");
+    const profileId = String(profileProperty?.value ?? "").trim();
     const commands = this.rt.commandActionsFor(assetId, "quick_actions");
     return {
       identity: {
@@ -147,6 +149,8 @@ class HomeBrainVehicleAdapter {
         live_charging: this.rt.liveChargingContextForVehicle(assetId)
       },
       configuration: {
+        profile_id: profileId,
+        profile_resolved: !!profileProperty,
         charge_power_control: this.rt.vehicleChargePowerControl(assetId),
         charge_power_control_model: this.rt.vehicleChargePowerControlModel(assetId)
       },
