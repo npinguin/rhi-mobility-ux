@@ -429,21 +429,16 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
         tone:actionable.includes(state) ? "attention" : "neutral"
       };
     };
-    const climate = (rt.propertyRows(assetId) || []).find((row) => {
-      if (!row || row.value === undefined || row.value === null || String(row.value).trim() === "") return false;
-      return rt.propertyFamily(row) === "climate" && rt.propertyDetailLevel(row) !== "technical";
-    }) || null;
+    const comfort = experience.comfort_intelligence || {};
+    const comfortState = String(comfort?.state || "unknown").toLowerCase();
     return {
       range:tile(experience.range_intelligence, "Range", "mdi:road-variant", ["low"]),
       energy:tile(experience.energy_intelligence, "Energy", "mdi:battery-charging", ["attention","low"]),
       security:tile(experience.security_intelligence, "Security", "mdi:lock-outline", ["unsafe"]),
       maintenance:tile(experience.maintenance_intelligence, "Maintenance", "mdi:wrench-outline", ["overdue","due_soon"]),
-      climate: (() => {
-        if (!climate) return "N/A";
-        const display = String(rt.propertyDisplayValue(climate) || "").trim();
-        if (!display || /^-\d+(?:[.,]\d+)?\s*(?:s|sec|secs|seconds|min|mins|minutes|h|hr|hrs|hours)$/i.test(display)) return "N/A";
-        return display;
-      })()
+      comfort:["unknown","unavailable",""].includes(comfortState)
+        ? "No comfort data"
+        : String(comfort?.summary || comfort?.state || "No comfort data")
     };
   }
 
@@ -844,9 +839,11 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     const maintenanceAction = status.maintenance.actionable.length
       ? status.maintenance.actionable.slice(0,2).map((row)=>`${row.name} · ${row.summary}`).join(" · ")
       : (status.maintenance.policyDays !== null ? `No maintenance due within ${status.maintenance.policyDays} days` : "No maintenance currently due");
-    const nextMaintenance = status.maintenance.scheduled.length
+    const maintenancePolicy = status.maintenance.policyDays !== null ? `Policy warning ${status.maintenance.policyDays} d` : "Maintenance policy unavailable";
+    const nextMaintenanceCore = status.maintenance.scheduled.length
       ? `Next ${status.maintenance.scheduled[0].name} · ${status.maintenance.scheduled[0].summary}`
       : (status.maintenance.unknown.length ? `${status.maintenance.unknown.length} vehicle${status.maintenance.unknown.length === 1 ? "" : "s"} without maintenance data` : "No scheduled maintenance");
+    const nextMaintenance = `${maintenancePolicy} · ${nextMaintenanceCore}`;
 
     return `
       ${hbMobilityPageHero(rt, "overview")}
