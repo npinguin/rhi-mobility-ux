@@ -13,6 +13,43 @@ Category: **Dashboard**
 
 No `/local/homebrain/...` Mobility resource or image copy is required. The immutable release tag contains the complete `dist/` package and HACS installs its nested `assets/` tree beside the JS resource.
 
+## Recommended: one-card bootstrap dashboard
+
+For a new dedicated Mobility dashboard, use the bootstrap card. It keeps all Mobility navigation inside one Lovelace view, just like the Energy UX installation pattern.
+
+```yaml
+title: Home Intelligence Mobility
+
+views:
+  - title: Mobility
+    path: overview
+    icon: mdi:car-electric
+    panel: true
+    cards:
+      - type: custom:homebrain-mobility-card
+```
+
+The same YAML is available as `documentation/homebrain_mobility.bootstrap.yaml`.
+
+The bootstrap card internally routes Overview, Vehicles, Chargers, Planning, Strategies, History, Log and asset detail while keeping the Lovelace path on the single `overview` view. Internal state is stored in the query string as `?mobility_view=...`, so refresh and browser history remain meaningful.
+
+### Backward compatibility
+
+The existing multi-view dashboard remains fully supported. The existing custom card names and physical Lovelace subview routes are not removed:
+
+- `custom:homebrain-mobility-dashboard-card`
+- `custom:homebrain-mobility-charger-maintenance-card`
+- `custom:homebrain-mobility-placeholder-card`
+- `custom:homebrain-mobility-asset-detail-card`
+- `/mobility-supervisor/dashboard`
+- `/mobility-supervisor/charger-maintenance`
+- `/mobility-supervisor/planning`
+- `/mobility-supervisor/strategies`
+- `/mobility-supervisor/history`
+- `/mobility-supervisor/log`
+
+Existing installations do not need to migrate immediately. `documentation/homebrain_mobility.hacs.yaml` remains the full legacy-compatible multi-view configuration.
+
 ## Migrate an existing Mobility YAML dashboard
 
 The HACS bundle keeps the current custom card names and dashboard routes. The existing dashboard YAML can therefore be migrated without redesigning the dashboard.
