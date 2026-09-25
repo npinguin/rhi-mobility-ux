@@ -1120,6 +1120,18 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
       const keyNode = panel.querySelector(".vehicle-picker-key code");
       const placeholder=(label)=>`<option value="" selected disabled>${rt.escape(label)}</option>`;
 
+      panel.querySelectorAll("[data-vehicle-visual-choice]").forEach((choice)=>choice.addEventListener("click",()=>{
+        const draft={
+          brand:choice.getAttribute("data-choice-brand") || "",
+          model:choice.getAttribute("data-choice-model") || "",
+          variant_id:choice.getAttribute("data-vehicle-visual-choice") || "",
+          color_id:choice.getAttribute("data-choice-color") || ""
+        };
+        this._vehiclePickerDraft.set(assetId,draft);
+        this._forceRender=true; this._lastSignature="";
+        if(this._hass) this.hass=this._hass;
+      }));
+
       const updatePreview=()=>{
         const draft=this._vehiclePickerDraft.get(assetId) || {};
         const visual=picker.selection(asset,draft);
