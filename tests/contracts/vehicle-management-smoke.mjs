@@ -96,4 +96,5 @@ if(presentation.includes('MOBILITY / VEHICLE MANAGEMENT')) throw new Error('obso
 if(!presentation.includes('Check that your fleet is configured, assigned and operational')) throw new Error('Vehicles purpose drifted');
 if(!presentation.includes('asset_key:"vehicles"')) throw new Error('Vehicles contextual hero key missing');
 
+if ((dashboard.match(/Manage vehicles & profiles/g) || []).length !== 1) throw new Error('Vehicles duplicated page-level Manage vehicles & profiles action outside Quick Actions');
 console.log('PASS Vehicles/Chargers content preservation, image-first picker, canonical artwork and rc.56 compact workspace architecture');
