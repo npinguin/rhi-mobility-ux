@@ -165,7 +165,8 @@ console.log('PASS rc.59 direct V2 vehicle metrics and charger artwork truth');
     },
     hbMobilityPageHero:()=>'<hero/>',
     hbMobilityStatusGrid:()=>'<status/>',
-    hbMobilityQuickActions:()=>'<actions/>'
+    hbMobilityQuickActions:()=>'<actions/>',
+    hbMobilityPath:(path)=>path
   };
   vm.createContext(context);
   const holder=vm.runInContext('({'+renderMethod+'})',context);
