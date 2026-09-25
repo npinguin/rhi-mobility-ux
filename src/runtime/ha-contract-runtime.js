@@ -719,6 +719,8 @@ class HomeBrainAssetRuntime {
         relationship_resolution:relation?.relationship_status || "",
         reason:relation?.reason || "",
         observed_identity_proven:relation?.observed_identity_proven === true,
+        assigned_charger_connection_state:String(relation?.assigned_charger_connection_state || ""),
+        assigned_charger_occupied:relation?.assigned_charger_occupied === true ? true : relation?.assigned_charger_occupied === false ? false : null,
         row:relation,
         physical_row:relation,
         effective_row:relation,
