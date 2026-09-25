@@ -4136,6 +4136,36 @@ class HomeBrainAssetRuntime {
       const u = new URL(path, window.location.origin);
       const asset = u.searchParams.get("asset") || (u.hash || "").replace(/^#asset=/, "");
       if (asset) sessionStorage.setItem("homebrain_mobility_last_asset", decodeURIComponent(asset));
+
+      // Optional single-card bootstrap routing. Existing multi-view Lovelace YAML
+      // keeps using physical routes because bootstrap_mode is false by default.
+      if (this.config?.bootstrap_mode === true) {
+        const route = String(u.searchParams.get("mobility_view") || u.pathname.split("/").filter(Boolean).pop() || "").toLowerCase();
+        const viewMap = {
+          overview:"overview",
+          dashboard:"vehicles",
+          vehicles:"vehicles",
+          "charger-maintenance":"chargers",
+          chargers:"chargers",
+          planning:"planning",
+          strategies:"strategies",
+          history:"history",
+          log:"log",
+          "asset-detail":"detail",
+          detail:"detail"
+        };
+        const view = viewMap[route] || "overview";
+        const current = new URL(window.location.href);
+        const basePath = String(this.config?.bootstrap_path || current.pathname || "").trim() || current.pathname;
+        current.pathname = basePath;
+        current.search = "";
+        current.searchParams.set("mobility_view", view);
+        if (asset) current.searchParams.set("asset", decodeURIComponent(asset));
+        current.hash = "";
+        history.pushState(null, "", current.pathname + current.search);
+        window.dispatchEvent(new Event("location-changed"));
+        return;
+      }
     } catch (e) {}
     history.pushState(null, "", path);
     window.dispatchEvent(new Event("location-changed"));
