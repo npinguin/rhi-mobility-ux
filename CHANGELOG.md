@@ -1,3 +1,14 @@
+## 1.0.0-rc.57 — unified Mobility design language
+
+- makes Overview the visual direction for all top-level Mobility tabs without changing their body semantics, command grouping or backend ownership;
+- sharpens typography with lighter weights and a readable minimum scale for labels and secondary text;
+- tightens shared white space, baselines, card geometry, control heights and icon sizing;
+- keeps premium hero imagery while reducing landscape height and visual weight;
+- hardens tablet/desktop navigation so Mobility, Intelligence and Insights cannot render underneath the Robotix branding region;
+- keeps status colour restrained and semantic instead of decorative;
+- preserves page-level Status → Quick Actions → Filters → Body composition where those layers are functionally applicable;
+- resets target Home Assistant qualification for phone, tablet portrait, tablet landscape and desktop runtime proof.
+
 ## 1.0.0-rc.56 — compact asset workspaces and image-first picker
 
 - keeps Vehicles and Chargers separate while converging both bodies on Overview-style compact density;
