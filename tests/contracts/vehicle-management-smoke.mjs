@@ -138,9 +138,11 @@ for(const needle of [
   'secure ·',
   'unknown',
   'No maintenance due within',
-  'Policy warning'
+  'Policy warning',
+  'experience.comfort_intelligence',
+  'No comfort data'
 ]) {
-  if(!dashboard.includes(needle) && needle !== 'Policy warning') {
+  if(!dashboard.includes(needle)) {
     throw new Error('Overview truth-model regression: missing '+needle);
   }
 }
