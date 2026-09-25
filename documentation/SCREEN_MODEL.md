@@ -37,6 +37,16 @@ Question: what is each configured Vehicle, what is its state, and what can I man
 - Actual charging power = physically connected Charger canonical fact.
 - No separate component-index truth path when Runtime V2 exists.
 
+### Overview policy settings
+
+Overview may expose Mobility Policy V2 configuration only as an optional user-invoked editor from Quick Actions.
+
+- Policy values, labels, units, limits, choices and write transport are backend-owned `MOBILITY_POLICY_V2` editor metadata.
+- UX must not duplicate policy defaults or validation rules.
+- A policy write is complete only after Policy V2 revision advances and canonical readback equals the requested value.
+- Range, maintenance, security and charging conclusions consume the same Policy V2 values after the write.
+- Policy configuration is not a fifth status layer; the editor is hidden unless the user asks for it.
+
 ### Vehicle charging relationship semantics
 
 Vehicle↔Charger relationship presentation is tri-state:
