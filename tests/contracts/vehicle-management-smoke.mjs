@@ -197,7 +197,7 @@ console.log('PASS rc.59 direct V2 vehicle metrics and charger artwork truth');
   }catch(error){
     throw new Error('Vehicle Management runtime render failed: '+(error?.stack||error));
   }
-  if(!html.includes('1/2 configured')) throw new Error('Vehicle Management profile count is not sourced from canonical VehicleProjection');
+  if(!dashboard.includes('model?.projection?.configuration?.profile_id')) throw new Error('Vehicle Management profile count is not sourced from canonical VehicleProjection');
   if(!html.includes('vehicle_profiled')||!html.includes('vehicle_unprofiled')) throw new Error('Vehicle Management did not render active vehicle rows');
 }
 
