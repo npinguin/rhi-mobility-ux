@@ -4,7 +4,7 @@
   "minimum_backend": "M0.10.7",
   "tested_backend": "M0.10.7",
   "stage": "test_candidate",
-  "rollback_release": "v1.0.0-rc.57",
+  "rollback_release": "v1.0.0-rc.58",
   "runtime_artifact": "dist/rhi-mobility-ux.js",
   "runtime_checksum_artifact": "dist/rhi-mobility-ux.js.sha256",
   "hacs_repository_type": "dashboard",

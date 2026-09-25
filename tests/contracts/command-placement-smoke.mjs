@@ -1,4 +1,5 @@
 import vm from 'node:vm';
+import fs from 'node:fs';
 import { mobilityRuntimeSource } from '../helpers/source-fixtures.mjs';
 
 const ctx={console,globalThis:{}};ctx.globalThis=ctx;vm.createContext(ctx);
@@ -88,7 +89,24 @@ if(!vehicleQuick.some(row=>row.command_key==='vehicle.command.lock')) throw new 
 const engineering=rt.commandsForSurface(vehicle,'engineering');
 if(engineering.length!==1 || engineering[0].command_key!=='vehicle.command.refresh') throw new Error('V2 placement did not route engineering command');
 
+// Detail actions are a permanent projection of Command V2. Related-asset status
+// navigation may link elsewhere, but may never gate or reveal command buttons.
+const shellSource=fs.readFileSync(new URL('../../src/ui/components/asset-shell.js',import.meta.url),'utf8');
+const vehicleAdapterSource=fs.readFileSync(new URL('../../src/domain/adapters/vehicle-adapter.js',import.meta.url),'utf8');
+const chargerAdapterSource=fs.readFileSync(new URL('../../src/domain/adapters/charger-adapter.js',import.meta.url),'utf8');
+const runtimeSource=fs.readFileSync(new URL('../../src/runtime/ha-contract-runtime.js',import.meta.url),'utf8');
+if(!runtimeSource.includes('detailQuickActions(assetId = "")')) throw new Error('detail quick-action projection is not explicit');
+if(!vehicleAdapterSource.includes('this.rt.detailQuickActions(assetId)')) throw new Error('vehicle detail does not use permanent quick actions');
+if(!chargerAdapterSource.includes('this.rt.detailQuickActions(assetId)')) throw new Error('charger detail does not use permanent quick actions');
+const metricLinkStart=shellSource.indexOf('metric-detail-link" data-nav');
+const metricLinkSnippet=metricLinkStart>=0?shellSource.slice(metricLinkStart,metricLinkStart+700):'';
+if(!metricLinkSnippet) throw new Error('detail status related-asset navigation missing');
+if(metricLinkSnippet.includes('mdi:plus')) throw new Error('ambiguous plus navigation remains in detail status');
+if(!metricLinkSnippet.includes('mdi:chevron-right')) throw new Error('related-asset detail navigation is not explicit');
+
 console.log('PASS MOBILITY_COMMAND_V2 is sole command authority when published');
 console.log('PASS Start/Stop/Unlock/Restart/Identify survive without V1 slot materialization');
 console.log('PASS command execution uses producer-owned rhi_mobility.execute_command');
 console.log('PASS producer placement separates normal and engineering vehicle actions');
+
+console.log('PASS detail quick actions remain independent from related-asset status navigation');

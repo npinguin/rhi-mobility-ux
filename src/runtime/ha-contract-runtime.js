@@ -3752,6 +3752,13 @@ class HomeBrainAssetRuntime {
     return this.commandsForSurface(assetId, surface);
   }
 
+  detailQuickActions(assetId = "") {
+    // Detail quick actions are a permanent projection of producer-owned Command V2
+    // support/readiness. They are never gated by related-asset status navigation,
+    // disclosure state or component expansion.
+    return this.commandActionsFor(assetId, "quick_actions");
+  }
+
   liveChargerInfo(chargerAssetOrId) {
     const assetId = this.canonicalAssetId(typeof chargerAssetOrId === "string" ? chargerAssetOrId : chargerAssetOrId?.asset_id || "");
     if (!assetId) return { active:false, status:"—", power:null, current:null, evidence:"contract_gap" };
