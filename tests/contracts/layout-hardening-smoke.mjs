@@ -14,7 +14,7 @@ for(const needle of [
   '.status-strip.ops-status-strip .metric',
   '.outcome-header .metric',
   'grid-template-columns:28px minmax(0,1fr)!important',
-  '--rhi-company-logo-max-width:286px',
+  '--rhi-company-logo-max-width:250px',
   'grid-template-columns:minmax(168px,.52fr) minmax(0,1.48fr)',
   '.hi-module-tabs{width:100%;min-width:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px',
   'justify-content:center'
@@ -105,7 +105,7 @@ if(!overviewHeroExact.includes('src="/hacsfiles/rhi-mobility-ux/assets/heroes/mo
 if(strategyHero.includes('/hacsfiles/rhi-mobility-ux/assets/hacsfiles/') || strategyHero.includes('asset--hacsfiles--')) throw new Error('hero URL double-resolution regression detected');
 
 
-if(!presentation.includes('Canonical page composition: Overview is the visual reference')) throw new Error('shared Overview-style hero geometry missing');
+if(!presentation.includes('Hero: premium image, sharper type, bounded height.')) throw new Error('shared premium hero geometry missing');
 if(!presentation.includes('function hbMobilityStatusGrid(')) throw new Error('shared top status renderer missing');
 if(!presentation.includes('function hbMobilityQuickActions(')) throw new Error('shared top actions renderer missing');
 if(/rhi-page-hero-meta">\$\{meta/.test(presentation)) throw new Error('hero mini status/meta rendering returned');
