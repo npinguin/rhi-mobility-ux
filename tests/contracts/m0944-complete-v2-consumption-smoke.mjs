@@ -37,7 +37,13 @@ const states={
     consumer_assets:[{asset_id:'vehicle_v2',soc_pct:51}],connection_assets:[{asset_id:'charger_v2',power_kw:0}]
   }},
   'sensor.rhi_mobility_vehicle_v2_soc_pct':{entity_id:'sensor.rhi_mobility_vehicle_v2_soc_pct',state:'51',attributes:{
-    canonical_contract:'MOBILITY_PUBLIC_RUNTIME_V2',asset_id:'vehicle_v2',asset_type:'vehicle',property_key:'vehicle.soc_pct'
+    canonical_contract:'MOBILITY_PUBLIC_RUNTIME_V2',asset_id:'vehicle_v2',asset_type:'vehicle',property_key:'vehicle.soc_pct',unit:'%'
+  }},
+  'sensor.rhi_mobility_vehicle_v2_range_total_km':{entity_id:'sensor.rhi_mobility_vehicle_v2_range_total_km',state:'372',attributes:{
+    canonical_contract:'MOBILITY_PUBLIC_RUNTIME_V2',asset_id:'vehicle_v2',asset_type:'vehicle',property_key:'vehicle.range_total_km',unit:'km'
+  }},
+  'sensor.rhi_mobility_vehicle_v2_ev_range_km':{entity_id:'sensor.rhi_mobility_vehicle_v2_ev_range_km',state:'70',attributes:{
+    canonical_contract:'MOBILITY_PUBLIC_RUNTIME_V2',asset_id:'vehicle_v2',asset_type:'vehicle',property_key:'vehicle.ev_range_km',unit:'km'
   }},
   // Deliberately conflicting V1-shaped data. None of it may win while Runtime V2 exists.
   'sensor.mobility_asset_index':{state:'ready',attributes:{assets_json:[{asset_id:'vehicle_legacy',asset_type:'vehicle'}]}},
@@ -75,6 +81,12 @@ if(rt.propertyRows('vehicle_v2').some((row)=>row.property_key==='vehicle.image_k
 
 const gap=rt.propertyPublicationGap('vehicle_v2');
 if(gap.status!=='incomplete' || gap.missing.length!==1 || gap.missing[0]!=='vehicle.image_key') throw new Error('property publication completeness evidence not enforced');
+
+const summaryFacts=rt.vehicleOverviewMetricSlots('vehicle_v2');
+if(summaryFacts.length!==3) throw new Error('Vehicle summary fact shape changed');
+if(summaryFacts[0].resolved!==true || summaryFacts[0].display!=='372 km') throw new Error('Full range did not use canonical V2 display shape');
+if(summaryFacts[1].resolved!==true || summaryFacts[1].display!=='70 km') throw new Error('EV range did not use canonical V2 display shape');
+if(summaryFacts[2].resolved!==true || summaryFacts[2].display!=='51 %') throw new Error('Battery did not use canonical V2 display shape');
 
 if(rt.publicCommandRows().length!==0) throw new Error('V1 command fallback remained active while Runtime V2 exists');
 if(rt.propertyPublicationEvidence('vehicle_v2')?.v1_fallback_allowed!==false) throw new Error('V1 fallback authority changed');
