@@ -319,6 +319,21 @@ class HomeBrainAssetShell {
       const picker = new HomeBrainVehicleVisualPicker(this.rt);
       const placeholder = (label)=>`<option value="" selected disabled>${this.rt.escape(label)}</option>`;
 
+      panel.querySelectorAll("[data-vehicle-visual-choice]").forEach((choice)=>choice.addEventListener("click",()=>{
+        const brand=choice.getAttribute("data-choice-brand") || "";
+        const model=choice.getAttribute("data-choice-model") || "";
+        const variant=choice.getAttribute("data-vehicle-visual-choice") || "";
+        const color=choice.getAttribute("data-choice-color") || "";
+        if(brandSelect){ brandSelect.value=brand; }
+        refreshHierarchy("brand");
+        if(modelSelect){ modelSelect.value=model; }
+        refreshHierarchy("model");
+        if(variantSelect){ variantSelect.value=variant; }
+        refreshHierarchy("variant");
+        if(colorSelect){ colorSelect.value=color; }
+        updatePreview();
+      }));
+
       const refreshHierarchy = (level) => {
         const catalog = picker.catalog();
         const brand = String(brandSelect?.value || "");
@@ -410,6 +425,21 @@ class HomeBrainAssetShell {
       const assetId = brandSelect?.getAttribute("data-charger-picker-brand") || "";
       const picker = new HomeBrainChargerVisualPicker(this.rt);
       const placeholder = (label)=>`<option value="" selected disabled>${this.rt.escape(label)}</option>`;
+
+      panel.querySelectorAll("[data-charger-visual-choice]").forEach((choice)=>choice.addEventListener("click",()=>{
+        const brand=choice.getAttribute("data-choice-brand") || "";
+        const model=choice.getAttribute("data-choice-model") || "";
+        const variant=choice.getAttribute("data-charger-visual-choice") || "";
+        const appearance=choice.getAttribute("data-choice-appearance") || "";
+        if(brandSelect){ brandSelect.value=brand; }
+        refreshHierarchy("brand");
+        if(modelSelect){ modelSelect.value=model; }
+        refreshHierarchy("model");
+        if(variantSelect){ variantSelect.value=variant; }
+        refreshHierarchy("variant");
+        if(appearanceSelect){ appearanceSelect.value=appearance; }
+        updatePreview();
+      }));
 
       const updatePreview = () => {
         const asset = this.rt.chargerById(assetId) || this.rt.assetById(assetId) || {asset_id:assetId,asset_type:"charger"};
