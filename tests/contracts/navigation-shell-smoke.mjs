@@ -4,6 +4,9 @@ const header=fs.readFileSync(new URL('../../src/app/header-and-navigation.js',im
 const dashboard=fs.readFileSync(new URL('../../src/ui/screens/mobility-dashboard.js',import.meta.url),'utf8');
 const chargers=fs.readFileSync(new URL('../../src/ui/screens/charger-maintenance.js',import.meta.url),'utf8');
 const routes=fs.readFileSync(new URL('../../documentation/homebrain_mobility.hacs.yaml',import.meta.url),'utf8');
+const bootstrap=fs.readFileSync(new URL('../../documentation/homebrain_mobility.bootstrap.yaml',import.meta.url),'utf8');
+const bootstrapSource=fs.readFileSync(new URL('../../src/ui/screens/bootstrap.js',import.meta.url),'utf8');
+const runtime=fs.readFileSync(new URL('../../src/runtime/ha-contract-runtime.js',import.meta.url),'utf8');
 const required = [
   'key: "mobility"',
   'key: "intelligence"',
@@ -45,5 +48,26 @@ if (!dashboard.includes('rememberViewPosition()') || !dashboard.includes('restor
 if (dashboard.includes('hbMobilityPath("/vehicles")')) throw new Error('invalid /vehicles route leaked into dashboard');
 if (!routes.includes('title: Charger Management\n    path: charger-maintenance')) throw new Error('Charger Management route must be preserved');
 console.log('PASS Mobility route mapping, management naming, URL-authoritative tab state and refresh/position persistence');
+
+for (const needle of [
+  'type: custom:homebrain-mobility-card',
+  'path: overview'
+]) if (!bootstrap.includes(needle)) throw new Error(`bootstrap dashboard config missing: ${needle}`);
+
+for (const needle of [
+  'class HomeBrainMobilityCard extends HTMLElement',
+  'homebrain-mobility-dashboard-card',
+  'homebrain-mobility-charger-maintenance-card',
+  'homebrain-mobility-placeholder-card',
+  'homebrain-mobility-asset-detail-card',
+  'bootstrap_mode:true',
+  'mobility_view'
+]) if (!bootstrapSource.includes(needle)) throw new Error(`bootstrap shell missing: ${needle}`);
+
+if (!runtime.includes('this.config?.bootstrap_mode === true')) throw new Error('runtime bootstrap navigation mode missing');
+if (!runtime.includes('Existing multi-view Lovelace YAML') && !runtime.includes('Existing multi-view Lovelace YAML'.replace('Existing','Existing'))) {
+  throw new Error('bootstrap navigation must document legacy route preservation');
+}
+console.log('PASS single-card bootstrap routing with legacy multi-view compatibility');
 
 if(header.includes('key: "charging"') || routes.includes('path: charging')) throw new Error('synthetic Charging tab/route returned');
