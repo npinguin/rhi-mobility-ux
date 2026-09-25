@@ -1,3 +1,15 @@
+## 1.0.0-rc.60 — canonical projection closure
+
+- makes HomeBrainVehicleAdapter and HomeBrainChargerAdapter the shared asset projection authority across Overview, Management and Detail;
+- removes screen-local Experience V2, relationship, charger-fact and command reinterpretation from the primary Mobility screens;
+- projects Comfort from Experience V2 instead of scanning arbitrary climate properties in Overview;
+- preserves bootstrap child instances across Home Assistant refreshes and tab switches so interaction state is not destroyed by data updates;
+- keeps Planning, Strategies and History on their Energy-owned cross-domain projections;
+- adds architecture and regression gates that fail on future screen-level semantic bypasses;
+- keeps backend command lifecycle/readback authoritative across screens;
+- removes superseded Charger Management semantic helper paths;
+- preserves Mobility M0.10.10 compatibility and zero accepted technical/feature debt.
+
 ## 1.0.0-rc.59 — runtime truth rendering
 
 - moves Vehicle Management Full / EV / Battery metric slots onto direct MOBILITY_PUBLIC_RUNTIME_V2 canonical properties instead of the retired component-property index path;
