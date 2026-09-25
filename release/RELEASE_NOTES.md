@@ -1,22 +1,22 @@
-# v1.0.0-rc.59 — runtime truth rendering TEST CANDIDATE
+# v1.0.0-rc.60 — canonical projection closure TEST CANDIDATE
 
 ## Scope
 
-rc.59 closes target-runtime truth/rendering defects observed after rc.58.
+rc.60 closes the structural backend-to-UX drift class for Mobility and preserves user interaction state across live Home Assistant refreshes.
 
-- Vehicle Management Full, EV and Battery slots consume direct V2 canonical properties:
-  - `vehicle.range_total_km`
-  - `vehicle.ev_range_km`
-  - `vehicle.soc_pct`
-- No V1/component-index fallback executes when Runtime V2 is present.
-- Charger product artwork hides the generic fallback whenever the real image loads.
-- Assigned charger images in Vehicle Management render at full opacity.
-- Security presentation remains backend-owned and is paired with Mobility M0.10.10, which separates EV plug-lock state from whole-vehicle access security.
-- Charger Session and Limit stay fail-closed. The UX does not reconstruct them from unrelated entities; target qualification must prove the Foundation → Mobility canonical publication chain.
+- promotes HomeBrainVehicleAdapter and HomeBrainChargerAdapter to the shared canonical asset projection boundary for Overview, Management and Detail;
+- removes screen-local Experience V2, relationship, charger-fact and command reinterpretation from Overview, Vehicle Management and Charger Management;
+- projects range, energy, security, comfort, maintenance, charging, canonical relationships, commands and charging configuration through one Vehicle projection;
+- projects operating/connection/power/current/limit/session/health, Experience V2, relationships and commands through one Charger projection;
+- keeps Planning, Strategies and History as read-only Energy-owned cross-domain projections joined to canonical Mobility identity;
+- preserves view instances across backend refresh and tab switching, so filters, expanded sections, pickers and drafts are not reset by new data;
+- keeps physical command truth backend-owned and readback-confirmed; the UX does not optimistically mutate canonical state;
+- adds release-blocking architecture and regression gates that reject direct screen bypasses around the canonical projectors;
+- removes superseded Charger Management semantic helpers;
+- keeps accepted technical debt at 0 and accepted feature debt at 0.
 
 Required/tested backend: `M0.10.10`.
 Required Foundation for target proof: `F1.8.15`.
-Rollback: `v1.0.0-rc.58`.
+Rollback: `v1.0.0-rc.59`.
 
-Accepted technical debt: 0.
-Accepted feature debt: 0.
+Target Home Assistant qualification and rollback proof remain required before stable promotion.
