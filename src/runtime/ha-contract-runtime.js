@@ -244,8 +244,61 @@ class HomeBrainAssetRuntime {
       contract_id: attrs.contract_id,
       publisher: attrs.publisher || "",
       revision: Number(attrs.revision ?? state?.state ?? 0) || 0,
-      policy: attrs.policy && typeof attrs.policy === "object" ? attrs.policy : {}
+      policy: attrs.policy && typeof attrs.policy === "object" ? attrs.policy : {},
+      editors: Array.isArray(attrs.editors) ? attrs.editors : []
     };
+  }
+
+  policyValue(policyKey = "") {
+    const policy = this.mobilityPolicyV2()?.policy || {};
+    const [section, field] = String(policyKey || "").split(".", 2);
+    return section && field ? policy?.[section]?.[field] : undefined;
+  }
+
+  policyEditor(policyKey = "") {
+    return (this.mobilityPolicyV2()?.editors || []).find((row)=>String(row?.policy_key || "") === String(policyKey || "")) || null;
+  }
+
+  canonicalPolicyValueEqual(actual, expected) {
+    if (Array.isArray(expected)) {
+      const left = Array.isArray(actual) ? [...actual].map(String).sort() : [];
+      const right = [...expected].map(String).sort();
+      return JSON.stringify(left) === JSON.stringify(right);
+    }
+    return this.canonicalWriteValueEqual(actual, expected);
+  }
+
+  async waitForPolicyReadback(policyKey = "", expected = "", revisionBefore = 0, options = {}) {
+    const attempts = Math.max(1, Number(options.attempts || 20));
+    const delayMs = Math.max(25, Number(options.delay_ms || 150));
+    for (let attempt = 0; attempt < attempts; attempt += 1) {
+      const policy = this.mobilityPolicyV2();
+      const actual = this.policyValue(policyKey);
+      if (Number(policy?.revision || 0) > Number(revisionBefore || 0) && this.canonicalPolicyValueEqual(actual, expected)) return true;
+      if (attempt < attempts - 1) await new Promise((resolve)=>setTimeout(resolve, delayMs));
+    }
+    return false;
+  }
+
+  async writePolicyAsync(policyKey = "", value = "", options = {}) {
+    const editor = this.policyEditor(policyKey);
+    if (!editor || !this.hass) return false;
+    const domain = String(editor.write_service_domain || "").trim();
+    const action = String(editor.write_service_action || "").trim();
+    if (!domain || !action) return false;
+    const before = Number(this.mobilityPolicyV2()?.revision || 0);
+    const payload = { ...(editor.write_service_data && typeof editor.write_service_data === "object" ? editor.write_service_data : {}) };
+    payload.policy_key = String(editor.policy_key || policyKey);
+    payload[String(editor.write_value_field || "value")] = value;
+    try {
+      await this.hass.callService(domain, action, payload);
+      const confirmed = await this.waitForPolicyReadback(policyKey, value, before, options);
+      if (!confirmed) console.error("[RHI Mobility UX] policy readback timeout", {policy_key:policyKey,expected:value});
+      return confirmed;
+    } catch (error) {
+      console.error("[RHI Mobility UX] policy write failed", {policy_key:policyKey,error});
+      return false;
+    }
   }
 
   mobilityCommandV2() {
