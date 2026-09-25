@@ -1,5 +1,5 @@
 /**
- * Robotix Home Intelligence Mobility UX v1.0.0-rc.57
+ * Robotix Home Intelligence Mobility UX v1.0.0-rc.58
  * GENERATED FILE - DO NOT EDIT.
  * License: GPL-3.0-only
  */
@@ -5309,6 +5309,36 @@ class HomeBrainAssetRuntime {
       const u = new URL(path, window.location.origin);
       const asset = u.searchParams.get("asset") || (u.hash || "").replace(/^#asset=/, "");
       if (asset) sessionStorage.setItem("homebrain_mobility_last_asset", decodeURIComponent(asset));
+
+      // Optional single-card bootstrap routing. Existing multi-view Lovelace YAML
+      // keeps using physical routes because bootstrap_mode is false by default.
+      if (this.config?.bootstrap_mode === true) {
+        const route = String(u.searchParams.get("mobility_view") || u.pathname.split("/").filter(Boolean).pop() || "").toLowerCase();
+        const viewMap = {
+          overview:"overview",
+          dashboard:"vehicles",
+          vehicles:"vehicles",
+          "charger-maintenance":"chargers",
+          chargers:"chargers",
+          planning:"planning",
+          strategies:"strategies",
+          history:"history",
+          log:"log",
+          "asset-detail":"detail",
+          detail:"detail"
+        };
+        const view = viewMap[route] || "overview";
+        const current = new URL(window.location.href);
+        const basePath = String(this.config?.bootstrap_path || current.pathname || "").trim() || current.pathname;
+        current.pathname = basePath;
+        current.search = "";
+        current.searchParams.set("mobility_view", view);
+        if (asset) current.searchParams.set("asset", decodeURIComponent(asset));
+        current.hash = "";
+        history.pushState(null, "", current.pathname + current.search);
+        window.dispatchEvent(new Event("location-changed"));
+        return;
+      }
     } catch (e) {}
     history.pushState(null, "", path);
     window.dispatchEvent(new Event("location-changed"));
@@ -7541,7 +7571,7 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
     return "Contract gap";
   }
 
-  lifecycleToggleButton(rt, charger, extraClass = "mini-detail-link lifecycle-toggle icon-only") {
+  lifecycleToggleButton(rt, charger, extraClass = "mini-detail-link lifecycle-toggle labeled-action") {
     const status = rt.lifecycleStatus(charger);
     const desired = status === "disabled" ? "active" : "disabled";
     const model = rt.lifecycleWriteModel(charger, desired);
@@ -7557,7 +7587,7 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
     return `<article class="inactive-row lifecycle-collapsed-row charger-collapsed-row">
       <span class="inactive-state">${rt.escape(this.lifecycleDisplay(rt, charger))}</span>
       <div class="inactive-copy"><h3>${rt.escape(name)}</h3><p>${rt.escape(subtitle)}</p></div>
-      <div class="inactive-actions">${this.lifecycleToggleButton(rt, charger, "cmd compact icon-only lifecycle-toggle")}<button class="cmd compact icon-only" data-nav="${rt.escape(route)}" title="Open charger details"><ha-icon icon="mdi:plus"></ha-icon><span>Details</span></button></div>
+      <div class="inactive-actions">${this.lifecycleToggleButton(rt, charger, "cmd compact icon-only lifecycle-toggle")}<button class="cmd compact icon-only" data-nav="${rt.escape(route)}" title="Open charger details"><ha-icon icon="mdi:chevron-right"></ha-icon><span>Details</span></button></div>
     </article>`;
   }
 
@@ -7626,24 +7656,24 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
       <div class="charger-hero-card premium-image-hero">
         ${this.renderChargerHero(rt, id, name, status)}
         <div class="charger-head">
-          <div class="charger-icon"><ha-icon icon="mdi:ev-station"></ha-icon></div>
-          <div class="charger-title"><h3>${rt.escape(name)}</h3><p>${rt.escape(charger.location || charger.profile || assetId)}</p></div>
+          <div class="charger-title"><h3>${rt.escape(name)}</h3><p>${rt.escape(charger.location || charger.profile || "Charging point")}</p></div>
           <span class="status ${this.statusTone(status)}">${rt.escape(status)}</span>
-          <button class="charger-appearance-action" data-charger-picker="${rt.escape(assetId)}" title="Choose charger and colour"><ha-icon icon="mdi:palette-outline"></ha-icon><span>Charger & colour</span></button>
+          <button class="charger-appearance-action" data-charger-picker="${rt.escape(assetId)}" title="Choose charger appearance"><ha-icon icon="mdi:palette-outline"></ha-icon><span>Charger appearance</span></button>
         </div>
       </div>
       ${pickerOpen ? this.renderChargerPicker(rt, charger) : ""}
       <div class="charger-kpis">
         ${this.field(rt, "Power", power, "mdi:flash")}
-        ${this.field(rt, "Actual", actualCurrent, "mdi:current-ac")}
-        ${this.field(rt, "Limit", currentLimit, "mdi:gauge")}
-        ${this.field(rt, "Session", session, "mdi:counter")}
+        ${this.field(rt, "Current", actualCurrent, "mdi:current-ac")}
+        ${this.field(rt, "Limit", currentLimit, "mdi:speedometer")}
+        ${this.field(rt, "Session", session, "mdi:lightning-bolt-circle")}
       </div>
-      <div class="soft-line">
-        <span><ha-icon icon="mdi:ev-plug-type2"></ha-icon>${rt.escape(connector)}</span>
+      <div class="soft-line charger-state-actions">
+        <span><ha-icon icon="mdi:connection"></ha-icon>${rt.escape(connector)}</span>
         <span><ha-icon icon="mdi:car-electric"></ha-icon>${rt.escape(connectedVehicle)}</span>
-        <span title="Canonical charger health"><ha-icon icon="mdi:shield-check-outline" style="color:#1467F5;--mdc-icon-size:23px"></ha-icon>${rt.escape(healthSummary.value)}</span>
-        <button class="mini-detail-link details-action icon-only" data-nav="${rt.escape(rt.assetDetailRoute(charger))}" title="Open charger details"><ha-icon icon="mdi:plus"></ha-icon></button>
+        <span title="Canonical charger health"><ha-icon icon="mdi:shield-check-outline"></ha-icon>${rt.escape(healthSummary.value)}</span>
+        <span class="soft-line-spacer"></span>
+        <button class="mini-detail-link details-action labeled-action" data-nav="${rt.escape(rt.assetDetailRoute(charger))}" title="Open charger details"><ha-icon icon="mdi:chevron-right"></ha-icon><span>Details</span></button>
         ${this.lifecycleToggleButton(rt, charger)}
       </div>
       <div class="command-row">${primary.length ? primary.map((c) => this.renderCommand(rt, c)).join("") : `<div class="empty-actions">No product command placement published for this charger.</div>`}</div>
@@ -8062,6 +8092,37 @@ ${hbMobilitySharedShellStyles()}
         .soft-line{gap:6px!important;flex-wrap:wrap!important}
         .charger-appearance-action{grid-column:2/4!important;height:32px!important;padding:0 8px!important}
         .grid{grid-template-columns:1fr!important;gap:10px!important}
+      }
+
+      /* rc.58 charger icon hierarchy and compact operational layout. */
+      .charger-head{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;grid-template-rows:auto auto!important;gap:6px 10px!important;align-items:center!important;min-width:0!important}
+      .charger-head .charger-title{grid-column:1!important;grid-row:1!important;min-width:0!important}
+      .charger-head>.status{grid-column:2!important;grid-row:1!important;justify-self:end!important}
+      .charger-head>.charger-appearance-action{grid-column:1/-1!important;grid-row:2!important;justify-self:start!important}
+      .charger-icon{display:none!important}
+      .charger-title h3{font-size:17px!important;font-weight:600!important}
+      .charger-title p{font-size:11px!important;font-weight:450!important;color:#66728B!important}
+      .charger-kpis{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:7px!important}
+      .field{min-height:52px!important;padding:8px 10px!important;border-radius:11px!important;background:#fff!important}
+      .field ha-icon{--mdc-icon-size:19px!important;color:#355D96!important}
+      .field span{font-size:10px!important;font-weight:500!important}
+      .field b{font-size:13px!important;font-weight:600!important}
+      .charger-state-actions{align-items:center!important}
+      .charger-state-actions>span:not(.soft-line-spacer){background:transparent!important;border:0!important;padding:5px 4px!important}
+      .charger-state-actions ha-icon{--mdc-icon-size:18px!important;color:#355D96!important}
+      .soft-line-spacer{flex:1 1 auto!important;border:0!important;background:transparent!important;padding:0!important}
+      .mini-detail-link.labeled-action{width:auto!important;min-width:0!important;height:34px!important;padding:0 10px!important;border-radius:9px!important;gap:6px!important;font-size:11px!important;font-weight:550!important;color:#355D96!important;box-shadow:none!important}
+      .mini-detail-link.labeled-action span{display:inline!important}
+      .mini-detail-link.labeled-action ha-icon{--mdc-icon-size:17px!important;color:#355D96!important}
+      .command-row{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))!important;gap:7px!important}
+      .cmd{min-height:38px!important;border-radius:10px!important;box-shadow:none!important;font-weight:550!important}
+      .cmd ha-icon{--mdc-icon-size:18px!important}
+      .cmd:disabled{opacity:.62!important;color:#7A8699!important;background:#FAFBFC!important}
+      @media(max-width:760px){
+        .charger-kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+        .soft-line-spacer{display:none!important}
+        .charger-state-actions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important}
+        .charger-state-actions .labeled-action{width:100%!important;justify-content:center!important}
       }
 
       /* R22.12.11.24 Energy typography alignment — charger maintenance. */
@@ -9078,7 +9139,6 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
           ].map(([key,label,count])=>`<button class="${filter===key?"active":""}" data-vehicle-filter="${key}"><span>${label}</span><b>${count}</b></button>`).join("")}
         </div>
         <label class="vehicle-sort-control"><span>Sort</span><select data-vehicle-sort><option value="default" ${this._vehicleSort==="default"?"selected":""}>Configured order</option><option value="name" ${this._vehicleSort==="name"?"selected":""}>Name</option></select></label>
-        <button class="vehicle-manage-button" data-nav="${managementPath}" title="Open the Home Assistant Mobility integration options. Guest vehicles and vehicle profiles are managed there."><ha-icon icon="mdi:cog-outline"></ha-icon><span>Manage vehicles & profiles</span></button>
       </section>
 
 
@@ -10153,15 +10213,15 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
 
     /* Vehicle management workspace */
     .vehicles-hero{position:relative;overflow:hidden;min-height:150px;border:1px solid #dfe7f1;border-radius:18px;background:linear-gradient(135deg,#f8fbff 0%,#fff 58%,#edf5ff 100%);box-shadow:0 12px 30px rgba(15,35,80,.045);padding:18px 22px;display:flex;align-items:center}.vehicles-hero-copy{position:relative;z-index:2;max-width:760px}.vehicles-hero-copy>small{display:block;font-size:9px;letter-spacing:.14em;font-weight:750;color:#64748b}.vehicles-hero-copy h1{margin:4px 0 5px;font-size:30px;line-height:1.05;font-weight:650;letter-spacing:-.03em}.vehicles-hero-copy>p{margin:0 0 12px;max-width:700px;color:#64748b;font-size:11.5px;line-height:1.4}.vehicles-live-line{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}.vehicles-live-line strong{font-size:11px;color:#334155}.vehicles-live-line span{font-size:10px;color:#64748b}.vehicles-hero-art{position:absolute;right:20px;top:3px;width:min(36%,420px);height:145px;display:flex;align-items:center;justify-content:flex-end;pointer-events:none}.vehicles-hero-art:before{content:"";position:absolute;inset:18px 0 0 18%;background:radial-gradient(circle at center,rgba(37,99,235,.12),transparent 66%)}.vehicles-hero-art img{position:relative;z-index:1;max-width:100%;max-height:140px;object-fit:contain;filter:drop-shadow(0 14px 24px rgba(15,35,80,.16))}
-    .vehicles-top-status{margin-top:0!important}.rhi-top-actions{margin-top:0!important}.vehicle-filter-bar{margin-top:0!important;box-shadow:none!important}\n    .vehicle-management-bar{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:9px;align-items:center;border:1px solid #e2e8f0;border-radius:14px;background:#fff;padding:7px 8px;box-shadow:0 8px 24px rgba(15,35,80,.035)}.vehicle-filter-group{display:flex;gap:5px;min-width:0;overflow-x:auto}.vehicle-filter-group button{height:34px;border:1px solid #dde7f2;border-radius:9px;background:#fff;color:#334155;padding:0 9px;display:flex;align-items:center;gap:6px;font-size:10.5px;font-weight:600;white-space:nowrap;cursor:pointer}.vehicle-filter-group button b{min-width:20px;border-radius:999px;background:#f1f5f9;padding:2px 6px;font-size:9px;color:#64748b}.vehicle-filter-group button.active{background:#eaf3ff;border-color:#bfd6ff;color:#0b65ea}.vehicle-filter-group button.active b{background:#fff;color:#0b65ea}.vehicle-sort-control{height:34px;border:1px solid #dde7f2;border-radius:9px;display:flex;align-items:center;gap:6px;padding:0 8px;color:#64748b;font-size:9.5px;font-weight:600}.vehicle-sort-control select{border:0;background:transparent;color:#1e293b;font-size:10.5px;font-weight:600;outline:0}.vehicle-manage-button{height:34px;border:1px solid #bfd6ff;border-radius:9px;background:#eaf3ff;color:#0b65ea;padding:0 11px;display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:650;cursor:pointer}.vehicle-manage-button ha-icon{--mdc-icon-size:16px}
+    .vehicles-top-status{margin-top:0!important}.rhi-top-actions{margin-top:0!important}.vehicle-filter-bar{margin-top:0!important;box-shadow:none!important}\n    .vehicle-management-bar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:9px;align-items:center;border:1px solid #e2e8f0;border-radius:14px;background:#fff;padding:7px 8px;box-shadow:0 8px 24px rgba(15,35,80,.035)}.vehicle-filter-group{display:flex;gap:5px;min-width:0;overflow-x:auto}.vehicle-filter-group button{height:34px;border:1px solid #dde7f2;border-radius:9px;background:#fff;color:#334155;padding:0 9px;display:flex;align-items:center;gap:6px;font-size:10.5px;font-weight:600;white-space:nowrap;cursor:pointer}.vehicle-filter-group button b{min-width:20px;border-radius:999px;background:#f1f5f9;padding:2px 6px;font-size:9px;color:#64748b}.vehicle-filter-group button.active{background:#eaf3ff;border-color:#bfd6ff;color:#0b65ea}.vehicle-filter-group button.active b{background:#fff;color:#0b65ea}.vehicle-sort-control{height:34px;border:1px solid #dde7f2;border-radius:9px;display:flex;align-items:center;gap:6px;padding:0 8px;color:#64748b;font-size:9.5px;font-weight:600}.vehicle-sort-control select{border:0;background:transparent;color:#1e293b;font-size:10.5px;font-weight:600;outline:0}.vehicle-manage-button{height:34px;border:1px solid #bfd6ff;border-radius:9px;background:#eaf3ff;color:#0b65ea;padding:0 11px;display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:650;cursor:pointer}.vehicle-manage-button ha-icon{--mdc-icon-size:16px}
     .vehicle-page-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.vehicle-page-summary-item{min-height:50px;border:1px solid #e2e8f0;border-radius:11px;background:#fff;padding:7px 9px;display:grid;grid-template-columns:28px minmax(0,1fr);gap:7px;align-items:center}.vehicle-page-summary-item>ha-icon{--mdc-icon-size:16px;width:28px;height:28px;border-radius:8px;background:#eff6ff;color:#2563eb;padding:6px;box-sizing:border-box}.vehicle-page-summary-item>span{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:6px;min-width:0}.vehicle-page-summary-item small{font-size:9px;color:#64748b}.vehicle-page-summary-item b{font-size:14px;color:#0f172a}.vehicle-page-summary-item em{grid-column:1/-1;margin-top:1px;font-size:8.5px;font-style:normal;color:#94a3b8}.vehicle-page-summary-item.warn>ha-icon{background:#fff7ed;color:#c2410c}
     .vehicle-workspace-head{display:flex;align-items:end;justify-content:space-between;gap:12px;margin:3px 2px -2px}.vehicle-workspace-head h2{margin:0;font-size:18px;font-weight:650;color:#0f172a}.vehicle-workspace-head p{margin:2px 0 0;font-size:10px;color:#64748b}.vehicle-count-pill{border:1px solid #dbe5f0;border-radius:999px;background:#fff;color:#475569;padding:5px 9px;font-size:9.5px;font-weight:650;white-space:nowrap}.vehicle-count-pill.muted{background:#f8fafc}.vehicle-filter-empty{border:1px dashed #d9e3ef;border-radius:14px;background:#fbfdff;color:#64748b;padding:18px;text-align:center;font-size:11px;font-weight:600}
     .vehicle-workspace-list.vehicles{grid-template-columns:1fr!important}.vehicle-workspace-list .vehicle-card{box-shadow:0 10px 28px rgba(15,35,80,.05)}.vehicle-workspace-list .hero-split-row{grid-template-columns:minmax(0,2.7fr) minmax(155px,.72fr)}.vehicle-workspace-list .vehicle-hero-panel{min-height:168px}.vehicle-workspace-list .charger-hero-panel{min-height:168px}.vehicle-workspace-list .vehicle-image img{max-height:220px;transform:scale(1.18)}.manage-lifecycle span{display:inline!important}.manage-lifecycle{padding-inline:12px!important}
     .vehicle-appearance-action{min-width:112px}.vehicle-picker-panel{margin:0 12px 10px;border:1px solid #cfe0f6;border-radius:14px;background:linear-gradient(135deg,#fbfdff,#f3f8ff);padding:12px 14px;box-shadow:inset 0 1px 0 rgba(255,255,255,.8)}.vehicle-picker-head{display:flex;justify-content:space-between;gap:14px;align-items:start}.vehicle-picker-head small{font-size:8.5px;letter-spacing:.13em;color:#64748b;font-weight:750}.vehicle-picker-head h3{margin:2px 0 2px;font-size:15px;color:#0f172a}.vehicle-picker-head p{margin:0;font-size:9.5px;color:#64748b}.vehicle-picker-head code{font-size:9px}.vehicle-picker-close{width:30px;height:30px;border:1px solid #dbe5f0;border-radius:8px;background:#fff;color:#64748b;cursor:pointer}.vehicle-picker-close ha-icon{--mdc-icon-size:16px}.vehicle-picker-grid{display:grid;grid-template-columns:repeat(4,minmax(120px,1fr));gap:8px;align-items:end;margin-top:10px}.vehicle-picker-hierarchy .vehicle-picker-key{grid-column:1/4}.vehicle-picker-hierarchy .vehicle-picker-save{grid-column:4}.vehicle-picker-grid label,.vehicle-picker-key{display:flex;flex-direction:column;gap:4px}.vehicle-picker-grid label>span,.vehicle-picker-key>span{font-size:8.5px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.05em}.vehicle-picker-grid select{height:34px;border:1px solid #d7e2ef;border-radius:8px;background:#fff;color:#0f172a;padding:0 8px;font-size:10.5px;font-weight:600}.vehicle-picker-key code{height:34px;display:flex;align-items:center;border:1px solid #d7e2ef;border-radius:8px;background:#fff;padding:0 8px;font-size:8.5px;color:#475569;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.vehicle-picker-save{height:34px;border:1px solid #0b65ea;border-radius:8px;background:#0b65ea;color:#fff;padding:0 11px;display:flex;align-items:center;gap:6px;font-size:10px;font-weight:700;cursor:pointer}.vehicle-picker-save:disabled{background:#e2e8f0;border-color:#d5deea;color:#94a3b8;cursor:not-allowed}.vehicle-picker-save ha-icon{--mdc-icon-size:15px}.vehicle-picker-gap{margin-top:8px;display:flex;align-items:center;gap:6px;color:#9a5a16;font-size:9.5px}.vehicle-picker-gap ha-icon{--mdc-icon-size:14px}
     @media(max-width:900px){.vehicle-picker-grid{grid-template-columns:1fr 1fr}.vehicle-picker-save{justify-content:center}.vehicle-picker-key{grid-column:1/-1}}
 
-    @media(max-width:980px){.vehicle-management-bar{grid-template-columns:1fr auto}.vehicle-manage-button{grid-column:1/-1;justify-content:center}.vehicle-page-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.vehicles-hero-copy{padding-right:30%}}
-    @media(max-width:700px){.vehicles-hero{padding:16px;min-height:auto}.vehicles-hero-art{display:none}.vehicles-hero-copy{padding-right:0}.vehicle-management-bar{grid-template-columns:1fr}.vehicle-sort-control{justify-content:space-between}.vehicle-manage-button{grid-column:auto}.vehicle-page-summary{grid-template-columns:1fr 1fr}.vehicle-workspace-head{align-items:start}.vehicle-workspace-list .hero-split-row{grid-template-columns:1fr}}
+    @media(max-width:980px){.vehicle-management-bar{grid-template-columns:1fr auto}.vehicle-page-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.vehicles-hero-copy{padding-right:30%}}
+    @media(max-width:700px){.vehicles-hero{padding:16px;min-height:auto}.vehicles-hero-art{display:none}.vehicles-hero-copy{padding-right:0}.vehicle-management-bar{grid-template-columns:1fr}.vehicle-sort-control{justify-content:space-between}.vehicle-page-summary{grid-template-columns:1fr 1fr}.vehicle-workspace-head{align-items:start}.vehicle-workspace-list .hero-split-row{grid-template-columns:1fr}}
 
     /* rc.24 mobile hero art + discoverable visual picker */
     .vehicle-hero-panel{position:relative!important;isolation:isolate!important}
@@ -11203,3 +11263,98 @@ window.customCards.push({
 });
 
 console.info(`Home Intelligence Mobility UX bundle loaded ${UX_VERSION}; backend version is read from the Mobility release contract at runtime.`);
+
+// ---- src/ui/screens/bootstrap.js ----
+// Single-card Mobility bootstrap shell.
+// Existing individual Mobility custom cards remain registered and supported.
+class HomeBrainMobilityCard extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: "open" });
+    this.config = {};
+    this._hass = null;
+    this._locationHandler = () => this.render();
+  }
+
+  setConfig(config = {}) {
+    this.config = { default_view:"overview", ...(config || {}) };
+    this.render();
+  }
+
+  connectedCallback() {
+    window.addEventListener("location-changed", this._locationHandler);
+  }
+
+  disconnectedCallback() {
+    window.removeEventListener("location-changed", this._locationHandler);
+  }
+
+  set hass(hass) {
+    this._hass = hass;
+    this.render();
+  }
+
+  currentView() {
+    try {
+      const url = new URL(window.location.href);
+      const value = String(url.searchParams.get("mobility_view") || this.config.default_view || "overview").toLowerCase();
+      return ["overview","vehicles","chargers","planning","strategies","history","log","detail"].includes(value) ? value : "overview";
+    } catch (e) {
+      return String(this.config.default_view || "overview").toLowerCase();
+    }
+  }
+
+  childSpec(view) {
+    if (view === "overview" || view === "vehicles") return {
+      tag:"homebrain-mobility-dashboard-card",
+      config:{ nav_active:view }
+    };
+    if (view === "chargers") return {
+      tag:"homebrain-mobility-charger-maintenance-card",
+      config:{ nav_active:"chargers" }
+    };
+    if (["planning","strategies","history","log"].includes(view)) return {
+      tag:"homebrain-mobility-placeholder-card",
+      config:{ view }
+    };
+    return {
+      tag:"homebrain-mobility-asset-detail-card",
+      config:{}
+    };
+  }
+
+  render() {
+    if (!this.shadowRoot || !this._hass) return;
+    const view = this.currentView();
+    const spec = this.childSpec(view);
+    const basePath = String(this.config.bootstrap_path || window.location?.pathname || "/mobility-supervisor/overview");
+    const childConfig = {
+      ...this.config,
+      ...spec.config,
+      bootstrap_mode:true,
+      bootstrap_path:basePath,
+      dashboard_path:`${basePath}?mobility_view=vehicles`
+    };
+    delete childConfig.type;
+    delete childConfig.default_view;
+
+    this.shadowRoot.innerHTML = `<div id="mobility-bootstrap"></div><style>:host{display:block}#mobility-bootstrap{display:block;min-width:0}</style>`;
+    const mount = this.shadowRoot.getElementById("mobility-bootstrap");
+    const child = document.createElement(spec.tag);
+    child.setConfig?.(childConfig);
+    mount.appendChild(child);
+    child.hass = this._hass;
+  }
+
+  getCardSize() { return 12; }
+}
+
+if (!customElements.get("homebrain-mobility-card")) {
+  customElements.define("homebrain-mobility-card", HomeBrainMobilityCard);
+}
+window.customCards = window.customCards || [];
+window.customCards.push({
+  type:"homebrain-mobility-card",
+  name:"Robotix Home Intelligence Mobility",
+  description:"Single-card Mobility bootstrap with internal navigation; legacy multi-view cards remain supported."
+});
