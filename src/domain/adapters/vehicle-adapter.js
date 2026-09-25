@@ -143,7 +143,12 @@ class HomeBrainVehicleAdapter {
         source: "MOBILITY_PUBLIC_RUNTIME_V2"
       },
       facts: {
-        overview_metrics: this.rt.vehicleOverviewMetricSlots(assetId)
+        overview_metrics: this.rt.vehicleOverviewMetricSlots(assetId),
+        live_charging: this.rt.liveChargingContextForVehicle(assetId)
+      },
+      configuration: {
+        charge_power_control: this.rt.vehicleChargePowerControl(assetId),
+        charge_power_control_model: this.rt.vehicleChargePowerControlModel(assetId)
       },
       signals: { range, energy, security, comfort, maintenance, charging },
       relationships: {
