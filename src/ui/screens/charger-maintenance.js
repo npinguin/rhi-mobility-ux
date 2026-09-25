@@ -138,37 +138,12 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
     return kw.toFixed(kw >= 10 ? 1 : 1);
   }
 
-  chargerProperty(rt, assetId, propertyKey, fallback = "—") {
-    return rt.canonicalChargerPropertyDisplay(assetId, propertyKey, fallback);
-  }
-
-  chargerBinary(rt, assetId, id, fact, fallback = "") {
-    const key = String(fact || "").startsWith("charger.") ? String(fact) : `charger.${fact}`;
-    return rt.canonicalChargerPropertyDisplay(assetId, key, fallback);
-  }
-
-
-
   displayVehicleName(rt, value) {
     const raw = String(value || "").trim();
     if (!raw || ["none", "unknown", "unavailable"].includes(raw.toLowerCase())) return "None";
     const canonical = raw.startsWith("vehicle_") ? raw : `vehicle_${raw.replace(/^vehicle_/, "")}`;
     const reg = rt.registryEntry(canonical);
     return reg?.display_name || rt.vehicleLabel(raw);
-  }
-
-  chargerCommands(rt, assetId) {
-    // V1: no legacy charger command whitelist. The public command_index is authoritative.
-    return rt.commandsFor(assetId).filter((cmd) => cmd.frontend_allowed !== false && cmd.exists !== false);
-  }
-
-  choosePrimaryChargerCommand(rt, assetId, chargerState) {
-    // Return all published charging-family commands; command state is owned by the backend row.
-    return this.chargerCommands(rt, assetId).filter((cmd) => rt.commandFamily(cmd) === "charging");
-  }
-
-  canonicalLimitCommand(rt, assetId) {
-    return null;
   }
 
   lifecycleDisplay(rt, charger) {
