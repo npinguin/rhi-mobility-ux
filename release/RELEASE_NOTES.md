@@ -1,20 +1,22 @@
-# v1.0.0-rc.56 — compact asset workspaces and image-first picker TEST CANDIDATE
+# v1.0.0-rc.57 — unified Mobility design language TEST CANDIDATE
 
 ## Scope
 
-rc.56 keeps Vehicles and Chargers as separate Mobility workspaces and preserves their functional content while replacing their outdated body/layout implementation.
+rc.57 is a design-language convergence release for all top-level Mobility tabs. It deliberately preserves body semantics, command grouping, backend ownership and functional capability.
 
-- Converges Vehicles and Chargers on the compact density and whitespace discipline used by Overview.
-- Replaces oversized hero/image stages with one bounded responsive image geometry for mobile, tablet and desktop.
-- Keeps lifecycle, relationships, controls and operational content in place.
-- Replaces dropdown-first appearance editing with image-first vehicle and charger selection plus optional refinement.
-- Removes normal-user exposure of the technical visual key.
-- Uses canonical async write + backend readback only.
-- Pairs with Mobility M0.10.7, which closes editor-registration metadata convergence for profile/image configuration.
+- Uses Overview as the visual direction without forcing one identical page template.
+- Sharpens typography with lighter weights, clearer hierarchy and readable secondary text.
+- Tightens white space, baseline alignment, control heights, card geometry and icon sizing.
+- Retains premium hero imagery while bounding its responsive height, especially in tablet landscape.
+- Keeps normal/healthy states visually quiet; colour remains semantic and attention-driven.
+- Hardens the Mobility / Intelligence / Insights module navigation so labels cannot render beneath the Robotix branding region.
+- Preserves the Status → Quick Actions → Filters → Body grammar where those layers are applicable.
+- Keeps asset-specific actions and commands in their owning body cards.
+- Adds release-blocking regression coverage for responsive navigation integrity and the shared design-language tokens.
 
 Required/tested backend: `M0.10.7`.
-Rollback: `v1.0.0-rc.55`.
+Rollback: `v1.0.0-rc.56`.
 
 Accepted technical debt: 0.
 Accepted feature debt: 0.
-Target Home Assistant qualification remains mandatory.
+Target Home Assistant qualification remains mandatory across phone portrait, tablet portrait, tablet landscape and desktop.
