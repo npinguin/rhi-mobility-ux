@@ -179,6 +179,7 @@ class HomeBrainAssetRuntime {
     return {
       contract_id: attrs.contract_id,
       canonical: attrs.canonical === true,
+      release: attrs.release && typeof attrs.release === "object" ? attrs.release : {},
       assets: Array.isArray(attrs.assets) ? attrs.assets : [],
       fleet: attrs.fleet && typeof attrs.fleet === "object" ? attrs.fleet : {},
       relationships: Array.isArray(attrs.relationships) ? attrs.relationships : [],
@@ -243,8 +244,61 @@ class HomeBrainAssetRuntime {
       contract_id: attrs.contract_id,
       publisher: attrs.publisher || "",
       revision: Number(attrs.revision ?? state?.state ?? 0) || 0,
-      policy: attrs.policy && typeof attrs.policy === "object" ? attrs.policy : {}
+      policy: attrs.policy && typeof attrs.policy === "object" ? attrs.policy : {},
+      editors: Array.isArray(attrs.editors) ? attrs.editors : []
     };
+  }
+
+  policyValue(policyKey = "") {
+    const policy = this.mobilityPolicyV2()?.policy || {};
+    const [section, field] = String(policyKey || "").split(".", 2);
+    return section && field ? policy?.[section]?.[field] : undefined;
+  }
+
+  policyEditor(policyKey = "") {
+    return (this.mobilityPolicyV2()?.editors || []).find((row)=>String(row?.policy_key || "") === String(policyKey || "")) || null;
+  }
+
+  canonicalPolicyValueEqual(actual, expected) {
+    if (Array.isArray(expected)) {
+      const left = Array.isArray(actual) ? [...actual].map(String).sort() : [];
+      const right = [...expected].map(String).sort();
+      return JSON.stringify(left) === JSON.stringify(right);
+    }
+    return this.canonicalWriteValueEqual(actual, expected);
+  }
+
+  async waitForPolicyReadback(policyKey = "", expected = "", revisionBefore = 0, options = {}) {
+    const attempts = Math.max(1, Number(options.attempts || 20));
+    const delayMs = Math.max(25, Number(options.delay_ms || 150));
+    for (let attempt = 0; attempt < attempts; attempt += 1) {
+      const policy = this.mobilityPolicyV2();
+      const actual = this.policyValue(policyKey);
+      if (Number(policy?.revision || 0) > Number(revisionBefore || 0) && this.canonicalPolicyValueEqual(actual, expected)) return true;
+      if (attempt < attempts - 1) await new Promise((resolve)=>setTimeout(resolve, delayMs));
+    }
+    return false;
+  }
+
+  async writePolicyAsync(policyKey = "", value = "", options = {}) {
+    const editor = this.policyEditor(policyKey);
+    if (!editor || !this.hass) return false;
+    const domain = String(editor.write_service_domain || "").trim();
+    const action = String(editor.write_service_action || "").trim();
+    if (!domain || !action) return false;
+    const before = Number(this.mobilityPolicyV2()?.revision || 0);
+    const payload = { ...(editor.write_service_data && typeof editor.write_service_data === "object" ? editor.write_service_data : {}) };
+    payload.policy_key = String(editor.policy_key || policyKey);
+    payload[String(editor.write_value_field || "value")] = value;
+    try {
+      await this.hass.callService(domain, action, payload);
+      const confirmed = await this.waitForPolicyReadback(policyKey, value, before, options);
+      if (!confirmed) console.error("[RHI Mobility UX] policy readback timeout", {policy_key:policyKey,expected:value});
+      return confirmed;
+    } catch (error) {
+      console.error("[RHI Mobility UX] policy write failed", {policy_key:policyKey,error});
+      return false;
+    }
   }
 
   mobilityCommandV2() {
@@ -446,31 +500,31 @@ class HomeBrainAssetRuntime {
   }
 
   runtimeHealthSummary() {
-    const hardRows = this.runtimeHealthGateRows();
+    const runtime = this.mobilityRuntimeV2();
+    const healthEntity = this.entity("sensor.rhi_mobility_health") || this.entity("sensor.mobility_runtime_health");
+    const rawHealth = String(healthEntity?.state || "").trim().toUpperCase();
+
+    let status = "UNKNOWN";
+    if (["READY","OK","PASS","PASSED","HEALTHY"].includes(rawHealth)) status = "OK";
+    else if (["READY_WITH_LIMITATIONS","CONFIGURATION_REQUIRED","DEGRADED","WARNING","WARN"].includes(rawHealth)) status = "DEGRADED";
+    else if (["BLOCKED","FAIL","FAILED","ERROR","NOT_OK"].includes(rawHealth)) status = "BLOCKED";
+    else if (runtime && runtime.canonical === true) status = "OK";
+
+    const attrs = healthEntity?.attributes || {};
     const diagnosticRows = this.runtimeDiagnosticRows();
     const diagnosticBad = diagnosticRows.filter((r) => r.bad);
-    const release = this.releaseContract();
-    const explicitRuntime = String(release.runtime_health || "").trim();
-    const deploymentState = String(this.entity("sensor.mobility_runtime_deployment_health")?.state || "").trim();
-    const rawRuntime = explicitRuntime && !["unknown","unavailable","none"].includes(explicitRuntime.toLowerCase()) ? explicitRuntime : deploymentState;
-    const normalized = String(rawRuntime || "UNKNOWN").toUpperCase();
-    let status = "UNKNOWN";
-    if (["OK","PASS","PASSED","READY","HEALTHY"].includes(normalized)) status = "OK";
-    else if (["DEGRADED","WARNING","WARN"].includes(normalized)) status = "DEGRADED";
-    else if (["FAIL","FAILED","BLOCKED","ERROR","NOT_OK"].includes(normalized)) status = "BLOCKED";
-    const runtimeBad = ["DEGRADED","BLOCKED"].includes(status);
-    const diagnosticStatus = diagnosticBad.length ? "DEGRADED" : "OK";
     return {
       status,
       ok: status === "OK",
-      bad_count: runtimeBad ? 1 : 0,
+      bad_count: ["DEGRADED","BLOCKED"].includes(status) ? 1 : 0,
       blocking_count: status === "BLOCKED" ? 1 : 0,
-      diagnostic_status: diagnosticStatus,
+      diagnostic_status: diagnosticBad.length ? "DEGRADED" : "OK",
       diagnostic_bad_count: diagnosticBad.length,
-      rows: hardRows,
+      rows: [],
       diagnostics: diagnosticRows,
-      physical_acceptance: release.physical_acceptance || "Unknown",
-      release_acceptance: release.release_acceptance || "Unknown",
+      product_readiness: String(attrs.product_readiness || healthEntity?.state || "Unknown"),
+      physical_acceptance: "Unknown",
+      release_acceptance: "Unknown",
       message: status === "OK" ? "Mobility runtime healthy." : status === "DEGRADED" ? "Mobility runtime degraded." : status === "BLOCKED" ? "Mobility runtime failed." : "Mobility runtime health unavailable."
     };
   }
@@ -478,7 +532,7 @@ class HomeBrainAssetRuntime {
   renderRuntimeHealthWarning() {
     const summary = this.runtimeHealthSummary();
     if (!["DEGRADED","BLOCKED"].includes(summary.status)) return "";
-    const deployment = String(this.entity("sensor.mobility_runtime_deployment_health")?.state || summary.status);
+    const deployment = String((this.entity("sensor.rhi_mobility_health") || this.entity("sensor.mobility_runtime_health"))?.state || summary.status);
     return `<div class="hi-contract-warning" title="Mobility runtime health warning"><div><strong>Runtime ${summary.status === "BLOCKED" ? "failed" : "degraded"}</strong> — ${this.escape(summary.message)}</div><div class="hi-contract-warning-list"><span>Runtime health: ${this.escape(deployment)}</span></div></div>`;
   }
 
@@ -718,6 +772,8 @@ class HomeBrainAssetRuntime {
         relationship_resolution:relation?.relationship_status || "",
         reason:relation?.reason || "",
         observed_identity_proven:relation?.observed_identity_proven === true,
+        assigned_charger_connection_state:String(relation?.assigned_charger_connection_state || ""),
+        assigned_charger_occupied:relation?.assigned_charger_occupied === true ? true : relation?.assigned_charger_occupied === false ? false : null,
         row:relation,
         physical_row:relation,
         effective_row:relation,
@@ -750,11 +806,19 @@ class HomeBrainAssetRuntime {
 
 
   releaseContract() {
+    const runtimeRelease = this.mobilityRuntimeV2()?.release || {};
     const contractEntity = this.entity("sensor.mobility_release_contract");
     const identityEntity = this.entity("sensor.mobility_release_identity");
-    const e = contractEntity || identityEntity;
-    const attrs = { ...(identityEntity?.attributes || {}), ...(contractEntity?.attributes || {}) };
+    const modernReleaseEntity = this.entity("sensor.rhi_mobility_release");
+    const attrs = {
+      ...(identityEntity?.attributes || {}),
+      ...(contractEntity?.attributes || {}),
+      ...(modernReleaseEntity?.attributes || {}),
+      ...(runtimeRelease || {})
+    };
     const backend = this.cleanValue(
+      runtimeRelease.backend_release ||
+      runtimeRelease.release ||
       attrs.backend_release ||
       attrs.backend_version ||
       attrs.backend_release_version ||
@@ -762,6 +826,7 @@ class HomeBrainAssetRuntime {
       attrs.release ||
       attrs.version ||
       attrs.package_version ||
+      modernReleaseEntity?.state ||
       contractEntity?.state ||
       identityEntity?.state ||
       "",
@@ -770,6 +835,9 @@ class HomeBrainAssetRuntime {
     return {
       backend_release: backend,
       backend_version: backend,
+      release_name: this.cleanValue(runtimeRelease.release_name || attrs.release_name || "", "") || "",
+      shared_baseline_id: this.cleanValue(runtimeRelease.shared_baseline_id || attrs.shared_baseline_id || "", "") || "",
+      shared_baseline_version: this.cleanValue(runtimeRelease.shared_baseline_version || attrs.shared_baseline_version || "", "") || "",
       contract_version: this.cleanValue(attrs.contract_version || attrs.contract_release || attrs.contract || "", "Unknown") || "Unknown",
       schema_version: this.cleanValue(attrs.schema_version || attrs.schema || "", "Unknown") || "Unknown",
       build_date: this.cleanValue(attrs.build_date || attrs.release_date || attrs.generated_at || "", "Unknown") || "Unknown",
@@ -781,7 +849,7 @@ class HomeBrainAssetRuntime {
   }
 
   backendVersion() {
-    // R22.7.9.21 contract lock: backend/version source is sensor.mobility_release_contract only.
+    // Backend identity is canonical Runtime V2 metadata; legacy release entities are compatibility only.
     return this.releaseContract().backend_release;
   }
 
@@ -2309,33 +2377,49 @@ class HomeBrainAssetRuntime {
     return this.vehicleComponentRows().map((c)=>this.vehicleComponentModel(assetId, c.component_id)).filter(Boolean);
   }
 
+  canonicalFactModel(assetId = "", propertyKey = "", label = "") {
+    const canonical = this.canonicalAssetId(assetId);
+    const key = String(propertyKey || "").trim();
+    const prop = key ? this.propertyByCompoundKey(canonical, key) : null;
+    const raw = prop ? this.cleanValue(prop.value, "") : "";
+    const resolved = !!prop && raw !== "" && raw !== null && raw !== undefined;
+    const display = resolved ? this.formatValue(raw, prop.unit || "", key) : "—";
+    return {
+      asset_id:canonical,
+      property_key:key,
+      label:label || this.propertyDisplayLabel(prop || { property_key:key }),
+      resolved,
+      available:resolved,
+      value:resolved ? raw : "",
+      display,
+      unit:prop?.unit || "",
+      prop,
+      reason:!prop ? "property_contract_gap" : (resolved ? "" : "missing_value")
+    };
+  }
+
+  vehicleSummaryFacts(assetId = "") {
+    const canonical = this.canonicalAssetId(assetId);
+    return {
+      full_range:this.canonicalFactModel(canonical, "vehicle.range_total_km", "Full"),
+      ev_range:this.canonicalFactModel(canonical, "vehicle.ev_range_km", "EV"),
+      battery:this.canonicalFactModel(canonical, "vehicle.soc_pct", "Battery")
+    };
+  }
+
   vehicleOverviewMetricSlots(assetId = "") {
     const canonical = this.canonicalAssetId(assetId);
 
-    // Supported V2 path: consume the exact canonical properties directly. The
-    // labels are presentation-owned, but values/units are backend-owned.
+    // Supported V2 path: one normalized fact shape is shared by every screen.
+    // Overview, Management and Detail may present the fact differently, but
+    // they may not consume different canonical keys or object contracts.
     if (this.mobilityRuntimeV2()) {
-      const specs = [
-        { property_key:"vehicle.range_total_km", label:"Full" },
-        { property_key:"vehicle.ev_range_km", label:"EV" },
-        { property_key:"vehicle.soc_pct", label:"Battery" }
-      ];
-      return specs.map((spec)=>{
-        const prop = this.propertyByCompoundKey(canonical, spec.property_key);
-        if (!prop) return { label:spec.label, value:"—", property_key:spec.property_key, available:false };
-        const raw = this.cleanValue(prop.value, "");
-        const available = raw !== "" && raw !== null && raw !== undefined;
-        return {
-          label:spec.label,
-          value:available ? this.formatValue(raw, prop.unit || "", spec.property_key) : "—",
-          property_key:spec.property_key,
-          available,
-          prop
-        };
-      });
+      const facts = this.vehicleSummaryFacts(canonical);
+      return [facts.full_range, facts.ev_range, facts.battery];
     }
 
-    // Frozen pre-V2 compatibility path only.
+    // Frozen pre-V2 compatibility path only. Normalize it into the same
+    // resolved/display/value shape so presentation code has one contract.
     const specs = [
       { component_id:"range", property_index:0, label:"Full" },
       { component_id:"range", property_index:1, label:"EV" },
@@ -2347,13 +2431,18 @@ class HomeBrainAssetRuntime {
       const rows = component ? this.vehicleComponentProperties(canonical, component.component_id) : [];
       const prop = propertyKey ? rows.find((row)=>String(row.property_key || "") === String(propertyKey)) : null;
       const raw = prop ? this.cleanValue(prop.value, "") : "";
-      const available = raw !== "" && raw !== null && raw !== undefined;
+      const resolved = !!prop && raw !== "" && raw !== null && raw !== undefined;
       return {
+        asset_id:canonical,
         label:spec.label,
-        value:available ? this.formatValue(raw, prop?.unit || "", propertyKey) : "—",
         property_key:propertyKey,
-        available,
-        prop
+        resolved,
+        available:resolved,
+        value:resolved ? raw : "",
+        display:resolved ? this.formatValue(raw, prop?.unit || "", propertyKey) : "—",
+        unit:prop?.unit || "",
+        prop,
+        reason:!prop ? "property_contract_gap" : (resolved ? "" : "missing_value")
       };
     });
   }
