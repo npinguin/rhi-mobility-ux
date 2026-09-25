@@ -223,7 +223,7 @@ class HomeBrainAssetShell {
       <div class="metric tone-${this.rt.escape(m.tone || "neutral")} ${m.detailRoute ? "has-detail-link" : ""}">
         <ha-icon icon="${m.icon}"></ha-icon>
         <div class="metric-copy"><span>${this.rt.escape(m.label)}</span><b>${this.rt.escape(m.value)}</b>${m.subvalue ? `<small class="metric-sub">${m.subIcon ? `<ha-icon class="metric-sub-icon" icon="${this.rt.escape(m.subIcon)}"></ha-icon>` : ""}${this.rt.escape(m.subvalue)}</small>` : ""}</div>
-        ${m.detailRoute ? `<button class="metric-detail-link" data-nav="${this.rt.escape(m.detailRoute)}" title="${this.rt.escape(m.detailTitle || "Open related asset details")}"><ha-icon icon="mdi:plus"></ha-icon></button>` : ""}
+        ${m.detailRoute ? `<button class="metric-detail-link" data-nav="${this.rt.escape(m.detailRoute)}" aria-label="${this.rt.escape(m.detailTitle || "Open related asset details")}" title="${this.rt.escape(m.detailTitle || "Open related asset details")}"><ha-icon icon="mdi:chevron-right"></ha-icon></button>` : ""}
       </div>`).join("");
     const mainSections = (model.sections || []).filter((s) => s && s.key !== "activity");
     const chargerAppearance = model.type === "charger"
