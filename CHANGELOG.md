@@ -1,3 +1,10 @@
+## 1.0.0-rc.61 — Vehicle Management runtime closure
+
+- fixes the rc.60 Vehicle Management render crash caused by the stale undefined `experienceById` refactor residue;
+- projects canonical `asset.profile_id` through VehicleProjection and uses that projection for configured-profile counts;
+- adds an executable Vehicle Management render regression covering profiled and unprofiled active vehicles;
+- preserves Mobility M0.10.10 compatibility and zero accepted technical/feature debt.
+
 ## 1.0.0-rc.60 — canonical projection closure
 
 - makes HomeBrainVehicleAdapter and HomeBrainChargerAdapter the shared asset projection authority across Overview, Management and Detail;
