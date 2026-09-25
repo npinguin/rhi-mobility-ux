@@ -453,18 +453,25 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
       });
     });
     this.shadowRoot.querySelectorAll("button[data-lifecycle-asset]").forEach((btn) => {
-      btn.addEventListener("click", (ev) => {
+      btn.addEventListener("click", async (ev) => {
         ev.preventDefault();
         ev.stopPropagation();
         if (btn.disabled) return;
         const assetId = btn.getAttribute("data-lifecycle-asset") || "";
         const value = btn.getAttribute("data-lifecycle-value") || "";
         if (!assetId || !value) return;
-        const ok = rt.writeLifecycleStatus(assetId, value);
-        if (!ok) return;
+        btn.disabled = true;
+        btn.classList.remove("failed");
+        const ok = await rt.writeLifecycleStatusAsync(assetId, value);
+        if (!ok) {
+          btn.disabled = false;
+          btn.classList.add("failed");
+          btn.title = "Write rejected or canonical readback did not confirm lifecycle state.";
+          return;
+        }
         btn.classList.add("sent");
         this._lastSignature = "";
-        setTimeout(()=>{ if (this.isConnected) this.hass = this._hass; }, 650);
+        setTimeout(()=>{ if (this.isConnected) this.hass = this._hass; }, 450);
       });
     });
     this.shadowRoot.querySelectorAll("button[data-charger-picker]").forEach((btn) => {
