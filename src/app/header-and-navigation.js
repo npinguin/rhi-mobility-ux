@@ -224,15 +224,15 @@ function hbMobilitySharedShellStyles() {
       --nav-active-bg:#edf5ff;
       --nav-active-border:#cfdef1;
       --nav-active-text:#0f4ca4;
-      --rhi-company-area-min:250px;
-      --rhi-company-area-max:320px;
-      --rhi-company-logo-max-width:286px;
+      --rhi-company-area-min:190px;
+      --rhi-company-area-max:280px;
+      --rhi-company-logo-max-width:250px;
       --rhi-company-logo-max-height:116px;
       --rhi-company-logo-padding:10px 16px;
       --rhi-company-divider:rgba(226,232,240,.82);
       position:relative;
       display:grid;
-      grid-template-columns:minmax(0,1fr) minmax(var(--rhi-company-area-min),var(--rhi-company-area-max));
+      grid-template-columns:minmax(0,1fr) clamp(var(--rhi-company-area-min),23%,var(--rhi-company-area-max));
       gap:0;
       width:100%;
       box-sizing:border-box;
@@ -248,18 +248,18 @@ function hbMobilitySharedShellStyles() {
     .hi-domain-shell.hi-nav-intelligence{--nav-active-bg:#f1edff;--nav-active-border:#dfd5fb;--nav-active-text:#5a38b3}
     .hi-domain-shell.hi-nav-insights{--nav-active-bg:#e7f7f4;--nav-active-border:#cdebe6;--nav-active-text:#176e67}
 
-    .hi-product-area{min-width:0}
+    .hi-product-area{min-width:0;overflow:hidden}
     .hi-domain-shell-top{
       min-height:78px;
       display:grid;
-      grid-template-columns:minmax(270px,.72fr) minmax(430px,1.28fr);
+      grid-template-columns:minmax(168px,.52fr) minmax(0,1.48fr);
       align-items:center;
-      gap:24px;
+      gap:14px;
       padding:10px 22px 9px;
     }
     .hi-domain-identity{display:grid;align-content:center;gap:2px;min-width:0;min-height:56px;padding:2px 0 0 4px}
-    .hi-domain-identity span{font-size:15px;line-height:1.1;font-weight:520;letter-spacing:-.01em;color:#58708f;white-space:nowrap}
-    .hi-domain-identity strong{font-size:24px;line-height:1.02;letter-spacing:.055em;font-weight:790;color:#0b467f;white-space:nowrap}
+    .hi-domain-identity span{font-size:13px;line-height:1.15;font-weight:450;letter-spacing:-.005em;color:#58708f;white-space:nowrap}
+    .hi-domain-identity strong{font-size:21px;line-height:1.03;letter-spacing:.045em;font-weight:650;color:#0b467f;white-space:nowrap}
 
     .hi-module-tabs,.domain-tabs{
       display:flex;
@@ -272,26 +272,30 @@ function hbMobilitySharedShellStyles() {
       overscroll-behavior-inline:contain;
     }
     .hi-module-tabs::-webkit-scrollbar,.domain-tabs::-webkit-scrollbar{display:none}
-    .hi-module-tabs{width:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding:0;background:transparent;border:0;border-radius:0;max-width:100%}
+    .hi-module-tabs{width:100%;min-width:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;padding:0;background:transparent;border:0;border-radius:0;max-width:100%;overflow:hidden}
     .hi-module-tab{
       appearance:none;
-      min-height:50px;
+      min-width:0;
+      width:100%;
+      min-height:46px;
       border:0;
-      border-radius:15px;
+      border-radius:13px;
       background:transparent;
-      padding:10px 20px;
+      padding:8px 8px;
       font:inherit;
-      font-size:13px;
-      font-weight:660;
+      font-size:12px;
+      font-weight:560;
       color:#53647d;
       cursor:pointer;
       white-space:nowrap;
       display:flex;
       align-items:center;
-      gap:10px;
+      justify-content:center;
+      gap:7px;
       transition:background .15s ease,color .15s ease,box-shadow .15s ease;
     }
-    .hi-module-tab ha-icon{--mdc-icon-size:22px;color:currentColor}
+    .hi-module-tab ha-icon{--mdc-icon-size:20px;color:currentColor;flex:0 0 20px}
+    .hi-module-tab span{min-width:0;display:block;overflow:hidden;text-overflow:ellipsis}
     .hi-module-tab:hover{background:#f8fafc;color:#2f3f56}
     .hi-module-tab.active{background:var(--nav-active-bg);color:var(--nav-active-text);box-shadow:inset 0 0 0 1px var(--nav-active-border),0 6px 16px rgba(15,23,42,.035)}
 
@@ -317,8 +321,8 @@ function hbMobilitySharedShellStyles() {
       background:transparent;
       padding:7px 12px;
       font:inherit;
-      font-size:11px;
-      font-weight:600;
+      font-size:11.5px;
+      font-weight:520;
       color:#5f6d80;
       cursor:pointer;
       white-space:nowrap;
@@ -327,13 +331,14 @@ function hbMobilitySharedShellStyles() {
       gap:6px;
       transition:background .15s ease,color .15s ease,box-shadow .15s ease;
     }
-    .domain-tab-icon{--mdc-icon-size:13px;color:#7a8798;flex:0 0 13px}
+    .domain-tab-icon{--mdc-icon-size:16px;color:#7a8798;flex:0 0 16px}
     .domain-tab:hover{background:#f8fafc;color:#425269}
     .domain-tab:hover .domain-tab-icon{color:#66758a}
     .domain-tab.active{background:var(--nav-active-bg);color:var(--nav-active-text);box-shadow:inset 0 0 0 1px var(--nav-active-border)}
     .domain-tab.active .domain-tab-icon{color:#718096}
 
     .hi-company-brand{
+      position:relative;z-index:2;
       min-width:0;
       border-left:1px solid var(--rhi-company-divider);
       display:grid;
@@ -394,10 +399,10 @@ function hbMobilitySharedShellStyles() {
     .rhiUxFooterAction{margin-top:7px;padding-top:7px;border-top:1px solid #eef2f7;color:#475569;font-weight:600}
 
     @media(max-width:1180px){
-      .hi-domain-shell{--rhi-company-area-min:220px;--rhi-company-area-max:250px;--rhi-company-logo-max-width:220px;--rhi-company-logo-max-height:94px;--rhi-company-logo-padding:8px 12px}
-      .hi-domain-shell-top{grid-template-columns:minmax(205px,.56fr) minmax(0,1.44fr);gap:12px;padding-inline:16px}
+      .hi-domain-shell{--rhi-company-area-min:170px;--rhi-company-area-max:220px;--rhi-company-logo-max-width:198px;--rhi-company-logo-max-height:94px;--rhi-company-logo-padding:8px 12px}
+      .hi-domain-shell-top{grid-template-columns:minmax(150px,.48fr) minmax(0,1.52fr);gap:8px;padding-inline:14px}
       .hi-module-tabs{gap:6px}
-      .hi-module-tab{padding:9px 8px;font-size:11.5px}
+      .hi-module-tab{padding:7px 5px;font-size:11px}
       .hi-domain-identity span{font-size:13.5px}
       .hi-domain-identity strong{font-size:21px}
       .hi-domain-shell-bottom{padding-inline:16px}
