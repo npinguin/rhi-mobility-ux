@@ -1,3 +1,11 @@
+## 1.0.0-rc.59 — permanent detail quick actions
+
+- keeps supported Vehicle and Charger commands permanently visible in the dedicated Quick Actions strip;
+- makes detail action visibility depend only on producer-owned `MOBILITY_COMMAND_V2` support/readiness, never on status-card navigation or disclosure state;
+- replaces the ambiguous related-asset status `+` affordance with a clear detail chevron;
+- keeps unsupported assets action-free and keeps temporarily unavailable supported commands visible but disabled with the backend reason;
+- preserves canonical command execution through `rhi_mobility.execute_command` and zero accepted technical/feature debt.
+
 ## 1.0.0-rc.58 — bootstrap install and charger layout cleanup
 
 - adds `custom:homebrain-mobility-card` as a single-card bootstrap shell for new Mobility dashboards;
