@@ -1,3 +1,12 @@
+## 1.0.0-rc.56 — compact asset workspaces and image-first picker
+
+- keeps Vehicles and Chargers separate while converging both bodies on Overview-style compact density;
+- standardizes vehicle/charger image alignment across phone, tablet and desktop;
+- makes appearance selection image-first with product cards and secondary refinement controls;
+- removes technical visual-key presentation from normal UX;
+- keeps writes on canonical async backend readback;
+- pairs with Mobility M0.10.7 for reliable profile/image editor metadata after HA registration.
+
 ## 1.0.0-rc.55 — canonical visual library refresh
 
 - replaces Audi Q8 with the new normalized 640×380 transparent master;
