@@ -137,6 +137,7 @@ class HomeBrainChargerAdapter {
       },
       availability: this.overviewAvailability(),
       commands,
+      experience,
       source_contracts: ["MOBILITY_PUBLIC_RUNTIME_V2", "MOBILITY_EXPERIENCE_V2", "MOBILITY_COMMAND_V2"]
     };
   }
