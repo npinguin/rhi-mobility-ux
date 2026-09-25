@@ -1460,6 +1460,8 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     .vehicle-actions.clean-actions .details-action.icon-only{grid-column:7!important;}
     .vehicle-actions.clean-actions .presence-toggle.icon-only{grid-column:6!important;}
     .charger-mini-image img{object-fit:contain!important;}
+    .charger-mini-image img{opacity:1!important;filter:drop-shadow(0 10px 18px rgba(15,35,80,.16)) contrast(1.06)!important}
+    .charger-mini-image{background:#fff!important}
     .hero-split-row,.vehicle-control-row.mock-row,.vehicle-actions.clean-actions{min-width:0!important;}
     @media(max-width:900px){.vehicle-actions.clean-actions{grid-template-columns:repeat(2,minmax(0,1fr)) 38px 38px!important;overflow:visible!important}.vehicle-actions.clean-actions .action:not(.icon-only){display:inline-flex!important}.vehicle-actions.clean-actions .presence-toggle.icon-only{grid-column:3!important}.vehicle-actions.clean-actions .details-action.icon-only{grid-column:4!important}}
     .asset-detail .hero,.asset-hero{margin-bottom:8px!important}
