@@ -1,6 +1,6 @@
 {
-  "candidate_version": "1.0.0-rc.58",
-  "candidate_tag": "v1.0.0-rc.58",
+  "candidate_version": "1.0.0-rc.59",
+  "candidate_tag": "v1.0.0-rc.59",
   "candidate_sha": "pending",
   "target_home_assistant": "pending",
   "hacs_install": "pending",
@@ -151,5 +151,7 @@
   "bootstrap_internal_navigation": "pending",
   "bootstrap_refresh_persistence": "pending",
   "legacy_multiview_compatibility": "pending",
-  "charger_icon_hierarchy": "pending"
+  "charger_icon_hierarchy": "pending",
+  "detail_quick_actions_always_visible_when_supported": "pending",
+  "detail_related_asset_navigation_not_action_disclosure": "pending"
 }
