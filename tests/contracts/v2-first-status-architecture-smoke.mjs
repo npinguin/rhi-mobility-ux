@@ -88,6 +88,6 @@ if (!chargerAdapter.includes('String(fault.state || "").toLowerCase() === "activ
 
 if (!presentation.includes('title:"Vehicle Management"') || !presentation.includes('title:"Charger Management"')) throw new Error('management hero naming drift');
 if (!presentation.includes('status-count-${visible.length}')) throw new Error('status grid must size to useful card count');
-if (!presentation.includes('.rhi-top-status-item.ok .rhi-top-status-icon{background:#EEF3FF;color:#315FBA}')) throw new Error('normal/OK status colour must stay neutral');
+if (!presentation.includes('.rhi-top-status-item.ok .rhi-top-status-icon,.rhi-top-status-item.neutral .rhi-top-status-icon{background:#F0F5FC;color:#355D96}')) throw new Error('normal/OK status colour must stay neutral');
 
 console.log('PASS rc.43 V2 contract ownership: backend concludes, UX selects/aggregates/formats/presents');
