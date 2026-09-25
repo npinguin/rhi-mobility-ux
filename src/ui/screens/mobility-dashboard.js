@@ -662,27 +662,47 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     const charging = Number(fleet.charging_charger_count);
     const available = Number(fleet.available_charger_count);
     const chargingFallback = chargerRows.filter((row)=>String(row?.charging_intelligence?.state || "").toLowerCase() === "running").length;
+    const connectedCount = Number.isFinite(connected) ? connected : connectedRows.length;
+    const chargingCount = Number.isFinite(charging) ? charging : chargingFallback;
     const powerState = String(fleet.aggregate_power_state || "unknown").toLowerCase();
-    const power = Number(fleet.aggregate_actual_charging_power_kw);
-    const powerDisplay = Number.isFinite(power) && powerState !== "unknown"
-      ? `${power.toFixed(1)} kW${powerState === "partial" ? " · partial" : " now"}`
-      : "Power unknown";
-    const currentContext = provenMappings.length
-      ? provenMappings.slice(0,2).join(" · ")
-      : (connectedRows.length ? connectedRows.slice(0,3).map(label).join(" · ") : "No charger connected");
+    const power = fleet.aggregate_actual_charging_power_kw;
+    const powerNumber = power === null || power === undefined || power === "" ? null : Number(power);
+    const knownPower = Number(fleet.power_known_charger_count);
+    const unknownPower = Number(fleet.power_unknown_charger_count);
+    const knownCount = Number.isFinite(knownPower) ? knownPower : 0;
+    const unknownCount = Number.isFinite(unknownPower) ? unknownPower : 0;
+    const powerSourceTotal = knownCount + unknownCount;
+
+    let powerDisplay = "Power unavailable";
+    if (Number.isFinite(powerNumber) && powerState === "complete") powerDisplay = `${powerNumber.toFixed(1)} kW now`;
+    else if (Number.isFinite(powerNumber) && powerState === "partial") powerDisplay = `${powerNumber.toFixed(1)} kW known`;
+
+    let currentContext = "No charger connected";
+    if (provenMappings.length) currentContext = provenMappings.slice(0,2).join(" · ");
+    else if (connectedRows.length) currentContext = connectedRows.slice(0,3).map(label).join(" · ");
+    else if (connectedCount > 0) currentContext = `${connectedCount} connected charger${connectedCount === 1 ? "" : "s"} · identity unavailable`;
+
     const availabilityDisplay = availableRows.length
       ? `${availableRows.slice(0,3).map(label).join(" · ")} available`
       : (Number.isFinite(available) ? `${available} available` : "Availability unknown");
+    const powerCoverage = powerState === "complete"
+      ? "Power coverage complete"
+      : powerState === "partial"
+        ? (powerSourceTotal ? `Power coverage ${knownCount}/${powerSourceTotal} chargers` : "Power coverage partial")
+        : "Power coverage unavailable";
 
     return {
-      connected:Number.isFinite(connected) ? connected : connectedRows.length,
-      charging:Number.isFinite(charging) ? charging : chargingFallback,
+      connected:connectedCount,
+      charging:chargingCount,
       available:Number.isFinite(available) ? available : availableRows.length,
       powerDisplay,
-      stateDisplay:`${Number.isFinite(charging) ? charging : chargingFallback} charging · ${Number.isFinite(connected) ? connected : connectedRows.length} connected`,
+      stateDisplay:`${chargingCount} charging · ${connectedCount} connected`,
       currentContext,
       availabilityDisplay,
-      powerState
+      powerState,
+      powerCoverage,
+      powerKnownCount:knownCount,
+      powerUnknownCount:unknownCount
     };
   }
 
@@ -723,19 +743,44 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     }
     const missing = Math.max(0, vehicles.length - rows.length);
     for (let i=0;i<missing;i+=1) groups.unknown.push({name:"Unknown",summary:"No Experience V2 row"});
+    const secure = groups.secure.length;
+    const unsafe = groups.unsafe.length;
+    const incomplete = groups.incomplete.length;
+    const unknown = groups.unknown.length;
+    const total = vehicles.length;
+    const unresolved = incomplete + unknown;
+    const headline = unsafe
+      ? `${unsafe} unsafe`
+      : unresolved
+        ? `${secure} secure · ${unresolved} unknown`
+        : `${secure}/${total} secure`;
     return {
       unsafe:groups.unsafe,
-      unsafeCount:groups.unsafe.length,
-      secure:groups.secure.length,
-      incomplete:groups.incomplete.length,
-      unknown:groups.unknown.length
+      unsafeCount:unsafe,
+      secure,
+      incomplete,
+      unknown,
+      unresolved,
+      total,
+      headline
     };
   }
 
   overviewMaintenanceStatus(rt, vehicles = []) {
     const activeIds = new Set(vehicles.map((vehicle)=>this.assetId(vehicle)));
     const rows = (rt.mobilityExperienceV2()?.vehicles || []).filter((row)=>activeIds.has(String(row?.asset_id || "")));
+    const policy = rt.mobilityPolicyV2();
+    const policyDaysRaw = policy?.policy?.maintenance?.due_soon_days;
+    const policyDays = Number.isFinite(Number(policyDaysRaw)) ? Number(policyDaysRaw) : null;
     const groups = { overdue:[], due_soon:[], scheduled:[], ok:[], unknown:[] };
+    const nextDue = (intel={}) => {
+      const values = [
+        intel?.oil_service?.days_remaining,
+        intel?.inspection?.days_remaining,
+        intel?.general_inspection?.days_remaining
+      ].map(Number).filter(Number.isFinite);
+      return values.length ? Math.min(...values) : null;
+    };
     for (const row of rows) {
       const intel = row?.maintenance_intelligence || {};
       const state = String(intel.state || "unknown").toLowerCase();
@@ -743,19 +788,37 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
       groups[bucket].push({
         name:this.overviewShortLabel(row, row.display_name || row.asset_id),
         summary:String(intel.summary || state),
-        intelligence:intel
+        intelligence:intel,
+        nextDueDays:nextDue(intel)
       });
     }
     const missing = Math.max(0, vehicles.length - rows.length);
-    for (let i=0;i<missing;i+=1) groups.unknown.push({name:"Unknown",summary:"No Experience V2 row"});
+    for (let i=0;i<missing;i+=1) groups.unknown.push({name:"Unknown",summary:"No Experience V2 row",nextDueDays:null});
+    groups.scheduled.sort((a,b)=>{
+      const av=Number.isFinite(a.nextDueDays)?a.nextDueDays:Number.POSITIVE_INFINITY;
+      const bv=Number.isFinite(b.nextDueDays)?b.nextDueDays:Number.POSITIVE_INFINITY;
+      return av-bv;
+    });
+    const actionable=[...groups.overdue, ...groups.due_soon];
+    const headline = groups.overdue.length
+      ? `${groups.overdue.length} overdue`
+      : groups.due_soon.length
+        ? `${groups.due_soon.length} due soon`
+        : groups.unknown.length
+          ? `${groups.scheduled.length} scheduled · ${groups.unknown.length} unknown`
+          : groups.scheduled.length
+            ? `${groups.scheduled.length} scheduled`
+            : "No maintenance due";
     return {
       overdue:groups.overdue,
       dueSoon:groups.due_soon,
       scheduled:groups.scheduled,
       ok:groups.ok,
       unknown:groups.unknown,
-      actionable:[...groups.overdue, ...groups.due_soon],
-      actionableCount:groups.overdue.length + groups.due_soon.length
+      actionable,
+      actionableCount:actionable.length,
+      policyDays,
+      headline
     };
   }
 
@@ -775,13 +838,15 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     const status = this.overviewStatusModel(rt, activeVehicles, chargers);
     const securityNames = status.security.unsafe.length
       ? status.security.unsafe.slice(0,2).map((row)=>row.name).join(" · ")
-      : (status.security.incomplete ? `${status.security.incomplete} incomplete` : (status.security.unknown ? `${status.security.unknown} unknown` : "All covered vehicles secure"));
+      : (status.security.unresolved
+          ? `${status.security.incomplete} incomplete · ${status.security.unknown} unknown`
+          : "All covered vehicles secure");
     const maintenanceAction = status.maintenance.actionable.length
-      ? status.maintenance.actionable.slice(0,2).map((row)=>`${row.name} ${row.summary}`).join(" · ")
-      : "Nothing due < policy window";
+      ? status.maintenance.actionable.slice(0,2).map((row)=>`${row.name} · ${row.summary}`).join(" · ")
+      : (status.maintenance.policyDays !== null ? `No maintenance due within ${status.maintenance.policyDays} days` : "No maintenance currently due");
     const nextMaintenance = status.maintenance.scheduled.length
       ? `Next ${status.maintenance.scheduled[0].name} · ${status.maintenance.scheduled[0].summary}`
-      : (status.maintenance.unknown.length ? `${status.maintenance.unknown.length} unknown` : "No scheduled maintenance");
+      : (status.maintenance.unknown.length ? `${status.maintenance.unknown.length} vehicle${status.maintenance.unknown.length === 1 ? "" : "s"} without maintenance data` : "No scheduled maintenance");
 
     return `
       ${hbMobilityPageHero(rt, "overview")}
@@ -789,7 +854,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
       <section class="ov-status-grid ov-domain-statusbar" aria-label="Mobility overview status">
         <article class="ov-status-item charging">
           <span class="ov-status-icon"><ha-icon icon="mdi:lightning-bolt"></ha-icon></span>
-          <div><small>Charging</small><b>${rt.escape(status.charging.powerDisplay)}</b><em>${rt.escape(status.charging.stateDisplay)}</em><em>${rt.escape(status.charging.currentContext)} · ${rt.escape(status.charging.availabilityDisplay)}</em></div>
+          <div><small>Charging</small><b>${rt.escape(status.charging.powerDisplay)}</b><em>${rt.escape(status.charging.stateDisplay)} · ${rt.escape(status.charging.powerCoverage)}</em><em>${rt.escape(status.charging.currentContext)} · ${rt.escape(status.charging.availabilityDisplay)}</em></div>
         </article>
         <article class="ov-status-item range ${status.range.low.length ? "warn" : ""}">
           <span class="ov-status-icon"><ha-icon icon="mdi:road-variant"></ha-icon></span>
@@ -797,11 +862,11 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
         </article>
         <article class="ov-status-item security ${status.security.unsafeCount ? "warn" : ""}">
           <span class="ov-status-icon"><ha-icon icon="mdi:lock-outline"></ha-icon></span>
-          <div><small>Security</small><b>${rt.escape(`${status.security.unsafeCount} unsafe`)}</b><em>${rt.escape(`${status.security.secure} secure · ${status.security.incomplete} incomplete`)}</em><em>${rt.escape(securityNames)}</em></div>
+          <div><small>Security</small><b>${rt.escape(status.security.headline)}</b><em>${rt.escape(`${status.security.secure} secure · ${status.security.incomplete} incomplete · ${status.security.unknown} unknown`)}</em><em>${rt.escape(securityNames)}</em></div>
         </article>
         <article class="ov-status-item maintenance ${status.maintenance.actionableCount ? "warn" : ""}">
           <span class="ov-status-icon"><ha-icon icon="mdi:wrench-outline"></ha-icon></span>
-          <div><small>Maintenance</small><b>${rt.escape(`${status.maintenance.overdue.length} overdue · ${status.maintenance.dueSoon.length} due soon`)}</b><em>${rt.escape(maintenanceAction)}</em><em>${rt.escape(nextMaintenance)}</em></div>
+          <div><small>Maintenance</small><b>${rt.escape(status.maintenance.headline)}</b><em>${rt.escape(maintenanceAction)}</em><em>${rt.escape(nextMaintenance)}</em></div>
         </article>
       </section>
 
