@@ -127,6 +127,8 @@ if(!dashboard.includes('.charger-mini-image img{opacity:1!important')) {
 console.log('PASS rc.59 direct V2 vehicle metrics and charger artwork truth');
 if(!dashboard.includes('return "Connection unknown";')) throw new Error('Vehicle connection uncertainty must not render as Not connected');
 if(dashboard.includes('if (!hasPhysical) return "Not connected";')) throw new Error('absence of physical identity must not be rendered as negative connection fact');
+if(!dashboard.includes('"Assigned charger connected"')) throw new Error('assigned charger physical occupancy must be visible without vehicle identity inference');
+if(!runtime.includes('assigned_charger_occupied')) throw new Error('Runtime V2 assigned charger occupancy field is not consumed');
 console.log('PASS Vehicle connection tri-state semantics: missing physical identity is unknown, not disconnected');
 for(const needle of [
   'Power coverage complete',
