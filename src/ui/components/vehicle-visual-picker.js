@@ -94,7 +94,7 @@ class HomeBrainVehicleVisualPicker {
       const active=row.id===current.vehicle?.id;
       const src=row.package_file || "";
       return `<button type="button" class="visual-choice-card ${active?"active":""}" data-vehicle-visual-choice="${this.rt.escape(row.id)}" data-choice-brand="${this.rt.escape(row.brand || "")}" data-choice-model="${this.rt.escape(row.model || "")}" data-choice-color="${this.rt.escape(color?.id || "")}" aria-pressed="${active?"true":"false"}">
-        <span class="visual-choice-image">${src ? `<img src="${this.rt.escape(this.rt.cache(src))}" alt="${this.rt.escape(row.label || row.model || "Vehicle")}" style="filter:${this.rt.escape(active ? (current.color?.filter || "none") : (color?.filter || "none"))}">` : `<ha-icon icon="mdi:car-estate"></ha-icon>`}</span>
+        <span class="visual-choice-image">${src ? `<img src="${this.rt.escape((typeof this.rt.cache==='function' ? this.rt.cache(src) : src))}" alt="${this.rt.escape(row.label || row.model || "Vehicle")}" style="filter:${this.rt.escape(active ? (current.color?.filter || "none") : (color?.filter || "none"))}">` : `<ha-icon icon="mdi:car-estate"></ha-icon>`}</span>
         <span class="visual-choice-copy"><b>${this.rt.escape(row.label || row.model || "Vehicle")}</b><small>${this.rt.escape([row.variant,row.years].filter(Boolean).join(" · "))}</small></span>
         <ha-icon class="visual-choice-check" icon="mdi:check-circle"></ha-icon>
       </button>`;
