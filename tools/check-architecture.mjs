@@ -11,6 +11,24 @@ const forbidden=[
   [/\/local\/homebrain/g,'legacy manual deployment path']
 ];
 
+
+const screenSemanticBypasses = {
+  'src/ui/screens/mobility-dashboard.js': [
+    [/rt\.vehicleExperienceV2\s*\(/g, 'screen bypasses VehicleProjection for Experience V2'],
+    [/rt\.mobilityExperienceV2\s*\(/g, 'screen bypasses asset projectors for Experience V2'],
+    [/rt\.vehicleChargerRelationship\s*\(/g, 'screen bypasses VehicleProjection for relationships'],
+    [/rt\.chargerProductSnapshot\s*\(/g, 'screen bypasses ChargerProjection for canonical charger facts'],
+    [/rt\.commandActionsFor\s*\(/g, 'screen bypasses asset projectors for commands']
+  ],
+  'src/ui/screens/charger-maintenance.js': [
+    [/rt\.mobilityExperienceV2\s*\(/g, 'screen bypasses ChargerProjection for Experience V2'],
+    [/rt\.chargerExperienceV2\s*\(/g, 'screen bypasses ChargerProjection for Experience V2'],
+    [/rt\.chargerProductSnapshot\s*\(/g, 'screen bypasses ChargerProjection for canonical facts'],
+    [/rt\.commandActionsFor\s*\(/g, 'screen bypasses ChargerProjection for commands'],
+    [/rt\.canonicalChargerProperty(?:Display|Value)\s*\(/g, 'screen bypasses ChargerProjection for canonical facts']
+  ]
+};
+
 function jsFiles(dir){
   if(!fs.existsSync(dir)) return [];
   return fs.readdirSync(dir,{withFileTypes:true}).flatMap((entry)=>{
@@ -29,6 +47,16 @@ for(const relDir of ['src/ui','src/app','src/domain/models']){
       const count=[...source.matchAll(rx)].length;
       if(count) failures.push(`${rel}: ${label} (${count})`);
     }
+  }
+}
+
+for (const [rel, rules] of Object.entries(screenSemanticBypasses)) {
+  const full=path.join(root,rel);
+  if(!fs.existsSync(full)) continue;
+  const source=fs.readFileSync(full,'utf8');
+  for(const [rx,label] of rules){
+    const count=[...source.matchAll(rx)].length;
+    if(count) failures.push(`${rel}: ${label} (${count})`);
   }
 }
 
