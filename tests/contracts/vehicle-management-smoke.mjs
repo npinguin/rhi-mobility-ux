@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import vm from 'node:vm';
 
 const dashboard=fs.readFileSync(new URL('../../src/ui/screens/mobility-dashboard.js',import.meta.url),'utf8');
 const presentation=fs.readFileSync(new URL('../../src/app/presentation.js',import.meta.url),'utf8');
@@ -124,5 +125,79 @@ if(!dashboard.includes('.charger-mini-image img{opacity:1!important')) {
   throw new Error('rc.59 assigned charger artwork must render at full opacity');
 }
 console.log('PASS rc.59 direct V2 vehicle metrics and charger artwork truth');
+
+
+//
+// Runtime-path regression: Vehicle Management must execute with real active rows.
+// This catches stale free variables left behind by projector refactors (rc.60
+// regressed here with an undefined experienceById inside renderVehiclesPage).
+//
+{
+  const methodStart=dashboard.indexOf('  renderVehiclesPage(');
+  const methodEnd=dashboard.indexOf('\n  versionBlock(',methodStart);
+  if(methodStart<0||methodEnd<0) throw new Error('renderVehiclesPage extraction failed');
+  const renderMethod=dashboard.slice(methodStart,methodEnd).trim();
+
+  const models=new Map([
+    ['vehicle_profiled',{
+      display:'Profiled',
+      projection:{
+        attention_required:false,
+        relationships:{configured_charger_id:'charger_driveway'},
+        configuration:{profile_id:'audi_q8_tfsie'}
+      }
+    }],
+    ['vehicle_unprofiled',{
+      display:'Unprofiled',
+      projection:{
+        attention_required:false,
+        relationships:{configured_charger_id:''},
+        configuration:{profile_id:''}
+      }
+    }]
+  ]);
+
+  const context={
+    HomeBrainAssetFactory:class{
+      adapterFor(vehicle){
+        return {build:()=>models.get(vehicle.asset_id)||null};
+      }
+    },
+    hbMobilityPageHero:()=>'<hero/>',
+    hbMobilityStatusGrid:()=>'<status/>',
+    hbMobilityQuickActions:()=>'<actions/>'
+  };
+  vm.createContext(context);
+  const holder=vm.runInContext('({'+renderMethod+'})',context);
+
+  const card={
+    config:{},
+    _vehicleSort:'default',
+    _vehicleFilter:'all',
+    assetId:(vehicle)=>vehicle?.asset_id||'',
+    overviewShortLabel:(vehicle,fallback='')=>vehicle?.display_name||fallback,
+    renderVehicle:(_rt,vehicle)=>'<vehicle>'+vehicle.asset_id+'</vehicle>',
+    renderInactiveVehicle:(_rt,vehicle)=>'<inactive>'+vehicle.asset_id+'</inactive>'
+  };
+  const rt={
+    mobilityFleetV2:()=>({active_vehicle_count:2}),
+    vehicleLabel:(id)=>id,
+    escape:(value)=>String(value??''),
+    lifecycleStatus:()=> 'active'
+  };
+  const active=[
+    {asset_id:'vehicle_profiled',display_name:'Profiled'},
+    {asset_id:'vehicle_unprofiled',display_name:'Unprofiled'}
+  ];
+
+  let html='';
+  try{
+    html=holder.renderVehiclesPage.call(card,rt,active,[],[],null,null,null,[],null);
+  }catch(error){
+    throw new Error('Vehicle Management runtime render failed: '+(error?.stack||error));
+  }
+  if(!html.includes('1/2 configured')) throw new Error('Vehicle Management profile count is not sourced from canonical VehicleProjection');
+  if(!html.includes('vehicle_profiled')||!html.includes('vehicle_unprofiled')) throw new Error('Vehicle Management did not render active vehicle rows');
+}
 
 console.log('PASS Vehicles/Chargers content preservation, image-first picker, canonical artwork and rc.56 compact workspace architecture');
