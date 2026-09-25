@@ -179,6 +179,7 @@ class HomeBrainAssetRuntime {
     return {
       contract_id: attrs.contract_id,
       canonical: attrs.canonical === true,
+      release: attrs.release && typeof attrs.release === "object" ? attrs.release : {},
       assets: Array.isArray(attrs.assets) ? attrs.assets : [],
       fleet: attrs.fleet && typeof attrs.fleet === "object" ? attrs.fleet : {},
       relationships: Array.isArray(attrs.relationships) ? attrs.relationships : [],
@@ -446,31 +447,31 @@ class HomeBrainAssetRuntime {
   }
 
   runtimeHealthSummary() {
-    const hardRows = this.runtimeHealthGateRows();
+    const runtime = this.mobilityRuntimeV2();
+    const healthEntity = this.entity("sensor.rhi_mobility_health") || this.entity("sensor.mobility_runtime_health");
+    const rawHealth = String(healthEntity?.state || "").trim().toUpperCase();
+
+    let status = "UNKNOWN";
+    if (["READY","OK","PASS","PASSED","HEALTHY"].includes(rawHealth)) status = "OK";
+    else if (["READY_WITH_LIMITATIONS","CONFIGURATION_REQUIRED","DEGRADED","WARNING","WARN"].includes(rawHealth)) status = "DEGRADED";
+    else if (["BLOCKED","FAIL","FAILED","ERROR","NOT_OK"].includes(rawHealth)) status = "BLOCKED";
+    else if (runtime && runtime.canonical === true) status = "OK";
+
+    const attrs = healthEntity?.attributes || {};
     const diagnosticRows = this.runtimeDiagnosticRows();
     const diagnosticBad = diagnosticRows.filter((r) => r.bad);
-    const release = this.releaseContract();
-    const explicitRuntime = String(release.runtime_health || "").trim();
-    const deploymentState = String(this.entity("sensor.mobility_runtime_deployment_health")?.state || "").trim();
-    const rawRuntime = explicitRuntime && !["unknown","unavailable","none"].includes(explicitRuntime.toLowerCase()) ? explicitRuntime : deploymentState;
-    const normalized = String(rawRuntime || "UNKNOWN").toUpperCase();
-    let status = "UNKNOWN";
-    if (["OK","PASS","PASSED","READY","HEALTHY"].includes(normalized)) status = "OK";
-    else if (["DEGRADED","WARNING","WARN"].includes(normalized)) status = "DEGRADED";
-    else if (["FAIL","FAILED","BLOCKED","ERROR","NOT_OK"].includes(normalized)) status = "BLOCKED";
-    const runtimeBad = ["DEGRADED","BLOCKED"].includes(status);
-    const diagnosticStatus = diagnosticBad.length ? "DEGRADED" : "OK";
     return {
       status,
       ok: status === "OK",
-      bad_count: runtimeBad ? 1 : 0,
+      bad_count: ["DEGRADED","BLOCKED"].includes(status) ? 1 : 0,
       blocking_count: status === "BLOCKED" ? 1 : 0,
-      diagnostic_status: diagnosticStatus,
+      diagnostic_status: diagnosticBad.length ? "DEGRADED" : "OK",
       diagnostic_bad_count: diagnosticBad.length,
-      rows: hardRows,
+      rows: [],
       diagnostics: diagnosticRows,
-      physical_acceptance: release.physical_acceptance || "Unknown",
-      release_acceptance: release.release_acceptance || "Unknown",
+      product_readiness: String(attrs.product_readiness || healthEntity?.state || "Unknown"),
+      physical_acceptance: "Unknown",
+      release_acceptance: "Unknown",
       message: status === "OK" ? "Mobility runtime healthy." : status === "DEGRADED" ? "Mobility runtime degraded." : status === "BLOCKED" ? "Mobility runtime failed." : "Mobility runtime health unavailable."
     };
   }
@@ -750,11 +751,19 @@ class HomeBrainAssetRuntime {
 
 
   releaseContract() {
+    const runtimeRelease = this.mobilityRuntimeV2()?.release || {};
     const contractEntity = this.entity("sensor.mobility_release_contract");
     const identityEntity = this.entity("sensor.mobility_release_identity");
-    const e = contractEntity || identityEntity;
-    const attrs = { ...(identityEntity?.attributes || {}), ...(contractEntity?.attributes || {}) };
+    const modernReleaseEntity = this.entity("sensor.rhi_mobility_release");
+    const attrs = {
+      ...(identityEntity?.attributes || {}),
+      ...(contractEntity?.attributes || {}),
+      ...(modernReleaseEntity?.attributes || {}),
+      ...(runtimeRelease || {})
+    };
     const backend = this.cleanValue(
+      runtimeRelease.backend_release ||
+      runtimeRelease.release ||
       attrs.backend_release ||
       attrs.backend_version ||
       attrs.backend_release_version ||
@@ -762,6 +771,7 @@ class HomeBrainAssetRuntime {
       attrs.release ||
       attrs.version ||
       attrs.package_version ||
+      modernReleaseEntity?.state ||
       contractEntity?.state ||
       identityEntity?.state ||
       "",
@@ -770,6 +780,9 @@ class HomeBrainAssetRuntime {
     return {
       backend_release: backend,
       backend_version: backend,
+      release_name: this.cleanValue(runtimeRelease.release_name || attrs.release_name || "", "") || "",
+      shared_baseline_id: this.cleanValue(runtimeRelease.shared_baseline_id || attrs.shared_baseline_id || "", "") || "",
+      shared_baseline_version: this.cleanValue(runtimeRelease.shared_baseline_version || attrs.shared_baseline_version || "", "") || "",
       contract_version: this.cleanValue(attrs.contract_version || attrs.contract_release || attrs.contract || "", "Unknown") || "Unknown",
       schema_version: this.cleanValue(attrs.schema_version || attrs.schema || "", "Unknown") || "Unknown",
       build_date: this.cleanValue(attrs.build_date || attrs.release_date || attrs.generated_at || "", "Unknown") || "Unknown",
@@ -781,7 +794,7 @@ class HomeBrainAssetRuntime {
   }
 
   backendVersion() {
-    // R22.7.9.21 contract lock: backend/version source is sensor.mobility_release_contract only.
+    // Backend identity is canonical Runtime V2 metadata; legacy release entities are compatibility only.
     return this.releaseContract().backend_release;
   }
 
