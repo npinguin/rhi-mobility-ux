@@ -131,61 +131,47 @@ function hbMobilityReleaseFooter(rt) {
   const esc = (v) => rt && rt.escape ? rt.escape(v) : String(v ?? "").replace(/[&<>]/g, (ch) => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[ch]));
   const rel = rt && rt.releaseContract ? rt.releaseContract() : {};
   const backend = rel.backend_release || rel.backend_version || "Unknown";
-  const contract = rel.contract_version || "Unknown";
   const details = [];
   let severity = "";
+
   try {
     const summary = rt && rt.runtimeHealthSummary ? rt.runtimeHealthSummary() : null;
-    if (backend === "Unknown") {
+    const runtimePresent = !!(rt && rt.mobilityRuntimeV2 && rt.mobilityRuntimeV2());
+
+    if (!runtimePresent) {
       severity = "error";
-      details.push("Backend release contract unavailable.");
-    }
-    if (summary) {
+      details.push("Canonical Mobility runtime is unavailable.");
+    } else if (summary) {
       const status = String(summary.status || "Unknown").toUpperCase();
       if (status === "BLOCKED") {
         severity = "error";
-        details.push("Canonical Mobility runtime health reports failure.");
+        details.push("Canonical Mobility runtime reports failure.");
       } else if (status === "DEGRADED") {
-        if (!severity) severity = "warning";
-        details.push("Canonical Mobility runtime health reports degradation.");
-      } else if (!["OK","HEALTHY"].includes(status)) {
-        if (!severity) severity = "warning";
-        details.push("Canonical Mobility runtime health is unavailable.");
+        severity = "warning";
+        details.push("Canonical Mobility runtime reports degradation.");
       }
 
-      const physical = String(summary.physical_acceptance || "Unknown");
-      const releaseAcceptance = String(summary.release_acceptance || "Unknown");
-      if (["NOT_PROVEN","PENDING","UNKNOWN"].includes(physical.toUpperCase())) {
-        if (!severity) severity = "warning";
-        details.push("Physical execution proof pending.");
-      }
-      if (["NOT_PROVEN","PENDING","UNKNOWN"].includes(releaseAcceptance.toUpperCase())) {
-        if (!severity) severity = "warning";
-        details.push("Release acceptance proof pending.");
-      }
-      if (summary.diagnostic_bad_count) {
-        if (!severity) severity = "warning";
+      if (["DEGRADED","BLOCKED"].includes(status) && summary.diagnostic_bad_count) {
         const rows = (summary.diagnostics || []).filter((row) => row.bad).slice(0, 5);
-        details.push(`Diagnostics: ${summary.diagnostic_status || "degraded"}.`);
         rows.forEach((row) => details.push(`${row.label || "Diagnostic"}: ${row.state || "Unknown"}.`));
       }
     }
   } catch (e) {
-    if (!severity) severity = "warning";
-    details.push("Runtime diagnostics unavailable.");
+    severity = "warning";
+    details.push("Runtime health diagnostics unavailable.");
   }
 
+  const backendLabel = backend === "Unknown" ? "Backend version unavailable" : `Backend ${esc(backend)}`;
   const issueDetails = details.length ? `
     <details class="rhiUxFooterDetails">
-      <summary class="rhiUxFooterIssue ${severity || "warning"}">${severity === "error" ? "Runtime issue" : `${details.length} issue${details.length === 1 ? "" : "s"}`} · details</summary>
+      <summary class="rhiUxFooterIssue ${severity || "warning"}">${severity === "error" ? "Runtime issue" : "Runtime warning"} · details</summary>
       <div class="rhiUxFooterPanel" role="status">
-        <div class="rhiUxFooterPanelMeta">Backend ${esc(backend)} · Contract ${esc(contract)}</div>
         ${details.map((line) => `<div class="rhiUxFooterProblem"><span class="rhiUxFooterProblemDot" aria-hidden="true"></span><span>${esc(line)}</span></div>`).join("")}
-        <div class="rhiUxFooterAction">Resolve the listed runtime/backend condition, then reload this view to verify recovery.</div>
+        <div class="rhiUxFooterAction">Resolve the runtime condition, then reload this view to verify recovery.</div>
       </div>
     </details>` : "";
 
-  return `<footer class="rhiUxFooter" aria-label="RHI Mobility release information"><span>RHI Mobility UX ${esc(UX_VERSION)}</span><span>Backend ${esc(backend)}</span>${issueDetails}</footer>`;
+  return `<footer class="rhiUxFooter" aria-label="RHI Mobility release information"><span>RHI Mobility UX ${esc(UX_VERSION)}</span><span>${backendLabel}</span>${issueDetails}</footer>`;
 }
 
 function hbMobilityOutcomeStrip(rt, contextId = "mobility", fallback = {}) {
