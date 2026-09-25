@@ -253,21 +253,21 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
       return power === "—" ? status : `${status} · ${power}`;
     }
 
-    const relationshipState = String(rel.relationship_resolution || "").toUpperCase();
-    const hasAssigned = [rel.assigned, rel.effective, rel.selected]
-      .some((value)=>{
-        const raw = String(value || "").trim().toLowerCase();
-        return !!raw && !["none","unknown","unavailable","null","undefined","—"].includes(raw);
-      });
+    const assigned = String(rel.effective || rel.assigned || rel.selected || "").trim();
+    const hasAssigned = !!assigned && !["none","unknown","unavailable","null","undefined","—"].includes(assigned.toLowerCase());
 
-    // No observed identity is not negative connection evidence. CONFIGURED_ONLY
-    // means the charger relation is known, but the source cannot prove which
-    // Vehicle occupies the connector.
-    if (relationshipState === "CONFIGURED_ONLY" || (hasAssigned && rel.observed_identity_proven !== true)) {
+    if (hasAssigned && rel.assigned_charger_occupied === true) {
+      const snapshot = rt.chargerProductSnapshot(assigned);
+      const power = snapshot.power.resolved ? snapshot.power.display : "—";
+      return power === "—" ? "Assigned charger connected" : `Assigned charger connected · ${power}`;
+    }
+    if (hasAssigned && rel.assigned_charger_occupied === false) {
+      return "Not connected";
+    }
+    if (hasAssigned) {
       return "Connection unknown";
     }
-    if (relationshipState === "UNKNOWN") return "Connection unknown";
-    return "Connection unknown";
+    return "No charger assigned";
   }
 
   renderChargerAssignmentSelect(rt, vehicleAsset) {
