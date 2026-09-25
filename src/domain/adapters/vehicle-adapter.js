@@ -64,6 +64,109 @@ class HomeBrainVehicleAdapter {
     return activities.map((a, index)=>({ type:"readonly", icon:index === 0 ? "mdi:history" : "mdi:history-clock", label:labels[index] || `Activity ${index+1}`, value:valueFor(a) }));
   }
 
+  productProjection() {
+    const assetId = this.assetId();
+    const reg = this.registryEntry() || { asset_id: assetId };
+    const experience = this.rt.vehicleExperienceV2(assetId) || {};
+    const legacyRelationship = this.rt.vehicleChargerRelationship(assetId) || {};
+    const v2Relationship = experience?.charging_relationship || this.rt.vehicleRelationshipV2(assetId) || {};
+
+    const realId = (value) => {
+      const raw = String(value || "").trim();
+      return raw && !["none","unknown","unavailable","null","undefined","—"].includes(raw.toLowerCase())
+        ? this.rt.canonicalAssetId(raw)
+        : "";
+    };
+    const configuredId = realId(v2Relationship.configured_charger_id || legacyRelationship.assigned || legacyRelationship.effective);
+    const effectiveId = realId(v2Relationship.effective_charger_id || legacyRelationship.effective || configuredId);
+    const physicalId = v2Relationship.observed_identity_proven === true
+      ? realId(v2Relationship.physically_connected_charger_id || legacyRelationship.connected)
+      : "";
+    const relationshipId = physicalId || effectiveId || configuredId;
+    const chargerEntry = relationshipId ? (this.rt.chargerById(relationshipId) || this.rt.assetById(relationshipId)) : null;
+    const chargerDisplay = chargerEntry?.display_name || (relationshipId ? this.rt.chargerLabel(relationshipId) : "");
+
+    const signal = (intel = {}, label, icon, attentionStates = []) => {
+      const state = String(intel?.state || "").toLowerCase();
+      const summary = String(intel?.summary || "Unavailable");
+      const reason = String(intel?.reason || "");
+      return {
+        resolved: !!intel && Object.keys(intel).length > 0 && !["unknown","unavailable"].includes(state),
+        value: summary,
+        display: summary,
+        unit: "",
+        state: state || "unknown",
+        reason,
+        source: "MOBILITY_EXPERIENCE_V2",
+        label,
+        icon,
+        tone: attentionStates.includes(state) ? "attention" : "neutral"
+      };
+    };
+
+    const range = signal(experience.range_intelligence, "Range", "mdi:road-variant", ["low"]);
+    const energy = signal(experience.energy_intelligence, "Energy", "mdi:battery-charging", ["attention","low"]);
+    const security = signal(experience.security_intelligence, "Security", "mdi:lock-outline", ["unsafe"]);
+    const comfort = signal(experience.comfort_intelligence, "Comfort", "mdi:fan", ["attention","degraded"]);
+    const maintenance = signal(experience.maintenance_intelligence, "Maintenance", "mdi:wrench-outline", ["overdue","due_soon"]);
+    const chargingIntel = experience.charging_intelligence || {};
+    const charging = signal(chargingIntel, "Charging", "mdi:ev-station", ["fault","blocked"]);
+    charging.value = charging.display = physicalId
+      ? (chargerDisplay || "Connected")
+      : (configuredId ? (chargerDisplay || "Assigned charger") : String(chargingIntel.summary || "No charger"));
+    charging.reason = physicalId
+      ? String(chargingIntel.summary || chargingIntel.reason || "Physical charger confirmed")
+      : (configuredId ? "Configured · physical identity not proven" : String(chargingIntel.reason || chargingIntel.summary || "No charger assigned"));
+    charging.detailRoute = relationshipId ? this.rt.assetDetailRoute(chargerEntry || relationshipId) : "";
+    charging.detailTitle = chargerDisplay ? `Open ${chargerDisplay} details` : "Open charger details";
+
+    const configuration = String(experience?.configuration_status?.state || "").toLowerCase();
+    const dataHealth = String(experience?.runtime_data_health?.state || "").toLowerCase();
+    const demand = String(experience?.charge_demand?.state || "").toLowerCase();
+    const attentionRequired = configuration === "incomplete"
+      || ["partial","stale","unavailable"].includes(dataHealth)
+      || range.state === "low"
+      || security.state === "unsafe"
+      || ["overdue","due_soon"].includes(maintenance.state)
+      || demand === "needed";
+
+    const commands = this.rt.commandActionsFor(assetId, "quick_actions");
+    return {
+      identity: {
+        asset_id: assetId,
+        display_name: this.displayName(),
+        profile: this.profile(),
+        source: "MOBILITY_PUBLIC_RUNTIME_V2"
+      },
+      lifecycle: {
+        state: this.rt.lifecycleStatus(reg),
+        source: "MOBILITY_PUBLIC_RUNTIME_V2"
+      },
+      facts: {
+        overview_metrics: this.rt.vehicleOverviewMetricSlots(assetId),
+        live_charging: this.rt.liveChargingContextForVehicle(assetId)
+      },
+      configuration: {
+        charge_power_control: this.rt.vehicleChargePowerControl(assetId),
+        charge_power_control_model: this.rt.vehicleChargePowerControlModel(assetId)
+      },
+      signals: { range, energy, security, comfort, maintenance, charging },
+      relationships: {
+        configured_charger_id: configuredId,
+        effective_charger_id: effectiveId,
+        physically_connected_charger_id: physicalId,
+        charger_id: relationshipId,
+        charger_display_name: chargerDisplay,
+        identity_proven: !!physicalId,
+        source: "MOBILITY_PUBLIC_RUNTIME_V2"
+      },
+      commands,
+      attention_required: attentionRequired,
+      experience,
+      source_contracts: ["MOBILITY_PUBLIC_RUNTIME_V2", "MOBILITY_EXPERIENCE_V2", "MOBILITY_COMMAND_V2"]
+    };
+  }
+
   build() {
     const id = this.id;
     const assetId = this.assetId();
@@ -105,7 +208,8 @@ class HomeBrainVehicleAdapter {
     const canonicalProfilePackage = String(profileVisual?.package_file || "");
     const img = visualPackageFile || canonicalProfilePackage || profileImage;
     const imageFilter = visualMatchesProfile ? (visual?.color?.filter || "none") : "none";
-    const actions = this.rt.commandActionsFor(assetId, "quick_actions").map((cmd, index) => ({
+    const projection = this.productProjection();
+    const actions = projection.commands.map((cmd, index) => ({
       label: cmd.label || this.rt.titleize(cmd.command_id || cmd.command_key),
       icon: this.rt.commandIcon(cmd), entity: cmd.intent_entity, command: cmd,
       primary: index === 0, hide: cmd.frontend_allowed === false
@@ -115,67 +219,19 @@ class HomeBrainVehicleAdapter {
       { chargerDetailRoute, chargerDisplay }
     );
 
-    const experience = this.rt.vehicleExperienceV2(assetId);
-    const v2Relationship = experience?.charging_relationship || this.rt.vehicleRelationshipV2(assetId) || {};
-    const rangeIntel = experience?.range_intelligence || {};
-    const chargingIntel = experience?.charging_intelligence || {};
-    const securityIntel = experience?.security_intelligence || {};
-    const maintenanceIntel = experience?.maintenance_intelligence || {};
-
-    const toneFor = (state, actionable = []) => actionable.includes(String(state || "").toLowerCase()) ? "attention" : "neutral";
-    const rangeTile = {
-      label:"Range",
-      value:String(rangeIntel.summary || "Unavailable"),
-      subvalue:String(rangeIntel.reason || "Range conclusion unavailable"),
-      icon:"mdi:road-variant",
-      tone:toneFor(rangeIntel.state, ["low"])
-    };
-
-    const configuredId = String(v2Relationship.configured_charger_id || "");
-    const physicalId = v2Relationship.observed_identity_proven === true
-      ? String(v2Relationship.physically_connected_charger_id || "")
-      : "";
-    const chargingChargerId = physicalId || configuredId;
-    const chargingChargerEntry = chargingChargerId ? (this.rt.chargerById(chargingChargerId) || this.rt.assetById(chargingChargerId)) : null;
-    const chargingChargerLabel = chargingChargerEntry?.display_name || (chargingChargerId ? this.rt.chargerLabel(chargingChargerId) : "");
-    const chargingDetailRoute = chargingChargerId ? this.rt.assetDetailRoute(chargingChargerEntry || chargingChargerId) : "";
-    const chargingTile = {
-      label:"Charging",
-      value:physicalId
-        ? (chargingChargerLabel || "Connected")
-        : (configuredId ? (chargingChargerLabel || "Assigned charger") : "No charger"),
-      subvalue:physicalId
-        ? String(chargingIntel.summary || chargingIntel.reason || "Physical charger confirmed")
-        : (configuredId ? "Configured · physical identity not proven" : String(chargingIntel.summary || "No charger assigned")),
-      icon:"mdi:ev-station",
-      tone:toneFor(chargingIntel.state, ["fault"]),
-      detailRoute:chargingDetailRoute,
-      detailTitle:chargingChargerLabel ? `Open ${chargingChargerLabel} details` : "Open charger details"
-    };
-
-    const securityTile = {
-      label:"Security",
-      value:String(securityIntel.summary || "Unavailable"),
-      subvalue:String(securityIntel.reason || "Security conclusion unavailable"),
-      icon:String(securityIntel.state || "").toLowerCase() === "unsafe" ? "mdi:lock-alert-outline" : "mdi:lock-outline",
-      tone:toneFor(securityIntel.state, ["unsafe"])
-    };
-
-    const maintenanceTile = {
-      label:"Maintenance",
-      value:String(maintenanceIntel.summary || "Unavailable"),
-      subvalue:String(maintenanceIntel.reason || "Maintenance conclusion unavailable"),
-      icon:"mdi:wrench-outline",
-      tone:toneFor(maintenanceIntel.state, ["overdue","due_soon"])
-    };
-
-    const headerStatus = [rangeTile, chargingTile, securityTile, maintenanceTile];
+    const rangeTile = projection.signals.range;
+    const chargingTile = projection.signals.charging;
+    const securityTile = projection.signals.security;
+    const comfortTile = projection.signals.comfort;
+    const maintenanceTile = projection.signals.maintenance;
+    const headerStatus = [rangeTile, chargingTile, securityTile, comfortTile, maintenanceTile];
 
     return {
       type:"vehicle", id, present, display, subtitle:profile, readiness:lifecycle,
       image:this.rt.cache(img), fallbackImage:this.rt.cache(this.rt.assetUrl("vehicles/vehicle_fallback.png")), imageOpacity:present ? 1 : 0.34, imageGray:present ? 0 : 0.25, imageFilter,
       chargerImage:this.rt.cache(this.chargerImage(chargerContextId)), chargerFallbackImage:this.rt.cache(this.rt.assetUrl("chargers/charger_fallback.png")),
       chargerDisplay, chargerDetailRoute,
+      projection,
       backPath:this.config.dashboard_path || "/mobility-supervisor/dashboard", backLabel:this.config.back_label || "← Back to Dashboard", detailRoute:this.rt.detailRoute(reg), lifecycle, registryEntry:reg,
       breadcrumb:["Home", "Vehicles", display],
       status:headerStatus,

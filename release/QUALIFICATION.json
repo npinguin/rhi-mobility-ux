@@ -1,6 +1,6 @@
 {
-  "candidate_version": "1.0.0-rc.59",
-  "candidate_tag": "v1.0.0-rc.59",
+  "candidate_version": "1.0.0-rc.60",
+  "candidate_tag": "v1.0.0-rc.60",
   "candidate_sha": "pending",
   "target_home_assistant": "pending",
   "hacs_install": "pending",
@@ -155,5 +155,9 @@
   "vehicle_direct_v2_metric_slots": "pending",
   "charger_real_artwork_fallback_suppression": "pending",
   "vehicle_charger_artwork_full_opacity": "pending",
-  "security_experience_m01010": "pending"
+  "security_experience_m01010": "pending",
+  "canonical_asset_projection_authority": "pending",
+  "screen_semantic_bypass_gate": "pending",
+  "bootstrap_interaction_state_preservation": "pending",
+  "command_state_cross_screen_consistency": "pending"
 }

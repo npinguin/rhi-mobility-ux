@@ -6,6 +6,8 @@ class HomeBrainMobilityCard extends HTMLElement {
     this.attachShadow({ mode: "open" });
     this.config = {};
     this._hass = null;
+    this._children = new Map();
+    this._activeChildKey = "";
     this._locationHandler = () => this.render();
   }
 
@@ -40,18 +42,22 @@ class HomeBrainMobilityCard extends HTMLElement {
   childSpec(view) {
     if (view === "overview" || view === "vehicles") return {
       tag:"homebrain-mobility-dashboard-card",
+      cacheKey:"dashboard",
       config:{ nav_active:view }
     };
     if (view === "chargers") return {
       tag:"homebrain-mobility-charger-maintenance-card",
+      cacheKey:"chargers",
       config:{ nav_active:"chargers" }
     };
     if (["planning","strategies","history","log"].includes(view)) return {
       tag:"homebrain-mobility-placeholder-card",
+      cacheKey:view,
       config:{ view }
     };
     return {
       tag:"homebrain-mobility-asset-detail-card",
+      cacheKey:"detail",
       config:{}
     };
   }
@@ -71,11 +77,28 @@ class HomeBrainMobilityCard extends HTMLElement {
     delete childConfig.type;
     delete childConfig.default_view;
 
-    this.shadowRoot.innerHTML = `<div id="mobility-bootstrap"></div><style>:host{display:block}#mobility-bootstrap{display:block;min-width:0}</style>`;
-    const mount = this.shadowRoot.getElementById("mobility-bootstrap");
-    const child = document.createElement(spec.tag);
+    let mount = this.shadowRoot.getElementById("mobility-bootstrap");
+    if (!mount) {
+      this.shadowRoot.innerHTML = `<div id="mobility-bootstrap"></div><style>:host{display:block}#mobility-bootstrap{display:block;min-width:0}</style>`;
+      mount = this.shadowRoot.getElementById("mobility-bootstrap");
+    }
+
+    const childKey = spec.cacheKey || view;
+    let child = this._children.get(childKey);
+    if (!child) {
+      child = document.createElement(spec.tag);
+      this._children.set(childKey, child);
+    }
     child.setConfig?.(childConfig);
-    mount.appendChild(child);
+
+    // Backend refreshes update truth on the existing child instance. Navigation
+    // only changes which already-lived view is attached. This preserves filters,
+    // expanded sections, drafts and other user interaction state across refresh
+    // and tab switches without storing domain truth in a second UX state layer.
+    if (this._activeChildKey !== childKey || mount.firstElementChild !== child) {
+      mount.replaceChildren(child);
+      this._activeChildKey = childKey;
+    }
     child.hass = this._hass;
   }
 

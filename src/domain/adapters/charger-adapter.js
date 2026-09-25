@@ -68,6 +68,80 @@ class HomeBrainChargerAdapter {
     if (!activities.length) return [{ type:"readonly", icon:"mdi:history", label:"Latest activity", value:"Unavailable" }];
     return activities.map((a, index)=>({ type:"readonly", icon:index === 0 ? "mdi:history" : "mdi:history-clock", label:labels[index] || `Activity ${index+1}`, value:valueFor(a) }));
   }
+  productProjection() {
+    const assetId = this.assetId();
+    const reg = this.registryEntry() || { asset_id: assetId };
+    const snapshot = this.rt.chargerProductSnapshot(assetId);
+    const experience = this.rt.chargerExperienceV2(assetId) || {};
+    const commands = this.rt.commandActionsFor(assetId, "quick_actions");
+    const field = (row, source = "MOBILITY_PUBLIC_RUNTIME_V2") => ({
+      resolved: !!row?.resolved,
+      value: row?.value ?? null,
+      display: String(row?.display ?? (row?.resolved ? row?.value ?? "—" : "—")),
+      unit: String(row?.unit || ""),
+      state: String(row?.state || (row?.resolved ? "ok" : "unknown")),
+      reason: String(row?.reason || ""),
+      source
+    });
+    const canonical = (key) => {
+      const row = this.rt.canonicalChargerPropertyValue(assetId, key);
+      return field({
+        ...row,
+        display: this.rt.canonicalChargerPropertyDisplay(assetId, key, "—")
+      });
+    };
+    const connectionIntel = experience.connection_intelligence || {};
+    const chargingIntel = experience.charging_intelligence || {};
+    const powerIntel = experience.power_intelligence || {};
+    const healthIntel = experience.health_intelligence || {};
+    const vehicleIntel = experience.vehicle_intelligence || {};
+    const fault = experience.fault || {};
+    const vehicleAssetId = String(vehicleIntel.connected_vehicle_asset_id || "");
+    const vehicleEntry = vehicleAssetId ? (this.rt.vehicleById(vehicleAssetId) || this.rt.assetById(vehicleAssetId)) : null;
+    return {
+      identity: {
+        asset_id: assetId,
+        display_name: this.displayName(),
+        profile: this.profile(),
+        source: "MOBILITY_PUBLIC_RUNTIME_V2"
+      },
+      lifecycle: {
+        state: this.rt.lifecycleStatus(reg),
+        source: "MOBILITY_PUBLIC_RUNTIME_V2"
+      },
+      facts: {
+        operating: field(snapshot.operating),
+        connection: field(snapshot.connection),
+        connected_vehicle: field(snapshot.connected_vehicle),
+        power: field(snapshot.power),
+        actual_current: canonical("charger.actual_current_a"),
+        current_limit: canonical("charger.current_limit_a"),
+        offered_current: canonical("charger.offered_current_a"),
+        session_energy: canonical("charger.session_energy_kwh"),
+        lifetime_energy: canonical("charger.lifetime_energy_kwh"),
+        health: field(snapshot.health)
+      },
+      intelligence: {
+        connection: connectionIntel,
+        charging: chargingIntel,
+        power: powerIntel,
+        health: healthIntel,
+        vehicle: vehicleIntel,
+        fault
+      },
+      relationships: {
+        connected_vehicle_id: vehicleAssetId,
+        connected_vehicle_display_name: String(vehicleIntel.connected_vehicle_display_name || vehicleEntry?.display_name || snapshot.connected_vehicle?.display || ""),
+        vehicle_detail_route: vehicleAssetId ? this.rt.assetDetailRoute(vehicleEntry || vehicleAssetId) : "",
+        source: "MOBILITY_PUBLIC_RUNTIME_V2"
+      },
+      availability: this.overviewAvailability(),
+      commands,
+      experience,
+      source_contracts: ["MOBILITY_PUBLIC_RUNTIME_V2", "MOBILITY_EXPERIENCE_V2", "MOBILITY_COMMAND_V2"]
+    };
+  }
+
   build() {
     const id = this.id;
     const assetId = this.assetId();
@@ -78,29 +152,28 @@ class HomeBrainChargerAdapter {
     const name = this.displayName();
     const profile = this.profile();
     const visual = this.chargerVisual();
-    const chargerSnapshot = this.rt.chargerProductSnapshot(assetId);
-    const status = chargerSnapshot.operating.display;
-    const connectionState = chargerSnapshot.connection.display;
-    const assignedVehicle = chargerSnapshot.connected_vehicle.display;
+    const projection = this.productProjection();
+    const status = projection.facts.operating.display;
+    const connectionState = projection.facts.connection.display;
+    const assignedVehicle = projection.facts.connected_vehicle.display;
     const physicalVehicle = this.rt.physicalVehicleForCharger(assetId);
     const relatedVehicle = this.rt.relatedVehicleForCharger(assetId);
-    const power = chargerSnapshot.power.display;
-    const sessionEnergy = this.rt.canonicalChargerPropertyDisplay(assetId, "charger.session_energy_kwh", "—");
-    const currentLimit = this.rt.canonicalChargerPropertyDisplay(assetId, "charger.current_limit_a", "—");
+    const power = projection.facts.power.display;
+    const sessionEnergy = projection.facts.session_energy.display;
+    const currentLimit = projection.facts.current_limit.display;
     const connector = connectionState;
     const limitSource = "MOBILITY_PUBLIC_RUNTIME_V2";
     const phases = "—";
     const voltage = "—";
-    const current = this.rt.canonicalChargerPropertyDisplay(assetId, "charger.actual_current_a", "—");
+    const current = projection.facts.actual_current.display;
     const dataFreshness = "—";
-    const trust = "—";
-    const health = chargerSnapshot.health.display;
-    const experience = this.rt.chargerExperienceV2(assetId);
-    const connectionIntel = experience?.connection_intelligence || {};
-    const chargingIntel = experience?.charging_intelligence || {};
-    const powerIntel = experience?.power_intelligence || {};
-    const vehicleIntel = experience?.vehicle_intelligence || {};
-    const fault = experience?.fault || {};
+    const trust = projection.facts.health.display;
+    const health = projection.facts.health.display;
+    const connectionIntel = projection.intelligence.connection;
+    const chargingIntel = projection.intelligence.charging;
+    const powerIntel = projection.intelligence.power;
+    const vehicleIntel = projection.intelligence.vehicle;
+    const fault = projection.intelligence.fault;
     const faultActive = String(fault.state || "").toLowerCase() === "active";
 
     const stateTile = {
@@ -150,7 +223,8 @@ class HomeBrainChargerAdapter {
       visualKey:visual?.key || "", visualProduct:visual?.charger || null, visualAppearance:visual?.appearance || null,
       backPath:this.config.dashboard_path || "/mobility-supervisor/dashboard", backLabel:this.config.back_label || "← Back to Dashboard", detailRoute:this.rt.detailRoute(reg), lifecycle, registryEntry:reg, breadcrumb:["Home","Chargers",name],
       status:headerStatus,
-      actions:this.rt.commandActionsFor(assetId, "quick_actions").map((cmd,index)=>({ label:cmd.label || this.rt.titleize(cmd.command_id || cmd.command_key), icon:this.rt.commandIcon(cmd), entity:cmd.intent_entity, command:cmd, primary:index === 0, hide:cmd.frontend_allowed === false })),
+      projection,
+      actions:projection.commands.map((cmd,index)=>({ label:cmd.label || this.rt.titleize(cmd.command_id || cmd.command_key), icon:this.rt.commandIcon(cmd), entity:cmd.intent_entity, command:cmd, primary:index === 0, hide:cmd.frontend_allowed === false })),
       // R22.12.11.24: charger detail sections come from the charger component contract.
       // UX must not infer charger layout from flat property family/group names.
       sections:[this.rt.lifecycleContractGapSection(assetId)].filter(Boolean).concat(
