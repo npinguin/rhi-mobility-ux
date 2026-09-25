@@ -20,7 +20,8 @@
     "ui/screens/charger-detail.js",
     "ui/screens/charger-maintenance.js",
     "ui/screens/mobility-dashboard.js",
-    "ui/screens/router.js"
+    "ui/screens/router.js",
+    "ui/screens/bootstrap.js"
   ],
   "assets_root": "assets"
 }

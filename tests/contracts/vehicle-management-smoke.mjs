@@ -9,6 +9,7 @@ const shell=fs.readFileSync(new URL('../../src/ui/components/asset-shell.js',imp
 const picker=fs.readFileSync(new URL('../../src/ui/components/vehicle-visual-picker.js',import.meta.url),'utf8');
 const chargerPicker=fs.readFileSync(new URL('../../src/ui/components/charger-visual-picker.js',import.meta.url),'utf8');
 const chargerAdapter=fs.readFileSync(new URL('../../src/domain/adapters/charger-adapter.js',import.meta.url),'utf8');
+const chargers=fs.readFileSync(new URL('../../src/ui/screens/charger-maintenance.js',import.meta.url),'utf8');
 
 for(const needle of [
   'data-vehicle-filter',
@@ -95,5 +96,17 @@ if(!shell.includes('new HomeBrainChargerVisualPicker(this.rt).render')) throw ne
 if(presentation.includes('MOBILITY / VEHICLE MANAGEMENT')) throw new Error('obsolete management eyebrow returned');
 if(!presentation.includes('Check that your fleet is configured, assigned and operational')) throw new Error('Vehicles purpose drifted');
 if(!presentation.includes('asset_key:"vehicles"')) throw new Error('Vehicles contextual hero key missing');
+
+if ((dashboard.match(/Manage vehicles & profiles/g) || []).length !== 1) throw new Error('Vehicles duplicated page-level Manage vehicles & profiles action outside Quick Actions');
+for(const needle of [
+  'mdi:connection',
+  'mdi:car-electric',
+  'mdi:shield-check-outline',
+  'mdi:chevron-right',
+  'Charger appearance',
+  'grid-template-columns:repeat(4,minmax(0,1fr))!important'
+]) if(!chargers.includes(needle)) throw new Error('rc.58 charger visual hierarchy regression: missing '+needle);
+if(chargers.includes('<div class="charger-icon"><ha-icon icon="mdi:ev-station"></ha-icon></div>')) throw new Error('generic charger identity icon returned beside real product artwork');
+if(chargers.includes('title="Open charger details"><ha-icon icon="mdi:plus"')) throw new Error('plus icon must not represent charger Details');
 
 console.log('PASS Vehicles/Chargers content preservation, image-first picker, canonical artwork and rc.56 compact workspace architecture');

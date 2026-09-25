@@ -1,0 +1,9 @@
+title: Home Intelligence Mobility
+
+views:
+  - title: Mobility
+    path: overview
+    icon: mdi:car-electric
+    panel: true
+    cards:
+      - type: custom:homebrain-mobility-card

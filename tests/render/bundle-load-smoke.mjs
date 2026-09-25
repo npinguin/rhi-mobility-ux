@@ -9,7 +9,7 @@ const window={customCards:[],customElements,location:{pathname:'/mobility-superv
 const context={console,HTMLElement,customElements,window,location:window.location,history:window.history,document:{},setTimeout,clearTimeout,globalThis:null};
 context.globalThis=context; window.window=window; vm.createContext(context);
 vm.runInContext(bundle,context,{timeout:10000});
-for(const name of ['homebrain-mobility-dashboard-card','homebrain-vehicle-asset-detail-card','homebrain-charger-asset-detail-card','homebrain-mobility-charger-maintenance-card']){
+for(const name of ['homebrain-mobility-card','homebrain-mobility-dashboard-card','homebrain-vehicle-asset-detail-card','homebrain-charger-asset-detail-card','homebrain-mobility-charger-maintenance-card']){
   if(!registry.has(name)) throw new Error(`custom element not registered: ${name}`);
 }
 if(window.HomeBrainMobilityAssetsVersion!==pkg.version) throw new Error(`wrong runtime version ${window.HomeBrainMobilityAssetsVersion}; expected ${pkg.version}`);
