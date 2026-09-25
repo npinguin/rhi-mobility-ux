@@ -162,41 +162,28 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
 
 
   resolveEffectiveCharger(rt, vehicleAsset, chargers) {
-    // R22.10.3 authoritative dashboard rule:
-    // Vehicle -> charger relation comes only from mobility_relationship_index
-    // assets_json[].relationship.effective_charger. No local selection cache,
-    // no assigned fallback, no display-name token matching, no charger reverse scan.
-    const rel = rt.vehicleChargerRelationship(this.assetId(vehicleAsset));
-    const effective = String(rel.effective || "").trim();
-    if (!effective || ["none", "unknown", "unavailable", "null", "undefined"].includes(effective.toLowerCase())) return null;
-    return rt.chargerById(effective) || chargers.find((c)=>String(c.asset_id || "") === effective) || null;
+    const assetId = this.assetId(vehicleAsset);
+    const model = new HomeBrainVehicleAdapter(rt, this.vehicleId(vehicleAsset), { ...this.config, registry_entry:vehicleAsset }).build();
+    const chargerId = String(model?.projection?.relationships?.effective_charger_id || "").trim();
+    if (!chargerId) return null;
+    return rt.chargerById(chargerId) || chargers.find((c)=>String(c.asset_id || "") === chargerId) || null;
   }
 
   vehicleChargingInfo(rt, vehicleAsset) {
-    return rt.liveChargingContextForVehicle(this.assetId(vehicleAsset));
+    const model = new HomeBrainVehicleAdapter(rt, this.vehicleId(vehicleAsset), { ...this.config, registry_entry:vehicleAsset }).build();
+    return model?.projection?.facts?.live_charging || { active:false, status:"Unknown", power:null, detail:"Charging context unavailable." };
   }
 
   chargingContext(rt, vehicleAsset, chargers = []) {
-    // R22.12.11.24: one contract-driven vehicle charging context used by
-    // overview rendering and charge-power controls. This adapter does not
-    // scan raw entities or reconstruct charger ownership.
     const assetId = this.assetId(vehicleAsset);
-    const assigned = this.resolveEffectiveCharger(rt, vehicleAsset, chargers || []);
-    const info = this.vehicleChargingInfo(rt, vehicleAsset) || {
-      active: false, status: "Unknown", power: null, detail: "Charging context unavailable."
-    };
-    const limit = typeof rt.vehicleChargePowerControl === "function"
-      ? rt.vehicleChargePowerControl(assetId)
-      : { value: null, display: "—", entity: "", intent: "", visible: false, executable: false, property: null };
-    return {
-      assetId,
-      assigned,
-      info,
-      limit,
-      currentEntity: limit?.entity || ""
-    };
+    const model = new HomeBrainVehicleAdapter(rt, this.vehicleId(vehicleAsset), { ...this.config, registry_entry:vehicleAsset }).build();
+    const projection = model?.projection || {};
+    const assignedId = String(projection?.relationships?.effective_charger_id || "").trim();
+    const assigned = assignedId ? (rt.chargerById(assignedId) || chargers.find((c)=>String(c.asset_id || "") === assignedId) || null) : null;
+    const info = projection?.facts?.live_charging || { active:false, status:"Unknown", power:null, detail:"Charging context unavailable." };
+    const limit = projection?.configuration?.charge_power_control || { value:null, display:"—", entity:"", intent:"", visible:false, executable:false, property:null };
+    return { assetId, assigned, info, limit, currentEntity:limit?.entity || "", projection };
   }
-
 
   commandIcon(command) {
     const id = String(command?.command_id || "").toLowerCase();
@@ -216,11 +203,9 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
   }
 
   dashboardVehicleCommands(rt, assetId, context = {}) {
-    // R22.10.3: dashboard quick actions are selected from discovered commands
-    // grouped by the backend command_family contract. Asset identity discovery
-    // remains dynamic; command IDs are only used inside a published family to
-    // select the currently meaningful member of that family.
-    return rt.commandActionsFor(assetId, "quick_actions");
+    const asset = context?.asset || rt.vehicleById(assetId) || rt.assetById(assetId) || { asset_id:assetId, asset_type:"vehicle" };
+    const model = new HomeBrainVehicleAdapter(rt, this.vehicleId(asset), { ...this.config, registry_entry:asset }).build();
+    return model?.projection?.commands || [];
   }
 
   lifecycleDisplay(rt, asset) {
@@ -241,15 +226,12 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
   }
 
   chargingActivityDisplay(rt, asset) {
-    const assetId = this.assetId(asset);
-    const rel = rt.vehicleChargerRelationship(assetId);
-    const physical = String(rel.connected || "").trim();
-    const hasPhysical = !!physical && !["none","unknown","unavailable","null","undefined","—"].includes(physical.toLowerCase());
-    if (!hasPhysical) return "Not connected";
-    const snapshot = rt.chargerProductSnapshot(physical);
-    const status = snapshot.operating.resolved ? snapshot.operating.display : "—";
-    const power = snapshot.power.resolved ? snapshot.power.display : "—";
-    return power === "—" ? status : `${status} · ${power}`;
+    const model = new HomeBrainVehicleAdapter(rt, this.vehicleId(asset), { ...this.config, registry_entry:asset }).build();
+    const charging = model?.projection?.signals?.charging;
+    if (!charging) return "Unavailable";
+    const value = String(charging.display || charging.value || "Unavailable");
+    const reason = String(charging.reason || "").trim();
+    return reason && reason !== value ? `${value} · ${reason}` : value;
   }
 
   renderChargerAssignmentSelect(rt, vehicleAsset) {
@@ -352,20 +334,16 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     const image = model?.image || "";
     const route = rt.assetDetailRoute(asset);
     const ctx = this.chargingContext(rt, asset, chargers);
-    const relLabels = rt.vehicleChargerRelationship(assetId);
-    const assignedName = relLabels.effective_display_name || ctx.assigned?.display_name || "No charger selected";
-    const isRealAssetId = (v) => {
-      const idv = String(v || "").trim();
-      return !!idv && !["none","unknown","unavailable","null","undefined"].includes(idv.toLowerCase());
-    };
-    const hasEffectiveCharger = isRealAssetId(relLabels.effective);
-    const hasConnectedCharger = isRealAssetId(relLabels.connected);
-    const activeChargerId = [relLabels.connected, relLabels.effective, ctx.assigned?.asset_id].find(isRealAssetId) || "";
+    const relLabels = model?.projection?.relationships || {};
+    const assignedName = relLabels.charger_display_name || ctx.assigned?.display_name || "No charger selected";
+    const hasEffectiveCharger = !!String(relLabels.effective_charger_id || "").trim();
+    const hasConnectedCharger = !!String(relLabels.physically_connected_charger_id || "").trim();
+    const activeChargerId = String(relLabels.physically_connected_charger_id || relLabels.effective_charger_id || relLabels.configured_charger_id || ctx.assigned?.asset_id || "");
     const activeChargerAsset = activeChargerId ? (rt.chargerById(activeChargerId) || rt.assetById(activeChargerId) || { asset_id: activeChargerId, asset_type: "charger" }) : null;
     const activeChargerRoute = activeChargerAsset ? rt.assetDetailRoute(activeChargerAsset) : "";
     const chargerImage = activeChargerId ? this.chargerImage(activeChargerId) : rhiMobilityAssetUrl("chargers/charger_fallback.png");
     const notPresentButton = this.lifecycleToggleButton(rt, asset, "presence-toggle manage-lifecycle");
-    const vehicleCommands = this.dashboardVehicleCommands(rt, assetId);
+    const vehicleCommands = model?.projection?.commands || [];
     const chargingActivity = this.chargingActivityDisplay(rt, asset);
     const pickerOpen = this._vehiclePickerAsset === assetId;
     const pickerDraft = pickerOpen ? (this._vehiclePickerDraft.get(assetId) || {}) : {};
@@ -400,33 +378,9 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
   }
 
   overviewVehicleSignals(rt, assetId) {
-    const experience = rt.vehicleExperienceV2(assetId) || {};
-    const tile = (intel = {}, label, icon, actionable = []) => {
-      const state = String(intel?.state || "").toLowerCase();
-      return {
-        label,
-        icon,
-        value:String(intel?.summary || "Unavailable"),
-        subvalue:String(intel?.reason || ""),
-        tone:actionable.includes(state) ? "attention" : "neutral"
-      };
-    };
-    const climate = (rt.propertyRows(assetId) || []).find((row) => {
-      if (!row || row.value === undefined || row.value === null || String(row.value).trim() === "") return false;
-      return rt.propertyFamily(row) === "climate" && rt.propertyDetailLevel(row) !== "technical";
-    }) || null;
-    return {
-      range:tile(experience.range_intelligence, "Range", "mdi:road-variant", ["low"]),
-      energy:tile(experience.energy_intelligence, "Energy", "mdi:battery-charging", ["attention","low"]),
-      security:tile(experience.security_intelligence, "Security", "mdi:lock-outline", ["unsafe"]),
-      maintenance:tile(experience.maintenance_intelligence, "Maintenance", "mdi:wrench-outline", ["overdue","due_soon"]),
-      climate: (() => {
-        if (!climate) return "N/A";
-        const display = String(rt.propertyDisplayValue(climate) || "").trim();
-        if (!display || /^-\d+(?:[.,]\d+)?\s*(?:s|sec|secs|seconds|min|mins|minutes|h|hr|hrs|hours)$/i.test(display)) return "N/A";
-        return display;
-      })()
-    };
+    const asset = rt.vehicleById(assetId) || rt.assetById(assetId) || { asset_id:assetId, asset_type:"vehicle" };
+    const model = new HomeBrainVehicleAdapter(rt, this.vehicleId(asset), { ...this.config, registry_entry:asset }).build();
+    return model?.projection?.signals || {};
   }
 
   renderOverviewVehicleRow(rt, asset, chargers) {
@@ -438,9 +392,9 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     const visual = this.vehicleVisualSelection(rt, asset);
     const visualFilter = visual?.color?.filter || "none";
     const route = rt.assetDetailRoute(asset);
-    const signals = this.overviewVehicleSignals(rt, assetId);
+    const signals = model?.projection?.signals || {};
     const charging = this.chargingActivityDisplay(rt, asset);
-    const commands = this.dashboardVehicleCommands(rt, assetId).slice(0, 2);
+    const commands = (model?.projection?.commands || []).slice(0, 2);
     const signalValue = (tile, fallback = "—") => tile?.value && !String(tile.value).toLowerCase().includes("contract gap") ? tile.value : fallback;
     const signalTone = (tile) => {
       const tone = String(tile?.tone || "").toLowerCase();
@@ -466,13 +420,15 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
   }
 
   renderOverviewChargerRow(rt, charger) {
+    const factory = new HomeBrainAssetFactory(rt);
+    const model = factory.adapterFor(charger, this.config)?.build?.() || null;
     const assetId = this.assetId(charger);
-    const display = charger.display_name || rt.chargerLabel(assetId);
-    const route = rt.assetDetailRoute(charger);
-    const snapshot = rt.chargerProductSnapshot(assetId);
-    const status = snapshot.operating?.resolved ? snapshot.operating.display : "Unknown";
-    const power = snapshot.power?.resolved ? snapshot.power.display : "—";
-    const image = this.chargerImage(charger);
+    const display = model?.display || charger.display_name || rt.chargerLabel(assetId);
+    const route = model?.detailRoute || rt.assetDetailRoute(charger);
+    const facts = model?.projection?.facts || {};
+    const status = facts.operating?.display || "Unknown";
+    const power = facts.power?.display || "—";
+    const image = model?.image || this.chargerImage(charger);
     return `<article class="ov-charger-row">
       <span class="ov-charger-image"><img src="${rt.escape(rt.cache(image))}" alt="${rt.escape(display)}" onerror="this.style.display='none'"><ha-icon icon="mdi:ev-station"></ha-icon></span>
       <span class="ov-charger-copy"><b>${rt.escape(display)}</b><small><i class="ov-dot"></i>${rt.escape(status)}</small></span>
@@ -811,20 +767,8 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
       return String(model?.display || vehicle?.display_name || rt.vehicleLabel(this.assetId(vehicle)) || this.assetId(vehicle));
     };
     const attentionRequired = (vehicle) => {
-      const row = rt.vehicleExperienceV2(this.assetId(vehicle));
-      if (!row) return false;
-      const configuration = String(row?.configuration_status?.state || "").toLowerCase();
-      const dataHealth = String(row?.runtime_data_health?.state || "").toLowerCase();
-      const range = String(row?.range_intelligence?.state || "").toLowerCase();
-      const security = String(row?.security_intelligence?.state || "").toLowerCase();
-      const maintenance = String(row?.maintenance_intelligence?.state || "").toLowerCase();
-      const demand = String(row?.charge_demand?.state || "").toLowerCase();
-      return configuration === "incomplete"
-        || ["partial","stale","unavailable"].includes(dataHealth)
-        || range === "low"
-        || security === "unsafe"
-        || ["overdue","due_soon"].includes(maintenance)
-        || demand === "needed";
+      const model = factory.adapterFor(vehicle, this.config)?.build?.() || null;
+      return model?.projection?.attention_required === true;
     };
     const sortRows = (rows) => {
       const copy = [...rows];
@@ -839,14 +783,12 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     const visibleInactive = filter === "active" ? [] : filter === "attention" ? allInactive.filter(attentionRequired) : allInactive;
 
     const fleet = rt.mobilityFleetV2();
-    const experienceRows = rt.mobilityExperienceV2()?.vehicles || [];
-    const experienceById = new Map(experienceRows.map((row)=>[String(row?.asset_id || ""),row]));
     const activeCount = Number.isFinite(Number(fleet.active_vehicle_count)) ? Number(fleet.active_vehicle_count) : allActive.length;
     const inactiveCount = allInactive.length;
     const attentionCount = [...allActive, ...allInactive].filter(attentionRequired).length;
     const assignedRows = allActive.filter((vehicle)=>{
-      const row = experienceById.get(this.assetId(vehicle));
-      return !!String(row?.charging_relationship?.configured_charger_id || "").trim();
+      const model = factory.adapterFor(vehicle, this.config)?.build?.() || null;
+      return !!String(model?.projection?.relationships?.configured_charger_id || "").trim();
     });
     const configuredCount = assignedRows.length;
     const unassignedRows = allActive.filter((vehicle)=>!assignedRows.includes(vehicle));
@@ -973,26 +915,22 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
           const intelligenceSummary = intelligenceRows.find((r)=>r.message || r.meaning || r.value || r.title || r.insight_type);
           const signature = JSON.stringify({
             vehicles: vehicles.map((v) => {
-              const id = this.vehicleId(v);
-              const assetId = v.asset_id;
-              const cmds = rt.commandRegistry(assetId).map((cmd) => [cmd.command_id, cmd.frontend_allowed, cmd.execution_allowed, cmd.execution_status || "", cmd.blocked_reason || cmd.execution_reason || ""]);
-              const relationship = rt.vehicleChargerRelationship(assetId);
-              const experience = rt.vehicleExperienceV2(assetId) || {};
-              const intelligence = ["range_intelligence","energy_intelligence","security_intelligence","maintenance_intelligence","charging_intelligence"]
-                .map((key)=>[key, experience?.[key]?.state || "", experience?.[key]?.summary || "", experience?.[key]?.reason || ""]);
-              const compactMetrics = rt.vehicleOverviewMetricSlots(assetId).map((slot)=>[slot.property_key, slot.resolved ? slot.display : "—"]);
-              return [assetId, v.display_name, rt.lifecycleStatus(v), relationship.connected, relationship.effective, intelligence, compactMetrics,
-                rt.supervisorOutcome(assetId, "status", ""), rt.supervisorOutcome(assetId, "trust", ""), rt.supervisorOutcome(assetId, "attention", ""), cmds];
+              const model = factory.adapterFor(v, this.config)?.build?.() || null;
+              const projection = model?.projection || {};
+              return [
+                v.asset_id,
+                model?.display || v.display_name,
+                projection?.lifecycle?.state || rt.lifecycleStatus(v),
+                projection?.relationships,
+                projection?.signals,
+                projection?.facts?.overview_metrics || [],
+                (projection?.commands || []).map((cmd)=>[cmd.command_id, cmd.frontend_allowed, cmd.execution_allowed, cmd.execution_status || "", cmd.blocked_reason || cmd.execution_reason || ""])
+              ];
             }),
             chargers: chargers.map((c) => {
-              const cid = this.chargerId(c);
-              const aid = c.asset_id;
-              return [aid,
-                rt.chargerOperationalStatus(aid),
-                rt.chargerConnectionState(aid),
-                rt.canonicalChargerPropertyDisplay(aid, "charger.power_kw", ""),
-                rt.canonicalChargerPropertyDisplay(aid, "charger.current_limit_a", "")
-              ];
+              const model = factory.adapterFor(c, this.config)?.build?.() || null;
+              const projection = model?.projection || {};
+              return [c.asset_id, projection?.lifecycle?.state || rt.lifecycleStatus(c), projection?.facts, projection?.availability];
             }),
             reco, plan, trust, activity, sent: Array.from(this._sent || []).filter(([, t]) => Date.now() - t < 3000)
           });
