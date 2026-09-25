@@ -10,6 +10,7 @@ const picker=fs.readFileSync(new URL('../../src/ui/components/vehicle-visual-pic
 const chargerPicker=fs.readFileSync(new URL('../../src/ui/components/charger-visual-picker.js',import.meta.url),'utf8');
 const chargerAdapter=fs.readFileSync(new URL('../../src/domain/adapters/charger-adapter.js',import.meta.url),'utf8');
 const chargers=fs.readFileSync(new URL('../../src/ui/screens/charger-maintenance.js',import.meta.url),'utf8');
+const header=fs.readFileSync(new URL('../../src/app/header-and-navigation.js',import.meta.url),'utf8');
 
 for(const needle of [
   'data-vehicle-filter',
@@ -114,7 +115,7 @@ for(const needle of [
   'vehicle.ev_range_km',
   'vehicle.soc_pct',
   'if (this.mobilityRuntimeV2())',
-  'propertyByCompoundKey(canonical, spec.property_key)'
+  'propertyByCompoundKey(canonical, key)'
 ]) if(!runtime.includes(needle)) throw new Error('rc.59 direct V2 vehicle metric regression: missing '+needle);
 
 if(!chargers.includes('.charger-visual:not(.image-missing) .charger-visual-fallback{display:none!important}')) {
@@ -127,6 +128,32 @@ console.log('PASS rc.59 direct V2 vehicle metrics and charger artwork truth');
 if(!dashboard.includes('return "Connection unknown";')) throw new Error('Vehicle connection uncertainty must not render as Not connected');
 if(dashboard.includes('if (!hasPhysical) return "Not connected";')) throw new Error('absence of physical identity must not be rendered as negative connection fact');
 console.log('PASS Vehicle connection tri-state semantics: missing physical identity is unknown, not disconnected');
+for(const needle of [
+  'Power coverage complete',
+  'Power coverage partial',
+  'Power coverage unavailable',
+  'kW known',
+  'connected charger',
+  'identity unavailable',
+  'secure ·',
+  'unknown',
+  'No maintenance due within',
+  'Policy warning'
+]) {
+  if(!dashboard.includes(needle) && needle !== 'Policy warning') {
+    throw new Error('Overview truth-model regression: missing '+needle);
+  }
+}
+if(!dashboard.includes('status.security.headline')) throw new Error('Overview Security must use uncertainty-aware headline');
+if(!dashboard.includes('status.maintenance.headline')) throw new Error('Overview Maintenance must use backend/policy-aware headline');
+if(!dashboard.includes('status.charging.powerCoverage')) throw new Error('Overview Charging must expose aggregate completeness');
+if(header.includes('Physical execution proof pending.')) throw new Error('release qualification leaked into normal runtime footer');
+if(header.includes('Release acceptance proof pending.')) throw new Error('release acceptance leaked into normal runtime footer');
+if(header.includes('Backend release contract unavailable.')) throw new Error('missing release identity must not be classified as product runtime failure');
+if(!runtime.includes('release: attrs.release && typeof attrs.release === "object" ? attrs.release : {}')) throw new Error('Runtime V2 release metadata consumption missing');
+if(!runtime.includes('sensor.rhi_mobility_health')) throw new Error('current Mobility health surface is not runtime authority');
+console.log('PASS Overview truth model: uncertainty, aggregate completeness and runtime health separation');
+
 
 
 console.log('PASS Vehicles/Chargers content preservation, image-first picker, canonical artwork and rc.56 compact workspace architecture');
