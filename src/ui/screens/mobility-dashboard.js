@@ -245,11 +245,29 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     const rel = rt.vehicleChargerRelationship(assetId);
     const physical = String(rel.connected || "").trim();
     const hasPhysical = !!physical && !["none","unknown","unavailable","null","undefined","—"].includes(physical.toLowerCase());
-    if (!hasPhysical) return "Not connected";
-    const snapshot = rt.chargerProductSnapshot(physical);
-    const status = snapshot.operating.resolved ? snapshot.operating.display : "—";
-    const power = snapshot.power.resolved ? snapshot.power.display : "—";
-    return power === "—" ? status : `${status} · ${power}`;
+
+    if (hasPhysical) {
+      const snapshot = rt.chargerProductSnapshot(physical);
+      const status = snapshot.operating.resolved ? snapshot.operating.display : "Connected";
+      const power = snapshot.power.resolved ? snapshot.power.display : "—";
+      return power === "—" ? status : `${status} · ${power}`;
+    }
+
+    const relationshipState = String(rel.relationship_resolution || "").toUpperCase();
+    const hasAssigned = [rel.assigned, rel.effective, rel.selected]
+      .some((value)=>{
+        const raw = String(value || "").trim().toLowerCase();
+        return !!raw && !["none","unknown","unavailable","null","undefined","—"].includes(raw);
+      });
+
+    // No observed identity is not negative connection evidence. CONFIGURED_ONLY
+    // means the charger relation is known, but the source cannot prove which
+    // Vehicle occupies the connector.
+    if (relationshipState === "CONFIGURED_ONLY" || (hasAssigned && rel.observed_identity_proven !== true)) {
+      return "Connection unknown";
+    }
+    if (relationshipState === "UNKNOWN") return "Connection unknown";
+    return "Connection unknown";
   }
 
   renderChargerAssignmentSelect(rt, vehicleAsset) {
