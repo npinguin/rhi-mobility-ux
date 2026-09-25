@@ -1,22 +1,23 @@
-# v1.0.0-rc.57 — unified Mobility design language TEST CANDIDATE
+# v1.0.0-rc.58 — bootstrap install and charger layout cleanup TEST CANDIDATE
 
 ## Scope
 
-rc.57 is a design-language convergence release for all top-level Mobility tabs. It deliberately preserves body semantics, command grouping, backend ownership and functional capability.
+rc.58 makes Mobility easier to install while preserving all existing dashboard configurations. It also closes the visible charger icon/layout defects found during rc.57 target review.
 
-- Uses Overview as the visual direction without forcing one identical page template.
-- Sharpens typography with lighter weights, clearer hierarchy and readable secondary text.
-- Tightens white space, baseline alignment, control heights, card geometry and icon sizing.
-- Retains premium hero imagery while bounding its responsive height, especially in tablet landscape.
-- Keeps normal/healthy states visually quiet; colour remains semantic and attention-driven.
-- Hardens the Mobility / Intelligence / Insights module navigation so labels cannot render beneath the Robotix branding region.
-- Preserves the Status → Quick Actions → Filters → Body grammar where those layers are applicable.
-- Keeps asset-specific actions and commands in their owning body cards.
-- Adds release-blocking regression coverage for responsive navigation integrity and the shared design-language tokens.
+- Adds `custom:homebrain-mobility-card` as the recommended single-card bootstrap.
+- New dashboards can use one Lovelace view and one custom card, matching the Energy installation pattern.
+- Existing multi-view YAML and all current custom card names/routes remain supported.
+- Bootstrap internal navigation uses `?mobility_view=...` and keeps refresh/browser navigation meaningful.
+- Removes the duplicate Vehicles management CTA below Filters.
+- Uses real charger artwork as the primary identity; the duplicate generic charger icon is removed.
+- Uses semantically correct charger fact/status/action icons.
+- Replaces `+` as charger Details with a labeled chevron action.
+- Keeps lifecycle action visible and labeled.
+- Compacts charger facts and command layout without changing command ownership or grouping.
 
 Required/tested backend: `M0.10.7`.
-Rollback: `v1.0.0-rc.56`.
+Rollback: `v1.0.0-rc.57`.
 
 Accepted technical debt: 0.
 Accepted feature debt: 0.
-Target Home Assistant qualification remains mandatory across phone portrait, tablet portrait, tablet landscape and desktop.
+Target Home Assistant qualification remains mandatory for bootstrap install, legacy multi-view compatibility, navigation refresh, phone/tablet/desktop presentation and charger icon hierarchy.
