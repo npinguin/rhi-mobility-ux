@@ -180,7 +180,7 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
     return "Contract gap";
   }
 
-  lifecycleToggleButton(rt, charger, extraClass = "mini-detail-link lifecycle-toggle icon-only") {
+  lifecycleToggleButton(rt, charger, extraClass = "mini-detail-link lifecycle-toggle labeled-action") {
     const status = rt.lifecycleStatus(charger);
     const desired = status === "disabled" ? "active" : "disabled";
     const model = rt.lifecycleWriteModel(charger, desired);
@@ -196,7 +196,7 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
     return `<article class="inactive-row lifecycle-collapsed-row charger-collapsed-row">
       <span class="inactive-state">${rt.escape(this.lifecycleDisplay(rt, charger))}</span>
       <div class="inactive-copy"><h3>${rt.escape(name)}</h3><p>${rt.escape(subtitle)}</p></div>
-      <div class="inactive-actions">${this.lifecycleToggleButton(rt, charger, "cmd compact icon-only lifecycle-toggle")}<button class="cmd compact icon-only" data-nav="${rt.escape(route)}" title="Open charger details"><ha-icon icon="mdi:plus"></ha-icon><span>Details</span></button></div>
+      <div class="inactive-actions">${this.lifecycleToggleButton(rt, charger, "cmd compact icon-only lifecycle-toggle")}<button class="cmd compact icon-only" data-nav="${rt.escape(route)}" title="Open charger details"><ha-icon icon="mdi:chevron-right"></ha-icon><span>Details</span></button></div>
     </article>`;
   }
 
@@ -265,24 +265,24 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
       <div class="charger-hero-card premium-image-hero">
         ${this.renderChargerHero(rt, id, name, status)}
         <div class="charger-head">
-          <div class="charger-icon"><ha-icon icon="mdi:ev-station"></ha-icon></div>
-          <div class="charger-title"><h3>${rt.escape(name)}</h3><p>${rt.escape(charger.location || charger.profile || assetId)}</p></div>
+          <div class="charger-title"><h3>${rt.escape(name)}</h3><p>${rt.escape(charger.location || charger.profile || "Charging point")}</p></div>
           <span class="status ${this.statusTone(status)}">${rt.escape(status)}</span>
-          <button class="charger-appearance-action" data-charger-picker="${rt.escape(assetId)}" title="Choose charger and colour"><ha-icon icon="mdi:palette-outline"></ha-icon><span>Charger & colour</span></button>
+          <button class="charger-appearance-action" data-charger-picker="${rt.escape(assetId)}" title="Choose charger appearance"><ha-icon icon="mdi:palette-outline"></ha-icon><span>Charger appearance</span></button>
         </div>
       </div>
       ${pickerOpen ? this.renderChargerPicker(rt, charger) : ""}
       <div class="charger-kpis">
         ${this.field(rt, "Power", power, "mdi:flash")}
-        ${this.field(rt, "Actual", actualCurrent, "mdi:current-ac")}
-        ${this.field(rt, "Limit", currentLimit, "mdi:gauge")}
-        ${this.field(rt, "Session", session, "mdi:counter")}
+        ${this.field(rt, "Current", actualCurrent, "mdi:current-ac")}
+        ${this.field(rt, "Limit", currentLimit, "mdi:speedometer")}
+        ${this.field(rt, "Session", session, "mdi:lightning-bolt-circle")}
       </div>
-      <div class="soft-line">
-        <span><ha-icon icon="mdi:ev-plug-type2"></ha-icon>${rt.escape(connector)}</span>
+      <div class="soft-line charger-state-actions">
+        <span><ha-icon icon="mdi:connection"></ha-icon>${rt.escape(connector)}</span>
         <span><ha-icon icon="mdi:car-electric"></ha-icon>${rt.escape(connectedVehicle)}</span>
-        <span title="Canonical charger health"><ha-icon icon="mdi:shield-check-outline" style="color:#1467F5;--mdc-icon-size:23px"></ha-icon>${rt.escape(healthSummary.value)}</span>
-        <button class="mini-detail-link details-action icon-only" data-nav="${rt.escape(rt.assetDetailRoute(charger))}" title="Open charger details"><ha-icon icon="mdi:plus"></ha-icon></button>
+        <span title="Canonical charger health"><ha-icon icon="mdi:shield-check-outline"></ha-icon>${rt.escape(healthSummary.value)}</span>
+        <span class="soft-line-spacer"></span>
+        <button class="mini-detail-link details-action labeled-action" data-nav="${rt.escape(rt.assetDetailRoute(charger))}" title="Open charger details"><ha-icon icon="mdi:chevron-right"></ha-icon><span>Details</span></button>
         ${this.lifecycleToggleButton(rt, charger)}
       </div>
       <div class="command-row">${primary.length ? primary.map((c) => this.renderCommand(rt, c)).join("") : `<div class="empty-actions">No product command placement published for this charger.</div>`}</div>
@@ -701,6 +701,37 @@ ${hbMobilitySharedShellStyles()}
         .soft-line{gap:6px!important;flex-wrap:wrap!important}
         .charger-appearance-action{grid-column:2/4!important;height:32px!important;padding:0 8px!important}
         .grid{grid-template-columns:1fr!important;gap:10px!important}
+      }
+
+      /* rc.58 charger icon hierarchy and compact operational layout. */
+      .charger-head{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;grid-template-rows:auto auto!important;gap:6px 10px!important;align-items:center!important;min-width:0!important}
+      .charger-head .charger-title{grid-column:1!important;grid-row:1!important;min-width:0!important}
+      .charger-head>.status{grid-column:2!important;grid-row:1!important;justify-self:end!important}
+      .charger-head>.charger-appearance-action{grid-column:1/-1!important;grid-row:2!important;justify-self:start!important}
+      .charger-icon{display:none!important}
+      .charger-title h3{font-size:17px!important;font-weight:600!important}
+      .charger-title p{font-size:11px!important;font-weight:450!important;color:#66728B!important}
+      .charger-kpis{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:7px!important}
+      .field{min-height:52px!important;padding:8px 10px!important;border-radius:11px!important;background:#fff!important}
+      .field ha-icon{--mdc-icon-size:19px!important;color:#355D96!important}
+      .field span{font-size:10px!important;font-weight:500!important}
+      .field b{font-size:13px!important;font-weight:600!important}
+      .charger-state-actions{align-items:center!important}
+      .charger-state-actions>span:not(.soft-line-spacer){background:transparent!important;border:0!important;padding:5px 4px!important}
+      .charger-state-actions ha-icon{--mdc-icon-size:18px!important;color:#355D96!important}
+      .soft-line-spacer{flex:1 1 auto!important;border:0!important;background:transparent!important;padding:0!important}
+      .mini-detail-link.labeled-action{width:auto!important;min-width:0!important;height:34px!important;padding:0 10px!important;border-radius:9px!important;gap:6px!important;font-size:11px!important;font-weight:550!important;color:#355D96!important;box-shadow:none!important}
+      .mini-detail-link.labeled-action span{display:inline!important}
+      .mini-detail-link.labeled-action ha-icon{--mdc-icon-size:17px!important;color:#355D96!important}
+      .command-row{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))!important;gap:7px!important}
+      .cmd{min-height:38px!important;border-radius:10px!important;box-shadow:none!important;font-weight:550!important}
+      .cmd ha-icon{--mdc-icon-size:18px!important}
+      .cmd:disabled{opacity:.62!important;color:#7A8699!important;background:#FAFBFC!important}
+      @media(max-width:760px){
+        .charger-kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+        .soft-line-spacer{display:none!important}
+        .charger-state-actions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important}
+        .charger-state-actions .labeled-action{width:100%!important;justify-content:center!important}
       }
 
       /* R22.12.11.24 Energy typography alignment — charger maintenance. */
