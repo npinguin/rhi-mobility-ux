@@ -105,7 +105,7 @@ class HomeBrainVehicleAdapter {
     const canonicalProfilePackage = String(profileVisual?.package_file || "");
     const img = visualPackageFile || canonicalProfilePackage || profileImage;
     const imageFilter = visualMatchesProfile ? (visual?.color?.filter || "none") : "none";
-    const actions = this.rt.commandActionsFor(assetId, "quick_actions").map((cmd, index) => ({
+    const actions = this.rt.detailQuickActions(assetId).map((cmd, index) => ({
       label: cmd.label || this.rt.titleize(cmd.command_id || cmd.command_key),
       icon: this.rt.commandIcon(cmd), entity: cmd.intent_entity, command: cmd,
       primary: index === 0, hide: cmd.frontend_allowed === false
