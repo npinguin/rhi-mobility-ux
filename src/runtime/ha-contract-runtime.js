@@ -2309,33 +2309,49 @@ class HomeBrainAssetRuntime {
     return this.vehicleComponentRows().map((c)=>this.vehicleComponentModel(assetId, c.component_id)).filter(Boolean);
   }
 
+  canonicalFactModel(assetId = "", propertyKey = "", label = "") {
+    const canonical = this.canonicalAssetId(assetId);
+    const key = String(propertyKey || "").trim();
+    const prop = key ? this.propertyByCompoundKey(canonical, key) : null;
+    const raw = prop ? this.cleanValue(prop.value, "") : "";
+    const resolved = !!prop && raw !== "" && raw !== null && raw !== undefined;
+    const display = resolved ? this.formatValue(raw, prop.unit || "", key) : "—";
+    return {
+      asset_id:canonical,
+      property_key:key,
+      label:label || this.propertyDisplayLabel(prop || { property_key:key }),
+      resolved,
+      available:resolved,
+      value:resolved ? raw : "",
+      display,
+      unit:prop?.unit || "",
+      prop,
+      reason:!prop ? "property_contract_gap" : (resolved ? "" : "missing_value")
+    };
+  }
+
+  vehicleSummaryFacts(assetId = "") {
+    const canonical = this.canonicalAssetId(assetId);
+    return {
+      full_range:this.canonicalFactModel(canonical, "vehicle.range_total_km", "Full"),
+      ev_range:this.canonicalFactModel(canonical, "vehicle.ev_range_km", "EV"),
+      battery:this.canonicalFactModel(canonical, "vehicle.soc_pct", "Battery")
+    };
+  }
+
   vehicleOverviewMetricSlots(assetId = "") {
     const canonical = this.canonicalAssetId(assetId);
 
-    // Supported V2 path: consume the exact canonical properties directly. The
-    // labels are presentation-owned, but values/units are backend-owned.
+    // Supported V2 path: one normalized fact shape is shared by every screen.
+    // Overview, Management and Detail may present the fact differently, but
+    // they may not consume different canonical keys or object contracts.
     if (this.mobilityRuntimeV2()) {
-      const specs = [
-        { property_key:"vehicle.range_total_km", label:"Full" },
-        { property_key:"vehicle.ev_range_km", label:"EV" },
-        { property_key:"vehicle.soc_pct", label:"Battery" }
-      ];
-      return specs.map((spec)=>{
-        const prop = this.propertyByCompoundKey(canonical, spec.property_key);
-        if (!prop) return { label:spec.label, value:"—", property_key:spec.property_key, available:false };
-        const raw = this.cleanValue(prop.value, "");
-        const available = raw !== "" && raw !== null && raw !== undefined;
-        return {
-          label:spec.label,
-          value:available ? this.formatValue(raw, prop.unit || "", spec.property_key) : "—",
-          property_key:spec.property_key,
-          available,
-          prop
-        };
-      });
+      const facts = this.vehicleSummaryFacts(canonical);
+      return [facts.full_range, facts.ev_range, facts.battery];
     }
 
-    // Frozen pre-V2 compatibility path only.
+    // Frozen pre-V2 compatibility path only. Normalize it into the same
+    // resolved/display/value shape so presentation code has one contract.
     const specs = [
       { component_id:"range", property_index:0, label:"Full" },
       { component_id:"range", property_index:1, label:"EV" },
@@ -2347,13 +2363,18 @@ class HomeBrainAssetRuntime {
       const rows = component ? this.vehicleComponentProperties(canonical, component.component_id) : [];
       const prop = propertyKey ? rows.find((row)=>String(row.property_key || "") === String(propertyKey)) : null;
       const raw = prop ? this.cleanValue(prop.value, "") : "";
-      const available = raw !== "" && raw !== null && raw !== undefined;
+      const resolved = !!prop && raw !== "" && raw !== null && raw !== undefined;
       return {
+        asset_id:canonical,
         label:spec.label,
-        value:available ? this.formatValue(raw, prop?.unit || "", propertyKey) : "—",
         property_key:propertyKey,
-        available,
-        prop
+        resolved,
+        available:resolved,
+        value:resolved ? raw : "",
+        display:resolved ? this.formatValue(raw, prop?.unit || "", propertyKey) : "—",
+        unit:prop?.unit || "",
+        prop,
+        reason:!prop ? "property_contract_gap" : (resolved ? "" : "missing_value")
       };
     });
   }
