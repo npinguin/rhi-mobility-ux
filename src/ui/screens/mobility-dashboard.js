@@ -12,6 +12,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     this._vehicleSort = this._vehicleSort || "default";
     this._vehiclePickerAsset = this._vehiclePickerAsset || "";
     this._vehiclePickerDraft = this._vehiclePickerDraft || new Map();
+    this._policyPanelOpen = this._policyPanelOpen || false;
     this._lastDashboardRenderAt = this._lastDashboardRenderAt || 0;
     this._lastSignature = this._lastSignature || "";
     if (!this._viewPositionBound) {
@@ -828,6 +829,36 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     };
   }
 
+  renderPolicySettings(rt) {
+    const contract = rt.mobilityPolicyV2();
+    const editors = contract?.editors || [];
+    if (!editors.length) {
+      return `<section class="ov-policy-panel"><div class="ov-policy-head"><div><b>Policy settings</b><span>Policy editor metadata unavailable.</span></div><button data-policy-close title="Close"><ha-icon icon="mdi:close"></ha-icon></button></div></section>`;
+    }
+    const editorRow = (editor)=>{
+      const key = String(editor?.policy_key || "");
+      const label = String(editor?.label || key);
+      const description = String(editor?.description || "");
+      const control = String(editor?.control || "");
+      const unit = String(editor?.unit || "");
+      const value = editor?.value;
+      let input = "";
+      if (control === "number") {
+        input = `<label class="ov-policy-control"><input type="number" data-policy-value="${rt.escape(key)}" value="${rt.escape(value ?? "")}" min="${rt.escape(editor.min ?? "")}" max="${rt.escape(editor.max ?? "")}" step="${rt.escape(editor.step ?? "any")}" aria-label="${rt.escape(label)}"><span>${rt.escape(unit)}</span></label>`;
+      } else if (control === "multi_select") {
+        const selected = new Set(Array.isArray(value) ? value.map(String) : []);
+        input = `<div class="ov-policy-choices" data-policy-value="${rt.escape(key)}">${(editor.choices || []).map((choice)=>`<label><input type="checkbox" value="${rt.escape(choice.value)}" ${selected.has(String(choice.value)) ? "checked" : ""}><span>${rt.escape(choice.label || choice.value)}</span></label>`).join("")}</div>`;
+      } else {
+        input = `<span class="ov-policy-unavailable">Unsupported control</span>`;
+      }
+      return `<div class="ov-policy-row" data-policy-row="${rt.escape(key)}"><div class="ov-policy-copy"><b>${rt.escape(label)}</b><span>${rt.escape(description)}</span></div>${input}<button class="ov-policy-apply" data-policy-save="${rt.escape(key)}" ${!editor.write_service_domain || !editor.write_service_action ? "disabled" : ""}>Apply</button></div>`;
+    };
+    return `<section class="ov-policy-panel" aria-label="Mobility policy settings">
+      <div class="ov-policy-head"><div><b>Policy settings</b><span>Backend-owned thresholds and coverage rules · revision ${rt.escape(contract.revision)}</span></div><button data-policy-close title="Close"><ha-icon icon="mdi:close"></ha-icon></button></div>
+      <div class="ov-policy-list">${editors.map(editorRow).join("")}</div>
+    </section>`;
+  }
+
   renderOverviewPage(rt, vehicles, chargers, activityRows, reco) {
     const activeVehicles = vehicles.filter((v)=>rt.lifecycleStatus(v) === "active");
     const status = this.overviewStatusModel(rt, activeVehicles, chargers);
@@ -873,7 +904,9 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
         <button class="ov-nav-action" data-nav="${hbMobilityPath("/planning")}"><ha-icon icon="mdi:calendar-clock"></ha-icon>Charging plan</button>
         <button class="ov-nav-action" data-nav="${hbMobilityPath("/dashboard")}"><ha-icon icon="mdi:fan"></ha-icon>Precondition</button>
         <button class="ov-nav-action" data-nav="${hbMobilityPath("/dashboard")}"><ha-icon icon="mdi:ev-station"></ha-icon>Change charger</button>
+        <button class="ov-nav-action" data-policy-toggle><ha-icon icon="mdi:tune-variant"></ha-icon>Policy settings</button>
       </section>
+      ${this._policyPanelOpen ? this.renderPolicySettings(rt) : ""}
 
       <section class="ov-panel ov-core-vehicles ov-overview-vehicles">
         <div class="ov-panel-head">
@@ -1156,6 +1189,37 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
       if (!target) return;
       rt.navigate(target);
     }));
+    this.shadowRoot.querySelectorAll("button[data-policy-toggle]").forEach((btn)=>btn.addEventListener("click",()=>{
+      this._policyPanelOpen = !this._policyPanelOpen;
+      this._forceRender = true; this._lastSignature = "";
+      if (this._hass) this.hass = this._hass;
+    }));
+    this.shadowRoot.querySelectorAll("button[data-policy-close]").forEach((btn)=>btn.addEventListener("click",()=>{
+      this._policyPanelOpen = false;
+      this._forceRender = true; this._lastSignature = "";
+      if (this._hass) this.hass = this._hass;
+    }));
+    this.shadowRoot.querySelectorAll("button[data-policy-save]").forEach((btn)=>btn.addEventListener("click",async ()=>{
+      const key = btn.getAttribute("data-policy-save") || "";
+      const editor = rt.policyEditor(key);
+      const row = btn.closest("[data-policy-row]");
+      if (!key || !editor || !row) return;
+      let value;
+      if (editor.control === "number") {
+        const input = row.querySelector('input[data-policy-value]');
+        value = input?.value;
+        if (value === "" || value === undefined) return;
+        value = Number(value);
+      } else if (editor.control === "multi_select") {
+        value = [...row.querySelectorAll('input[type="checkbox"]:checked')].map((input)=>input.value);
+      } else return;
+      btn.disabled = true; btn.classList.remove("failed");
+      const ok = await rt.writePolicyAsync(key, value);
+      if (!ok) { btn.disabled = false; btn.classList.add("failed"); return; }
+      this._forceRender = true; this._lastSignature = "";
+      if (this._hass) this.hass = this._hass;
+    }));
+
     this.shadowRoot.querySelectorAll("button[data-vehicle-filter]").forEach((btn)=>btn.addEventListener("click",()=>{
       const value = btn.getAttribute("data-vehicle-filter") || "all";
       if (!["all","active","disabled","attention"].includes(value)) return;
@@ -1377,6 +1441,17 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     .ov-quick-title{font-size:9.5px!important;letter-spacing:.13em!important;color:#31558E!important}
     .ov-nav-action{height:40px!important;min-height:40px!important;border:1px solid #D8E4F1!important;background:#fff!important;color:#075FD8!important;box-shadow:none!important;font-size:11px!important;font-weight:660!important}
     .ov-nav-action.primary{background:#0B66F6!important;border-color:#0B66F6!important;color:#fff!important}
+    .ov-policy-panel{margin:0!important;border:1px solid #DCE6F1!important;border-radius:14px!important;background:#fff!important;box-shadow:0 5px 16px rgba(21,61,115,.03)!important;padding:10px 12px!important}
+    .ov-policy-head{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;margin-bottom:8px!important}
+    .ov-policy-head>div{display:grid!important;gap:2px!important}.ov-policy-head b{font-size:13px!important;font-weight:620!important;color:#0B173D!important}.ov-policy-head span{font-size:10px!important;color:#657895!important}
+    .ov-policy-head>button{width:32px!important;height:32px!important;border:1px solid #DCE6F1!important;border-radius:9px!important;background:#fff!important;color:#48617F!important}.ov-policy-head>button ha-icon{--mdc-icon-size:18px!important}
+    .ov-policy-list{display:grid!important;gap:5px!important}
+    .ov-policy-row{display:grid!important;grid-template-columns:minmax(220px,1fr) minmax(170px,.65fr) 70px!important;gap:10px!important;align-items:center!important;padding:7px 8px!important;border-top:1px solid #EDF1F6!important}
+    .ov-policy-row:first-child{border-top:0!important}.ov-policy-copy{display:grid!important;gap:2px!important;min-width:0!important}.ov-policy-copy b{font-size:11px!important;font-weight:600!important;color:#172B47!important}.ov-policy-copy span{font-size:9.5px!important;color:#718199!important}
+    .ov-policy-control{height:34px!important;display:grid!important;grid-template-columns:1fr auto!important;align-items:center!important;border:1px solid #DCE6F1!important;border-radius:9px!important;background:#FAFCFF!important;overflow:hidden!important}.ov-policy-control input{min-width:0!important;width:100%!important;height:32px!important;border:0!important;background:transparent!important;padding:0 8px!important;color:#172B47!important;font:inherit!important;font-size:11px!important}.ov-policy-control span{padding:0 8px!important;color:#657895!important;font-size:10px!important}
+    .ov-policy-choices{display:flex!important;gap:5px!important;flex-wrap:wrap!important}.ov-policy-choices label{display:flex!important;align-items:center!important;gap:4px!important;height:30px!important;padding:0 8px!important;border:1px solid #DCE6F1!important;border-radius:9px!important;font-size:10px!important;color:#294767!important;background:#FAFCFF!important}
+    .ov-policy-apply{height:34px!important;border:1px solid #CBD9EA!important;border-radius:9px!important;background:#fff!important;color:#075FD8!important;font-size:10px!important;font-weight:600!important}.ov-policy-apply:disabled{opacity:.45!important}
+    @media(max-width:760px){.ov-policy-row{grid-template-columns:1fr!important}.ov-policy-apply{width:100%!important}}
 
     .ov-overview-vehicles{margin:0!important;padding:14px 16px 12px!important;border:1px solid #DDE7F2!important;border-radius:18px!important;background:#fff!important;box-shadow:0 8px 24px rgba(21,61,115,.04)!important}
     .ov-overview-vehicles .ov-panel-head{margin:0 0 8px!important}
