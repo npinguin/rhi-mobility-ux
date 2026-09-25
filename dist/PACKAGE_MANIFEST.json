@@ -12,7 +12,7 @@
     "heroes",
     "vehicles"
   ],
-  "runtime_sha256": "5c62cdaf0633df33255df23bbb9dd38baec2265747a140354e8700e2b9462f6e",
+  "runtime_sha256": "b07a73b7929842fa2f60d0f0c2670c1cee7cef014449449eae830a730d49396c",
   "files": [
     {
       "path": "assets/branding/company-logo.svg",
@@ -104,7 +104,7 @@
     },
     {
       "path": "rhi-mobility-ux.js",
-      "bytes": 779705
+      "bytes": 786642
     },
     {
       "path": "rhi-mobility-ux.js.sha256",
