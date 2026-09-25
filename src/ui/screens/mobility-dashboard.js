@@ -789,8 +789,8 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     const configuredCount = assignedRows.length;
     const unassignedRows = allActive.filter((vehicle)=>!assignedRows.includes(vehicle));
     const profiledRows = allActive.filter((vehicle)=>{
-      const row = experienceById.get(this.assetId(vehicle));
-      return !!String(row?.configuration_status?.profile_id || "").trim();
+      const model = factory.adapterFor(vehicle, this.config)?.build?.() || null;
+      return !!String(model?.projection?.configuration?.profile_id || "").trim();
     });
     const unprofiledRows = allActive.filter((vehicle)=>!profiledRows.includes(vehicle));
     const managementPath = "/config/integrations/integration/rhi_mobility";
