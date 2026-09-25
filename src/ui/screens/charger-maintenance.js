@@ -498,6 +498,19 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
       const keyNode = panel.querySelector(".vehicle-picker-key code");
       const placeholder = (label)=>`<option value="" selected disabled>${rt.escape(label)}</option>`;
 
+      panel.querySelectorAll("[data-charger-visual-choice]").forEach((choice)=>choice.addEventListener("click",(ev)=>{
+        ev.preventDefault(); ev.stopPropagation();
+        const draft={
+          brand:choice.getAttribute("data-choice-brand") || "",
+          model:choice.getAttribute("data-choice-model") || "",
+          variant_id:choice.getAttribute("data-charger-visual-choice") || "",
+          appearance_id:choice.getAttribute("data-choice-appearance") || ""
+        };
+        this._chargerPickerDraft.set(assetId,draft);
+        this._forceRender=true; this._lastSignature="";
+        if(this._hass) this.hass=this._hass;
+      }));
+
       const updatePreview = () => {
         const catalog = picker.catalog();
         const charger = catalog.find((row)=>row.id===String(variantSelect?.value || "")) || null;
