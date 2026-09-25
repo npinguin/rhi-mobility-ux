@@ -1,3 +1,14 @@
+## 1.0.0-rc.58 — bootstrap install and charger layout cleanup
+
+- adds `custom:homebrain-mobility-card` as a single-card bootstrap shell for new Mobility dashboards;
+- keeps every existing Mobility custom card and physical multi-view Lovelace route backward compatible;
+- adds a one-view bootstrap YAML while retaining the full legacy-compatible multi-view YAML;
+- keeps bootstrap navigation refreshable through `?mobility_view=...` without requiring Lovelace subviews;
+- removes duplicate Vehicles page-level management CTA below Filters;
+- makes real charger artwork the primary charger identity and removes the redundant generic charger icon;
+- replaces ambiguous charger `+` details affordance with a labeled chevron action and exposes lifecycle as a labeled action;
+- aligns charger fact icons semantically and compresses the fact grid to four columns on tablet/desktop and two columns on mobile.
+
 ## 1.0.0-rc.57 — unified Mobility design language
 
 - makes Overview the visual direction for all top-level Mobility tabs without changing their body semantics, command grouping or backend ownership;
