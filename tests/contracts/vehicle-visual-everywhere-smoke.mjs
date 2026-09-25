@@ -13,7 +13,8 @@ for (const token of [
 ]) {
   assert.ok(router.includes(token), 'missing routed vehicle visual usage: ' + token);
 }
-assert.ok(runtime.includes('sensor.mobility_release_identity'));
-assert.ok(runtime.includes('contractEntity || identityEntity'));
+assert.ok(runtime.includes('mobilityRuntimeV2()?.release'), 'canonical Runtime V2 release identity missing');
+assert.ok(runtime.includes('sensor.rhi_mobility_release'), 'modern release entity compatibility fallback missing');
+assert.ok(runtime.includes('sensor.mobility_release_identity'), 'legacy release identity compatibility fallback missing');
 
-console.log('PASS vehicle visuals across routed Mobility UX and canonical release identity fallback');
+console.log('PASS vehicle visuals across routed Mobility UX and Runtime V2 release identity authority');
