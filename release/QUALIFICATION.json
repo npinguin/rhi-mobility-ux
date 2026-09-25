@@ -1,6 +1,6 @@
 {
-  "candidate_version": "1.0.0-rc.55",
-  "candidate_tag": "v1.0.0-rc.55",
+  "candidate_version": "1.0.0-rc.56",
+  "candidate_tag": "v1.0.0-rc.56",
   "candidate_sha": "pending",
   "target_home_assistant": "pending",
   "hacs_install": "pending",
@@ -140,5 +140,11 @@
   "picture_first_asset_identity": "pending",
   "vehicle_visuals_planning": "pending",
   "vehicle_visuals_history": "pending",
-  "backend_release_identity": "pending"
+  "backend_release_identity": "pending",
+  "vehicle_body_compact_responsive": "pending",
+  "charger_body_compact_responsive": "pending",
+  "vehicle_picker_image_first": "pending",
+  "charger_picker_image_first": "pending",
+  "picker_unprofiled_bootstrap": "pending",
+  "picker_no_visual_key_exposure": "pending"
 }

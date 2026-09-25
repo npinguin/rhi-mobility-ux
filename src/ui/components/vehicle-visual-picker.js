@@ -1,5 +1,5 @@
-// Shared hierarchical vehicle visual picker.
-// UX owns catalog + rendering. Mobility V2 owns product profile and persists vehicle.image_key.
+// Shared image-first vehicle visual picker.
+// UX owns artwork/catalog rendering; Mobility V2 owns profile/image-key persistence.
 class HomeBrainVehicleVisualPicker {
   constructor(rt) { this.rt = rt; }
 
@@ -26,7 +26,8 @@ class HomeBrainVehicleVisualPicker {
 
   profileIdForVehicle(vehicle, profileProp) {
     if (!vehicle) return "";
-    const available = new Set((this.rt.propertyEditorChoices(profileProp) || []).map((row)=>String((row?.value ?? row) || "")));
+    const choices = this.rt.propertyEditorChoices(profileProp) || [];
+    const available = new Set(choices.map((row)=>String((row?.value ?? row) || "")));
     const candidates = Array.isArray(vehicle.profile_ids) ? vehicle.profile_ids : [];
     return candidates.find((id)=>available.has(String(id))) || "";
   }
@@ -59,7 +60,7 @@ class HomeBrainVehicleVisualPicker {
     const profileChanged = !!profileId && profileId!==currentProfileId;
     const profileWritable = !!(profileProp && this.rt.isWritableProperty(profileProp));
     const imageWritable = !!(imageProp && this.rt.isWritableProperty(imageProp));
-    const writable = !!key && imageWritable && (!profileChanged || profileWritable);
+    const writable = !!key && !!profileId && imageWritable && (!profileChanged || profileWritable);
 
     return {
       asset_id:assetId,
@@ -86,40 +87,53 @@ class HomeBrainVehicleVisualPicker {
     const variants=current.brand && current.model ? this.variantsFor(current.brand,current.model,catalog) : [];
     const colors=current.vehicle?.colors || [];
     const assetId=current.asset_id;
-    const close=options.showClose===false ? "" : `<button class="vehicle-picker-close" data-vehicle-picker-close="${this.rt.escape(assetId)}" title="Close"><ha-icon icon="mdi:close"></ha-icon></button>`;
+    const close=options.showClose===false ? "" : `<button class="vehicle-picker-close" data-vehicle-picker-close="${this.rt.escape(assetId)}" title="Close appearance selector"><ha-icon icon="mdi:close"></ha-icon></button>`;
     const placeholder=(label,selected)=>`<option value="" ${selected?"selected":""} disabled>${label}</option>`;
-    const previewFile=current.vehicle?.package_file || "";
-    const previewFilter=current.color?.filter || "none";
-    const preview=current.vehicle ? `<div class="visual-picker-preview"><img data-picker-visual-preview="vehicle" src="${this.rt.escape(typeof this.rt.cache === 'function' ? this.rt.cache(previewFile) : previewFile)}" alt="${this.rt.escape(current.vehicle.label || current.vehicle.model || "Vehicle")}" style="filter:${this.rt.escape(previewFilter)}"><div><small>Selected appearance</small><b>${this.rt.escape(current.vehicle.label || current.vehicle.model || "Vehicle")}</b><span>${this.rt.escape(current.color?.label || "")}</span></div></div>` : "";
-    return `<section class="vehicle-picker-panel ${options.context==="detail"?"detail-vehicle-picker":""}" data-picker-panel="${this.rt.escape(assetId)}">
+    const tiles=catalog.map((row)=>{
+      const color=(row.colors || [])[0] || null;
+      const active=row.id===current.vehicle?.id;
+      const src=row.package_file || "";
+      return `<button type="button" class="visual-choice-card ${active?"active":""}" data-vehicle-visual-choice="${this.rt.escape(row.id)}" data-choice-brand="${this.rt.escape(row.brand || "")}" data-choice-model="${this.rt.escape(row.model || "")}" data-choice-color="${this.rt.escape(color?.id || "")}" aria-pressed="${active?"true":"false"}">
+        <span class="visual-choice-image">${src ? `<img src="${this.rt.escape((typeof this.rt.cache==='function' ? this.rt.cache(src) : src))}" alt="${this.rt.escape(row.label || row.model || "Vehicle")}" style="filter:${this.rt.escape(active ? (current.color?.filter || "none") : (color?.filter || "none"))}">` : `<ha-icon icon="mdi:car-estate"></ha-icon>`}</span>
+        <span class="visual-choice-copy"><b>${this.rt.escape(row.label || row.model || "Vehicle")}</b><small>${this.rt.escape([row.variant,row.years].filter(Boolean).join(" · "))}</small></span>
+        <ha-icon class="visual-choice-check" icon="mdi:check-circle"></ha-icon>
+      </button>`;
+    }).join("");
+
+    const blocked = !current.profile_writable || !current.image_writable;
+    const notice = blocked
+      ? `<div class="visual-picker-notice"><ha-icon icon="mdi:information-outline"></ha-icon><span>Appearance browsing is available. Apply requires Mobility V2 configuration controls for profile and image.</span></div>`
+      : "";
+
+    return `<section class="vehicle-picker-panel visual-picker-panel ${options.context==="detail"?"detail-vehicle-picker":""}" data-picker-panel="${this.rt.escape(assetId)}">
       <div class="vehicle-picker-head">
-        <div><small>APPEARANCE</small><h3>Vehicle & colour</h3><p>Choose the Mobility product profile and its visual appearance. Product identity is persisted by Mobility V2; artwork remains UX-owned.</p></div>
+        <div><small>APPEARANCE</small><h3>Choose vehicle & colour</h3><p>Select the real product visually, then refine variant and colour only when needed.</p></div>
         ${close}
       </div>
-      ${preview}
-      <div class="vehicle-picker-grid vehicle-picker-hierarchy">
-        <label><span>Brand</span><select data-vehicle-picker-brand="${this.rt.escape(assetId)}" ${!current.profile_writable?"disabled":""}>
+      <div class="visual-choice-grid" role="listbox" aria-label="Vehicle appearance">${tiles}</div>
+      <div class="vehicle-picker-grid vehicle-picker-hierarchy visual-picker-refine">
+        <label><span>Brand</span><select data-vehicle-picker-brand="${this.rt.escape(assetId)}">
           ${placeholder("Choose brand…",!current.brand)}
           ${brands.map((brand)=>`<option value="${this.rt.escape(brand)}" ${brand===current.brand?"selected":""}>${this.rt.escape(brand)}</option>`).join("")}
         </select></label>
-        <label><span>Model</span><select data-vehicle-picker-model="${this.rt.escape(assetId)}" ${!current.profile_writable||!current.brand?"disabled":""}>
+        <label><span>Model</span><select data-vehicle-picker-model="${this.rt.escape(assetId)}" ${!current.brand?"disabled":""}>
           ${placeholder("Choose model…",!current.model)}
           ${models.map((model)=>`<option value="${this.rt.escape(model)}" ${model===current.model?"selected":""}>${this.rt.escape(model)}</option>`).join("")}
         </select></label>
-        <label><span>Variant</span><select data-vehicle-picker-variant="${this.rt.escape(assetId)}" ${!current.profile_writable||!current.model?"disabled":""}>
+        <label><span>Variant</span><select data-vehicle-picker-variant="${this.rt.escape(assetId)}" ${!current.model?"disabled":""}>
           ${placeholder("Choose variant…",!current.vehicle)}
           ${variants.map((row)=>`<option value="${this.rt.escape(row.id)}" ${row.id===current.vehicle?.id?"selected":""}>${this.rt.escape(row.variant)} · ${this.rt.escape(row.years)}</option>`).join("")}
         </select></label>
-        <label><span>Colour</span><select data-vehicle-picker-color="${this.rt.escape(assetId)}" ${!current.vehicle||!current.image_writable?"disabled":""}>
+        <label><span>Colour</span><select data-vehicle-picker-color="${this.rt.escape(assetId)}" ${!current.vehicle?"disabled":""}>
           ${placeholder("Choose colour…",!current.color)}
           ${colors.map((row)=>`<option value="${this.rt.escape(row.id)}" ${row.id===current.color?.id?"selected":""}>${this.rt.escape(row.label)}</option>`).join("")}
         </select></label>
-        <div class="vehicle-picker-key"><span>Visual key</span><code>${this.rt.escape(current.key || "Unavailable")}</code></div>
-        <button class="vehicle-picker-save" data-vehicle-picker-save="${this.rt.escape(assetId)}" data-vehicle-profile-id="${this.rt.escape(current.profile_id)}" data-vehicle-key="${this.rt.escape(current.key)}" ${!current.writable?"disabled":""}><ha-icon icon="mdi:check"></ha-icon><span>Use this vehicle & colour</span></button>
       </div>
-      ${current.vehicle && !current.profile_id ? `<div class="vehicle-picker-gap"><ha-icon icon="mdi:alert-outline"></ha-icon><span>This visual has no writable Mobility V2 product profile in the active backend catalog.</span></div>` : ""}
-      ${!current.profile_writable ? `<div class="vehicle-picker-gap"><ha-icon icon="mdi:lock-outline"></ha-icon><span>Mobility V2 does not publish a writable asset.profile_id for this vehicle.</span></div>` : ""}
-      ${!current.image_writable ? `<div class="vehicle-picker-gap"><ha-icon icon="mdi:lock-outline"></ha-icon><span>Mobility V2 does not publish a writable vehicle.image_key for this vehicle.</span></div>` : ""}
+      <div class="visual-picker-apply">
+        <div class="visual-picker-selection"><small>Selected</small><b>${this.rt.escape(current.vehicle?.label || current.vehicle?.model || "Choose a vehicle")}</b><span>${this.rt.escape(current.color?.label || "")}</span></div>
+        <button class="vehicle-picker-save" data-vehicle-picker-save="${this.rt.escape(assetId)}" data-vehicle-profile-id="${this.rt.escape(current.profile_id)}" data-vehicle-key="${this.rt.escape(current.key)}" ${!current.writable?"disabled":""}><ha-icon icon="mdi:check"></ha-icon><span>Apply appearance</span></button>
+      </div>
+      ${notice}
     </section>`;
   }
 }

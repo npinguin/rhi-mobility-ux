@@ -1120,6 +1120,18 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
       const keyNode = panel.querySelector(".vehicle-picker-key code");
       const placeholder=(label)=>`<option value="" selected disabled>${rt.escape(label)}</option>`;
 
+      panel.querySelectorAll("[data-vehicle-visual-choice]").forEach((choice)=>choice.addEventListener("click",()=>{
+        const draft={
+          brand:choice.getAttribute("data-choice-brand") || "",
+          model:choice.getAttribute("data-choice-model") || "",
+          variant_id:choice.getAttribute("data-vehicle-visual-choice") || "",
+          color_id:choice.getAttribute("data-choice-color") || ""
+        };
+        this._vehiclePickerDraft.set(assetId,draft);
+        this._forceRender=true; this._lastSignature="";
+        if(this._hass) this.hass=this._hass;
+      }));
+
       const updatePreview=()=>{
         const draft=this._vehiclePickerDraft.get(assetId) || {};
         const visual=picker.selection(asset,draft);
@@ -2165,6 +2177,123 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
       .vehicle-image img{max-height:92px!important;max-width:116px!important}
       .vehicle-copy h2{font-size:18px!important}
       .inactive-state{font-size:9px!important;padding:5px 6px!important}
+    }
+
+    /* rc.56 compact Vehicles body — same density and rhythm as Overview.
+       Final override intentionally retires the accumulated hero/image breakpoint hacks
+       without changing card content, controls, commands, lifecycle or relationships. */
+    .vehicle-workspace-list{display:grid!important;grid-template-columns:1fr!important;gap:10px!important}
+    .vehicle-workspace-head{margin:2px 2px 0!important}
+    .vehicle-card.premium-vehicle-card{
+      border-radius:16px!important;border:1px solid #e2e8f0!important;
+      box-shadow:0 8px 24px rgba(15,35,80,.045)!important;background:#fff!important;
+      overflow:hidden!important;
+    }
+    .vehicle-card .status-top-row.vehicle-intelligence-strip{
+      padding:7px 9px 5px!important;gap:5px!important;min-height:0!important;
+    }
+    .vehicle-card .status-top-row.vehicle-intelligence-strip .intelligence-status-row{
+      min-height:32px!important;border-radius:9px!important;padding:4px 7px!important;
+    }
+    .vehicle-card .hero-split-row{
+      display:grid!important;grid-template-columns:minmax(0,1fr) minmax(190px,240px)!important;
+      gap:8px!important;padding:5px 9px 7px!important;align-items:stretch!important;
+    }
+    .vehicle-card .vehicle-hero-panel{
+      position:relative!important;display:grid!important;
+      grid-template-columns:minmax(180px,.62fr) minmax(220px,1.38fr)!important;
+      grid-template-rows:1fr!important;align-items:center!important;gap:8px!important;
+      min-height:146px!important;height:146px!important;padding:10px 12px!important;
+      border-radius:13px!important;overflow:hidden!important;
+      background:linear-gradient(135deg,#fff 0%,#f8fbff 62%,#eef5ff 100%)!important;
+      isolation:isolate!important;
+    }
+    .vehicle-card .vehicle-hero-panel:after{display:none!important;content:none!important}
+    .vehicle-card .vehicle-copy{
+      position:relative!important;inset:auto!important;z-index:2!important;width:auto!important;
+      max-width:none!important;min-width:0!important;padding:0 0 28px!important;align-self:center!important;
+    }
+    .vehicle-card .vehicle-copy h2{font-size:20px!important;line-height:1.08!important;margin:0 0 3px!important;letter-spacing:-.025em!important}
+    .vehicle-card .vehicle-copy p{font-size:10.5px!important;line-height:1.25!important;margin:0!important}
+    .vehicle-card .vehicle-activity-inline{margin-top:3px!important}
+    .vehicle-card .vehicle-image{
+      position:relative!important;inset:auto!important;z-index:1!important;width:100%!important;height:126px!important;
+      min-height:0!important;display:grid!important;place-items:center!important;overflow:hidden!important;
+      background:transparent!important;pointer-events:none!important;
+    }
+    .vehicle-card .vehicle-image img{
+      display:block!important;width:100%!important;height:100%!important;max-width:100%!important;max-height:126px!important;
+      object-fit:contain!important;object-position:center!important;transform:none!important;opacity:1!important;
+    }
+    .vehicle-card .vehicle-appearance-action{
+      position:absolute!important;left:12px!important;bottom:10px!important;z-index:4!important;
+      height:32px!important;min-height:32px!important;padding:0 9px!important;border-radius:9px!important;
+      background:rgba(255,255,255,.96)!important;
+    }
+    .vehicle-card .vehicle-hero-panel .mini-detail-button{
+      position:absolute!important;right:8px!important;bottom:8px!important;z-index:4!important;
+      width:34px!important;height:34px!important;
+    }
+    .vehicle-card .charger-hero-panel{
+      position:relative!important;display:grid!important;
+      grid-template-columns:minmax(0,1fr)!important;grid-template-rows:auto 1fr!important;
+      min-height:146px!important;height:146px!important;padding:10px!important;gap:5px!important;
+      border-radius:13px!important;overflow:hidden!important;background:linear-gradient(135deg,#fff,#f7faff)!important;
+    }
+    .vehicle-card .charger-mini-copy{align-self:start!important;justify-self:start!important;min-width:0!important}
+    .vehicle-card .charger-mini-copy b{font-size:11.5px!important;line-height:1.2!important}
+    .vehicle-card .charger-mini-image{
+      position:relative!important;inset:auto!important;width:100%!important;height:96px!important;
+      display:grid!important;place-items:center!important;background:transparent!important;overflow:hidden!important;
+    }
+    .vehicle-card .charger-mini-image img{
+      width:100%!important;height:100%!important;max-width:112px!important;max-height:94px!important;
+      object-fit:contain!important;object-position:center!important;transform:none!important;
+    }
+    .vehicle-card .charger-hero-panel .mini-detail-button{right:6px!important;bottom:6px!important;width:32px!important;height:32px!important}
+    .vehicle-card .vehicle-control-row.mock-row{padding:0 9px 6px!important;gap:6px!important}
+    .vehicle-card .vehicle-actions.clean-actions{padding:6px 9px 9px!important;gap:6px!important}
+    .vehicle-card .visual-picker-panel{margin:0 9px 7px!important}
+
+    @media(max-width:1050px){
+      .vehicle-card .hero-split-row{grid-template-columns:minmax(0,1fr) minmax(170px,205px)!important}
+      .vehicle-card .vehicle-hero-panel{grid-template-columns:minmax(160px,.66fr) minmax(190px,1.34fr)!important}
+    }
+    @media(max-width:760px){
+      .vehicle-workspace-head{margin-inline:0!important}
+      .vehicle-card .hero-split-row{grid-template-columns:1fr!important;gap:6px!important;padding:5px 7px 6px!important}
+      .vehicle-card .vehicle-hero-panel{
+        grid-template-columns:minmax(0,.9fr) minmax(150px,1.1fr)!important;height:132px!important;min-height:132px!important;
+        padding:9px 10px!important;
+      }
+      .vehicle-card .vehicle-image{height:112px!important}
+      .vehicle-card .vehicle-image img{max-height:112px!important}
+      .vehicle-card .charger-hero-panel{
+        grid-template-columns:minmax(0,1fr) 104px!important;grid-template-rows:1fr!important;
+        height:72px!important;min-height:72px!important;padding:7px 9px!important;align-items:center!important;
+      }
+      .vehicle-card .charger-mini-copy{align-self:center!important}
+      .vehicle-card .charger-mini-image{width:96px!important;height:58px!important;justify-self:end!important}
+      .vehicle-card .charger-mini-image img{max-width:82px!important;max-height:56px!important}
+      .vehicle-card .vehicle-control-row.mock-row{padding-inline:7px!important}
+      .vehicle-card .vehicle-actions.clean-actions{padding-inline:7px!important}
+      .vehicle-card .visual-picker-panel{margin-inline:7px!important}
+    }
+    @media(max-width:480px){
+      .vehicle-card .status-top-row.vehicle-intelligence-strip{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+      .vehicle-card .vehicle-hero-panel{
+        display:grid!important;grid-template-columns:minmax(0,.88fr) minmax(132px,1.12fr)!important;
+        height:126px!important;min-height:126px!important;
+      }
+      .vehicle-card .vehicle-copy{width:auto!important;max-width:none!important;padding-bottom:30px!important}
+      .vehicle-card .vehicle-copy h2{font-size:17px!important}
+      .vehicle-card .vehicle-image{position:relative!important;inset:auto!important;width:100%!important;height:106px!important}
+      .vehicle-card .vehicle-image img{
+        width:100%!important;height:100%!important;max-width:100%!important;max-height:106px!important;
+        object-position:center!important;
+      }
+      .vehicle-card .vehicle-appearance-action{left:9px!important;bottom:8px!important;height:30px!important}
+      .vehicle-card .vehicle-hero-panel .mini-detail-button{right:6px!important;bottom:6px!important}
     }
 
 
