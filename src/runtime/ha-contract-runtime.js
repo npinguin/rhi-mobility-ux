@@ -2310,10 +2310,32 @@ class HomeBrainAssetRuntime {
   }
 
   vehicleOverviewMetricSlots(assetId = "") {
-    // Product presentation is compact, but value ownership/placement stays
-    // backend-driven. Each metric slot takes the exact Nth overview property
-    // published by the named component; there is no property-name alias resolver.
     const canonical = this.canonicalAssetId(assetId);
+
+    // Supported V2 path: consume the exact canonical properties directly. The
+    // labels are presentation-owned, but values/units are backend-owned.
+    if (this.mobilityRuntimeV2()) {
+      const specs = [
+        { property_key:"vehicle.range_total_km", label:"Full" },
+        { property_key:"vehicle.ev_range_km", label:"EV" },
+        { property_key:"vehicle.soc_pct", label:"Battery" }
+      ];
+      return specs.map((spec)=>{
+        const prop = this.propertyByCompoundKey(canonical, spec.property_key);
+        if (!prop) return { label:spec.label, value:"—", property_key:spec.property_key, available:false };
+        const raw = this.cleanValue(prop.value, "");
+        const available = raw !== "" && raw !== null && raw !== undefined;
+        return {
+          label:spec.label,
+          value:available ? this.formatValue(raw, prop.unit || "", spec.property_key) : "—",
+          property_key:spec.property_key,
+          available,
+          prop
+        };
+      });
+    }
+
+    // Frozen pre-V2 compatibility path only.
     const specs = [
       { component_id:"range", property_index:0, label:"Full" },
       { component_id:"range", property_index:1, label:"EV" },
@@ -2321,15 +2343,17 @@ class HomeBrainAssetRuntime {
     ];
     return specs.map((spec)=>{
       const component = this.vehicleComponent(canonical, spec.component_id);
-      const propertyKey = String(component?.overview_properties?.[spec.property_index] || "").trim();
+      const propertyKey = component?.overview_properties?.[spec.property_index] || "";
       const rows = component ? this.vehicleComponentProperties(canonical, component.component_id) : [];
-      const prop = propertyKey ? rows.find((row)=>String(row.property_key || "") === propertyKey) || null : null;
+      const prop = propertyKey ? rows.find((row)=>String(row.property_key || "") === String(propertyKey)) : null;
+      const raw = prop ? this.cleanValue(prop.value, "") : "";
+      const available = raw !== "" && raw !== null && raw !== undefined;
       return {
-        ...spec,
-        property_key: propertyKey,
-        property: prop,
-        resolved: !!prop && prop.value !== undefined && prop.value !== null && String(prop.value).trim() !== "",
-        display: prop ? this.propertyDisplayValue(prop) : "—"
+        label:spec.label,
+        value:available ? this.formatValue(raw, prop?.unit || "", propertyKey) : "—",
+        property_key:propertyKey,
+        available,
+        prop
       };
     });
   }

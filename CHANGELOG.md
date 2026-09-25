@@ -1,3 +1,12 @@
+## 1.0.0-rc.59 — runtime truth rendering
+
+- moves Vehicle Management Full / EV / Battery metric slots onto direct MOBILITY_PUBLIC_RUNTIME_V2 canonical properties instead of the retired component-property index path;
+- keeps the old component-index lookup only as a frozen pre-V2 compatibility path;
+- ensures loaded charger product artwork suppresses the generic fallback icon instead of rendering both at once;
+- restores assigned-charger thumbnails in Vehicle Management at full opacity with a slightly stronger neutral contrast;
+- pairs target qualification with Mobility M0.10.10 so corrected Security Experience V2 truth is consumed without UX inference;
+- does not fabricate Session or Limit values: those remain canonical backend/source facts and render only when published.
+
 ## 1.0.0-rc.58 — bootstrap install and charger layout cleanup
 
 - adds `custom:homebrain-mobility-card` as a single-card bootstrap shell for new Mobility dashboards;

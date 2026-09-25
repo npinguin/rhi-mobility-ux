@@ -1,23 +1,22 @@
-# v1.0.0-rc.58 — bootstrap install and charger layout cleanup TEST CANDIDATE
+# v1.0.0-rc.59 — runtime truth rendering TEST CANDIDATE
 
 ## Scope
 
-rc.58 makes Mobility easier to install while preserving all existing dashboard configurations. It also closes the visible charger icon/layout defects found during rc.57 target review.
+rc.59 closes target-runtime truth/rendering defects observed after rc.58.
 
-- Adds `custom:homebrain-mobility-card` as the recommended single-card bootstrap.
-- New dashboards can use one Lovelace view and one custom card, matching the Energy installation pattern.
-- Existing multi-view YAML and all current custom card names/routes remain supported.
-- Bootstrap internal navigation uses `?mobility_view=...` and keeps refresh/browser navigation meaningful.
-- Removes the duplicate Vehicles management CTA below Filters.
-- Uses real charger artwork as the primary identity; the duplicate generic charger icon is removed.
-- Uses semantically correct charger fact/status/action icons.
-- Replaces `+` as charger Details with a labeled chevron action.
-- Keeps lifecycle action visible and labeled.
-- Compacts charger facts and command layout without changing command ownership or grouping.
+- Vehicle Management Full, EV and Battery slots consume direct V2 canonical properties:
+  - `vehicle.range_total_km`
+  - `vehicle.ev_range_km`
+  - `vehicle.soc_pct`
+- No V1/component-index fallback executes when Runtime V2 is present.
+- Charger product artwork hides the generic fallback whenever the real image loads.
+- Assigned charger images in Vehicle Management render at full opacity.
+- Security presentation remains backend-owned and is paired with Mobility M0.10.10, which separates EV plug-lock state from whole-vehicle access security.
+- Charger Session and Limit stay fail-closed. The UX does not reconstruct them from unrelated entities; target qualification must prove the Foundation → Mobility canonical publication chain.
 
-Required/tested backend: `M0.10.7`.
-Rollback: `v1.0.0-rc.57`.
+Required/tested backend: `M0.10.10`.
+Required Foundation for target proof: `F1.8.15`.
+Rollback: `v1.0.0-rc.58`.
 
 Accepted technical debt: 0.
 Accepted feature debt: 0.
-Target Home Assistant qualification remains mandatory for bootstrap install, legacy multi-view compatibility, navigation refresh, phone/tablet/desktop presentation and charger icon hierarchy.

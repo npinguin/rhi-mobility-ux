@@ -109,4 +109,20 @@ for(const needle of [
 if(chargers.includes('<div class="charger-icon"><ha-icon icon="mdi:ev-station"></ha-icon></div>')) throw new Error('generic charger identity icon returned beside real product artwork');
 if(chargers.includes('title="Open charger details"><ha-icon icon="mdi:plus"')) throw new Error('plus icon must not represent charger Details');
 
+for(const needle of [
+  'vehicle.range_total_km',
+  'vehicle.ev_range_km',
+  'vehicle.soc_pct',
+  'if (this.mobilityRuntimeV2())',
+  'propertyByCompoundKey(canonical, spec.property_key)'
+]) if(!runtime.includes(needle)) throw new Error('rc.59 direct V2 vehicle metric regression: missing '+needle);
+
+if(!chargers.includes('.charger-visual:not(.image-missing) .charger-visual-fallback{display:none!important}')) {
+  throw new Error('rc.59 real charger artwork must suppress generic fallback');
+}
+if(!dashboard.includes('.charger-mini-image img{opacity:1!important')) {
+  throw new Error('rc.59 assigned charger artwork must render at full opacity');
+}
+console.log('PASS rc.59 direct V2 vehicle metrics and charger artwork truth');
+
 console.log('PASS Vehicles/Chargers content preservation, image-first picker, canonical artwork and rc.56 compact workspace architecture');
