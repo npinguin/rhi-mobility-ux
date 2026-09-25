@@ -1,5 +1,5 @@
-// Shared hierarchical charger visual picker.
-// Mobility V2 owns charger product profile; UX owns artwork/appearance.
+// Shared image-first charger visual picker.
+// Mobility V2 owns product profile/image-key persistence; UX owns local artwork.
 class HomeBrainChargerVisualPicker {
   constructor(rt) { this.rt = rt; }
 
@@ -59,7 +59,7 @@ class HomeBrainChargerVisualPicker {
     const profileChanged=!!profileId && profileId!==currentProfileId;
     const profileWritable=!!(profileProp && this.rt.isWritableProperty(profileProp));
     const imageWritable=!!(imageProp && this.rt.isWritableProperty(imageProp));
-    const writable=!!key && imageWritable && (!profileChanged || profileWritable);
+    const writable=!!key && !!profileId && imageWritable && (!profileChanged || profileWritable);
 
     return {
       asset_id:assetId,
@@ -85,39 +85,52 @@ class HomeBrainChargerVisualPicker {
     const variants=current.brand && current.model ? this.variantsFor(current.brand,current.model,catalog) : [];
     const appearances=current.charger?.appearances || [];
     const assetId=current.asset_id;
-    const close=options.showClose===false ? "" : `<button class="vehicle-picker-close" data-charger-picker-close="${this.rt.escape(assetId)}" title="Close"><ha-icon icon="mdi:close"></ha-icon></button>`;
+    const close=options.showClose===false ? "" : `<button class="vehicle-picker-close" data-charger-picker-close="${this.rt.escape(assetId)}" title="Close appearance selector"><ha-icon icon="mdi:close"></ha-icon></button>`;
     const placeholder=(label,selected)=>`<option value="" ${selected?"selected":""} disabled>${label}</option>`;
-    const previewFile=current.appearance?.package_file || "";
-    const preview=current.charger ? `<div class="visual-picker-preview"><img data-picker-visual-preview="charger" src="${this.rt.escape(typeof this.rt.cache === 'function' ? this.rt.cache(previewFile) : previewFile)}" alt="${this.rt.escape(current.charger.label || current.charger.model || "Charger")}"><div><small>Selected appearance</small><b>${this.rt.escape(current.charger.label || current.charger.model || "Charger")}</b><span>${this.rt.escape(current.appearance?.label || "")}</span></div></div>` : "";
-    return `<section class="vehicle-picker-panel charger-picker-panel ${options.context==="detail"?"detail-vehicle-picker detail-charger-picker":""}" data-charger-picker-panel="${this.rt.escape(assetId)}">
+
+    const tiles=catalog.flatMap((row)=>(row.appearances || []).map((appearance)=>{
+      const active=row.id===current.charger?.id && appearance.id===current.appearance?.id;
+      return `<button type="button" class="visual-choice-card charger-choice-card ${active?"active":""}" data-charger-visual-choice="${this.rt.escape(row.id)}" data-choice-brand="${this.rt.escape(row.brand || "")}" data-choice-model="${this.rt.escape(row.model || "")}" data-choice-appearance="${this.rt.escape(appearance.id || "")}" aria-pressed="${active?"true":"false"}">
+        <span class="visual-choice-image">${appearance.package_file ? `<img src="${this.rt.escape(this.rt.cache(appearance.package_file))}" alt="${this.rt.escape([row.label,appearance.label].filter(Boolean).join(" "))}">` : `<ha-icon icon="mdi:ev-station"></ha-icon>`}</span>
+        <span class="visual-choice-copy"><b>${this.rt.escape(row.label || row.model || "Charger")}</b><small>${this.rt.escape(appearance.label || row.variant || "Standard")}</small></span>
+        <ha-icon class="visual-choice-check" icon="mdi:check-circle"></ha-icon>
+      </button>`;
+    })).join("");
+
+    const blocked=!current.profile_writable || !current.image_writable;
+    const notice=blocked
+      ? `<div class="visual-picker-notice"><ha-icon icon="mdi:information-outline"></ha-icon><span>Appearance browsing is available. Apply requires Mobility V2 configuration controls for profile and image.</span></div>`
+      : "";
+
+    return `<section class="vehicle-picker-panel charger-picker-panel visual-picker-panel ${options.context==="detail"?"detail-vehicle-picker detail-charger-picker":""}" data-charger-picker-panel="${this.rt.escape(assetId)}">
       <div class="vehicle-picker-head">
-        <div><small>APPEARANCE</small><h3>Charger & colour</h3><p>Choose the Mobility charger profile and its real appearance. Product identity is persisted by Mobility V2; artwork remains UX-owned.</p></div>
+        <div><small>APPEARANCE</small><h3>Choose charger appearance</h3><p>Select the real charger visually, then refine product and finish only when needed.</p></div>
         ${close}
       </div>
-      ${preview}
-      <div class="vehicle-picker-grid vehicle-picker-hierarchy">
-        <label><span>Brand</span><select data-charger-picker-brand="${this.rt.escape(assetId)}" ${!current.profile_writable?"disabled":""}>
+      <div class="visual-choice-grid" role="listbox" aria-label="Charger appearance">${tiles}</div>
+      <div class="vehicle-picker-grid vehicle-picker-hierarchy visual-picker-refine">
+        <label><span>Brand</span><select data-charger-picker-brand="${this.rt.escape(assetId)}">
           ${placeholder("Choose brand…",!current.brand)}
           ${brands.map((brand)=>`<option value="${this.rt.escape(brand)}" ${brand===current.brand?"selected":""}>${this.rt.escape(brand)}</option>`).join("")}
         </select></label>
-        <label><span>Model</span><select data-charger-picker-model="${this.rt.escape(assetId)}" ${!current.profile_writable||!current.brand?"disabled":""}>
+        <label><span>Model</span><select data-charger-picker-model="${this.rt.escape(assetId)}" ${!current.brand?"disabled":""}>
           ${placeholder("Choose model…",!current.model)}
           ${models.map((model)=>`<option value="${this.rt.escape(model)}" ${model===current.model?"selected":""}>${this.rt.escape(model)}</option>`).join("")}
         </select></label>
-        <label><span>Variant</span><select data-charger-picker-variant="${this.rt.escape(assetId)}" ${!current.profile_writable||!current.model?"disabled":""}>
+        <label><span>Variant</span><select data-charger-picker-variant="${this.rt.escape(assetId)}" ${!current.model?"disabled":""}>
           ${placeholder("Choose variant…",!current.charger)}
           ${variants.map((row)=>`<option value="${this.rt.escape(row.id)}" ${row.id===current.charger?.id?"selected":""}>${this.rt.escape(row.variant || "Standard")} · ${this.rt.escape(row.years)}</option>`).join("")}
         </select></label>
-        <label><span>Colour</span><select data-charger-picker-appearance="${this.rt.escape(assetId)}" ${!current.charger||!current.image_writable?"disabled":""}>
-          ${placeholder("Choose colour…",!current.appearance)}
+        <label><span>Finish</span><select data-charger-picker-appearance="${this.rt.escape(assetId)}" ${!current.charger?"disabled":""}>
+          ${placeholder("Choose finish…",!current.appearance)}
           ${appearances.map((row)=>`<option value="${this.rt.escape(row.id)}" ${row.id===current.appearance?.id?"selected":""}>${this.rt.escape(row.label)}</option>`).join("")}
         </select></label>
-        <div class="vehicle-picker-key"><span>Visual key</span><code>${this.rt.escape(current.key || "Unavailable")}</code></div>
-        <button class="vehicle-picker-save" data-charger-picker-save="${this.rt.escape(assetId)}" data-charger-profile-id="${this.rt.escape(current.profile_id)}" data-charger-key="${this.rt.escape(current.key)}" ${!current.writable?"disabled":""}><ha-icon icon="mdi:check"></ha-icon><span>Use this charger & colour</span></button>
       </div>
-      ${current.charger && !current.profile_id ? `<div class="vehicle-picker-gap"><ha-icon icon="mdi:alert-outline"></ha-icon><span>This visual has no writable Mobility V2 charger profile in the active backend catalog.</span></div>` : ""}
-      ${!current.profile_writable ? `<div class="vehicle-picker-gap"><ha-icon icon="mdi:lock-outline"></ha-icon><span>Mobility V2 does not publish a writable asset.profile_id for this charger.</span></div>` : ""}
-      ${!current.image_writable ? `<div class="vehicle-picker-gap"><ha-icon icon="mdi:lock-outline"></ha-icon><span>Mobility V2 does not publish a writable charger.image_key for this charger.</span></div>` : ""}
+      <div class="visual-picker-apply">
+        <div class="visual-picker-selection"><small>Selected</small><b>${this.rt.escape(current.charger?.label || current.charger?.model || "Choose a charger")}</b><span>${this.rt.escape(current.appearance?.label || "")}</span></div>
+        <button class="vehicle-picker-save" data-charger-picker-save="${this.rt.escape(assetId)}" data-charger-profile-id="${this.rt.escape(current.profile_id)}" data-charger-key="${this.rt.escape(current.key)}" ${!current.writable?"disabled":""}><ha-icon icon="mdi:check"></ha-icon><span>Apply appearance</span></button>
+      </div>
+      ${notice}
     </section>`;
   }
 }
