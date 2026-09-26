@@ -1,6 +1,6 @@
 {
   "product": "rhi-mobility-ux",
-  "version": "1.0.0-rc.64",
+  "version": "1.0.0-rc.65",
   "stage": "test_candidate",
   "publication_authority": "github_releases",
   "publication_status": "installable_candidate_until_qualified",
@@ -35,5 +35,12 @@
     "MOBILITY_PROFILE_CATALOG_V2",
     "MOBILITY_SUPERVISION_V2",
     "MOBILITY_ENERGY_V2"
-  ]
+  ],
+  "ux_core": {
+    "package": "rhi-ux-core",
+    "version": "1.4.0",
+    "source_commit": "50cf7e135c90af15cf34b4f41dfba78aa1a5fc5e",
+    "runtime_dependency": false,
+    "branding_owner": "rhi-ux-core"
+  }
 }
