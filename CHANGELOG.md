@@ -1,3 +1,13 @@
+## 1.0.0-rc.64 — cross-screen vehicle semantic parity
+
+- makes Vehicle Management range, electric-range and battery summaries use the same canonical Runtime/Experience V2 truth as Overview;
+- removes empty FULL / EV / BATTERY placeholders when the relevant semantic value is already known elsewhere in the canonical vehicle projection;
+- adds current battery energy (kWh) beside SoC when published;
+- keeps total range and electric range distinct for PHEV use cases while avoiding duplicate empty metrics for EVs;
+- preserves backend-owned Experience V2 range/energy classification and does not invent missing vehicle semantics;
+- adds regression coverage preventing the summary strip from returning to materialized-property-only lookup;
+- preserves Mobility M0.10.10 and the existing Core 1.3.1 packaging model.
+
 ## 1.0.0-rc.63 — RHI UX Core convergence
 
 - adopts pinned RHI UX Core 1.2.0 as a build-time-only presentation foundation;
