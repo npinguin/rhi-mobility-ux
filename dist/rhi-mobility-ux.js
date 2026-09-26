@@ -1,5 +1,5 @@
 /**
- * Robotix Home Intelligence Mobility UX v1.0.0-rc.63
+ * Robotix Home Intelligence Mobility UX v1.0.0-rc.64
  * GENERATED FILE - DO NOT EDIT.
  * License: GPL-3.0-only
  */
@@ -848,7 +848,7 @@ function hbMobilityPresentationStyles() {
 // ---- src/app/header-and-navigation.js ----
 // Mobility presentation adapter onto the shared RHI UX Core.
 // Domain semantics remain owned by Mobility runtime/projections.
-const UX_VERSION = "1.0.0-rc.63";
+const UX_VERSION = "1.0.0-rc.64";
 const HB_MOBILITY_BASE_PATH = "/mobility-supervisor";
 
 const HB_MOBILITY_MODULES = Object.freeze([
@@ -3396,51 +3396,44 @@ class HomeBrainAssetRuntime {
 
   vehicleOverviewMetricSlots(assetId = "") {
     const canonical = this.canonicalAssetId(assetId);
+    const experience = this.vehicleExperienceV2(canonical) || {};
+    const clean = (value) => {
+      const text = String(value ?? "").trim();
+      return text && !["unknown","unavailable","none","null","—","no range data","no battery data"].includes(text.toLowerCase()) ? text : "";
+    };
+    const propDisplay = (key) => {
+      const prop = this.semanticProperty(canonical, key);
+      if (!prop) return { display:"", prop:null };
+      const raw = this.cleanValue(prop.value, "");
+      if (raw === "" || raw === null || raw === undefined) return { display:"", prop };
+      return { display:this.formatValue(raw, prop.unit || "", key), prop };
+    };
 
-    // Supported V2 path: consume the exact canonical properties directly. The
-    // labels are presentation-owned, but values/units are backend-owned.
-    if (this.mobilityRuntimeV2()) {
-      const specs = [
-        { property_key:"vehicle.range_total_km", label:"Full" },
-        { property_key:"vehicle.ev_range_km", label:"EV" },
-        { property_key:"vehicle.soc_pct", label:"Battery" }
-      ];
-      return specs.map((spec)=>{
-        const prop = this.propertyByCompoundKey(canonical, spec.property_key);
-        if (!prop) return { label:spec.label, value:"—", property_key:spec.property_key, available:false };
-        const raw = this.cleanValue(prop.value, "");
-        const available = raw !== "" && raw !== null && raw !== undefined;
-        return {
-          label:spec.label,
-          value:available ? this.formatValue(raw, prop.unit || "", spec.property_key) : "—",
-          property_key:spec.property_key,
-          available,
-          prop
-        };
-      });
-    }
+    const total = propDisplay("vehicle.range_total_km");
+    const ev = propDisplay("vehicle.ev_range_km");
+    const soc = propDisplay("vehicle.soc_pct");
+    const currentEnergy = propDisplay("vehicle.current_energy_kwh");
+    const batteryEnergy = currentEnergy.display ? currentEnergy : propDisplay("vehicle.battery_energy_kwh");
 
-    // Frozen pre-V2 compatibility path only.
-    const specs = [
-      { component_id:"range", property_index:0, label:"Full" },
-      { component_id:"range", property_index:1, label:"EV" },
-      { component_id:"battery", property_index:0, label:"Battery" }
-    ];
-    return specs.map((spec)=>{
-      const component = this.vehicleComponent(canonical, spec.component_id);
-      const propertyKey = component?.overview_properties?.[spec.property_index] || "";
-      const rows = component ? this.vehicleComponentProperties(canonical, component.component_id) : [];
-      const prop = propertyKey ? rows.find((row)=>String(row.property_key || "") === String(propertyKey)) : null;
-      const raw = prop ? this.cleanValue(prop.value, "") : "";
-      const available = raw !== "" && raw !== null && raw !== undefined;
-      return {
-        label:spec.label,
-        value:available ? this.formatValue(raw, prop?.unit || "", propertyKey) : "—",
-        property_key:propertyKey,
-        available,
-        prop
-      };
-    });
+    const rangeIntel = experience.range_intelligence || {};
+    const energyIntel = experience.energy_intelligence || {};
+    const rangeSummary = clean(rangeIntel.summary);
+    const rangeReason = clean(rangeIntel.reason);
+    const energySummary = clean(energyIntel.summary);
+
+    const slots = [];
+    const totalDisplay = total.display || (/km\s+total/i.test(rangeSummary) ? rangeSummary : "");
+    const evFromSummary = /km\s+electric/i.test(rangeSummary) ? rangeSummary : "";
+    const evFromReason = /km\s+electric/i.test(rangeReason) ? rangeReason : "";
+    const evDisplay = ev.display || evFromSummary || evFromReason;
+    const batteryPct = soc.display || (/%/.test(energySummary) ? energySummary : "");
+    const batteryDisplay = [batteryPct, batteryEnergy.display].filter(Boolean).join(" · ");
+
+    if (totalDisplay) slots.push({ label:"Range", display:totalDisplay, value:totalDisplay, resolved:true, available:true, property_key:total.prop ? "vehicle.range_total_km" : "experience.range_intelligence", prop:total.prop || null, source:total.prop ? "MOBILITY_PUBLIC_RUNTIME_V2" : "MOBILITY_EXPERIENCE_V2" });
+    if (evDisplay && evDisplay !== totalDisplay) slots.push({ label:"Electric", display:evDisplay, value:evDisplay, resolved:true, available:true, property_key:ev.prop ? "vehicle.ev_range_km" : "experience.range_intelligence", prop:ev.prop || null, source:ev.prop ? "MOBILITY_PUBLIC_RUNTIME_V2" : "MOBILITY_EXPERIENCE_V2" });
+    if (batteryDisplay) slots.push({ label:"Battery", display:batteryDisplay, value:batteryDisplay, resolved:true, available:true, property_key:soc.prop ? "vehicle.soc_pct" : "experience.energy_intelligence", prop:soc.prop || batteryEnergy.prop || null, source:(soc.prop || batteryEnergy.prop) ? "MOBILITY_PUBLIC_RUNTIME_V2" : "MOBILITY_EXPERIENCE_V2" });
+
+    return slots;
   }
 
   vehicleComponentDetailSections(assetId = "") {
