@@ -132,3 +132,18 @@ Before adding or changing a test:
 6. If another owner fails, classify whether this is a real cross-domain change or test ownership drift.
 
 Do not weaken coverage to make CI green. Remove duplicate assertions only when the owning test already proves the invariant.
+
+
+## Maintainability rule
+
+Active release gates protect observable behavior, public contracts, package integrity, or a true architecture boundary.
+
+They MUST NOT freeze a positive implementation expression, private helper name, exact property-access syntax, CSS declaration, historical release shape, or arbitrary source fragment.
+
+Source inspection is permitted as a negative architecture boundary: for example preventing direct Home Assistant state access in screens, legacy V1 authority, or bypass of VehicleProjection/ChargerProjection.
+
+Historical smoke tests may remain in the repository for forensic context without belonging to the active release gate.
+
+## Local-first rule
+
+`npm run preflight` is the mandatory developer gate and is intentionally identical to the complete local validation. CI confirms a clean candidate; it is not the primary discovery loop.
