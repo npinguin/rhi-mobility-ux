@@ -748,8 +748,8 @@ class HomeBrainAssetShell {
 
 
       /* R22.12.11.24 calm detail statusbar polish — icons are semantic hints, color only for active/attention. */
-      :host{font-family:inherit!important;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
-      *{font-family:inherit!important;}
+      :host{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+      *{}
       h1{font-size:38px!important;line-height:1.08!important;font-weight:650!important;letter-spacing:-.025em!important;}
       .subtitle,.breadcrumb{font-size:12.5px!important;font-weight:400!important;color:var(--hb-muted,#66728B)!important;}
       .back-inline{font-size:12.5px!important;font-weight:600!important;}
