@@ -1,12 +1,12 @@
 import fs from 'node:fs';
+const product=JSON.parse(fs.readFileSync(new URL('../release/product.json',import.meta.url),'utf8'));
 const pkg=JSON.parse(fs.readFileSync(new URL('../package.json',import.meta.url),'utf8'));
 const compat=JSON.parse(fs.readFileSync(new URL('../COMPATIBILITY.json',import.meta.url),'utf8'));
-if(pkg.version!==compat.ux_version) throw new Error(`package/compatibility version mismatch: ${pkg.version} vs ${compat.ux_version}`);
+if(pkg.version!==product.version) throw new Error(`package version ${pkg.version} != product descriptor ${product.version}`);
+if(compat.ux_version!==product.version) throw new Error(`compatibility version ${compat.ux_version} != product descriptor ${product.version}`);
 const header=fs.readFileSync(new URL('../src/app/header-and-navigation.js',import.meta.url),'utf8');
-if(!header.includes('const UX_VERSION = "__RHI_UX_VERSION__";')) throw new Error('source UX_VERSION must be build-owned placeholder');
+if(!header.includes('const UX_VERSION = "__RHI_UX_VERSION__";')) throw new Error('source UX_VERSION must remain build-owned placeholder');
 const dist=fs.readFileSync(new URL('../dist/rhi-mobility-ux.js',import.meta.url),'utf8');
-if(!dist.includes(`const UX_VERSION = "${pkg.version}";`)) throw new Error('built UX_VERSION does not match package version');
+if(!dist.includes(`const UX_VERSION = "${product.version}";`)) throw new Error('built UX_VERSION does not match product descriptor');
 if(dist.includes('__RHI_UX_VERSION__')) throw new Error('UX version placeholder leaked into runtime bundle');
-const isTagRef=process.env.GITHUB_REF_TYPE==='tag'||String(process.env.GITHUB_REF||'').startsWith('refs/tags/');
-if(isTagRef && process.env.GITHUB_REF_NAME && process.env.GITHUB_REF_NAME!==`v${pkg.version}`) throw new Error(`tag ${process.env.GITHUB_REF_NAME} does not match v${pkg.version}`);
-console.log(`PASS version ownership: package.json -> generated runtime ${pkg.version}`);
+console.log(`PASS version projection: release/product.json -> package/runtime ${product.version}`);

@@ -1,3 +1,12 @@
+## 1.0.0-rc.62 — maintainability and test-ownership cleanup
+
+- removes historical implementation-shape, literal CSS and milestone smoke tests from the active release gate;
+- retains behavior, contract, readback, projection, architecture-boundary, package and HACS validation;
+- makes release/product.json the single release identity owner and generates dependent metadata via release:sync;
+- reduces qualification to real target-runtime evidence instead of duplicating static CI coverage;
+- adds npm run preflight as the local CI-parity developer gate;
+- preserves Mobility M0.10.10 and zero accepted technical/feature debt.
+
 ## 1.0.0-rc.61 — Vehicle Management runtime closure
 
 - fixes the rc.60 Vehicle Management render crash caused by the stale undefined `experienceById` refactor residue;
