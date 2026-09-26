@@ -14,10 +14,11 @@ if(hacs.zip_release===true) throw new Error('plugin zip_release is not part of t
 if(manifest.version!==pkg.version) throw new Error('package manifest version drift');
 if(manifest.hacs_package_root!=='dist') throw new Error('HACS package root must be dist');
 if(manifest.hacs_filename!==hacs.filename) throw new Error('package manifest/HACS filename drift');
-for(const category of ['branding','vehicles','chargers']){
+for(const category of ['vehicles','chargers']){
   if(!manifest.asset_categories.includes(category)) throw new Error(`package asset category missing: ${category}`);
   if(!fs.existsSync(path.join(root,'dist/assets',category))) throw new Error(`dist asset category missing: ${category}`);
 }
+if(fs.existsSync(path.join(root,'dist/assets/branding'))) throw new Error('domain package must not own company branding; branding belongs to RHI UX Core');
 if(fs.existsSync(path.join(root,'assets'))) throw new Error('parallel root assets tree is forbidden');
 
 for(const row of manifest.files){
