@@ -25,10 +25,7 @@ const rawBody = modules
   .map((rel) => `// ---- ${rel} ----\n${fs.readFileSync(path.join(root, rel), 'utf8').trim()}`)
   .join('\n\n');
 
-const companyLogoPath = path.join(srcRoot, sourceManifest.assets_root, 'branding/company-logo.svg');
-const companyLogoSvg = fs.readFileSync(companyLogoPath, 'utf8').trim();
-let body = rawBody.replace('"__RHI_COMPANY_LOGO_INLINE__"', JSON.stringify(companyLogoSvg));
-if (body === rawBody) throw new Error('Company logo inline build placeholder not found');
+let body = rawBody;
 
 const versionPlaceholder = '"__RHI_UX_VERSION__"';
 if (!body.includes(versionPlaceholder)) throw new Error('UX version build placeholder not found');
