@@ -46,9 +46,10 @@ try{
     if(!fs.existsSync(path.join(installRoot,'assets',rel))) throw new Error(`package catalog has no installed asset: ${rel}`);
   }
 
-  for(const required of ['assets/branding/company-logo.svg','assets/vehicles/vehicle_fallback.png','assets/chargers/charger_fallback.png']){
+  for(const required of ['assets/vehicles/vehicle_fallback.png','assets/chargers/charger_fallback.png']){
     if(!fs.existsSync(path.join(installRoot,required))) throw new Error(`required installed package asset missing: ${required}`);
   }
+  if(fs.existsSync(path.join(installRoot,'assets/branding'))) throw new Error('domain HACS package must not ship company branding; branding belongs to RHI UX Core');
   console.log(`PASS HACS tagged-release install simulation (zero release assets -> dist tree): ${manifest.files.length} files installed under www/community/rhi-mobility-ux with ${refs.length} catalog asset references resolved`);
 } finally {
   fs.rmSync(tmp,{recursive:true,force:true});
