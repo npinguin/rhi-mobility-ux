@@ -1,5 +1,5 @@
 {
-  "ux_version": "1.0.0-rc.64",
+  "ux_version": "1.0.0-rc.65",
   "release_stage": "release_candidate",
   "legacy_source_release": "R22.12.11.30",
   "mobility_contract": {
@@ -19,5 +19,12 @@
       "MOBILITY_SUPERVISION_V2",
       "MOBILITY_ENERGY_V2"
     ]
+  },
+  "ux_core": {
+    "package": "rhi-ux-core",
+    "version": "1.4.0",
+    "source_commit": "50cf7e135c90af15cf34b4f41dfba78aa1a5fc5e",
+    "runtime_dependency": false,
+    "branding_owner": "rhi-ux-core"
   }
 }
