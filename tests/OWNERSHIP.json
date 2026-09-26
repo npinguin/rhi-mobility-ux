@@ -24,7 +24,8 @@
     "charger_availability": "tests/view-models/charger-overview-availability.mjs",
     "v2_property_placement": "tests/view-models/v2-property-placement.mjs",
     "picker_session": "tests/contracts/picker-session-smoke.mjs",
-    "interaction_state": "tests/contracts/interaction-state-preservation-smoke.mjs"
+    "interaction_state": "tests/contracts/interaction-state-preservation-smoke.mjs",
+    "ux_core_integration": "tools/check-ux-core.mjs"
   },
   "policy": {
     "source_inspection": "negative_architecture_boundaries_only",
