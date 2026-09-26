@@ -1,7 +1,7 @@
 {
   "candidate_version": "1.0.0-rc.65",
   "candidate_tag": "v1.0.0-rc.65",
-  "candidate_sha": "pending",
+  "candidate_sha": "b91f91534c75c93cf82e37203cc7668b80635f1b",
   "target_home_assistant": "pending",
   "hacs_install": "pending",
   "public_runtime_v2": "pending",
