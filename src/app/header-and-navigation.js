@@ -1,7 +1,6 @@
 // Mobility presentation adapter onto the shared RHI UX Core.
 // Domain semantics remain owned by Mobility runtime/projections.
 const UX_VERSION = "__RHI_UX_VERSION__";
-const HB_MOBILITY_COMPANY_LOGO_SVG = "__RHI_COMPANY_LOGO_INLINE__";
 const HB_MOBILITY_BASE_PATH = "/mobility-supervisor";
 
 const HB_MOBILITY_MODULES = Object.freeze([
@@ -46,10 +45,6 @@ function hbMobilityCoreModules() {
   }));
 }
 
-function hbMobilityCompanyBrand() {
-  return `<span class="rhiMobilityCompanyLogo" role="img" aria-label="Robotix.be — DomotiX · Network · Security">${HB_MOBILITY_COMPANY_LOGO_SVG}</span>`;
-}
-
 function hbMobilityNav(active = "overview") {
   const module=hbMobilityModuleFor(active);
   return `<div class="rhiMobilityNav rhiMobilityNav-${rhiUxEscape(module.key)}">${rhiUxDomainShell({
@@ -57,8 +52,7 @@ function hbMobilityNav(active = "overview") {
     domain:"MOBILITY",
     modules:hbMobilityCoreModules(),
     activeModule:module.key,
-    activeItem:active,
-    brandHtml:hbMobilityCompanyBrand()
+    activeItem:active
   })}<style>${hbMobilitySharedShellStyles()}</style></div>`;
 }
 
@@ -133,8 +127,6 @@ function hbMobilitySharedShellStyles() {
     }
     .rhiMobilityNav-intelligence .rhiUxDomainShell{--rhi-nav-active-bg:#F1EDFF;--rhi-nav-active-border:#DFD5FB;--rhi-nav-active-text:#5A38B3}
     .rhiMobilityNav-insights .rhiUxDomainShell{--rhi-nav-active-bg:#E7F7F4;--rhi-nav-active-border:#CDEBE6;--rhi-nav-active-text:#176E67}
-    .rhiMobilityCompanyLogo{display:block;width:min(100%,250px);max-height:116px;line-height:0;overflow:hidden}
-    .rhiMobilityCompanyLogo svg{display:block;width:100%;height:auto;max-height:116px;object-fit:contain;object-position:center}
     .placeholder-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
     .placeholder-card{background:#fff;border:1px solid #E8EEF7;border-radius:20px;padding:18px;box-shadow:0 16px 38px rgba(15,35,80,.07)}
     .placeholder-card h3{margin:0 0 8px;font-size:18px;color:#06142D}
@@ -158,7 +150,6 @@ function hbMobilitySharedShellStyles() {
     }
     @media(max-width:760px){
       .placeholder-grid{grid-template-columns:1fr}
-      .rhiMobilityCompanyLogo{max-width:126px;max-height:48px}
     }
     /* rc.56 shared image-first appearance selector */
     .visual-picker-panel{
