@@ -938,7 +938,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
           const pageContent = navActive === "overview"
             ? this.renderOverviewPage(rt, activeVehicles, chargers, activityRows, reco)
             : this.renderVehiclesPage(rt, activeVehicles, inactiveVehicles, chargers, reco, plan, trust, activity, intelligenceSummary);
-          this.shadowRoot.innerHTML = `<ha-card><div class="page">${this.versionBlock(rt)}
+          this.shadowRoot.innerHTML = `<ha-card><div class="page rhiUxDomainBody rhi-ux-root">${this.versionBlock(rt)}
             ${hbMobilityNav(navActive)}
             ${pageContent}
           </div>${hbMobilityReleaseFooter(rt)}<style>${this.styles()}${navActive === "overview" ? this.overviewStyles() : ""}
@@ -966,7 +966,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
         </div>
         <style>
           ha-card{background:transparent;border:0;box-shadow:none}
-          .hb-error-page{position:relative;margin:24px auto;width:min(100%,1100px);box-sizing:border-box;padding:28px;border:1px solid #F3B7B7;border-radius:22px;background:#FFF7F7;color:#061226;font-family:inherit;user-select:text;-webkit-user-select:text,sans-serif;box-shadow:0 18px 48px rgba(80,15,15,.08)}
+          .hb-error-page{position:relative;margin:24px auto;width:min(100%,1100px);box-sizing:border-box;padding:28px;border:1px solid #F3B7B7;border-radius:22px;background:#FFF7F7;color:#061226;user-select:text;-webkit-user-select:text;box-shadow:0 18px 48px rgba(80,15,15,.08)}
           .hi-version-block{position:absolute;top:18px;right:22px;text-align:right;font-size:10.5px;line-height:1.25;font-weight:400;color:var(--secondary-text-color,#6B7280);opacity:.82;background:none;border:0;box-shadow:none;padding:0}
           h1{margin:0 0 8px;font-size:34px;letter-spacing:-.04em}
           h2{margin:0 0 8px;font-size:20px}
