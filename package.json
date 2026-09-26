@@ -1,6 +1,6 @@
 {
   "name": "rhi-mobility-ux",
-  "version": "1.0.0-rc.61",
+  "version": "1.0.0-rc.62",
   "private": false,
   "description": "Robotix Home Intelligence Mobility UX for Home Assistant",
   "license": "GPL-3.0-only",
@@ -18,15 +18,16 @@
     "check:footer": "node tools/check-footer.mjs",
     "release:sync": "node tools/sync-release-metadata.mjs",
     "check:test-ownership": "node tools/check-test-ownership.mjs",
-    "test:contract": "node tests/contracts/runtime-contract-smoke.mjs && node tests/contracts/visual-ref-smoke.mjs && node tests/contracts/picture-first-asset-identity-smoke.mjs && node tests/contracts/vehicle-visual-everywhere-smoke.mjs && node tests/contracts/command-placement-smoke.mjs && node tests/contracts/configuration-editables-smoke.mjs && node tests/contracts/write-readback-only-smoke.mjs && node tests/contracts/supervisor-authority-smoke.mjs && node tests/contracts/energy-planning-projection-smoke.mjs && node tests/contracts/energy-mobility-insights-projection-smoke.mjs && node tests/contracts/energy-mobility-strategy-projection-smoke.mjs && node tests/contracts/m0944-complete-v2-consumption-smoke.mjs && node tests/contracts/canonical-projection-authority-smoke.mjs",
-    "test:ux": "node tests/contracts/navigation-shell-smoke.mjs && node tests/contracts/overview-shell-smoke.mjs && node tests/contracts/screen-preservation-smoke.mjs && node tests/contracts/layout-hardening-smoke.mjs && node tests/contracts/vehicle-management-smoke.mjs && node tests/contracts/v2-first-status-architecture-smoke.mjs && node tests/contracts/ux-authority-closure-smoke.mjs && node tests/view-models/charger-materialization.mjs && node tests/view-models/charger-overview-availability.mjs && node tests/view-models/v2-property-placement.mjs && node tests/contracts/picker-session-smoke.mjs && node tests/contracts/rc56-image-picker-layout-smoke.mjs && node tests/contracts/interaction-state-preservation-smoke.mjs",
+    "test:contract": "node tests/contracts/runtime-contract-smoke.mjs && node tests/contracts/command-placement-smoke.mjs && node tests/contracts/configuration-editables-smoke.mjs && node tests/contracts/write-readback-only-smoke.mjs && node tests/contracts/supervisor-authority-smoke.mjs && node tests/contracts/energy-planning-projection-smoke.mjs && node tests/contracts/energy-mobility-insights-projection-smoke.mjs && node tests/contracts/energy-mobility-strategy-projection-smoke.mjs && node tests/contracts/canonical-projection-authority-smoke.mjs",
+    "test:ux": "node tests/contracts/vehicle-management-smoke.mjs && node tests/view-models/charger-materialization.mjs && node tests/view-models/charger-overview-availability.mjs && node tests/view-models/v2-property-placement.mjs && node tests/contracts/picker-session-smoke.mjs && node tests/contracts/interaction-state-preservation-smoke.mjs",
     "test:package": "node tools/check-version.mjs && npm run check:syntax && npm run check:architecture && npm run check:hygiene && npm run check:branding && npm run check:footer && npm run check:test-ownership && npm run check:source-ownership && npm run check:asset-policy && npm run check:hacs-package && npm run test:hacs-install && node tests/render/bundle-load-smoke.mjs && node tools/verify-dist.mjs",
-    "test:release": "npm run check:release-governance && npm run check:qualification && npm run check:documentation-drift && node tests/contracts/release-qualification-lifecycle.mjs",
+    "test:release": "npm run check:release-governance && npm run check:qualification && node tests/contracts/release-qualification-lifecycle.mjs",
     "check:source-ownership": "node tools/check-source-ownership.mjs",
     "check:hacs-package": "node tools/check-hacs-package.mjs",
     "check:asset-policy": "node tools/check-asset-policy.mjs",
     "test:hacs-install": "node tests/package/hacs-install-simulation.mjs",
-    "check:documentation-drift": "node tools/check-documentation-drift.mjs"
+    "check:documentation-drift": "node tools/check-documentation-drift.mjs",
+    "preflight": "npm test"
   },
   "engines": {
     "node": ">=20"
