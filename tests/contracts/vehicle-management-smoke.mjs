@@ -114,9 +114,15 @@ for(const needle of [
   'vehicle.range_total_km',
   'vehicle.ev_range_km',
   'vehicle.soc_pct',
-  'if (this.mobilityRuntimeV2())',
-  'propertyByCompoundKey(canonical, spec.property_key)'
-]) if(!runtime.includes(needle)) throw new Error('rc.59 direct V2 vehicle metric regression: missing '+needle);
+  'vehicle.current_energy_kwh',
+  'this.vehicleExperienceV2(canonical)',
+  'this.semanticProperty(canonical, key)',
+  'experience.range_intelligence',
+  'experience.energy_intelligence',
+  'if (totalDisplay) slots.push',
+  'if (batteryDisplay) slots.push'
+]) if(!runtime.includes(needle)) throw new Error('rc.64 canonical vehicle summary regression: missing '+needle);
+if(runtime.includes('propertyByCompoundKey(canonical, spec.property_key)')) throw new Error('rc.64 vehicle summary regressed to materialized-property-only slots');
 
 if(!chargers.includes('.charger-visual:not(.image-missing) .charger-visual-fallback{display:none!important}')) {
   throw new Error('rc.59 real charger artwork must suppress generic fallback');
@@ -124,7 +130,7 @@ if(!chargers.includes('.charger-visual:not(.image-missing) .charger-visual-fallb
 if(!dashboard.includes('.charger-mini-image img{opacity:1!important')) {
   throw new Error('rc.59 assigned charger artwork must render at full opacity');
 }
-console.log('PASS rc.59 direct V2 vehicle metrics and charger artwork truth');
+console.log('PASS rc.64 cross-screen vehicle range/battery summary and charger artwork truth');
 
 
 //
