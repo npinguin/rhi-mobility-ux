@@ -1,12 +1,15 @@
-# v1.0.0-rc.63 — RHI UX Core convergence TEST CANDIDATE
+# v1.0.0-rc.64 — cross-screen semantic parity TEST CANDIDATE
 
-Mobility now consumes pinned RHI UX Core 1.2.0 at build time and remains a self-contained HACS artifact.
+Mobility now keeps vehicle range, electric range and battery information coherent between Overview, Vehicle Management and detail-oriented product surfaces.
 
-The shared Core owns shell geometry, tokens and common primitives. Mobility keeps domain semantics, routing targets, projections, commands and runtime interpretation.
-
-This candidate also removes release/physical-acceptance proof from the product footer and fails closed when supervisor outcome values are absent.
+Changes:
+- uses canonical Runtime V2 properties when materialized and the backend-owned Experience V2 semantic projection when the same truth is already available there;
+- removes empty metric chrome instead of showing `—` for values that the canonical vehicle projection already knows;
+- shows battery percentage and current battery energy together when both are published;
+- keeps total and electric range distinct where useful;
+- adds release-blocking regression coverage for the shared summary projection.
 
 Required/tested backend: M0.10.10.
-Rollback: v1.0.0-rc.62.
+Rollback: v1.0.0-rc.63.
 
 Target Home Assistant render, write/readback, restart and rollback proof remain required before stable promotion.
