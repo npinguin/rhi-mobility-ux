@@ -1,3 +1,14 @@
+## 1.0.0-rc.65 — unified Home Intelligence visual system
+
+- adopts RHI UX Core 1.4.0 as the single owner of shared typography and visual grammar;
+- consumes the canonical Core background hero, one status layer and Quick Action bar;
+- standardises Quick Action colours with the shared blue primary / outlined secondary grammar;
+- applies the Home Assistant font family through Core and removes local Mobility font authority;
+- removes Mobility's parallel ownership of shared hero/status/action styling;
+- keeps Mobility semantics, controls and domain-specific body composition domain-owned;
+- adds an anti-drift release gate for typography and shared visual ownership;
+- preserves immutable HACS packaging and separate runtime qualification.
+
 ## 1.0.0-rc.64 — cross-screen vehicle semantic parity
 
 - makes Vehicle Management range, electric-range and battery summaries use the same canonical Runtime/Experience V2 truth as Overview;
