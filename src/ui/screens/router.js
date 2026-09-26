@@ -322,7 +322,7 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
   }
 
   styles() {
-    return `:host{display:block;width:100%;box-sizing:border-box;font-family:inherit}ha-card{background:transparent;box-shadow:none;border:none}
+    return `:host{display:block;width:100%;box-sizing:border-box;}ha-card{background:transparent;box-shadow:none;border:none}
       ${hbMobilityPresentationStyles()}
       ${hbMobilitySharedShellStyles()}
       .page{position:relative}
@@ -403,7 +403,7 @@ class HomeBrainMobilityAssetDetailCard extends HTMLElement {
           </div>
           <style>
             ha-card{background:transparent;box-shadow:none;border:none}
-            .missing{font-family:inherit;user-select:text;-webkit-user-select:text;margin:24px auto;padding:28px;width:min(100%,900px);background:#fff;border:1px solid #E5ECF6;border-radius:22px;box-shadow:0 16px 40px rgba(15,35,80,.07)}
+            .missing{user-select:text;-webkit-user-select:text;margin:24px auto;padding:28px;width:min(100%,900px);background:#fff;border:1px solid #E5ECF6;border-radius:22px;box-shadow:0 16px 40px rgba(15,35,80,.07)}
             h2{margin:0 0 8px;color:#06142D}
             p{color:#66728B;font-weight:400}
             button{border:1px solid #DDE6F2;background:#fff;border-radius:12px;font-weight:500;padding:10px 14px;cursor:pointer;color:#06142D}
@@ -670,7 +670,7 @@ ${hbMobilitySharedShellStyles()}
       console.error("HomeBrain Mobility asset detail render failed", err);
       if (!this.shadowRoot) this.attachShadow({ mode: "open" });
       const msg = String((err && (err.stack || err.message)) || err || "Unknown detail render error").replace(/[&<>]/g, (ch) => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[ch]));
-      this.shadowRoot.innerHTML = `<ha-card><div style="font-family:inherit;margin:24px auto;width:min(100%,1100px);padding:28px;border:1px solid #F3B7B7;border-radius:22px;background:#FFF7F7;color:#061226;box-shadow:0 18px 48px rgba(80,15,15,.08)"><h2>Asset detail temporarily unavailable</h2><p>The selected Mobility asset could not render safely.</p><pre style="white-space:pre-wrap;font-size:12px">${msg}</pre><button data-back style="border:1px solid #DDE6F2;background:#fff;border-radius:12px;padding:10px 14px;font-weight:600">← Back to Dashboard</button></div></ha-card>`;
+      this.shadowRoot.innerHTML = `<ha-card><div style="margin:24px auto;width:min(100%,1100px);padding:28px;border:1px solid #F3B7B7;border-radius:22px;background:#FFF7F7;color:#061226;box-shadow:0 18px 48px rgba(80,15,15,.08)"><h2>Asset detail temporarily unavailable</h2><p>The selected Mobility asset could not render safely.</p><pre style="white-space:pre-wrap;font-size:12px">${msg}</pre><button data-back style="border:1px solid #DDE6F2;background:#fff;border-radius:12px;padding:10px 14px;font-weight:600">← Back to Dashboard</button></div></ha-card>`;
       this.shadowRoot.querySelector('[data-back]')?.addEventListener('click', () => { try { history.pushState(null, '', (this.config && this.config.dashboard_path) || '/mobility-supervisor/dashboard'); window.dispatchEvent(new Event('location-changed')); } catch(e) {} });
     }
   }
