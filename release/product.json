@@ -4,7 +4,7 @@
   "minimum_backend": "M0.10.10",
   "tested_backend": "M0.10.10",
   "stage": "test_candidate",
-  "rollback_release": "v1.0.0-rc.60",
+  "rollback_release": "v1.0.0-rc.61",
   "runtime_artifact": "dist/rhi-mobility-ux.js",
   "runtime_checksum_artifact": "dist/rhi-mobility-ux.js.sha256",
   "hacs_repository_type": "dashboard",
@@ -22,5 +22,6 @@
     "MOBILITY_PROFILE_CATALOG_V2",
     "MOBILITY_SUPERVISION_V2",
     "MOBILITY_ENERGY_V2"
-  ]
+  ],
+  "version": "1.0.0-rc.62"
 }
