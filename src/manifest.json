@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
   "modules": [
+    "vendor/rhi-ux-core.js",
     "app/asset-paths.js",
     "app/asset-catalog.js",
     "app/presentation.js",
