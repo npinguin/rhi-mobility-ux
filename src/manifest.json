@@ -3,6 +3,7 @@
   "modules": [
     "app/asset-paths.js",
     "app/asset-catalog.js",
+    "vendor/rhi-ux-core.js",
     "app/presentation.js",
     "app/header-and-navigation.js",
     "domain/adapters/intelligence-model-alignment.js",

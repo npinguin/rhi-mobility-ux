@@ -1,3 +1,13 @@
+## 1.0.0-rc.63 — RHI UX Core convergence
+
+- adopts pinned RHI UX Core 1.2.0 as a build-time-only presentation foundation;
+- replaces the Mobility-specific navigation shell implementation with the shared DomainShell primitive;
+- removes duplicated shell geometry/tokens while preserving domain navigation and routing;
+- aligns the technical footer with product runtime health only, excluding release/qualification proof from user-facing health;
+- makes missing supervisor outcome fields unavailable instead of fabricating OK/None defaults;
+- keeps Mobility domain semantics, projections, commands and write/readback ownership unchanged;
+- preserves backend M0.10.10 and zero accepted technical/feature debt.
+
 ## 1.0.0-rc.62 — maintainability and test-ownership cleanup
 
 - removes historical implementation-shape, literal CSS and milestone smoke tests from the active release gate;

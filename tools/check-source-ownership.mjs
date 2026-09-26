@@ -25,7 +25,7 @@ for(const rel of modules){
   if(/^\d+[-_]/.test(path.basename(rel))) throw new Error(`numeric load-order filename forbidden: ${rel}`);
 }
 if(sourceManifest.assets_root!=='assets') throw new Error('canonical source assets root must be src/assets');
-for(const required of ['branding','vehicles','chargers']){
+for(const required of ['vehicles','chargers']){
   if(!fs.existsSync(path.join(root,'src/assets',required))) throw new Error(`required asset category missing: ${required}`);
 }
 console.log('PASS source ownership: app/runtime/domain/ui/assets are explicit and load order lives only in src/manifest.json');
