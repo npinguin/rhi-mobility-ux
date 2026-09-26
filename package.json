@@ -1,6 +1,6 @@
 {
   "name": "rhi-mobility-ux",
-  "version": "1.0.0-rc.62",
+  "version": "1.0.0-rc.63",
   "private": false,
   "description": "Robotix Home Intelligence Mobility UX for Home Assistant",
   "license": "GPL-3.0-only",
@@ -19,7 +19,7 @@
     "release:sync": "node tools/sync-release-metadata.mjs",
     "check:test-ownership": "node tools/check-test-ownership.mjs",
     "test:contract": "node tests/contracts/runtime-contract-smoke.mjs && node tests/contracts/command-placement-smoke.mjs && node tests/contracts/configuration-editables-smoke.mjs && node tests/contracts/write-readback-only-smoke.mjs && node tests/contracts/supervisor-authority-smoke.mjs && node tests/contracts/energy-planning-projection-smoke.mjs && node tests/contracts/energy-mobility-insights-projection-smoke.mjs && node tests/contracts/energy-mobility-strategy-projection-smoke.mjs && node tests/contracts/canonical-projection-authority-smoke.mjs",
-    "test:ux": "node tests/contracts/vehicle-management-smoke.mjs && node tests/view-models/charger-materialization.mjs && node tests/view-models/charger-overview-availability.mjs && node tests/view-models/v2-property-placement.mjs && node tests/contracts/picker-session-smoke.mjs && node tests/contracts/interaction-state-preservation-smoke.mjs",
+    "test:ux": "node tests/contracts/vehicle-management-smoke.mjs && node tests/view-models/charger-materialization.mjs && node tests/view-models/charger-overview-availability.mjs && node tests/view-models/v2-property-placement.mjs && node tests/contracts/picker-session-smoke.mjs && node tests/contracts/interaction-state-preservation-smoke.mjs && npm run check:ux-core",
     "test:package": "node tools/check-version.mjs && npm run check:syntax && npm run check:architecture && npm run check:hygiene && npm run check:branding && npm run check:footer && npm run check:test-ownership && npm run check:source-ownership && npm run check:asset-policy && npm run check:hacs-package && npm run test:hacs-install && node tests/render/bundle-load-smoke.mjs && node tools/verify-dist.mjs",
     "test:release": "npm run check:release-governance && npm run check:qualification && node tests/contracts/release-qualification-lifecycle.mjs",
     "check:source-ownership": "node tools/check-source-ownership.mjs",
@@ -27,7 +27,8 @@
     "check:asset-policy": "node tools/check-asset-policy.mjs",
     "test:hacs-install": "node tests/package/hacs-install-simulation.mjs",
     "check:documentation-drift": "node tools/check-documentation-drift.mjs",
-    "preflight": "npm test"
+    "preflight": "npm test",
+    "check:ux-core": "node tools/check-ux-core.mjs"
   },
   "engines": {
     "node": ">=20"
