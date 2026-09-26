@@ -6,10 +6,18 @@ const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const readJson=(rel)=>JSON.parse(fs.readFileSync(path.join(root,rel),'utf8'));
 const writeJson=(rel,obj)=>fs.writeFileSync(path.join(root,rel),JSON.stringify(obj,null,2)+'\n');
 
-const pkg=readJson('package.json');
 const product=readJson('release/product.json');
-const version=String(pkg.version);
+const version=String(product.version);
 const tag=`v${version}`;
+
+const pkg=readJson('package.json');
+pkg.version=version;
+writeJson('package.json',pkg);
+
+const lock=readJson('package-lock.json');
+lock.version=version;
+lock.packages[''].version=version;
+writeJson('package-lock.json',lock);
 
 const compat=readJson('COMPATIBILITY.json');
 compat.ux_version=version;
@@ -18,48 +26,53 @@ compat.mobility_contract={
   ...(compat.mobility_contract||{}),
   contract:product.contract,
   minimum_backend:product.minimum_backend,
-  tested_backend_releases:[product.tested_backend]
+  tested_backend_releases:[product.tested_backend],
+  required_contracts:[...(product.required_contracts||[])]
 };
 writeJson('COMPATIBILITY.json',compat);
 
 const manifest=readJson('RELEASE_MANIFEST.json');
-manifest.product=product.product;
-manifest.version=version;
-manifest.stage=product.stage;
-manifest.mobility_contract=product.contract;
-manifest.minimum_backend=product.minimum_backend;
-manifest.tested_backend_baseline=product.tested_backend;
-manifest.runtime_artifact=product.runtime_artifact;
-manifest.runtime_checksum_artifact=product.runtime_checksum_artifact;
-manifest.hacs_repository_type=product.hacs_repository_type;
-manifest.hacs_validation_category=product.hacs_validation_category;
-manifest.package_manifest=product.package_manifest;
-manifest.hacs_package_root=product.hacs_package_root;
-manifest.hacs_delivery_mode=product.hacs_delivery_mode;
-manifest.release_asset_policy=product.release_asset_policy;
+Object.assign(manifest,{
+  product:product.product,
+  version,
+  stage:product.stage,
+  mobility_contract:product.contract,
+  minimum_backend:product.minimum_backend,
+  tested_backend_baseline:product.tested_backend,
+  runtime_artifact:product.runtime_artifact,
+  runtime_checksum_artifact:product.runtime_checksum_artifact,
+  hacs_repository_type:product.hacs_repository_type,
+  hacs_validation_category:product.hacs_validation_category,
+  package_manifest:product.package_manifest,
+  hacs_package_root:product.hacs_package_root,
+  hacs_delivery_mode:product.hacs_delivery_mode,
+  release_asset_policy:product.release_asset_policy,
+  required_contracts:[...(product.required_contracts||[])]
+});
 writeJson('RELEASE_MANIFEST.json',manifest);
 
 const status=readJson('release/RELEASE_STATUS.json');
-status.product=product.product;
-status.source_candidate_version=version;
-status.stage=product.stage;
-status.contract=product.contract;
-status.minimum_backend=product.minimum_backend;
-status.tested_backend=product.tested_backend;
+Object.assign(status,{
+  product:product.product,
+  source_candidate_version:version,
+  stage:product.stage,
+  contract:product.contract,
+  minimum_backend:product.minimum_backend,
+  tested_backend:product.tested_backend,
+  required_contracts:[...(product.required_contracts||[])]
+});
 writeJson('release/RELEASE_STATUS.json',status);
 
-const qualification=readJson('release/QUALIFICATION.json');
-const versionChanged=qualification.candidate_version!==version;
-qualification.candidate_version=version;
-qualification.candidate_tag=tag;
-if(versionChanged){
-  qualification.candidate_sha='pending';
-  for(const key of Object.keys(qualification)){
-    if(['candidate_version','candidate_tag','candidate_sha','stable_promotion'].includes(key)) continue;
-    qualification[key]='pending';
+const q=readJson('release/QUALIFICATION.json');
+if(q.candidate_version!==version){
+  q.candidate_version=version;
+  q.candidate_tag=tag;
+  q.candidate_sha='pending';
+  for(const key of Object.keys(q)){
+    if(['candidate_version','candidate_tag','candidate_sha'].includes(key)) continue;
+    q[key]=key==='stable_promotion'?'blocked':'pending';
   }
-  qualification.stable_promotion='blocked';
 }
-writeJson('release/QUALIFICATION.json',qualification);
+writeJson('release/QUALIFICATION.json',q);
 
-console.log(`Synchronized release metadata for ${tag} from package.json + release/product.json`);
+console.log(`Synchronized release metadata for ${tag} from release/product.json`);
