@@ -50,24 +50,25 @@ function hbMobilityQuickActions(rt, actions = [], label = "Quick actions") {
 }
 
 function hbMobilityPresentationStyles() {
-  return `
+  return `${rhiUxCoreStyles()}
+
     :host{
-      --rhi-page-max:1640px;
-      --rhi-page-pad-x:24px;--rhi-page-pad-y:14px;
-      --rhi-space-1:4px;--rhi-space-2:7px;--rhi-space-3:10px;--rhi-space-4:14px;--rhi-space-5:18px;--rhi-space-6:24px;
-      --rhi-radius-sm:9px;--rhi-radius-md:12px;--rhi-radius-lg:16px;
-      --rhi-line:#DCE5EF;--rhi-line-soft:#EAF0F6;
-      --rhi-ink:#101828;--rhi-muted:#5F6F84;--rhi-muted-soft:#758399;--rhi-blue:#1467F5;
-      --rhi-surface:#FFFFFF;--rhi-soft:#F8FAFC;
-      --rhi-shadow:0 7px 20px rgba(15,35,80,.035);
+      --rhi-line:var(--rhi-color-line);
+      --rhi-line-soft:#EAF0F6;
+      --rhi-ink:var(--rhi-color-text);
+      --rhi-muted:var(--rhi-color-muted);
+      --rhi-muted-soft:#758399;
+      --rhi-blue:var(--rhi-color-primary);
+      --rhi-surface:var(--rhi-color-surface);
+      --rhi-soft:var(--rhi-color-surface-soft);
+      --rhi-shadow:var(--rhi-shadow-sm);
       --rhi-font-display:clamp(29px,2.55vw,42px);
       --rhi-font-section:clamp(18px,1.4vw,22px);
       --rhi-font-card:15px;--rhi-font-body:12.5px;--rhi-font-small:11px;--rhi-font-label:10px;
       --rhi-weight-regular:450;--rhi-weight-medium:540;--rhi-weight-strong:620;
-      --rhi-content-gap:8px;--rhi-card-gap:8px;--rhi-control-h:38px;--rhi-icon-action:18px;--rhi-icon-status:24px;
-      font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-      color:var(--rhi-ink);
+      --rhi-content-gap:8px;--rhi-card-gap:var(--rhi-space-2);--rhi-control-h:38px;--rhi-icon-action:18px;--rhi-icon-status:24px;
     }
+
 
     .page{
       width:min(100%,var(--rhi-page-max))!important;margin:0 auto!important;

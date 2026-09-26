@@ -30,10 +30,13 @@ const checks={
   status_version:status.source_candidate_version===version,
   status_contract:status.contract===product.contract,
   status_backend:status.minimum_backend===product.minimum_backend && status.tested_backend===product.tested_backend,
+  ux_core_compatibility:compat.ux_core?.version===product.ux_core?.version && compat.ux_core?.source_commit===product.ux_core?.source_commit && compat.ux_core?.runtime_dependency===false,
+  ux_core_manifest:manifest.ux_core?.version===product.ux_core?.version && manifest.ux_core?.source_commit===product.ux_core?.source_commit && manifest.ux_core?.runtime_dependency===false,
+  ux_core_status:status.ux_core?.version===product.ux_core?.version && status.ux_core?.runtime_dependency===false,
   qualification_version:qualification.candidate_version===version,
   qualification_tag:qualification.candidate_tag===`v${version}`,
   qualification_sha:qualification.candidate_sha==='pending' || /^[0-9a-f]{40}$/i.test(String(qualification.candidate_sha||'')),
-  rollback:product.rollback_release===`v1.0.0-rc.61`,
+  rollback:typeof product.rollback_release==='string' && product.rollback_release.startsWith('v') && product.rollback_release!==`v${version}`,
   zero_debt:manifest.known_accepted_technical_debt===0 && manifest.known_accepted_feature_debt===0
 };
 const failed=Object.entries(checks).filter(([,ok])=>!ok).map(([name])=>name);

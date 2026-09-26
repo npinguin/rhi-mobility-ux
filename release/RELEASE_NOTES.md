@@ -1,19 +1,19 @@
-# v1.0.0-rc.62 — maintainability and test-ownership cleanup TEST CANDIDATE
+# v1.0.0-rc.63 — RHI UX Core baseline TEST CANDIDATE
 
-## Scope
+Mobility UX now consumes a pinned build-time snapshot of RHI UX Core 1.1.0.
 
-rc.62 reduces release friction without weakening Mobility V2 product safety.
+Shared ownership:
+- Core: design tokens and generic presentation/footer primitives.
+- Mobility: Runtime/Experience/Policy contracts, asset projections, navigation content, screen semantics and interactions.
 
-- keeps behavior-oriented contract, projection, write/readback and view-model coverage;
-- removes historical source-shape, literal CSS and exact implementation-expression smoke tests from the active release path;
-- retains the negative architecture boundary preventing UI/screens from bypassing runtime/domain projection ownership;
-- makes `release/product.json` the single release identity owner;
-- projects package, compatibility, manifest, status and qualification metadata through `release:sync`;
-- reduces target qualification to evidence that only a real Home Assistant runtime can prove;
-- adds `npm run preflight` as the local CI-parity entrypoint;
-- preserves Mobility M0.10.10 compatibility and zero accepted technical/feature debt.
+There is no Home Assistant runtime dependency on rhi-ux-core. Core is bundled into the Mobility artifact.
 
-Required/tested backend: `M0.10.10`.
-Rollback: `v1.0.0-rc.61`.
+Footer product health is now based only on canonical backend/runtime health. Physical acceptance, release qualification and optional diagnostics no longer create product-facing warnings.
 
-Target Home Assistant qualification and rollback proof remain required before stable promotion.
+RHI UX Core source commit:
+`480eaef12955d56970ec172fdde6f5fe2e0ab9c6`
+
+Required/tested backend: M0.10.10.
+Rollback: v1.0.0-rc.62.
+
+Target Home Assistant runtime qualification and rollback proof remain mandatory before stable promotion.

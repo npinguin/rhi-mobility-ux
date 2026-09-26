@@ -1,3 +1,13 @@
+## 1.0.0-rc.63 — RHI UX Core baseline
+
+- adopts pinned RHI UX Core 1.1.0 as a build-time-only presentation foundation;
+- maps Mobility presentation tokens onto the shared --rhi-* design vocabulary;
+- delegates the technical footer to the shared Core primitive;
+- removes release/physical-proof and optional diagnostic states from product-footer health;
+- replaces exact footer source/CSS assertions with a behavior/ownership boundary check;
+- projects UX Core provenance from release/product.json;
+- preserves Mobility M0.10.10 contract ownership and zero accepted technical/feature debt.
+
 ## 1.0.0-rc.62 — maintainability and test-ownership cleanup
 
 - removes historical implementation-shape, literal CSS and milestone smoke tests from the active release gate;
