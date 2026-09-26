@@ -244,3 +244,82 @@ Overview is the current visual reference direction. Other top-level tabs converg
 Overview is the current reference for visual maturity, but improvements must be promoted into shared presentation primitives rather than copied screen by screen. Overview, Vehicles and Chargers use one page/hero grammar across phone portrait, tablet and desktop. Existing information and controls are preserved; presentation refactors may regroup or resize them but must not silently remove product capability.
 
 Contextual hero artwork explains the purpose of a tab and the premium home setting. Hero artwork is presentation-only and must never be used as product/device truth.
+
+## Product maturity gate and next steps
+
+Mobility is not product-mature merely because Runtime V2, Experience V2, Policy V2, screens and release gates exist. Product maturity requires the complete household journey to work on the target Home Assistant with real data.
+
+The shared Home Intelligence product loop is:
+
+```text
+Observe → Understand → Decide → Act → Learn
+```
+
+Mobility's north-star question remains:
+
+> Is my vehicle ready for me, and do I need to do anything?
+
+### P0 — Planning / Intelligence qualification
+
+Planning and strategy projections must not be treated as mature while their Energy-owned source journey is unqualified.
+
+Current product acceptance status: the Planning/Intelligence experience has not demonstrated dependable end-to-end operation since the V2 transition. Until Energy Planning/Intelligence is runtime-qualified, Mobility's cross-domain Planning/Strategies experience remains an open P0 product dependency.
+
+Closure requires:
+
+- exact canonical Mobility asset joins against real Energy planning rows;
+- correct today/tomorrow/still-to-plan values;
+- vehicle-centric interpretation of what the plan means for readiness;
+- configured and effective strategy state rendered correctly;
+- no frontend reconstruction of Energy semantics;
+- refresh/reload/restart proof;
+- target HA proof on the immutable candidate.
+
+Architecture/ownership explanatory text is useful as technical evidence, but normal product copy should lead with what the plan means for the vehicle and user.
+
+### P0 — no orphan pilot features
+
+Before a mature Mobility release, every visible capability must be integrated into a supported journey, hidden/feature-gated, or removed. A standalone experimental screen does not count as product completeness merely because it renders.
+
+### P1 — make Intelligence vehicle-first
+
+Planning should answer questions such as:
+
+- Will my vehicle be ready when I need it?
+- What will happen automatically?
+- Why is charging waiting or starting?
+- Is action required?
+- What is the expected energy/value consequence?
+
+Energy remains the planning authority; Mobility presents the consequence for canonical Mobility assets.
+
+### P1 — shared intelligence grammar
+
+Converge with the Home Intelligence grammar:
+
+- status;
+- attention;
+- opportunity;
+- recommendation;
+- Why?;
+- expected outcome;
+- action/override;
+- actual outcome;
+- learning/evidence.
+
+Promote genuinely shared interaction patterns to RHI UX Core instead of maintaining parallel domain-local implementations.
+
+### P2 — reduce implementation change surfaces
+
+Continue decomposing large runtime/screen modules when this directly lowers product-change risk. In particular, keep moving contract authorities and screen responsibilities out of monolithic runtime/dashboard files without weakening the one-owner model.
+
+### Mature release exit criteria
+
+A mature/stable Mobility release requires:
+
+- vehicle and charger primary journeys proven on target HA;
+- write/readback/restart qualification;
+- cross-domain Planning/Intelligence proven, not merely structurally projected;
+- no visible orphan pilot feature;
+- upgrade and rollback proof;
+- exact immutable candidate evidence recorded in release qualification.

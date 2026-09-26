@@ -28,3 +28,30 @@ The intended visual examples are:
 - **Charging**: completed connection with restrained power-flow cue.
 
 This is a presentation backlog item. It must not expand frozen V1 or create a second relationship-state engine in UX.
+
+
+## P0 product maturity — Planning / Intelligence is not yet proven
+
+Static implementation is not product acceptance.
+
+Planning/Intelligence has not demonstrated a dependable end-to-end working journey on the target Home Assistant since the V2 transition. Treat the capability as open/broken-until-proven for product maturity purposes.
+
+This depends on Energy-owned planning truth and must remain fail-closed.
+
+Closure requires at minimum:
+
+- real V2 planning data on the target HA;
+- exact canonical Mobility asset joins;
+- correct planned-today, still-to-plan and tomorrow totals;
+- vehicle-centric readiness consequence;
+- real strategy configured/effective state;
+- refresh/reload/restart persistence where applicable;
+- immutable candidate runtime evidence.
+
+Do not add additional pilot Intelligence features before this core journey is working reliably.
+
+## P0 product maturity — no loose pilot surfaces
+
+Before the first mature/stable product milestone, every visible pilot capability must be integrated into a coherent supported journey, deliberately hidden/feature-gated, or removed.
+
+Feature count is not a maturity metric.
