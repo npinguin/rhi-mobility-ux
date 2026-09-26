@@ -18,11 +18,14 @@ for(const token of requiredSource) if(!source.includes(token)) throw new Error('
 const requiredCore=[
   'function rhiUxTechnicalFooter(',
   'class="rhiUxTechnicalFooter"',
-  '.rhiUxTechnicalFooter{',
-  '[data-severity="warning"]',
-  '[data-severity="error"]'
+  '.rhiUxTechnicalFooter{'
 ];
 for(const token of requiredCore) if(!core.includes(token)) throw new Error('RHI UX Core footer contract missing: '+token);
+for(const severity of ['warning','error']) {
+  const raw='[data-severity="'+severity+'"]';
+  const escaped='[data-severity=\\\"'+severity+'\\\"]';
+  if(!core.includes(raw) && !core.includes(escaped)) throw new Error('RHI UX Core footer severity style missing: '+severity);
+}
 
 for(const forbidden of [
   'class="rhiUxFooter"',

@@ -1,15 +1,18 @@
-# v1.0.0-rc.64 — cross-screen semantic parity TEST CANDIDATE
+# v1.0.0-rc.65 — Unified Home Intelligence UX TEST CANDIDATE
 
-Mobility now keeps vehicle range, electric range and battery information coherent between Overview, Vehicle Management and detail-oriented product surfaces.
+Mobility now consumes the same RHI UX Core 1.4.0 visual primitives as Energy instead of owning a parallel shared presentation system.
 
 Changes:
-- uses canonical Runtime V2 properties when materialized and the backend-owned Experience V2 semantic projection when the same truth is already available there;
-- removes empty metric chrome instead of showing `—` for values that the canonical vehicle projection already knows;
-- shows battery percentage and current battery energy together when both are published;
-- keeps total and electric range distinct where useful;
-- adds release-blocking regression coverage for the shared summary projection.
+- moves hero rendering onto the canonical Core background-image hero;
+- moves the page status row onto the canonical Core status layer;
+- moves page Quick Actions onto the canonical Core blue primary / outlined secondary action bar;
+- moves font-family and typography authority to Core using the Home Assistant font stack;
+- applies the shared Core body/card grammar while preserving Mobility-specific content and workflows;
+- removes the local shared hero/status/action stylesheet authority from Mobility presentation code;
+- adds a release-blocking shared-visual-ownership check preventing local font and shared-component drift;
+- keeps the HACS artifact standalone through the pinned build-time Core snapshot.
 
-Required/tested backend: M0.10.10.
-Rollback: v1.0.0-rc.63.
+RHI UX Core: 1.4.0 at 50cf7e135c90af15cf34b4f41dfba78aa1a5fc5e.
+Rollback: v1.0.0-rc.64.
 
-Target Home Assistant render, write/readback, restart and rollback proof remain required before stable promotion.
+Target Home Assistant rendering, vehicle/charger journeys, write/readback, refresh/restart, upgrade and rollback proof remain mandatory before stable promotion.
