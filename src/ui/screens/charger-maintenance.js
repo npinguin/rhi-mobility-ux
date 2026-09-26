@@ -708,8 +708,8 @@ ${hbMobilitySharedShellStyles()}
       }
 
       /* R22.12.11.24 Energy typography alignment — charger maintenance. */
-      :host{font-family:inherit!important;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
-      *{font-family:inherit!important;}
+      :host{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+      *{}
       .title h1{font-size:34px!important;line-height:1.08!important;font-weight:650!important;letter-spacing:-.025em!important;}
       .title p{font-size:13px!important;font-weight:400!important;color:var(--hb-muted,#66728B)!important;}
       .eyebrow{font-size:11px!important;font-weight:650!important;}
