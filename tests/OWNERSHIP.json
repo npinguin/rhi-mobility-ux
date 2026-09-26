@@ -1,206 +1,34 @@
 {
-  "version": 1,
+  "version": 2,
   "principle": "one invariant, one test owner",
-  "owners": {
-    "branding": {
-      "owner": "tools/check-branding.mjs",
-      "owns": [
-        "canonical company artwork",
-        "brand delivery",
-        "brand source/generated parity"
-      ],
-      "forbidden_in": {
-        "tools/check-footer.mjs": [
-          "COMPANY_LOGO",
-          "branding/",
-          "rhiMobilityAssetUrl",
-          "__RHI_COMPANY_LOGO_INLINE__"
-        ],
-        "tests/contracts/navigation-shell-smoke.mjs": [
-          "COMPANY_LOGO",
-          "branding/",
-          "company-logo.svg",
-          "__RHI_COMPANY_LOGO_INLINE__"
-        ],
-        "tests/contracts/layout-hardening-smoke.mjs": [
-          "COMPANY_LOGO",
-          "branding/",
-          "company-logo.svg",
-          "__RHI_COMPANY_LOGO_INLINE__"
-        ]
-      }
-    },
-    "navigation": {
-      "owner": "tests/contracts/navigation-shell-smoke.mjs",
-      "owns": [
-        "route mapping",
-        "active navigation state",
-        "Overview/Vehicles local switch behavior"
-      ],
-      "forbidden_in": {
-        "tests/contracts/screen-preservation-smoke.mjs": [
-          "navActive",
-          "hbMobilityNav",
-          "_localNavActive"
-        ],
-        "tests/contracts/overview-shell-smoke.mjs": [
-          "hbMobilityNav",
-          "_localNavActive"
-        ]
-      }
-    },
-    "overview": {
-      "owner": "tests/contracts/overview-shell-smoke.mjs",
-      "owns": [
-        "Overview content hierarchy",
-        "Overview actions",
-        "Mobility-only primary signals"
-      ]
-    },
-    "screen_preservation": {
-      "owner": "tests/contracts/screen-preservation-smoke.mjs",
-      "owns": [
-        "screen registration",
-        "documented view availability"
-      ]
-    },
-    "footer": {
-      "owner": "tools/check-footer.mjs",
-      "owns": [
-        "footer content",
-        "footer diagnostics disclosure",
-        "footer readability"
-      ]
-    },
-    "layout": {
-      "owner": "tests/contracts/layout-hardening-smoke.mjs",
-      "owns": [
-        "shared shell geometry",
-        "status rail geometry",
-        "responsive sizing invariants",
-        "shared presentation tokens",
-        "omni-device hero geometry",
-        "cross-tab visual grammar"
-      ]
-    },
-    "release": {
-      "owner": "tools/check-release-governance.mjs",
-      "owns": [
-        "release identity",
-        "publication lifecycle",
-        "candidate immutability",
-        "test ownership registration"
-      ]
-    },
-    "source_structure": {
-      "owner": "tools/check-source-ownership.mjs",
-      "owns": [
-        "source folder ownership",
-        "source manifest completeness",
-        "legacy source tree removal"
-      ]
-    },
-    "asset_package": {
-      "owner": "tools/check-asset-policy.mjs",
-      "owns": [
-        "asset path safety",
-        "asset extension policy",
-        "source/dist asset parity",
-        "runtime image catalog asset existence"
-      ]
-    },
-    "hacs_package": {
-      "owner": "tools/check-hacs-package.mjs",
-      "owns": [
-        "dist package tree",
-        "HACS delivery mode",
-        "package manifest integrity",
-        "release asset single-file avoidance"
-      ]
-    },
-    "documentation": {
-      "owner": "tools/check-documentation-drift.mjs",
-      "owns": [
-        "normative path currency",
-        "source/package terminology",
-        "migration-sequence documentation",
-        "engineer handover currency",
-        "engineering history and durable lessons",
-        "authoritative open-issue visibility",
-        "V2 migration documentation invariants"
-      ]
-    },
-    "vehicle_management": {
-      "owner": "tests/contracts/vehicle-management-smoke.mjs",
-      "owns": [
-        "vehicle management workspace",
-        "vehicle picker behavior",
-        "verified selectable vehicle visuals",
-        "cross-screen vehicle visual rendering"
-      ]
-    },
-    "energy_planning_projection": {
-      "owner": "tests/contracts/energy-planning-projection-smoke.mjs",
-      "owns": [
-        "read-only Energy planning contract access",
-        "exact Mobility asset identity join",
-        "fail-closed planning projection"
-      ]
-    },
-    "energy_mobility_insights_projection": {
-      "owner": "tests/contracts/energy-mobility-insights-projection-smoke.mjs",
-      "owns": [
-        "Energy per-asset metering projection into Mobility Insights",
-        "Energy per-asset value projection into Mobility Insights",
-        "exact Mobility asset identity join for Insights",
-        "fail-closed Energy Insights projection"
-      ]
-    },
-    "energy_mobility_strategy_projection": {
-      "owner": "tests/contracts/energy-mobility-strategy-projection-smoke.mjs",
-      "owns": [
-        "Energy strategy profile projection into Mobility Intelligence",
-        "Energy effective strategy projection for exact Mobility assets",
-        "fail-closed Energy strategy projection"
-      ]
-    },
-    "picker_session": {
-      "owner": "tests/contracts/picker-session-smoke.mjs",
-      "owns": [
-        "hierarchical picker local draft lifecycle",
-        "in-place dependent select updates",
-        "picker focus preservation without card reconstruction",
-        "semantic picker blueprint reuse rule"
-      ]
-    },
-    "v2_first_status_architecture": {
-      "owner": "tests/contracts/v2-first-status-architecture-smoke.mjs",
-      "owns": [
-        "MOBILITY_PUBLIC_RUNTIME_V2 fleet and relationship consumption",
-        "MOBILITY_EXPERIENCE_V2 product conclusion consumption across Overview, management and detail screens",
-        "MOBILITY_POLICY_V2 read/write boundary without frontend threshold duplication",
-        "neutral status colour unless backend-owned Experience V2 state is actionable",
-        "UX select / aggregate / format / present ownership with no product-state inference"
-      ]
-    },
-    "v2_property_placement": {
-      "owner": "tests/view-models/v2-property-placement.mjs",
-      "owns": [
-        "direct MOBILITY_PUBLIC_RUNTIME_V2 property authority",
-        "component_id/section_id product placement",
-        "fail-visible missing placement",
-        "engineering property isolation",
-        "V1 property non-override when V2 exists"
-      ]
-    },
-    "ux_authority_closure": {
-      "owner": "tests/contracts/ux-authority-closure-smoke.mjs",
-      "owns": [
-        "Overview Experience V2 semantic parity",
-        "vehicle profile-family visual identity safety",
-        "charger persisted-V2 visual precedence over instance aliases",
-        "canonical readback required for UX property writes"
-      ]
-    }
+  "active_owners": {
+    "architecture_boundary": "tools/check-architecture.mjs",
+    "release_identity": "tools/check-release-governance.mjs",
+    "package_version_projection": "tools/check-version.mjs",
+    "source_structure": "tools/check-source-ownership.mjs",
+    "asset_package": "tools/check-asset-policy.mjs",
+    "hacs_package": "tools/check-hacs-package.mjs",
+    "branding": "tools/check-branding.mjs",
+    "footer": "tools/check-footer.mjs",
+    "runtime_contract": "tests/contracts/runtime-contract-smoke.mjs",
+    "command_contract": "tests/contracts/command-placement-smoke.mjs",
+    "configuration_writes": "tests/contracts/configuration-editables-smoke.mjs",
+    "authoritative_readback": "tests/contracts/write-readback-only-smoke.mjs",
+    "supervision": "tests/contracts/supervisor-authority-smoke.mjs",
+    "energy_planning_projection": "tests/contracts/energy-planning-projection-smoke.mjs",
+    "energy_insights_projection": "tests/contracts/energy-mobility-insights-projection-smoke.mjs",
+    "energy_strategy_projection": "tests/contracts/energy-mobility-strategy-projection-smoke.mjs",
+    "canonical_asset_projection": "tests/contracts/canonical-projection-authority-smoke.mjs",
+    "vehicle_management": "tests/contracts/vehicle-management-smoke.mjs",
+    "charger_materialization": "tests/view-models/charger-materialization.mjs",
+    "charger_availability": "tests/view-models/charger-overview-availability.mjs",
+    "v2_property_placement": "tests/view-models/v2-property-placement.mjs",
+    "picker_session": "tests/contracts/picker-session-smoke.mjs",
+    "interaction_state": "tests/contracts/interaction-state-preservation-smoke.mjs"
+  },
+  "policy": {
+    "source_inspection": "negative_architecture_boundaries_only",
+    "positive_implementation_shape_tests": "forbidden_in_active_release_gate",
+    "historical_smoke_tests": "may_remain_for_forensics_but_are_not_release_authority"
   }
 }
