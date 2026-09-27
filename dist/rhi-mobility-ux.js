@@ -8033,7 +8033,7 @@ window.customCards.push({
 
 class HomeBrainMobilityDashboardCard extends HTMLElement {
   setConfig(config) {
-    this.config = { dashboard_path: hbMobilityPath("/dashboard"), ...config };
+    this.config = { dashboard_path: "/mobility-supervisor/dashboard", ...config };
     if (!this.shadowRoot) this.attachShadow({ mode: "open" });
     this._sent = this._sent || new Map();
     this._selectedChargers = this._selectedChargers || new Map();
@@ -10636,13 +10636,13 @@ window.customCards.push({
 class HomeBrainMobilityAssetDetailCard extends HTMLElement {
   constructor() {
     super();
-    this.config = { dashboard_path: hbMobilityPath("/dashboard") };
+    this.config = { dashboard_path: "/mobility-supervisor/dashboard" };
     if (!this.shadowRoot) this.attachShadow({ mode: "open" });
     this._lastSignature = "";
   }
 
   setConfig(config = {}) {
-    this.config = { dashboard_path: hbMobilityPath("/dashboard"), ...(config || {}) };
+    this.config = { dashboard_path: "/mobility-supervisor/dashboard", ...(config || {}) };
     if (!this.shadowRoot) this.attachShadow({ mode: "open" });
     this._lastSignature = "";
   }
@@ -10945,7 +10945,7 @@ ${hbMobilitySharedShellStyles()}
     if (sig !== this._lastSignature) {
       this._lastSignature = sig;
       const model = adapter.build();
-      model.backPath = this.config.dashboard_path || hbMobilityPath("/dashboard");
+      model.backPath = this.config.dashboard_path || "/mobility-supervisor/dashboard";
       model.backLabel = "← Back to Dashboard";
       new HomeBrainAssetShell(this.shadowRoot, rt).render(model);
     }
