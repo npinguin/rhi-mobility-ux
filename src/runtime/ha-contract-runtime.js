@@ -13,7 +13,7 @@ class HomeBrainAssetRuntime {
 
   registerCrossDomainNavigation() {
     if (typeof rhiUxRegisterDomainNavigation !== "function") return false;
-    const template = this.assetDetailRoute("__RHI_ASSET_ID__");
+    const template = this.assetDetailRoute("{asset_id}");
     return rhiUxRegisterDomainNavigation({
       domain: "rhi_mobility",
       assetDetailTemplate: template
