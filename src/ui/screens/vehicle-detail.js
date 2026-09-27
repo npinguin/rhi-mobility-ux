@@ -8,7 +8,7 @@ class HomeBrainVehicleAssetDetailCard extends HTMLElement {
       fallback_profile: "Vehicle",
       fallback_image: rhiMobilityAssetUrl("vehicles/vehicle_fallback.png"),
       image_base: "",
-      dashboard_path: "/mobility-supervisor/dashboard",
+      dashboard_path: hbMobilityPath("/dashboard"),
       resource_version: UX_VERSION,
       ...config
     };
