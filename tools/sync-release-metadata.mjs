@@ -29,6 +29,7 @@ compat.mobility_contract={
   tested_backend_releases:[product.tested_backend],
   required_contracts:[...(product.required_contracts||[])]
 };
+compat.ux_core={...(product.ux_core||{}),runtime_dependency:false};
 writeJson('COMPATIBILITY.json',compat);
 
 const manifest=readJson('RELEASE_MANIFEST.json');
@@ -49,6 +50,7 @@ Object.assign(manifest,{
   release_asset_policy:product.release_asset_policy,
   required_contracts:[...(product.required_contracts||[])]
 });
+manifest.ux_core={...(product.ux_core||{}),runtime_dependency:false};
 writeJson('RELEASE_MANIFEST.json',manifest);
 
 const status=readJson('release/RELEASE_STATUS.json');
@@ -61,6 +63,7 @@ Object.assign(status,{
   tested_backend:product.tested_backend,
   required_contracts:[...(product.required_contracts||[])]
 });
+status.ux_core={...(product.ux_core||{}),runtime_dependency:false};
 writeJson('release/RELEASE_STATUS.json',status);
 
 const q=readJson('release/QUALIFICATION.json');
