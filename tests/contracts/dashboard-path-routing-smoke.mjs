@@ -15,8 +15,7 @@ const sandbox = {
   String,
 };
 vm.createContext(sandbox);
-const helperSource = nav.slice(0, nav.indexOf("const HB_MOBILITY_MODULES"));
-vm.runInContext(helperSource, sandbox);
+vm.runInContext(nav, sandbox);
 
 assert.equal(sandbox.hbMobilityDashboardBase("/robotix-mobility/overview"), "/robotix-mobility");
 assert.equal(sandbox.hbMobilityDashboardBase("/robotix-mobility/0"), "/robotix-mobility");
