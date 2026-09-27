@@ -4,5 +4,6 @@
   "source_repository": "npinguin/rhi-ux-core",
   "source_commit": "26629d0eb8b64c3928c9db7ee7c3c44e64de476f",
   "runtime_dependency": false,
-  "branding_owner": "rhi-ux-core"
+  "branding_owner": "rhi-ux-core",
+  "artifact_sha256": "4bc8723afbc277e6b285d5e44df375537fe8ac8722a321c718736aba30eff8e7"
 }
