@@ -35,14 +35,14 @@ Read in this order:
 
 ## Brand delivery authority
 
-- `src/assets/branding/company-logo.svg` is the canonical artwork source.
+- RHI UX Core is the canonical company-brand authority; `src/assets/branding/company-logo.svg` is the pinned vendored/package copy used for this immutable Mobility artifact.
 - The build injects that canonical SVG into the runtime bundle; source code must not contain a second copy of the artwork.
 - Branding tests own artwork/delivery. Footer, navigation and layout tests must not re-test the delivery mechanism.
 
 ## Shared shell and brand authority
 
 - Mobility uses the same two-level header hierarchy and company-brand slot contract as Energy.
-- Canonical company mark: `src/assets/branding/company-logo.svg`.
+- Canonical company mark authority: RHI UX Core. The local `src/assets/branding/company-logo.svg` is a build-time vendored copy pinned by `src/vendor/RHI_UX_CORE.json`.
 - The build mirrors the canonical `src/assets/` tree into `dist/assets/` and injects the same canonical SVG into the JS runtime bundle for HACS-safe delivery.
 - Compact gray secondary-navigation icons are presentation metadata only; routes and backend ownership are unchanged.
 - Do not redraw, recolour, filter, crop or replace the company mark locally.
@@ -126,7 +126,7 @@ branch
    → HACS validation
 → squash merge
 → Publish HACS verifies the complete committed dist package and creates/verifies the immutable tag (no rebuild)
-→ GitHub Release attaches evidence only; no JS release asset
+→ GitHub Release contains release notes only and zero release assets
 → immutable HACS-visible TEST CANDIDATE
 → target HA runtime + rollback proof
 → update release/QUALIFICATION.json with PASS + exact candidate SHA
