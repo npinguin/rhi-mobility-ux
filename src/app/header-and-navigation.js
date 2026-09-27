@@ -37,7 +37,7 @@ const HB_MOBILITY_NAV_ITEMS = HB_MOBILITY_MODULES.flatMap(module =>
 );
 
 function hbMobilityPath(path = "", configuredBase = "") {
-  const suffix = `/${String(path || "").replace(/^\\/+/, "")}`;
+  const suffix = `/${String(path || "").replace(/^\/+/, "")}`;
   const root = hbMobilityDashboardBase(configuredBase || window.location?.pathname || "") || "/mobility-supervisor";
   return `${root}${suffix}`;
 }
