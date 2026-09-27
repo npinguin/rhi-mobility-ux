@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import crypto from 'node:crypto';
+import { buildMobilityVisualManifest } from './visual-manifest.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const readJson = (rel) => JSON.parse(fs.readFileSync(path.join(root, rel), 'utf8'));
@@ -48,6 +49,11 @@ const assetCategories = fs.readdirSync(assetSource, { withFileTypes: true })
 for (const category of assetCategories) {
   fs.cpSync(path.join(assetSource, category), path.join(assetDist, category), { recursive: true });
 }
+
+const visualManifest=buildMobilityVisualManifest(root,pkg.version);
+const visualManifestDir=path.join(assetDist,'metadata');
+fs.mkdirSync(visualManifestDir,{recursive:true});
+fs.writeFileSync(path.join(visualManifestDir,'mobility-visual-manifest.json'),JSON.stringify(visualManifest,null,2)+'\n');
 
 function packageFiles(dir, base = dir) {
   const rows = [];
