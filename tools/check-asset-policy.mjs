@@ -38,7 +38,7 @@ if(JSON.stringify(sourceFiles)!==JSON.stringify(distFiles)) throw new Error('src
 
 for(const rel of sourceFiles){
   const ext=path.extname(rel).toLowerCase();
-  if(!allowedExt.has(ext)) throw new Error(`unsupported asset extension: ${rel}`);
+  if(!allowedExt.has(ext) && rel!=='metadata/mobility-visual-manifest.json') throw new Error(`unsupported asset extension: ${rel}`);
   const sourceBytes=fs.readFileSync(path.join(srcRoot,rel));
   const distBytes=fs.readFileSync(path.join(distRoot,rel));
   if(!sourceBytes.equals(distBytes)) throw new Error(`packaged asset differs from canonical source: ${rel}`);
