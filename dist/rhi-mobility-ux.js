@@ -1,5 +1,5 @@
 /**
- * Robotix Home Intelligence Mobility UX v1.0.0-rc.66
+ * Robotix Home Intelligence Mobility UX v1.0.0-rc.67
  * GENERATED FILE - DO NOT EDIT.
  * License: GPL-3.0-only
  */
@@ -566,7 +566,7 @@ function hbMobilityPresentationStyles() {
 // ---- src/app/header-and-navigation.js ----
 // Mobility presentation adapter onto the shared RHI UX Core.
 // Domain semantics remain owned by Mobility runtime/projections.
-const UX_VERSION = "1.0.0-rc.66";
+const UX_VERSION = "1.0.0-rc.67";
 const HB_MOBILITY_BASE_PATH = "/mobility-supervisor";
 
 const HB_MOBILITY_MODULES = Object.freeze([
