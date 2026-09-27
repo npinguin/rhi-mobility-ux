@@ -1,7 +1,20 @@
 // Mobility presentation adapter onto the shared RHI UX Core.
 // Domain semantics remain owned by Mobility runtime/projections.
 const UX_VERSION = "__RHI_UX_VERSION__";
-const HB_MOBILITY_BASE_PATH = "/mobility-supervisor";
+const HB_MOBILITY_ROUTE_SEGMENTS = new Set([
+  "overview","dashboard","vehicles","charger-maintenance","chargers",
+  "planning","strategies","history","log","asset-detail","detail","charging"
+]);
+
+function hbMobilityDashboardBase(pathname = "") {
+  const raw = String(pathname || window.location?.pathname || "")
+    .split("?")[0].split("#")[0].replace(/\/+$/, "");
+  const parts = raw.split("/").filter(Boolean);
+  if (!parts.length) return "";
+  const last = String(parts[parts.length - 1] || "").toLowerCase();
+  if (HB_MOBILITY_ROUTE_SEGMENTS.has(last) || /^\d+$/.test(last)) parts.pop();
+  return parts.length ? `/${parts.join("/")}` : "";
+}
 
 const HB_MOBILITY_MODULES = Object.freeze([
   { key:"mobility", label:"Mobility", path:"/overview", items:[
@@ -23,8 +36,10 @@ const HB_MOBILITY_NAV_ITEMS = HB_MOBILITY_MODULES.flatMap(module =>
   module.items.map(item => ({ ...item, module:module.key }))
 );
 
-function hbMobilityPath(path) {
-  return `${HB_MOBILITY_BASE_PATH}${path}`;
+function hbMobilityPath(path = "", configuredBase = "") {
+  const suffix = `/${String(path || "").replace(/^\\/+/, "")}`;
+  const root = hbMobilityDashboardBase(configuredBase || window.location?.pathname || "") || "/mobility-supervisor";
+  return `${root}${suffix}`;
 }
 
 function hbMobilityModuleFor(active = "overview") {
@@ -32,25 +47,25 @@ function hbMobilityModuleFor(active = "overview") {
   return HB_MOBILITY_MODULES.find(module => module.key === (item?.module || active)) || HB_MOBILITY_MODULES[0];
 }
 
-function hbMobilityCoreModules() {
+function hbMobilityCoreModules(configuredBase = "") {
   return HB_MOBILITY_MODULES.map(module => ({
     id:module.key,
     label:module.label,
-    target:hbMobilityPath(module.path),
+    target:hbMobilityPath(module.path, configuredBase),
     items:module.items.map(item => ({
       id:item.key,
       label:item.label,
-      target:hbMobilityPath(item.path)
+      target:hbMobilityPath(item.path, configuredBase)
     }))
   }));
 }
 
-function hbMobilityNav(active = "overview") {
+function hbMobilityNav(active = "overview", configuredBase = "") {
   const module=hbMobilityModuleFor(active);
   return `<div class="rhiMobilityNav rhiMobilityNav-${rhiUxEscape(module.key)}">${rhiUxDomainShell({
     product:"Home Intelligence",
     domain:"MOBILITY",
-    modules:hbMobilityCoreModules(),
+    modules:hbMobilityCoreModules(configuredBase),
     activeModule:module.key,
     activeItem:active
   })}<style>${hbMobilitySharedShellStyles()}</style></div>`;
