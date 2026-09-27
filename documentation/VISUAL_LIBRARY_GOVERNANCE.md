@@ -94,3 +94,26 @@ Overview, management, detail and relationship/assigned-object visuals all consum
 ## Future domains
 
 Energy and later domains may reuse this pattern by adding domain-specific catalogs and thin adapters. Do not create a generic cross-domain semantic framework: reuse the presentation primitives and governance, while domain truth remains owned by each backend domain.
+
+
+## Cross-domain visual registration
+
+Mobility is the semantic owner of Mobility `visual_ref` values and registers its bounded visual catalog with the Foundation visual registry at boot.
+
+Cross-domain consumers must treat those refs as opaque producer-owned identity. A consuming domain or UX must not recreate Mobility product knowledge through brand/model switches, image-key aliases, asset-id/display-name inference, or `visual_ref → file` tables.
+
+The required cross-domain flow is:
+
+```text
+Mobility semantic asset
+→ Mobility visual_ref assignment
+→ Foundation visual registry validation/publication
+→ consumer preserves visual_ref losslessly
+→ generic registry-driven rendering
+```
+
+Adding a new Mobility vehicle or charger visual must require zero product-specific source changes in Energy or any other consumer domain.
+
+If a ref cannot be validated or rendered, consumers must use a neutral unknown/generic visual. They must never substitute another real Mobility model.
+
+This rule is tracked as shared-governance work in Foundation issue #49 / proposed ADR-013.
