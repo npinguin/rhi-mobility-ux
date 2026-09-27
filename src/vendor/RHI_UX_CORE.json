@@ -1,8 +1,8 @@
 {
   "package": "@robotix/rhi-ux-core",
-  "version": "1.4.1",
+  "version": "1.5.1",
   "source_repository": "npinguin/rhi-ux-core",
-  "source_commit": "7e035980b690719ff9c05876e905322194d52df2",
+  "source_commit": "bb275767d9e9672713c00b9e8bd9fde13b9b5962",
   "runtime_dependency": false,
   "branding_owner": "rhi-ux-core"
 }
