@@ -78,7 +78,7 @@ Legacy source baseline: `R22.12.11.30`. The original package checksum and exact 
 
 ## Shared company branding
 
-The canonical company mark is `src/assets/branding/company-logo.svg`. The build mirrors the canonical asset tree into `dist/assets/` and injects the same SVG into the JS runtime bundle for HACS-safe delivery. Header sizing is independently owned by the shared `--rhi-company-*` layout tokens. See `documentation/BRANDING.md`.
+The canonical company mark is owned by RHI UX Core. `src/assets/branding/company-logo.svg` is a vendored/package copy pinned to the Core provenance in `src/vendor/RHI_UX_CORE.json`; it is not a second branding authority. The build mirrors this packaged copy into `dist/assets/` and injects the same SVG into the JS runtime bundle for HACS-safe delivery. Header sizing is independently owned by the shared `--rhi-company-*` layout tokens. See `documentation/BRANDING.md`.
 
 ## Candidate visibility and footer
 
