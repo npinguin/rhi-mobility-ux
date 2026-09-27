@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "product": "rhi-mobility-ux",
-  "version": "1.0.0-rc.66",
+  "version": "1.0.0-rc.67",
   "source_manifest_schema": 1,
   "hacs_package_root": "dist",
   "hacs_filename": "rhi-mobility-ux.js",
@@ -11,7 +11,7 @@
     "heroes",
     "vehicles"
   ],
-  "runtime_sha256": "f938ac8dea2d3bae39a8a731b26a335e41c12327bf1d73fda43856f373113701",
+  "runtime_sha256": "ddf433bb2ff328fb9f62cedfedd5982c6e09eee9e7c28d94eefb4221225c56f0",
   "files": [
     {
       "path": "assets/chargers/charger_fallback.png",
@@ -68,6 +68,10 @@
     {
       "path": "assets/heroes/mobility-vehicles.png",
       "bytes": 2280184
+    },
+    {
+      "path": "assets/metadata/mobility-visual-manifest.json",
+      "bytes": 14915
     },
     {
       "path": "assets/vehicles/vehicle_audi_q8.webp",
