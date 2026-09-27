@@ -3,7 +3,7 @@
 
 class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
   setConfig(config) {
-    this.config = { dashboard_path: "/mobility-supervisor/dashboard", ...config };
+    this.config = { dashboard_path: hbMobilityPath("/dashboard"), ...config };
     if (!this.shadowRoot) this.attachShadow({ mode: "open" });
     this._commandFeedback = this._commandFeedback || new Map();
     this._openPanels = this._openPanels || new Set();

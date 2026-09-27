@@ -965,8 +965,12 @@ class HomeBrainAssetRuntime {
   assetDetailRoute(entryOrAssetId) {
     const assetId = typeof entryOrAssetId === "string" ? entryOrAssetId : entryOrAssetId?.asset_id;
     if (!assetId) return "";
-    const dashboardPath = this.config.dashboard_path || "/mobility-supervisor/dashboard";
-    const base = String(dashboardPath).replace(/\/?dashboard\/?$/, "").replace(/\/$/, "") || "/mobility-supervisor";
+    if (this.config?.bootstrap_mode === true) {
+      const basePath = String(this.config?.bootstrap_path || window.location?.pathname || "").trim() || window.location.pathname;
+      return `${basePath}?mobility_view=detail&asset=${encodeURIComponent(assetId)}#asset=${encodeURIComponent(assetId)}`;
+    }
+    const configured = String(this.config?.dashboard_path || "").trim();
+    const base = hbMobilityDashboardBase(configured || window.location?.pathname || "") || "/mobility-supervisor";
     return `${base}/asset-detail?asset=${encodeURIComponent(assetId)}#asset=${encodeURIComponent(assetId)}`;
   }
 

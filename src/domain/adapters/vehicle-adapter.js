@@ -236,7 +236,7 @@ class HomeBrainVehicleAdapter {
       chargerImage:this.rt.cache(this.chargerImage(chargerContextId)), chargerFallbackImage:this.rt.cache(this.rt.assetUrl("chargers/charger_fallback.png")),
       chargerDisplay, chargerDetailRoute,
       projection,
-      backPath:this.config.dashboard_path || "/mobility-supervisor/dashboard", backLabel:this.config.back_label || "← Back to Dashboard", detailRoute:this.rt.detailRoute(reg), lifecycle, registryEntry:reg,
+      backPath:this.config.dashboard_path || hbMobilityPath("/dashboard"), backLabel:this.config.back_label || "← Back to Dashboard", detailRoute:this.rt.detailRoute(reg), lifecycle, registryEntry:reg,
       breadcrumb:["Home", "Vehicles", display],
       status:headerStatus,
       actions,

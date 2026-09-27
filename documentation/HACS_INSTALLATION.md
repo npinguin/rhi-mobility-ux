@@ -31,7 +31,7 @@ views:
 
 The same YAML is available as `documentation/homebrain_mobility.bootstrap.yaml`.
 
-The bootstrap card internally routes Overview, Vehicles, Chargers, Planning, Strategies, History, Log and asset detail while keeping the Lovelace path on the single `overview` view. Internal state is stored in the query string as `?mobility_view=...`, so refresh and browser history remain meaningful.
+The bootstrap card internally routes Overview, Vehicles, Chargers, Planning, Strategies, History, Log and asset detail while keeping the current mounted Lovelace view. Internal state is stored in the query string as `?mobility_view=...`, so refresh and browser history remain meaningful. The dashboard URL is deployment-specific and may be chosen freely.
 
 ### Backward compatibility
 
@@ -55,8 +55,8 @@ Existing installations do not need to migrate immediately. `documentation/homebr
 The HACS bundle keeps the current custom card names and dashboard routes. The existing dashboard YAML can therefore be migrated without redesigning the dashboard.
 
 Important:
-- the dashboard URL/path must remain `mobility-supervisor`, because internal navigation uses `/mobility-supervisor/...`;
-- `/mobility-supervisor/dashboard` remains the legacy **Vehicles** route for backward compatibility; the new Overview is `/mobility-supervisor/overview`;
+- the dashboard URL/path may be chosen freely; runtime navigation derives the dashboard root from the mounted Home Assistant path;
+- on the legacy `mobility-supervisor` dashboard, `/mobility-supervisor/dashboard` and `/mobility-supervisor/overview` remain backward-compatible routes; another dashboard root gets the equivalent relative routes;
 - HACS installs/updates the plugin resource only; it does **not** create or migrate the Lovelace dashboard structure. Apply the complete dashboard YAML below when installing this candidate;
 - only Overview remains a visible Lovelace tab; Vehicles, Chargers, Charging, Planning, Strategies, History and Log are internal `subview: true` routes navigated from the RHI Mobility shell;
 - remove the legacy `resource_version: 'R22.12.11.30'` entries so the HACS bundle version owns cache busting;
@@ -75,7 +75,7 @@ views:
     panel: true
     cards:
       - type: custom:homebrain-mobility-dashboard-card
-        dashboard_path: /mobility-supervisor/dashboard
+        # dashboard_path is optional; omit it for path-relative routing
         nav_active: overview
         contract_mode: external_only
         outcome_renderer: shared_asset_outcome
@@ -89,7 +89,7 @@ views:
     panel: true
     cards:
       - type: custom:homebrain-mobility-dashboard-card
-        dashboard_path: /mobility-supervisor/dashboard
+        # dashboard_path is optional; omit it for path-relative routing
         nav_active: vehicles
         contract_mode: external_only
         outcome_renderer: shared_asset_outcome
@@ -104,7 +104,7 @@ views:
     panel: true
     cards:
       - type: custom:homebrain-mobility-asset-detail-card
-        dashboard_path: /mobility-supervisor/dashboard
+        # dashboard_path is optional; omit it for path-relative routing
         contract_mode: external_only
         show_contract_inspector: true
         show_widget_contract_trace: true
@@ -119,7 +119,7 @@ views:
     panel: true
     cards:
       - type: custom:homebrain-mobility-charger-maintenance-card
-        dashboard_path: /mobility-supervisor/dashboard
+        # dashboard_path is optional; omit it for path-relative routing
         nav_active: chargers
         contract_mode: external_only
         show_contract_inspector: true
@@ -171,13 +171,9 @@ The same YAML is available as `documentation/homebrain_mobility.hacs.yaml`.
 5. Save and hard-refresh the browser.
 6. Verify:
    - the Lovelace top bar shows only the Mobility Overview entry; internal Mobility routes do not appear as duplicate top tabs;
-   - `/mobility-supervisor/dashboard` renders the existing Vehicles screen;
-   - `/mobility-supervisor/overview` renders the new Overview screen;
-   - vehicle detail navigation opens `/mobility-supervisor/asset-detail?asset=...`;
-   - `/mobility-supervisor/charger-maintenance` renders Chargers;
-   - `/mobility-supervisor/charging` renders Charging;
-   - `/mobility-supervisor/planning` and `/strategies` render Intelligence screens;
-   - `/mobility-supervisor/history` and `/log` render Insights screens;
+   - the chosen dashboard root keeps Overview and Vehicles navigation inside itself;
+   - vehicle and charger detail navigation stays under the chosen dashboard root;
+   - Chargers, Planning, Strategies, History and Log all stay under that same root;
    - charger detail navigation works;
    - packaged images load from `/hacsfiles/rhi-mobility-ux/assets/...`;\n   - `/hacsfiles/rhi-mobility-ux/assets/vehicles/...` and `/assets/chargers/...` are physically present after install;
    - the footer reports the installed Mobility UX version;

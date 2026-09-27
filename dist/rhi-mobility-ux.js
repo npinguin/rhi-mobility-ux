@@ -1,5 +1,5 @@
 /**
- * Robotix Home Intelligence Mobility UX v1.0.0-rc.67
+ * Robotix Home Intelligence Mobility UX v1.0.0-rc.68
  * GENERATED FILE - DO NOT EDIT.
  * License: GPL-3.0-only
  */
@@ -566,8 +566,21 @@ function hbMobilityPresentationStyles() {
 // ---- src/app/header-and-navigation.js ----
 // Mobility presentation adapter onto the shared RHI UX Core.
 // Domain semantics remain owned by Mobility runtime/projections.
-const UX_VERSION = "1.0.0-rc.67";
-const HB_MOBILITY_BASE_PATH = "/mobility-supervisor";
+const UX_VERSION = "1.0.0-rc.68";
+const HB_MOBILITY_ROUTE_SEGMENTS = new Set([
+  "overview","dashboard","vehicles","charger-maintenance","chargers",
+  "planning","strategies","history","log","asset-detail","detail","charging"
+]);
+
+function hbMobilityDashboardBase(pathname = "") {
+  const raw = String(pathname || window.location?.pathname || "")
+    .split("?")[0].split("#")[0].replace(/\/+$/, "");
+  const parts = raw.split("/").filter(Boolean);
+  if (!parts.length) return "";
+  const last = String(parts[parts.length - 1] || "").toLowerCase();
+  if (HB_MOBILITY_ROUTE_SEGMENTS.has(last) || /^\d+$/.test(last)) parts.pop();
+  return parts.length ? `/${parts.join("/")}` : "";
+}
 
 const HB_MOBILITY_MODULES = Object.freeze([
   { key:"mobility", label:"Mobility", path:"/overview", items:[
@@ -589,8 +602,10 @@ const HB_MOBILITY_NAV_ITEMS = HB_MOBILITY_MODULES.flatMap(module =>
   module.items.map(item => ({ ...item, module:module.key }))
 );
 
-function hbMobilityPath(path) {
-  return `${HB_MOBILITY_BASE_PATH}${path}`;
+function hbMobilityPath(path = "", configuredBase = "") {
+  const suffix = `/${String(path || "").replace(/^\/+/, "")}`;
+  const root = hbMobilityDashboardBase(configuredBase || window.location?.pathname || "") || "/mobility-supervisor";
+  return `${root}${suffix}`;
 }
 
 function hbMobilityModuleFor(active = "overview") {
@@ -598,25 +613,25 @@ function hbMobilityModuleFor(active = "overview") {
   return HB_MOBILITY_MODULES.find(module => module.key === (item?.module || active)) || HB_MOBILITY_MODULES[0];
 }
 
-function hbMobilityCoreModules() {
+function hbMobilityCoreModules(configuredBase = "") {
   return HB_MOBILITY_MODULES.map(module => ({
     id:module.key,
     label:module.label,
-    target:hbMobilityPath(module.path),
+    target:hbMobilityPath(module.path, configuredBase),
     items:module.items.map(item => ({
       id:item.key,
       label:item.label,
-      target:hbMobilityPath(item.path)
+      target:hbMobilityPath(item.path, configuredBase)
     }))
   }));
 }
 
-function hbMobilityNav(active = "overview") {
+function hbMobilityNav(active = "overview", configuredBase = "") {
   const module=hbMobilityModuleFor(active);
   return `<div class="rhiMobilityNav rhiMobilityNav-${rhiUxEscape(module.key)}">${rhiUxDomainShell({
     product:"Home Intelligence",
     domain:"MOBILITY",
-    modules:hbMobilityCoreModules(),
+    modules:hbMobilityCoreModules(configuredBase),
     activeModule:module.key,
     activeItem:active
   })}<style>${hbMobilitySharedShellStyles()}</style></div>`;
@@ -1768,8 +1783,12 @@ class HomeBrainAssetRuntime {
   assetDetailRoute(entryOrAssetId) {
     const assetId = typeof entryOrAssetId === "string" ? entryOrAssetId : entryOrAssetId?.asset_id;
     if (!assetId) return "";
-    const dashboardPath = this.config.dashboard_path || "/mobility-supervisor/dashboard";
-    const base = String(dashboardPath).replace(/\/?dashboard\/?$/, "").replace(/\/$/, "") || "/mobility-supervisor";
+    if (this.config?.bootstrap_mode === true) {
+      const basePath = String(this.config?.bootstrap_path || window.location?.pathname || "").trim() || window.location.pathname;
+      return `${basePath}?mobility_view=detail&asset=${encodeURIComponent(assetId)}#asset=${encodeURIComponent(assetId)}`;
+    }
+    const configured = String(this.config?.dashboard_path || "").trim();
+    const base = hbMobilityDashboardBase(configured || window.location?.pathname || "") || "/mobility-supervisor";
     return `${base}/asset-detail?asset=${encodeURIComponent(assetId)}#asset=${encodeURIComponent(assetId)}`;
   }
 
@@ -5708,7 +5727,7 @@ class HomeBrainVehicleAdapter {
       chargerImage:this.rt.cache(this.chargerImage(chargerContextId)), chargerFallbackImage:this.rt.cache(this.rt.assetUrl("chargers/charger_fallback.png")),
       chargerDisplay, chargerDetailRoute,
       projection,
-      backPath:this.config.dashboard_path || "/mobility-supervisor/dashboard", backLabel:this.config.back_label || "← Back to Dashboard", detailRoute:this.rt.detailRoute(reg), lifecycle, registryEntry:reg,
+      backPath:this.config.dashboard_path || hbMobilityPath("/dashboard"), backLabel:this.config.back_label || "← Back to Dashboard", detailRoute:this.rt.detailRoute(reg), lifecycle, registryEntry:reg,
       breadcrumb:["Home", "Vehicles", display],
       status:headerStatus,
       actions,
@@ -5943,7 +5962,7 @@ class HomeBrainChargerAdapter {
       type:"charger", id, present:available, display:name, subtitle:profile, readiness:status, iconHero:iconMap[id] || "mdi:ev-station",
       image:this.rt.cache(this.chargerImageFromId()), fallbackImage:this.rt.cache(this.rt.assetUrl("chargers/charger_fallback.png")), imageOpacity:available ? 1 : 0.34, imageGray:available ? 0 : 0.25,
       visualKey:visual?.key || "", visualProduct:visual?.charger || null, visualAppearance:visual?.appearance || null,
-      backPath:this.config.dashboard_path || "/mobility-supervisor/dashboard", backLabel:this.config.back_label || "← Back to Dashboard", detailRoute:this.rt.detailRoute(reg), lifecycle, registryEntry:reg, breadcrumb:["Home","Chargers",name],
+      backPath:this.config.dashboard_path || hbMobilityPath("/dashboard"), backLabel:this.config.back_label || "← Back to Dashboard", detailRoute:this.rt.detailRoute(reg), lifecycle, registryEntry:reg, breadcrumb:["Home","Chargers",name],
       status:headerStatus,
       projection,
       actions:projection.commands.map((cmd,index)=>({ label:cmd.label || this.rt.titleize(cmd.command_id || cmd.command_key), icon:this.rt.commandIcon(cmd), entity:cmd.intent_entity, command:cmd, primary:index === 0, hide:cmd.frontend_allowed === false })),
@@ -7066,7 +7085,7 @@ class HomeBrainVehicleAssetDetailCard extends HTMLElement {
       fallback_profile: "Vehicle",
       fallback_image: rhiMobilityAssetUrl("vehicles/vehicle_fallback.png"),
       image_base: "",
-      dashboard_path: "/mobility-supervisor/dashboard",
+      dashboard_path: hbMobilityPath("/dashboard"),
       resource_version: UX_VERSION,
       ...config
     };
@@ -7106,7 +7125,7 @@ class HomeBrainChargerAssetDetailCard extends HTMLElement {
       fallback_profile: "EV Charger",
       fallback_location: "Home",
       image_base: "",
-      dashboard_path: "/mobility-supervisor/dashboard",
+      dashboard_path: hbMobilityPath("/dashboard"),
       resource_version: UX_VERSION,
       ...config
     };
@@ -7175,7 +7194,7 @@ console.info(`Home Intelligence Mobility UX bundle loaded ${UX_VERSION}; backend
 
 class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
   setConfig(config) {
-    this.config = { dashboard_path: "/mobility-supervisor/dashboard", ...config };
+    this.config = { dashboard_path: hbMobilityPath("/dashboard"), ...config };
     if (!this.shadowRoot) this.attachShadow({ mode: "open" });
     this._commandFeedback = this._commandFeedback || new Map();
     this._openPanels = this._openPanels || new Set();
