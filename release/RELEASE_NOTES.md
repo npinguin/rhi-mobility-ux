@@ -1,23 +1,23 @@
-# v1.0.0-rc.68 — path-relative dashboard routing and install UX TEST CANDIDATE
+# v1.0.0-rc.69 — Core 1.5.1 and producer-owned cross-domain navigation TEST CANDIDATE
 
-Mobility can now be mounted under the Home Assistant dashboard URL chosen by the user instead of depending on the legacy `/mobility-supervisor` root.
+Mobility now consumes the current RHI UX Core 1.5.1 baseline and registers its asset-detail route generically for optional cross-domain navigation.
 
 ## User-facing changes
 
-- derives Mobility navigation from the dashboard where the card is mounted;
-- keeps Overview, Vehicles, Chargers, Planning, Strategies, History, Log and asset detail inside a custom dashboard root such as `/robotix-mobility`;
-- preserves the one-card bootstrap query routing and browser refresh/history behavior;
-- keeps explicit `dashboard_path` / bootstrap configuration available for legacy or advanced layouts;
-- keeps HACS resources and packaged visual assets under `/hacsfiles/rhi-mobility-ux/...` independently of the dashboard URL;
-- fixes the README hero image and aligns first-time HACS/dashboard instructions with the clearer Energy installation flow.
+- existing Overview, Vehicles, Chargers, Planning, Strategies, History and Log tabs remain unchanged;
+- asset detail routing remains path-relative to the dashboard where Mobility is mounted;
+- another RHI UX can optionally open a Mobility-owned asset without hardcoding the Mobility dashboard root;
+- custom dashboard roots and one-card bootstrap routing remain supported.
 
 ## Engineering
 
-- removes the fixed `/mobility-supervisor` navigation authority from shared navigation and detail-card defaults;
-- centralizes dashboard-root resolution in the Mobility presentation adapter;
-- adds regression coverage for custom dashboard roots, numeric Lovelace view paths and legacy compatibility;
-- preserves existing multi-view installations while making the dashboard root deployment-specific.
+- exact RHI UX Core 1.5.1 provenance is pinned and bundled at build time;
+- Mobility registers its current asset-detail template through the shared Core navigation registry;
+- the route template is derived from the existing canonical Mobility route factory;
+- no consumer is allowed to reconstruct Mobility route grammar;
+- adds a blocking generic cross-domain navigation contract test;
+- minimum/tested backend is M0.10.19.
 
-Rollback: **v1.0.0-rc.67**.
+Rollback: **v1.0.0-rc.68**.
 
-This is an installable HACS test candidate. Target Home Assistant path/navigation, refresh, asset-detail, upgrade and rollback proof remain required before stable promotion.
+This is an installable HACS TEST CANDIDATE after repository validation. Target Home Assistant qualification, refresh/restart, upgrade and rollback proof remain required before stable promotion.
