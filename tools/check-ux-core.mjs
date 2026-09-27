@@ -12,6 +12,9 @@ if(!header.includes("rhiUxDomainShell(")) throw new Error("Mobility shell must u
 for(const legacy of [".hi-domain-shell{",".hi-module-tabs{",".hi-module-tab{",".domain-tab{",".hi-company-brand{"]){
   if(header.includes(legacy)) throw new Error("legacy duplicated shell CSS remains: "+legacy);
 }
-for(const invariant of [".rhiUxPageStack>.rhiUxPageHero{order:1}",".rhiUxPageStack>.rhiUxStatusGrid{order:2}",".rhiUxPageStack>.rhiUxQuickActionBar{order:3}"]){\n  if(!vendor.includes(invariant)) throw new Error("missing shared page-stack invariant: "+invariant);\n}\nif(!vendor.includes("function rhiUxCompanyBrand(") || !vendor.includes("Robotix.be") || !vendor.includes("DomotiX · Network · Security")) throw new Error("canonical Core company brand missing");
+for(const invariant of [".rhiUxPageStack>.rhiUxPageHero{order:1}",".rhiUxPageStack>.rhiUxStatusGrid{order:2}",".rhiUxPageStack>.rhiUxQuickActionBar{order:3}"]){
+  if(!vendor.includes(invariant)) throw new Error("missing shared page-stack invariant: "+invariant);
+}
+if(!vendor.includes("function rhiUxCompanyBrand(") || !vendor.includes("Robotix.be") || !vendor.includes("DomotiX · Network · Security")) throw new Error("canonical Core company brand missing");
 if(header.includes("HB_MOBILITY_COMPANY_LOGO") || header.includes("hbMobilityCompanyBrand")) throw new Error("Mobility must not own company branding");
 console.log("PASS Mobility consumes pinned RHI UX Core 1.4.1 including canonical company branding without runtime coupling or duplicate shell");
