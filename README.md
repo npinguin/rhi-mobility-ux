@@ -2,7 +2,7 @@
 
 Public HACS Dashboard/plugin repository for Robotix Home Intelligence Mobility UX.
 
-![Robotix Home Intelligence Mobility UX](dist/assets/vehicles/vehicle_bmw_x1_phev.png)
+![Robotix Home Intelligence Mobility UX](dist/assets/vehicles/vehicle_bmw_x1_phev.webp)
 
 - License: GPL-3.0-only
 - HACS category: Dashboard
@@ -22,13 +22,59 @@ Do not infer the installed HACS version from this README. Check the installed HA
 
 Current candidate identity is intentionally not duplicated in this README. Read `package.json` and `release/product.json`. The Mobility Overview remains contract-driven: Vehicles, Charging now, Chargers and Attention are primary overview truth; vehicle readiness, security, comfort, maintenance and direct actions remain backend-owned.
 
-## HACS installation
+## Install with HACS
 
-Add this repository to HACS as a **Dashboard** custom repository and install the desired published release. The resource is expected at:
+### First-time install
 
-`/hacsfiles/rhi-mobility-ux/rhi-mobility-ux.js`
+1. Open **HACS** → **Custom repositories**.
+2. Add `https://github.com/npinguin/rhi-mobility-ux`.
+3. Select **Dashboard**.
+4. Install the intended published TEST CANDIDATE version shown in GitHub Releases / HACS.
+5. Go to **Settings → Dashboards → Resources**.
+6. Confirm this resource exists as **JavaScript Module**:
 
-See `documentation/HACS_INSTALLATION.md`.
+```text
+/hacsfiles/rhi-mobility-ux/rhi-mobility-ux.js
+```
+
+Do not manually copy JavaScript or artwork to `/config/www` for a normal HACS install.
+
+## Copy-paste dashboard YAML
+
+For a dedicated Mobility dashboard, **Edit dashboard → Raw configuration editor** can use the one-card bootstrap:
+
+```yaml
+views:
+  - title: Mobility
+    path: overview
+    icon: mdi:car-electric
+    type: panel
+    cards:
+      - type: custom:homebrain-mobility-card
+```
+
+The dashboard URL itself is **not fixed**. Name the Home Assistant dashboard as you prefer, for example `robotix-mobility`. Mobility derives navigation from the dashboard where the card is mounted.
+
+If your existing dashboard already has its own view/layout, keep it and use only:
+
+```yaml
+type: custom:homebrain-mobility-card
+```
+
+The single-card bootstrap keeps Overview, Vehicles, Chargers, Planning, Strategies, History, Log and detail navigation inside the mounted Lovelace view while preserving browser history through `?mobility_view=...`.
+
+### Runtime verification
+
+After install/update:
+1. hard-refresh Home Assistant;
+2. open Mobility under the dashboard URL you chose;
+3. verify Overview → Vehicles → Chargers → Planning → Strategies → History → Log;
+4. open a vehicle and charger detail and use Back;
+5. refresh a detail and an internal view;
+6. verify vehicle/charger images load from the HACS package;
+7. confirm the footer reports the installed Mobility UX and backend version.
+
+See `documentation/HACS_INSTALLATION.md` for migration, legacy multi-view compatibility and rollback.
 
 ## Architecture boundary
 
