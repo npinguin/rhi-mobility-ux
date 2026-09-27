@@ -1,23 +1,20 @@
-# v1.0.0-rc.68 — path-relative dashboard routing and install UX TEST CANDIDATE
+# v1.0.0-rc.69 — Core 1.5.1 convergence and producer navigation TEST CANDIDATE
 
-Mobility can now be mounted under the Home Assistant dashboard URL chosen by the user instead of depending on the legacy `/mobility-supervisor` root.
+## User-facing behavior
 
-## User-facing changes
-
-- derives Mobility navigation from the dashboard where the card is mounted;
-- keeps Overview, Vehicles, Chargers, Planning, Strategies, History, Log and asset detail inside a custom dashboard root such as `/robotix-mobility`;
-- preserves the one-card bootstrap query routing and browser refresh/history behavior;
-- keeps explicit `dashboard_path` / bootstrap configuration available for legacy or advanced layouts;
-- keeps HACS resources and packaged visual assets under `/hacsfiles/rhi-mobility-ux/...` independently of the dashboard URL;
-- fixes the README hero image and aligns first-time HACS/dashboard instructions with the clearer Energy installation flow.
+- preserves all existing Mobility tabs: Overview, Vehicles, Chargers, Planning, Strategies, History and Log;
+- preserves asset-detail navigation and arbitrary dashboard-root portability;
+- registers the active Mobility asset-detail route generically so other RHI UX domains can optionally offer “Open in Mobility” without hardcoding a Mobility dashboard path;
+- no new runtime dependency on RHI UX Core.
 
 ## Engineering
 
-- removes the fixed `/mobility-supervisor` navigation authority from shared navigation and detail-card defaults;
-- centralizes dashboard-root resolution in the Mobility presentation adapter;
-- adds regression coverage for custom dashboard roots, numeric Lovelace view paths and legacy compatibility;
-- preserves existing multi-view installations while making the dashboard root deployment-specific.
+- converges Mobility UX from RHI UX Core 1.4.1 to **1.5.1** at source commit `bb275767d9e9672713c00b9e8bd9fde13b9b5962`;
+- requires Mobility backend **M0.10.19+** for producer-owned visual presentation registration;
+- keeps Core build-time vendored only;
+- uses runtime-safe `{asset_id}` navigation templates;
+- keeps existing V2 contract, command, visual and route authority unchanged.
 
-Rollback: **v1.0.0-rc.67**.
+Rollback: **v1.0.0-rc.68**.
 
-This is an installable HACS test candidate. Target Home Assistant path/navigation, refresh, asset-detail, upgrade and rollback proof remain required before stable promotion.
+Target Home Assistant proof remains required for custom dashboard roots, producer navigation registration, asset detail, refresh/restart, upgrade and rollback before stable promotion.
