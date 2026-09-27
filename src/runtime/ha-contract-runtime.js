@@ -8,6 +8,16 @@ class HomeBrainAssetRuntime {
     this.config = config;
     this._cache = HomeBrainAssetRuntime._cache || (HomeBrainAssetRuntime._cache = new Map());
     this._memo = new Map();
+    this.registerCrossDomainNavigation();
+  }
+
+  registerCrossDomainNavigation() {
+    if (typeof rhiUxRegisterDomainNavigation !== "function") return false;
+    const template = this.assetDetailRoute("__RHI_ASSET_ID__");
+    return rhiUxRegisterDomainNavigation({
+      domain: "rhi_mobility",
+      assetDetailTemplate: template
+    });
   }
 
 
