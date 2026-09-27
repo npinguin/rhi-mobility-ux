@@ -93,9 +93,9 @@ class HomeBrainVehicleVisualPicker {
       const color=(row.colors || [])[0] || null;
       const active=row.id===current.vehicle?.id;
       const src=row.package_file || "";
-      return `<button type="button" class="visual-choice-card ${active?"active":""}" data-vehicle-visual-choice="${this.rt.escape(row.id)}" data-choice-brand="${this.rt.escape(row.brand || "")}" data-choice-model="${this.rt.escape(row.model || "")}" data-choice-color="${this.rt.escape(color?.id || "")}" aria-pressed="${active?"true":"false"}">
-        <span class="visual-choice-image">${src ? `<img src="${this.rt.escape((typeof this.rt.cache==='function' ? this.rt.cache(src) : src))}" alt="${this.rt.escape(row.label || row.model || "Vehicle")}" style="filter:${this.rt.escape(active ? (current.color?.filter || "none") : (color?.filter || "none"))}">` : `<ha-icon icon="mdi:car-estate"></ha-icon>`}</span>
-        <span class="visual-choice-copy"><b>${this.rt.escape(row.label || row.model || "Vehicle")}</b><small>${this.rt.escape([row.variant,row.years].filter(Boolean).join(" · "))}</small></span>
+      return `<button type="button" class="rhiUxVisualChoice visual-choice-card ${active?"active":""}" data-vehicle-visual-choice="${this.rt.escape(row.id)}" data-choice-brand="${this.rt.escape(row.brand || "")}" data-choice-model="${this.rt.escape(row.model || "")}" data-choice-color="${this.rt.escape(color?.id || "")}" aria-pressed="${active?"true":"false"}">
+        <span class="rhiUxVisualChoiceImage visual-choice-image">${src ? `<img src="${this.rt.escape((typeof this.rt.cache==='function' ? this.rt.cache(src) : src))}" alt="${this.rt.escape(row.label || row.model || "Vehicle")}" style="filter:${this.rt.escape(active ? (current.color?.filter || "none") : (color?.filter || "none"))}">` : `<ha-icon icon="mdi:car-estate"></ha-icon>`}</span>
+        <span class="rhiUxVisualChoiceCopy visual-choice-copy"><b>${this.rt.escape(row.label || row.model || "Vehicle")}</b><small>${this.rt.escape([row.variant,row.years].filter(Boolean).join(" · "))}</small></span>
         <ha-icon class="visual-choice-check" icon="mdi:check-circle"></ha-icon>
       </button>`;
     }).join("");
@@ -105,14 +105,7 @@ class HomeBrainVehicleVisualPicker {
       ? `<div class="visual-picker-notice"><ha-icon icon="mdi:information-outline"></ha-icon><span>Appearance browsing is available. Apply requires Mobility V2 configuration controls for profile and image.</span></div>`
       : "";
 
-    return `<section class="vehicle-picker-panel visual-picker-panel ${options.context==="detail"?"detail-vehicle-picker":""}" data-picker-panel="${this.rt.escape(assetId)}">
-      <div class="vehicle-picker-head">
-        <div><small>APPEARANCE</small><h3>Choose vehicle & colour</h3><p>Select the real product visually, then refine variant and colour only when needed.</p></div>
-        ${close}
-      </div>
-      <div class="visual-choice-grid" role="listbox" aria-label="Vehicle appearance">${tiles}</div>
-      <div class="vehicle-picker-grid vehicle-picker-hierarchy visual-picker-refine">
-        <label><span>Brand</span><select data-vehicle-picker-brand="${this.rt.escape(assetId)}">
+    const refineHtml=`<label><span>Brand</span><select data-vehicle-picker-brand="${this.rt.escape(assetId)}">
           ${placeholder("Choose brand…",!current.brand)}
           ${brands.map((brand)=>`<option value="${this.rt.escape(brand)}" ${brand===current.brand?"selected":""}>${this.rt.escape(brand)}</option>`).join("")}
         </select></label>
@@ -127,13 +120,19 @@ class HomeBrainVehicleVisualPicker {
         <label><span>Colour</span><select data-vehicle-picker-color="${this.rt.escape(assetId)}" ${!current.vehicle?"disabled":""}>
           ${placeholder("Choose colour…",!current.color)}
           ${colors.map((row)=>`<option value="${this.rt.escape(row.id)}" ${row.id===current.color?.id?"selected":""}>${this.rt.escape(row.label)}</option>`).join("")}
-        </select></label>
-      </div>
-      <div class="visual-picker-apply">
-        <div class="visual-picker-selection"><small>Selected</small><b>${this.rt.escape(current.vehicle?.label || current.vehicle?.model || "Choose a vehicle")}</b><span>${this.rt.escape(current.color?.label || "")}</span></div>
-        <button class="vehicle-picker-save" data-vehicle-picker-save="${this.rt.escape(assetId)}" data-vehicle-profile-id="${this.rt.escape(current.profile_id)}" data-vehicle-key="${this.rt.escape(current.key)}" ${!current.writable?"disabled":""}><ha-icon icon="mdi:check"></ha-icon><span>Apply appearance</span></button>
-      </div>
-      ${notice}
-    </section>`;
+        </select></label>`;
+    const selectedHtml=`<div class="visual-picker-selection"><small>Selected</small><b>${this.rt.escape(current.vehicle?.label || current.vehicle?.model || "Choose a vehicle")}</b><span>${this.rt.escape(current.color?.label || "")}</span></div>${notice}`;
+    const saveHtml=`<button class="primary vehicle-picker-save" data-vehicle-picker-save="${this.rt.escape(assetId)}" data-vehicle-profile-id="${this.rt.escape(current.profile_id)}" data-vehicle-key="${this.rt.escape(current.key)}" ${!current.writable?"disabled":""}><ha-icon icon="mdi:check"></ha-icon><span>Save appearance</span></button>`;
+    const shell=rhiUxVisualPickerShell({
+      eyebrow:"Appearance · Vehicle",
+      title:"Choose appearance",
+      description:"Select the real vehicle, then refine brand, model, variant and colour.",
+      choicesHtml:tiles,
+      refineHtml,
+      selectedHtml,
+      saveHtml,
+      closeHtml:close
+    });
+    return `<div class="${options.context==="detail"?"detail-vehicle-picker":""}" data-picker-panel="${this.rt.escape(assetId)}">${shell}</div>`;
   }
 }
