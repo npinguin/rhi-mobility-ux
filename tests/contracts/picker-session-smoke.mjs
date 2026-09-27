@@ -47,4 +47,10 @@ if(!dashboard.includes('await rt.writePublishedPropertyAsync(assetId,"asset.prof
 if(!dashboard.includes('await rt.writePublishedPropertyAsync(assetId,"vehicle.image_key",key)')) throw new Error('vehicle picker must await appearance write');
 if(!chargers.includes('await rt.writePublishedPropertyAsync(assetId, "asset.profile_id", profileId)')) throw new Error('charger picker must await profile persistence before appearance write');
 if(!chargers.includes('await rt.writePublishedPropertyAsync(assetId, "charger.image_key", key)')) throw new Error('charger picker must await appearance write');
-if(!chargers.includes('grid-template-columns:repeat(4,minmax(120px,1fr))')) throw new Error('charger picker must share the vehicle picker desktop hierarchy layout');
+const vehiclePicker=fs.readFileSync(new URL('../../src/ui/components/vehicle-visual-picker.js',import.meta.url),'utf8');
+const chargerPicker=fs.readFileSync(new URL('../../src/ui/components/charger-visual-picker.js',import.meta.url),'utf8');
+for(const source of [vehiclePicker,chargerPicker]){
+  if(!source.includes('rhiUxVisualPickerShell({')) throw new Error('picker must use shared Core visual shell');
+  if(!source.includes('rhiUxVisualChoice')) throw new Error('picker must use shared Core visual-choice grammar');
+}
+if(vehiclePicker.includes('visual-choice-card') || chargerPicker.includes('visual-choice-card')) throw new Error('legacy picker choice presentation class remains active');
