@@ -9,6 +9,7 @@
   "asset_categories": [
     "chargers",
     "heroes",
+    "metadata",
     "vehicles"
   ],
   "runtime_sha256": "ddf433bb2ff328fb9f62cedfedd5982c6e09eee9e7c28d94eefb4221225c56f0",
