@@ -106,6 +106,9 @@ for(const token of ['MOBILITY_PUBLIC_RUNTIME_V2 access','MOBILITY_EXPERIENCE_V2 
 }
 if(runtimeOwns.includes('MOBILITY_PUBLIC_RUNTIME_V1 access')) failures.push('src/OWNERSHIP still declares V1 as primary runtime access');
 if(/\brc\.\d+\b/.test(handover)) failures.push('ENGINEER_HANDOVER must not copy current candidate identity; use machine release authorities');
+if(handover.includes('Release attaches evidence only') || handover.includes('evidence assets only')) failures.push('ENGINEER_HANDOVER contains stale release-asset guidance');
+if(handover.includes('src/assets/branding/company-logo.svg\` is the canonical artwork source')) failures.push('ENGINEER_HANDOVER incorrectly makes the vendored brand copy canonical');
+if(fs.existsSync(path.join(root,'tests/contracts/rc56-image-picker-layout-smoke.mjs'))) failures.push('historical rc56 smoke returned to active contract test root');
 
 const sourceGov=fs.readFileSync(path.join(root,'documentation/SOURCE_PACKAGE_GOVERNANCE.md'),'utf8');
 for(const token of ['app/','runtime/','domain/','ui/','assets/','dist/PACKAGE_MANIFEST.json','Migration sequence']){

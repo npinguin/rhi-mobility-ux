@@ -6,7 +6,7 @@ This document is normative for Mobility UX engineering.
 
 **One invariant has exactly one active test owner.**
 
-The active ownership map is `tests/OWNERSHIP.json`. Historical tests may remain for forensic context, but being present in the repository does not make them release authority.
+The active ownership map is `tests/OWNERSHIP.json`. Historical tests may remain for forensic context under `tests/history/`, but being present in the repository does not make them release authority. Historical milestone/rc tests must not remain in active contract/view-model test roots.
 
 ## What active tests may own
 
