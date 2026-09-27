@@ -1,6 +1,6 @@
 {
-  "candidate_version": "1.0.0-rc.69",
-  "candidate_tag": "v1.0.0-rc.69",
+  "candidate_version": "1.0.0-rc.70",
+  "candidate_tag": "v1.0.0-rc.70",
   "candidate_sha": "pending",
   "target_home_assistant": "pending",
   "hacs_install": "pending",
@@ -18,5 +18,8 @@
   "rollback_proof": "pending",
   "stable_promotion": "blocked",
   "cross_domain_navigation": "pending",
-  "core_1_5_1_provenance": "pending"
+  "core_1_5_2_provenance": "pending",
+  "shared_visual_picker_grammar": "pending",
+  "vehicle_image_persistence": "pending",
+  "charger_image_persistence": "pending"
 }
