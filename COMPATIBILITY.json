@@ -1,12 +1,12 @@
 {
-  "ux_version": "1.0.0-rc.68",
+  "ux_version": "1.0.0-rc.69",
   "release_stage": "release_candidate",
   "legacy_source_release": "R22.12.11.30",
   "mobility_contract": {
     "contract": "MOBILITY_PUBLIC_RUNTIME_V2",
-    "minimum_backend": "M0.10.10",
+    "minimum_backend": "M0.10.19",
     "tested_backend_releases": [
-      "M0.10.10"
+      "M0.10.19"
     ],
     "runtime_proof": "pending",
     "required_contracts": [
@@ -22,8 +22,8 @@
   },
   "ux_core": {
     "package": "rhi-ux-core",
-    "version": "1.4.1",
-    "source_commit": "7e035980b690719ff9c05876e905322194d52df2",
+    "version": "1.5.1",
+    "source_commit": "bb275767d9e9672713c00b9e8bd9fde13b9b5962",
     "runtime_dependency": false,
     "branding_owner": "rhi-ux-core"
   }

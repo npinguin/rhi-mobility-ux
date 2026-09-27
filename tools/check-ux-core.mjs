@@ -3,7 +3,7 @@ const meta=JSON.parse(fs.readFileSync("src/vendor/RHI_UX_CORE.json","utf8"));
 const manifest=JSON.parse(fs.readFileSync("src/manifest.json","utf8"));
 const header=fs.readFileSync("src/app/header-and-navigation.js","utf8");
 const vendor=fs.readFileSync("src/vendor/rhi-ux-core.js","utf8");
-if(meta.version!=="1.4.1" || meta.source_commit!=="7e035980b690719ff9c05876e905322194d52df2") throw new Error("unexpected RHI UX Core pin");
+if(meta.version!=="1.5.1" || meta.source_commit!=="bb275767d9e9672713c00b9e8bd9fde13b9b5962") throw new Error("unexpected RHI UX Core pin");
 if(meta.runtime_dependency!==false) throw new Error("RHI UX Core must remain build-time only");
 if(!manifest.modules.includes("vendor/rhi-ux-core.js")) throw new Error("Core vendor module missing from build");
 if(manifest.modules.indexOf("vendor/rhi-ux-core.js")>manifest.modules.indexOf("app/header-and-navigation.js")) throw new Error("Core must load before Mobility shell adapter");
@@ -15,6 +15,9 @@ for(const legacy of [".hi-domain-shell{",".hi-module-tabs{",".hi-module-tab{",".
 for(const invariant of [".rhiUxPageStack>.rhiUxPageHero{order:1}",".rhiUxPageStack>.rhiUxStatusGrid{order:2}",".rhiUxPageStack>.rhiUxQuickActionBar{order:3}"]){
   if(!vendor.includes(invariant)) throw new Error("missing shared page-stack invariant: "+invariant);
 }
+if(!vendor.includes("function rhiUxRegisterDomainNavigation(") || !vendor.includes("function rhiUxResolveDomainAssetNavigation(")) throw new Error("cross-domain navigation primitives missing from Core");
+if(vendor.includes("__RHI_ASSET_ID__")) throw new Error("stale build-placeholder-style navigation token in Core vendor");
+if(!vendor.includes("{asset_id}")) throw new Error("runtime-safe navigation token missing from Core vendor");
 if(!vendor.includes("function rhiUxCompanyBrand(") || !vendor.includes("Robotix.be") || !vendor.includes("DomotiX · Network · Security")) throw new Error("canonical Core company brand missing");
 if(header.includes("HB_MOBILITY_COMPANY_LOGO") || header.includes("hbMobilityCompanyBrand")) throw new Error("Mobility must not own company branding");
-console.log("PASS Mobility consumes pinned RHI UX Core 1.4.1 including canonical company branding without runtime coupling or duplicate shell");
+console.log("PASS Mobility consumes pinned RHI UX Core 1.5.1 including canonical company branding without runtime coupling or duplicate shell");
