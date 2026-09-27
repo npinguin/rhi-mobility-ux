@@ -67,6 +67,12 @@ class HomeBrainMobilityCard extends HTMLElement {
     const view = this.currentView();
     const spec = this.childSpec(view);
     const basePath = String(this.config.bootstrap_path || window.location?.pathname || "/mobility-supervisor/overview");
+    if (typeof rhiUxRegisterDomainNavigation === "function") {
+      rhiUxRegisterDomainNavigation({
+        domain:"rhi_mobility",
+        assetDetailTemplate:`${basePath}?mobility_view=detail&asset={asset_id}#asset={asset_id}`
+      });
+    }
     const childConfig = {
       ...this.config,
       ...spec.config,
