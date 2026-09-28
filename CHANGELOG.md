@@ -1,3 +1,7 @@
+## 1.0.0-rc.72
+
+- Adopt UX Core 1.5.3 shared appearance primitives and isolate picker failures.
+
 ## 1.0.0-rc.71 — complete pinned UX Core vendor
 
 - restores the complete pinned RHI UX Core 1.5.2 vendor snapshot;

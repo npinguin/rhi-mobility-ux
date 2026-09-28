@@ -1,3 +1,8 @@
+# v1.0.0-rc.72 — unified appearance + failure isolation
+
+- Adopts UX Core 1.5.3 canonical appearance primitives for vehicle and charger image choices.
+- Appearance failures remain isolated from vehicle truth/rendering.
+
 # v1.0.0-rc.71 — complete pinned UX Core vendor
 
 ## User-facing behavior

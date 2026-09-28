@@ -1,5 +1,5 @@
 {
-  "ux_version": "1.0.0-rc.71",
+  "ux_version": "1.0.0-rc.72",
   "release_stage": "release_candidate",
   "legacy_source_release": "R22.12.11.30",
   "mobility_contract": {
@@ -22,8 +22,8 @@
   },
   "ux_core": {
     "package": "rhi-ux-core",
-    "version": "1.5.2",
-    "source_commit": "16a217a33f6a7cc90d42ad83492e90ba1d364eee",
+    "version": "1.5.3",
+    "source_commit": "bb35ae4920cd6a7e135572beae3fc593ba290cd4",
     "runtime_dependency": false,
     "branding_owner": "rhi-ux-core"
   }
