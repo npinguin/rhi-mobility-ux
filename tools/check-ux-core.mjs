@@ -1,9 +1,14 @@
 import fs from "node:fs";
 const meta=JSON.parse(fs.readFileSync("src/vendor/RHI_UX_CORE.json","utf8"));
 const manifest=JSON.parse(fs.readFileSync("src/manifest.json","utf8"));
+const product=JSON.parse(fs.readFileSync("release/product.json","utf8"));
+const compat=JSON.parse(fs.readFileSync("COMPATIBILITY.json","utf8"));
+const releaseManifest=JSON.parse(fs.readFileSync("RELEASE_MANIFEST.json","utf8"));
 const header=fs.readFileSync("src/app/header-and-navigation.js","utf8");
 const vendor=fs.readFileSync("src/vendor/rhi-ux-core.js","utf8");
-if(meta.version!=="1.5.2" || meta.source_commit!=="16a217a33f6a7cc90d42ad83492e90ba1d364eee") throw new Error("unexpected RHI UX Core pin");
+if(meta.version!==product.ux_core?.version || meta.source_commit!==product.ux_core?.source_commit) throw new Error("UX Core vendor pin must match release/product.json authority");
+if(compat.ux_core?.version!==meta.version || compat.ux_core?.source_commit!==meta.source_commit) throw new Error("UX Core compatibility dependency drift");
+if(releaseManifest.ux_core?.version!==meta.version || releaseManifest.ux_core?.source_commit!==meta.source_commit) throw new Error("UX Core release-manifest dependency drift");
 if(meta.runtime_dependency!==false) throw new Error("RHI UX Core must remain build-time only");
 if(!manifest.modules.includes("vendor/rhi-ux-core.js")) throw new Error("Core vendor module missing from build");
 if(manifest.modules.indexOf("vendor/rhi-ux-core.js")>manifest.modules.indexOf("app/header-and-navigation.js")) throw new Error("Core must load before Mobility shell adapter");
