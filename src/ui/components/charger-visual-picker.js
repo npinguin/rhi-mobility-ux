@@ -90,11 +90,7 @@ class HomeBrainChargerVisualPicker {
 
     const tiles=catalog.flatMap((row)=>(row.appearances || []).map((appearance)=>{
       const active=row.id===current.charger?.id && appearance.id===current.appearance?.id;
-      return `<button type="button" class="rhiUxVisualChoice ${active?"active":""}" data-charger-visual-choice="${this.rt.escape(row.id)}" data-choice-brand="${this.rt.escape(row.brand || "")}" data-choice-model="${this.rt.escape(row.model || "")}" data-choice-appearance="${this.rt.escape(appearance.id || "")}" aria-pressed="${active?"true":"false"}">
-        <span class="rhiUxVisualChoiceImage">${appearance.package_file ? `<img src="${this.rt.escape((typeof this.rt.cache==='function' ? this.rt.cache(appearance.package_file) : appearance.package_file))}" alt="${this.rt.escape([row.label,appearance.label].filter(Boolean).join(" "))}">` : `<ha-icon icon="mdi:ev-station"></ha-icon>`}</span>
-        <span class="rhiUxVisualChoiceCopy"><b>${this.rt.escape(row.label || row.model || "Charger")}</b><small>${this.rt.escape(appearance.label || row.variant || "Standard")}</small></span>
-        <ha-icon class="visual-choice-check" icon="mdi:check-circle"></ha-icon>
-      </button>`;
+      return rhiUxVisualChoice({id:`${row.id}:${appearance.id}`,image:appearance.package_file ? (typeof this.rt.cache==='function' ? this.rt.cache(appearance.package_file) : appearance.package_file) : "",imageAlt:[row.label,appearance.label].filter(Boolean).join(" "),label:row.label || row.model || "Charger",detail:appearance.label || row.variant || "Standard",selected:active,attributes:{"data-charger-visual-choice":row.id,"data-choice-brand":row.brand || "","data-choice-model":row.model || "","data-choice-appearance":appearance.id || ""}});
     })).join("");
 
     const blocked=!current.profile_writable || !current.image_writable;
