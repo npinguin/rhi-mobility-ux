@@ -26,6 +26,7 @@ class HomeBrainVehicleVisualPicker {
 
   profileIdForVehicle(vehicle, profileProp) {
     if (!vehicle) return "";
+    if (!profileProp || typeof profileProp !== "object") return "";
     const choices = this.rt.propertyEditorChoices(profileProp) || [];
     const available = new Set(choices.map((row)=>String((row?.value ?? row) || "")));
     const candidates = Array.isArray(vehicle.profile_ids) ? vehicle.profile_ids : [];
@@ -80,7 +81,12 @@ class HomeBrainVehicleVisualPicker {
   }
 
   render(asset = {}, options = {}) {
-    const current=this.selection(asset,options.draft || {});
+    let current;
+    try { current=this.selection(asset,options.draft || {}); }
+    catch (error) {
+      const assetId=String(asset?.asset_id || asset || "").trim();
+      return `<div class="visual-picker-notice" data-picker-panel="${this.rt.escape(assetId)}"><ha-icon icon="mdi:palette-outline"></ha-icon><span>Appearance is temporarily unavailable. Vehicle data remains available.</span></div>`;
+    }
     const catalog=this.catalog();
     const brands=this.brands(catalog);
     const models=current.brand ? this.modelsForBrand(current.brand,catalog) : [];
@@ -93,11 +99,7 @@ class HomeBrainVehicleVisualPicker {
       const color=(row.colors || [])[0] || null;
       const active=row.id===current.vehicle?.id;
       const src=row.package_file || "";
-      return `<button type="button" class="rhiUxVisualChoice ${active?"active":""}" data-vehicle-visual-choice="${this.rt.escape(row.id)}" data-choice-brand="${this.rt.escape(row.brand || "")}" data-choice-model="${this.rt.escape(row.model || "")}" data-choice-color="${this.rt.escape(color?.id || "")}" aria-pressed="${active?"true":"false"}">
-        <span class="rhiUxVisualChoiceImage">${src ? `<img src="${this.rt.escape((typeof this.rt.cache==='function' ? this.rt.cache(src) : src))}" alt="${this.rt.escape(row.label || row.model || "Vehicle")}" style="filter:${this.rt.escape(active ? (current.color?.filter || "none") : (color?.filter || "none"))}">` : `<ha-icon icon="mdi:car-estate"></ha-icon>`}</span>
-        <span class="rhiUxVisualChoiceCopy"><b>${this.rt.escape(row.label || row.model || "Vehicle")}</b><small>${this.rt.escape([row.variant,row.years].filter(Boolean).join(" · "))}</small></span>
-        <ha-icon class="visual-choice-check" icon="mdi:check-circle"></ha-icon>
-      </button>`;
+      return rhiUxVisualChoice({id:row.id,image:src ? (typeof this.rt.cache==='function' ? this.rt.cache(src) : src) : "",imageAlt:row.label || row.model || "Vehicle",label:row.label || row.model || "Vehicle",detail:[row.variant,row.years].filter(Boolean).join(" · "),selected:active,imageStyle:`filter:${active ? (current.color?.filter || "none") : (color?.filter || "none")}`,attributes:{"data-vehicle-visual-choice":row.id,"data-choice-brand":row.brand || "","data-choice-model":row.model || "","data-choice-color":color?.id || ""}});
     }).join("");
 
     const blocked = !current.profile_writable || !current.image_writable;

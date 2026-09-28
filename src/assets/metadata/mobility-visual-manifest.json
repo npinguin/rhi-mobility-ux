@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "product": "rhi-mobility-ux",
-  "version": "1.0.0-rc.71",
+  "version": "1.0.0-rc.72",
   "authority": "mobility_visual_catalog",
   "refs": [
     {

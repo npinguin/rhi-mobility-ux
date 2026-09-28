@@ -1,14 +1,14 @@
-# v1.0.0-rc.71 — complete pinned UX Core vendor
+# v1.0.0-rc.72 — complete pinned UX Core vendor
 
 ## User-facing behavior
 
 - Preserves the rc.70 shared appearance picker behavior for Vehicle and Charger.
-- Restores the complete pinned RHI UX Core 1.5.2 vendor snapshot used by the packaged Mobility UX candidate.
+- Restores the complete pinned RHI UX Core 1.5.3 vendor snapshot used by the packaged Mobility UX candidate.
 - Keeps Mobility domain semantics, Public Runtime V2 writes/readback and producer-owned visual publication unchanged.
 
 ## Engineering
 
-- restores the complete pinned RHI UX Core 1.5.2 vendor snapshot;
+- restores the complete pinned RHI UX Core 1.5.3 vendor snapshot;
 - strengthens Core integrity validation so incomplete vendor snapshots fail before publication;
 - advances the immutable HACS candidate from rc.70 to rc.71 without changing backend semantics.
 
