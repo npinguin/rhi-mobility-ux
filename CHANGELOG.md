@@ -1,3 +1,9 @@
+## 1.0.0-rc.72 — unified appearance failure isolation
+
+- consume pinned RHI UX Core 1.5.3 shared visual picker primitives;
+- isolate optional vehicle/charger appearance from canonical asset rendering;
+- target Mobility M0.10.20 while preserving fail-closed runtime semantics.
+
 ## 1.0.0-rc.71 — complete pinned UX Core vendor
 
 - restores the complete pinned RHI UX Core 1.5.2 vendor snapshot;
