@@ -26,6 +26,7 @@ class HomeBrainVehicleVisualPicker {
 
   profileIdForVehicle(vehicle, profileProp) {
     if (!vehicle) return "";
+    if (!profileProp || typeof profileProp !== "object") return "";
     const choices = this.rt.propertyEditorChoices(profileProp) || [];
     const available = new Set(choices.map((row)=>String((row?.value ?? row) || "")));
     const candidates = Array.isArray(vehicle.profile_ids) ? vehicle.profile_ids : [];
@@ -80,7 +81,12 @@ class HomeBrainVehicleVisualPicker {
   }
 
   render(asset = {}, options = {}) {
-    const current=this.selection(asset,options.draft || {});
+    let current;
+    try { current=this.selection(asset,options.draft || {}); }
+    catch (error) {
+      const assetId=String(asset?.asset_id || asset || "").trim();
+      return `<div class="visual-picker-notice" data-picker-panel="${this.rt.escape(assetId)}"><ha-icon icon="mdi:palette-outline"></ha-icon><span>Appearance is temporarily unavailable. Vehicle data remains available.</span></div>`;
+    }
     const catalog=this.catalog();
     const brands=this.brands(catalog);
     const models=current.brand ? this.modelsForBrand(current.brand,catalog) : [];

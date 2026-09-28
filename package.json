@@ -13,7 +13,7 @@
     "check:hygiene": "node tools/check-public-hygiene.mjs",
     "check:release-governance": "node tools/check-release-governance.mjs",
     "check:qualification": "node tools/check-qualification.mjs",
-    "test": "npm run clean && npm run build && npm run test:contract && npm run test:ux && npm run test:package && npm run test:release",
+    "test": "npm run clean && npm run build && npm run test:contract && npm run test:ux && npm run test:package && npm run test:release && npm run test:appearance-isolation",
     "check:branding": "node tools/check-branding.mjs",
     "check:footer": "node tools/check-footer.mjs",
     "release:sync": "node tools/sync-release-metadata.mjs",
@@ -30,7 +30,8 @@
     "preflight": "npm test",
     "check:ux-core": "node tools/check-ux-core.mjs",
     "check:shared-visual-ownership": "node tools/check-shared-visual-ownership.mjs",
-    "check:presentation-debt": "node tools/check-presentation-debt.mjs"
+    "check:presentation-debt": "node tools/check-presentation-debt.mjs",
+    "test:appearance-isolation": "node tests/contracts/appearance-failure-isolation-smoke.mjs"
   },
   "engines": {
     "node": ">=20"

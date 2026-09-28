@@ -1665,6 +1665,7 @@ class HomeBrainAssetRuntime {
   }
 
   propertyEditorChoices(prop = {}) {
+    prop = prop && typeof prop === "object" ? prop : {};
     // Backend-published choices/options are authoritative. Direct V2 metadata is primary.
     // UX never derives profile, charger or other configuration options from integrations or device identity.
     const direct = this.parseJsonValue(prop.choices, prop.choices || null);
