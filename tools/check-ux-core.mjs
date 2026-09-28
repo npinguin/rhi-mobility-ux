@@ -12,8 +12,8 @@ if(!header.includes("rhiUxDomainShell(")) throw new Error("Mobility shell must u
 for(const legacy of [".hi-domain-shell{",".hi-module-tabs{",".hi-module-tab{",".domain-tab{",".hi-company-brand{"]){
   if(header.includes(legacy)) throw new Error("legacy duplicated shell CSS remains: "+legacy);
 }
-for(const invariant of [".rhiUxPageStack>.rhiUxPageHero{order:1}",".rhiUxPageStack>.rhiUxStatusGrid{order:2}",".rhiUxPageStack>.rhiUxQuickActionBar{order:3}"]){
-  if(!vendor.includes(invariant)) throw new Error("missing shared page-stack invariant: "+invariant);
+for(const primitive of ["function rhiUxPageHero(","function rhiUxStatusGrid(","function rhiUxQuickActionBar("]){
+  if(!vendor.includes(primitive)) throw new Error("missing shared page primitive: "+primitive);
 }
 if(!vendor.includes("function rhiUxRegisterDomainNavigation(") || !vendor.includes("function rhiUxResolveDomainAssetNavigation(")) throw new Error("cross-domain navigation primitives missing from Core");
 if(vendor.includes("__RHI_ASSET_ID__")) throw new Error("stale build-placeholder-style navigation token in Core vendor");
