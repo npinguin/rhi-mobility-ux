@@ -1,3 +1,10 @@
+## 1.0.0-rc.71 — complete pinned UX Core vendor
+
+- restores the complete pinned RHI UX Core 1.5.2 vendor snapshot;
+- strengthens Core integrity validation so incomplete vendor snapshots fail before publication;
+- preserves rc.70 appearance-picker behavior and Mobility backend semantics;
+- rollback remains v1.0.0-rc.70.
+
 ## 1.0.0-rc.65 — unified Home Intelligence visual system
 
 - adopts RHI UX Core 1.4.0 as the single owner of shared typography and visual grammar;
