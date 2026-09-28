@@ -30,8 +30,9 @@ for(const needle of [
 
 for(const needle of [
   'class HomeBrainVehicleVisualPicker',
-  'Choose vehicle & colour',
-  'visual-choice-grid',
+  'Choose appearance',
+  'rhiUxVisualPickerShell',
+  'rhiUxVisualChoice',
   'data-vehicle-picker-brand',
   'data-vehicle-picker-model',
   'data-vehicle-picker-variant',
@@ -43,7 +44,7 @@ for(const needle of [
   'this.rt.semanticProperty(assetId, "asset.profile_id")',
   'this.rt.semanticProperty(assetId, "vehicle.image_key")',
   'data-vehicle-profile-id',
-  'Apply appearance'
+  'Save appearance'
 ]) if(!picker.includes(needle)) throw new Error('shared vehicle picker regression: missing '+needle);
 
 if(picker.includes('Visual key')) throw new Error('technical visual key returned to normal Vehicle UX');
@@ -51,15 +52,16 @@ if(picker.includes('|| catalog[0]')) throw new Error('picker must not silently d
 
 for(const needle of [
   'class HomeBrainChargerVisualPicker',
-  'Choose charger appearance',
-  'visual-choice-grid',
+  'Choose appearance',
+  'rhiUxVisualPickerShell',
+  'rhiUxVisualChoice',
   'data-charger-picker-brand',
   'data-charger-picker-model',
   'data-charger-picker-variant',
   'data-charger-picker-appearance',
   'data-charger-picker-save',
   'data-charger-visual-choice',
-  'Apply appearance'
+  'Save appearance'
 ]) if(!chargerPicker.includes(needle)) throw new Error('shared charger picker regression: missing '+needle);
 if(chargerPicker.includes('Visual key')) throw new Error('technical visual key returned to normal Charger UX');
 

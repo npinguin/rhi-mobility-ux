@@ -90,9 +90,9 @@ class HomeBrainChargerVisualPicker {
 
     const tiles=catalog.flatMap((row)=>(row.appearances || []).map((appearance)=>{
       const active=row.id===current.charger?.id && appearance.id===current.appearance?.id;
-      return `<button type="button" class="visual-choice-card charger-choice-card ${active?"active":""}" data-charger-visual-choice="${this.rt.escape(row.id)}" data-choice-brand="${this.rt.escape(row.brand || "")}" data-choice-model="${this.rt.escape(row.model || "")}" data-choice-appearance="${this.rt.escape(appearance.id || "")}" aria-pressed="${active?"true":"false"}">
-        <span class="visual-choice-image">${appearance.package_file ? `<img src="${this.rt.escape((typeof this.rt.cache==='function' ? this.rt.cache(appearance.package_file) : appearance.package_file))}" alt="${this.rt.escape([row.label,appearance.label].filter(Boolean).join(" "))}">` : `<ha-icon icon="mdi:ev-station"></ha-icon>`}</span>
-        <span class="visual-choice-copy"><b>${this.rt.escape(row.label || row.model || "Charger")}</b><small>${this.rt.escape(appearance.label || row.variant || "Standard")}</small></span>
+      return `<button type="button" class="rhiUxVisualChoice ${active?"active":""}" data-charger-visual-choice="${this.rt.escape(row.id)}" data-choice-brand="${this.rt.escape(row.brand || "")}" data-choice-model="${this.rt.escape(row.model || "")}" data-choice-appearance="${this.rt.escape(appearance.id || "")}" aria-pressed="${active?"true":"false"}">
+        <span class="rhiUxVisualChoiceImage">${appearance.package_file ? `<img src="${this.rt.escape((typeof this.rt.cache==='function' ? this.rt.cache(appearance.package_file) : appearance.package_file))}" alt="${this.rt.escape([row.label,appearance.label].filter(Boolean).join(" "))}">` : `<ha-icon icon="mdi:ev-station"></ha-icon>`}</span>
+        <span class="rhiUxVisualChoiceCopy"><b>${this.rt.escape(row.label || row.model || "Charger")}</b><small>${this.rt.escape(appearance.label || row.variant || "Standard")}</small></span>
         <ha-icon class="visual-choice-check" icon="mdi:check-circle"></ha-icon>
       </button>`;
     })).join("");
@@ -102,14 +102,7 @@ class HomeBrainChargerVisualPicker {
       ? `<div class="visual-picker-notice"><ha-icon icon="mdi:information-outline"></ha-icon><span>Appearance browsing is available. Apply requires Mobility V2 configuration controls for profile and image.</span></div>`
       : "";
 
-    return `<section class="vehicle-picker-panel charger-picker-panel visual-picker-panel ${options.context==="detail"?"detail-vehicle-picker detail-charger-picker":""}" data-charger-picker-panel="${this.rt.escape(assetId)}">
-      <div class="vehicle-picker-head">
-        <div><small>APPEARANCE</small><h3>Choose charger appearance</h3><p>Select the real charger visually, then refine product and finish only when needed.</p></div>
-        ${close}
-      </div>
-      <div class="visual-choice-grid" role="listbox" aria-label="Charger appearance">${tiles}</div>
-      <div class="vehicle-picker-grid vehicle-picker-hierarchy visual-picker-refine">
-        <label><span>Brand</span><select data-charger-picker-brand="${this.rt.escape(assetId)}">
+    const refineHtml=`<label><span>Brand</span><select data-charger-picker-brand="${this.rt.escape(assetId)}">
           ${placeholder("Choose brand…",!current.brand)}
           ${brands.map((brand)=>`<option value="${this.rt.escape(brand)}" ${brand===current.brand?"selected":""}>${this.rt.escape(brand)}</option>`).join("")}
         </select></label>
@@ -124,13 +117,19 @@ class HomeBrainChargerVisualPicker {
         <label><span>Finish</span><select data-charger-picker-appearance="${this.rt.escape(assetId)}" ${!current.charger?"disabled":""}>
           ${placeholder("Choose finish…",!current.appearance)}
           ${appearances.map((row)=>`<option value="${this.rt.escape(row.id)}" ${row.id===current.appearance?.id?"selected":""}>${this.rt.escape(row.label)}</option>`).join("")}
-        </select></label>
-      </div>
-      <div class="visual-picker-apply">
-        <div class="visual-picker-selection"><small>Selected</small><b>${this.rt.escape(current.charger?.label || current.charger?.model || "Choose a charger")}</b><span>${this.rt.escape(current.appearance?.label || "")}</span></div>
-        <button class="vehicle-picker-save" data-charger-picker-save="${this.rt.escape(assetId)}" data-charger-profile-id="${this.rt.escape(current.profile_id)}" data-charger-key="${this.rt.escape(current.key)}" ${!current.writable?"disabled":""}><ha-icon icon="mdi:check"></ha-icon><span>Apply appearance</span></button>
-      </div>
-      ${notice}
-    </section>`;
+        </select></label>`;
+    const selectedHtml=`<div class="visual-picker-selection"><small>Selected</small><b>${this.rt.escape(current.charger?.label || current.charger?.model || "Choose a charger")}</b><span>${this.rt.escape(current.appearance?.label || "")}</span></div>${notice}`;
+    const saveHtml=`<button class="primary vehicle-picker-save" data-charger-picker-save="${this.rt.escape(assetId)}" data-charger-profile-id="${this.rt.escape(current.profile_id)}" data-charger-key="${this.rt.escape(current.key)}" ${!current.writable?"disabled":""}><ha-icon icon="mdi:check"></ha-icon><span>Save appearance</span></button>`;
+    const shell=rhiUxVisualPickerShell({
+      eyebrow:"Appearance · Charger",
+      title:"Choose appearance",
+      description:"Select the real charger, then refine brand, model, variant and finish.",
+      choicesHtml:tiles,
+      refineHtml,
+      selectedHtml,
+      saveHtml,
+      closeHtml:close
+    });
+    return `<div class="${options.context==="detail"?"detail-vehicle-picker detail-charger-picker":""}" data-charger-picker-panel="${this.rt.escape(assetId)}">${shell}</div>`;
   }
 }

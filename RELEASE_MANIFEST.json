@@ -1,6 +1,6 @@
 {
   "product": "rhi-mobility-ux",
-  "version": "1.0.0-rc.69",
+  "version": "1.0.0-rc.70",
   "stage": "test_candidate",
   "publication_authority": "github_releases",
   "publication_status": "installable_candidate_until_qualified",
@@ -38,8 +38,8 @@
   ],
   "ux_core": {
     "package": "rhi-ux-core",
-    "version": "1.5.1",
-    "source_commit": "bb275767d9e9672713c00b9e8bd9fde13b9b5962",
+    "version": "1.5.2",
+    "source_commit": "16a217a33f6a7cc90d42ad83492e90ba1d364eee",
     "runtime_dependency": false,
     "branding_owner": "rhi-ux-core"
   }
