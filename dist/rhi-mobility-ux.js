@@ -1095,6 +1095,7 @@ class HomeBrainAssetRuntime {
     return {
       contract_id: attrs.contract_id,
       canonical: attrs.canonical === true,
+      release: attrs.release && typeof attrs.release === "object" ? { ...attrs.release } : {},
       assets: Array.isArray(attrs.assets) ? attrs.assets : [],
       fleet: attrs.fleet && typeof attrs.fleet === "object" ? attrs.fleet : {},
       relationships: Array.isArray(attrs.relationships) ? attrs.relationships : [],
@@ -1666,11 +1667,16 @@ class HomeBrainAssetRuntime {
 
 
   releaseContract() {
+    // Runtime V2 is the canonical active Mobility product contract and publishes the
+    // backend release alongside the same asset/relationship snapshot consumed by UX.
+    // Legacy release sensors are compatibility evidence only and may be absent.
+    const runtime = this.mobilityRuntimeV2();
+    const runtimeRelease = runtime?.release && typeof runtime.release === "object" ? runtime.release : {};
     const contractEntity = this.entity("sensor.mobility_release_contract");
     const identityEntity = this.entity("sensor.mobility_release_identity");
-    const e = contractEntity || identityEntity;
     const attrs = { ...(identityEntity?.attributes || {}), ...(contractEntity?.attributes || {}) };
     const backend = this.cleanValue(
+      runtimeRelease.backend_release ||
       attrs.backend_release ||
       attrs.backend_version ||
       attrs.backend_release_version ||
@@ -1683,21 +1689,26 @@ class HomeBrainAssetRuntime {
       "",
       "Unknown"
     ) || "Unknown";
+    const canonicalReady = Boolean(runtime && runtime.canonical === true);
     return {
       backend_release: backend,
       backend_version: backend,
+      release_name: this.cleanValue(runtimeRelease.release_name || attrs.release_name || attrs.release_title || "", "") || "",
       contract_version: this.cleanValue(attrs.contract_version || attrs.contract_release || attrs.contract || "", "Unknown") || "Unknown",
       schema_version: this.cleanValue(attrs.schema_version || attrs.schema || "", "Unknown") || "Unknown",
       build_date: this.cleanValue(attrs.build_date || attrs.release_date || attrs.generated_at || "", "Unknown") || "Unknown",
-      contract_health: this.cleanValue(attrs.contract_health || attrs.health || attrs.status || "Unknown", "Unknown") || "Unknown",
+      contract_health: this.cleanValue(
+        attrs.contract_health || attrs.health || attrs.status || (canonicalReady ? "ready" : "Unknown"),
+        "Unknown"
+      ) || "Unknown",
       runtime_health: this.cleanValue(attrs.runtime_health || attrs.runtime_status || "", "Unknown") || "Unknown",
       physical_acceptance: this.cleanValue(attrs.physical_acceptance || attrs.physical_execution_acceptance || "", "Unknown") || "Unknown",
-      release_acceptance: this.cleanValue(attrs.release_acceptance || attrs.acceptance || "", "Unknown") || "Unknown"
+      release_acceptance: this.cleanValue(attrs.release_acceptance || attrs.acceptance || "", "Unknown") || "Unknown",
+      authority: runtimeRelease.backend_release ? "MOBILITY_PUBLIC_RUNTIME_V2" : (contractEntity ? "sensor.mobility_release_contract" : (identityEntity ? "sensor.mobility_release_identity" : "unavailable"))
     };
   }
 
   backendVersion() {
-    // R22.7.9.21 contract lock: backend/version source is sensor.mobility_release_contract only.
     return this.releaseContract().backend_release;
   }
 
@@ -10407,7 +10418,7 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
       ${hbMobilityPageHero(rt, view)}
       ${this.renderTopStatus(rt, view)}
       ${this.renderTopActions(rt, view)}
-      ${view === "planning" ? this.renderPlanning(rt) : view === "strategies" ? this.renderStrategies(rt) : view === "history" ? this.renderInsights(rt) : this.renderContextCards(rt, data)}
+      ${view === "planning" ? this.renderPlanning(rt) : view === "strategies" ? this.renderStrategies(rt) : view === "history" ? this.renderInsights(rt) : view === "log" ? this.renderLog(rt) : this.renderContextCards(rt, data)}
       ${hbMobilityReleaseFooter(rt)}
     </div><style>${this.styles()}</style></ha-card>`;
     this.shadowRoot.querySelectorAll("button[data-nav]").forEach((btn)=>btn.addEventListener("click",()=>rt.navigate(btn.getAttribute("data-nav"))));
@@ -10691,6 +10702,61 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
     </section>`;
   }
 
+  renderLog(rt) {
+    const rows = rt.activityRowsFor ? rt.activityRowsFor("") : [];
+    const activityCount = Number(rt.mobilityActivityV2?.()?.activity_count ?? rows.length) || rows.length;
+    const fmtTime = (row) => {
+      const raw = row.observed_at || row.occurred_at || row.created_at || row.timestamp || row.started_at || "";
+      if (!raw) return "";
+      const date = new Date(raw);
+      return Number.isNaN(date.getTime()) ? String(raw) : date.toLocaleString();
+    };
+    const statusOf = (row) => String(
+      row.status || row.activity_state || row.result || row.result_code || row.execution_state || "Published"
+    );
+    const titleOf = (row) => String(
+      row.message || row.command_label || row.activity_type || row.command_key || row.family || "Mobility activity"
+    );
+    const reasonOf = (row) => String(
+      row.reason || row.blocked_reason || row.execution_reason || row.detail || row.error || ""
+    );
+    const assetOf = (row) => {
+      const id = String(row.asset_id || row.subject_asset_id || row.related_asset_id || "");
+      return id ? String(rt.assetDisplayName?.(id) || id) : "";
+    };
+    const entries = rows.map((row) => {
+      const status = statusOf(row);
+      const reason = reasonOf(row);
+      const meta = [fmtTime(row), assetOf(row), status].filter(Boolean).join(" · ");
+      return `<article class="rhi-log-row">
+        <div class="rhi-log-icon"><ha-icon icon="mdi:history"></ha-icon></div>
+        <div class="rhi-log-copy"><b>${rt.escape(titleOf(row))}</b><small>${rt.escape(meta)}</small>${reason ? `<span>${rt.escape(reason)}</span>` : ""}</div>
+      </article>`;
+    }).join("");
+    const exceptions = rows.filter((row) => {
+      const state = statusOf(row).toLowerCase();
+      return ["failed","rejected","blocked","error","denied"].some((token)=>state.includes(token));
+    });
+    const gap = activityCount > 0 && !rows.length
+      ? `<div class="rhi-context-note">Activity contract reports ${rt.escape(String(activityCount))} recent items but publishes no activity rows.</div>`
+      : "";
+    return `<section class="rhi-context-grid log-grid">
+      <article class="rhi-context-card rhi-log-wide">
+        <div class="rhi-context-card-kicker"><ha-icon icon="mdi:text-box-search-outline"></ha-icon>Mobility log</div>
+        <h3>Recent activity</h3>
+        <p>Commands, runtime events and audit evidence are rendered directly from MOBILITY_ACTIVITY_V2.</p>
+        ${entries ? `<div class="rhi-log-list">${entries}</div>` : `<div class="rhi-context-note">No activity rows are currently published.</div>`}
+        ${gap}
+      </article>
+      <article class="rhi-context-card">
+        <div class="rhi-context-card-kicker"><ha-icon icon="mdi:alert-outline"></ha-icon>Exceptions</div>
+        <h3>${rt.escape(String(exceptions.length))} failed or rejected</h3>
+        <p>Backend-published execution reasons stay visible here without frontend reinterpretation.</p>
+        ${exceptions.slice(0,8).map((row)=>`<div class="rhi-data-row"><b>${rt.escape(titleOf(row))}</b><span>${rt.escape(reasonOf(row) || statusOf(row))}</span></div>`).join("")}
+      </article>
+    </section>`;
+  }
+
   renderContextCards(rt, data) {
     return `<section class="rhi-context-grid">
       ${data.cards.map((card) => `<article class="rhi-context-card"><div class="rhi-context-card-kicker"><ha-icon icon="${card.icon}"></ha-icon>${rt.escape(card.kicker)}</div><h3>${rt.escape(card.title)}</h3><p>${rt.escape(card.text)}</p></article>`).join("")}
@@ -10716,6 +10782,8 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
       .status-strip.dashboard-status-strip{margin:8px 0 10px!important}
       .support-facts{margin-top:8px!important}
       .insights-grid{grid-template-columns:minmax(0,1.45fr) minmax(280px,.55fr)}
+      .log-grid{grid-template-columns:minmax(0,1.45fr) minmax(280px,.55fr)}
+      .rhi-log-list{display:grid;gap:7px;margin-top:10px}.rhi-log-row{display:grid;grid-template-columns:30px minmax(0,1fr);gap:9px;align-items:start;border:1px solid var(--rhi-color-line);border-radius:var(--rhi-radius-md);padding:9px 10px;background:#fff}.rhi-log-icon{display:grid;place-items:center;width:28px;height:28px;border-radius:9px;background:#F1F6FF;color:#1467F5}.rhi-log-icon ha-icon{--mdc-icon-size:17px}.rhi-log-copy{min-width:0}.rhi-log-copy b,.rhi-log-copy small,.rhi-log-copy span{display:block}.rhi-log-copy b{font-size:13px;overflow-wrap:anywhere}.rhi-log-copy small{margin-top:2px;color:var(--rhi-color-muted);font-size:10px}.rhi-log-copy span{margin-top:4px;color:var(--rhi-color-muted);font-size:11px;overflow-wrap:anywhere}
       .rhiVehicleIdentity{display:flex;align-items:center;gap:10px;min-width:0}.rhiVehicleIdentity>span:last-child{min-width:0}.rhiVehicleIdentity b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.rhiVehicleIdentity small{display:block;margin-top:2px;font-size:9px;color:#718096}.rhiVehicleThumb{width:64px;height:42px;display:flex;align-items:center;justify-content:center;flex:0 0 64px;border-radius:10px;background:#f5f8fc;border:1px solid #e5ebf4;overflow:hidden}.rhiVehicleThumb img{display:block;max-width:60px;max-height:38px;object-fit:contain}.rhiVehicleThumbFallback ha-icon{--mdc-icon-size:22px;color:#5f6d84}.rhiVehicleRow{align-items:center!important;min-height:56px!important}.rhiVehicleRow>span:last-child{justify-self:end}.rhi-insight-vehicle-head .rhiVehicleIdentity{min-width:0}
       .rhi-insight-vehicle-list{display:grid;gap:7px;margin-top:10px}
       .rhi-insight-vehicle{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;border:1px solid #edf1f6;border-radius:var(--rhi-radius-md);background:var(--rhi-soft);padding:10px 12px}
