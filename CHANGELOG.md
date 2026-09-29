@@ -1,3 +1,15 @@
+## 1.0.0-rc.75 — target-HA product UX closure
+
+- makes requested versus actual charging power a permanent per-vehicle user answer, with explicit producer reasons when unavailable;
+- keeps physical identity fail-closed instead of attributing charger power to an unproven vehicle;
+- surfaces backend reasons for unsafe vehicle state and blocked lifecycle controls;
+- moves Vehicle and Charger appearance editing to the hero and removes appearance from generic detail-property families;
+- restricts product detail editors to explicit configuration intents so writable sensor/source facts remain read-only;
+- reverses Charger Management identity layout to text-left/image-right;
+- hardens hero media loading against refresh flicker;
+- reframes Planning and Log around user questions while preserving Energy/Mobility ownership;
+- retains backend M0.10.22 and UX Core 1.5.3; backend contract defects remain visible for the subsequent backend release.
+
 ## 1.0.0-rc.74 — M0.10.22 product acceptance candidate
 
 - targets exact Mobility backend M0.10.22 for combined product qualification;

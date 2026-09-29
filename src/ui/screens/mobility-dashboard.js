@@ -246,7 +246,8 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     const model = rt.lifecycleWriteModel(asset, desired);
     const label = desired === "active" ? "Activate" : "Disable";
     const title = model.disabled ? (model.reason || "Lifecycle contract gap") : `${label} via lifecycle_status`;
-    return `<button class="action ${extraClass}" data-lifecycle-asset="${rt.escape(this.assetId(asset))}" data-lifecycle-value="${rt.escape(desired)}" ${model.disabled ? "disabled" : ""} title="${rt.escape(title)}"><ha-icon icon="mdi:power"></ha-icon><span>${rt.escape(label)}</span></button>`;
+    const button = `<button class="action ${extraClass}" data-lifecycle-asset="${rt.escape(this.assetId(asset))}" data-lifecycle-value="${rt.escape(desired)}" ${model.disabled ? "disabled" : ""} title="${rt.escape(title)}"><ha-icon icon="mdi:power"></ha-icon><span>${rt.escape(label)}</span></button>`;
+    return model.disabled && extraClass.includes("manage-lifecycle") ? `<span class="lifecycle-control-wrap">${button}<small class="lifecycle-disabled-reason">${rt.escape(title)}</small></span>` : button;
   }
 
   chargingActivityDisplay(rt, asset) {
@@ -285,31 +286,30 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
       step: Number.isFinite(chargePowerModel?.step) ? chargePowerModel.step : 0
     };
     const canCurrent = !!(chargePowerModel?.resolved && chargePowerModel?.writable && meta.step > 0 && meta.max >= meta.min);
-    const currentStepEntity = chargePowerModel?.write_target_entity || "";
-    // R22.12.11.24: Vehicle charge power is the user-facing setting.
-    // The connected/effective charger is the backend-owned execution target.
-    const showCurrent = !!chargePowerModel?.resolved;
-    const displayCurrent = currentValue === "—" ? "—" : `${currentValue} kW`;
+    const displayCurrent = currentValue === "—" ? "Unavailable" : `${currentValue} kW`;
+    const requestedReason = String(chargePowerModel?.reason || (!chargePowerModel?.resolved ? "Requested charging power is not published for this vehicle." : (!chargePowerModel?.writable ? "Requested charging power is read-only." : ""))).replaceAll("_"," ");
     const atMin = canCurrent && limitValue !== null && limitValue <= meta.min + 0.000001;
     const atMax = canCurrent && limitValue !== null && limitValue >= meta.max - 0.000001;
-    const currentControl = showCurrent ? `
-      <div class="mini-current-stepper compact-current ${canCurrent ? "" : "readonly"}" title="Vehicle charge power. Same charger-owned property contract as the detail editor.">
-        <span class="current-copy"><small>Vehicle charge power</small><strong>${rt.escape(displayCurrent)}</strong></span>
+    const currentControl = `
+      <div class="mini-current-stepper compact-current ${canCurrent ? "" : "readonly"}" title="${rt.escape(requestedReason || "Requested vehicle charging power")}">
+        <span class="current-copy"><small>Requested power</small><strong>${rt.escape(displayCurrent)}</strong>${!canCurrent && requestedReason ? `<em>${rt.escape(requestedReason)}</em>` : ""}</span>
         ${canCurrent ? `<button class="round-step" data-property-step="vehicle.requested_charge_power_kw" data-vehicle-asset="${rt.escape(ctx.assetId)}" data-charge-power-value="${rt.escape(limitValue ?? meta.min)}" data-delta="-${rt.escape(meta.step)}" data-min="${rt.escape(meta.min)}" data-max="${rt.escape(meta.max)}" data-unit="kW" ${atMin ? "disabled" : ""}>−</button>
         <button class="round-step" data-property-step="vehicle.requested_charge_power_kw" data-vehicle-asset="${rt.escape(ctx.assetId)}" data-charge-power-value="${rt.escape(limitValue ?? meta.min)}" data-delta="${rt.escape(meta.step)}" data-min="${rt.escape(meta.min)}" data-max="${rt.escape(meta.max)}" data-unit="kW" ${atMax ? "disabled" : ""}>+</button>` : ``}
-      </div>` : ``;
+      </div>`;
     const actualPowerNumber = Number(ctx.info?.power);
-    const actualPowerDisplay = Number.isFinite(actualPowerNumber) ? `${Math.max(0, actualPowerNumber).toFixed(1).replace(/\.0$/, "")} kW` : "—";
     const hasPhysicalCharger = !!ctx.info?.physical_charger;
-    const actualPowerControl = hasPhysicalCharger ? `
-      <div class="mini-power-read actual-power-read" title="Actual power from the physically connected charger canonical property contract.">
-        <span class="power-copy"><small>Power</small><strong>${rt.escape(actualPowerDisplay)}</strong></span>
-      </div>` : ``;
+    const actualKnown = hasPhysicalCharger && Number.isFinite(actualPowerNumber);
+    const actualPowerDisplay = actualKnown ? `${Math.max(0, actualPowerNumber).toFixed(1).replace(/\.0$/, "")} kW` : (ctx.info?.active ? "Power not proven" : "—");
+    const actualReason = actualKnown ? "Actual power from the physically connected charger." : (hasPhysicalCharger ? "Actual charger power is unavailable." : "Physical charger identity is not proven, so power is not attributed to this vehicle.");
+    const actualPowerControl = `
+      <div class="mini-power-read actual-power-read ${actualKnown ? "" : "readonly"}" title="${rt.escape(actualReason)}">
+        <span class="power-copy"><small>Charging now</small><strong>${rt.escape(actualPowerDisplay)}</strong>${!actualKnown ? `<em>${rt.escape(actualReason)}</em>` : ""}</span>
+      </div>`;
     return `<section class="vehicle-control-row mock-row" title="${rt.escape(ctx.info.detail)}">
       <div class="vehicle-metrics-strip mock-metrics">
         ${metricSlots.map((slot, index)=>`<div class="metric-chip ${index === 2 ? "battery-chip" : ""}" title="${rt.escape(slot.property_key || "Component contract gap")}"><span>${rt.escape(slot.label)}</span><b>${rt.escape(slot.resolved ? slot.display : "—")}</b></div>`).join("")}
       </div>
-      <div class="charge-mini-strip mock-controls ${showCurrent ? "has-speed" : "no-speed"} no-mode">
+      <div class="charge-mini-strip mock-controls has-speed no-mode">
         ${this.renderChargerAssignmentSelect(rt, vehicleAsset)}
         ${currentControl}
         ${actualPowerControl}
@@ -434,7 +434,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
         <span class="ov-vehicle-image">${image ? `<img src="${rt.escape(rt.cache(image))}" alt="${rt.escape(display)}" style="filter:${rt.escape(visualFilter)}">` : `<ha-icon icon="mdi:car-electric"></ha-icon>`}</span>
         <span class="ov-vehicle-copy"><b>${rt.escape(display)}</b><small>${rt.escape(signalValue(signals.energy))} · ${rt.escape(signalValue(signals.range))}</small></span>
       </button>
-      <div class="ov-signal ${signalTone(signals.security)}" title="${rt.escape(signals.security?.subvalue || "")}"><ha-icon icon="mdi:lock-outline"></ha-icon><span>Security</span><b>${rt.escape(signalValue(signals.security, "Unknown"))}</b></div>
+      <div class="ov-signal ${signalTone(signals.security)}" title="${rt.escape(signals.security?.subvalue || signals.security?.reason || "")}"><ha-icon icon="mdi:lock-outline"></ha-icon><span>Security</span><b>${rt.escape(signalValue(signals.security, "Unknown"))}</b></div>
       <div class="ov-signal" title="Published climate/comfort property"><ha-icon icon="mdi:fan"></ha-icon><span>Comfort</span><b>${rt.escape(signals.climate)}</b></div>
       <div class="ov-signal ${signalTone(signals.maintenance)}" title="${rt.escape(signals.maintenance?.subvalue || "")}"><ha-icon icon="mdi:wrench-outline"></ha-icon><span>Maintenance</span><b>${rt.escape(signalValue(signals.maintenance, "Unknown"))}</b></div>
       <div class="ov-charging-state"><ha-icon icon="mdi:lightning-bolt"></ha-icon><span>${rt.escape(charging)}</span></div>
@@ -875,11 +875,11 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
   intelligenceStatusRow(rt, tile = {}) {
     const label = tile.label || "Intelligence";
     const value = tile.value || "Contract gap";
-    const subvalue = tile.subvalue || "";
+    const detail = String(tile.subvalue || tile.reason || "").trim();
     const rawTone = String(tile.tone || "neutral").toLowerCase();
     const pillTone = rawTone === "error" ? "bad" : rawTone === "attention" ? "warn" : rawTone === "active" ? "ok" : "muted";
-    const title = subvalue ? `${label}: ${value} — ${subvalue}` : `${label}: ${value}`;
-    return `<div class="status-row intelligence-status-row" title="${rt.escape(title)}"><ha-icon icon="${rt.escape(tile.icon || "mdi:information-outline")}"></ha-icon><span>${rt.escape(label)}</span><b class="pill ${pillTone}">${rt.escape(value)}</b></div>`;
+    const title = detail ? `${label}: ${value} — ${detail}` : `${label}: ${value}`;
+    return `<div class="status-row intelligence-status-row" title="${rt.escape(title)}"><ha-icon icon="${rt.escape(tile.icon || "mdi:information-outline")}"></ha-icon><span>${rt.escape(label)}</span><b class="pill ${pillTone}">${rt.escape(value)}</b>${detail ? `<small>${rt.escape(detail)}</small>` : ""}</div>`;
   }
 
   issueRows(rt, vehicles) {
@@ -1249,7 +1249,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
   }
 
   overviewStyles() { return `
-    .appearance-write-error{display:flex;align-items:center;gap:7px;margin:0 2px;padding:8px 10px;border:1px solid #fed7aa;border-radius:10px;background:#fff7ed;color:#9a3412;font-size:10px;font-weight:600}.appearance-write-error ha-icon{--mdc-icon-size:16px}
+    .intelligence-status-row small{grid-column:2/-1;display:block;min-width:0;margin-top:-2px;font-size:7.5px;line-height:1.05;font-weight:500;color:#8A5A12;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n    .appearance-write-error{display:flex;align-items:center;gap:7px;margin:0 2px;padding:8px 10px;border:1px solid #fed7aa;border-radius:10px;background:#fff7ed;color:#9a3412;font-size:10px;font-weight:600}.appearance-write-error ha-icon{--mdc-icon-size:16px}
     .rhi-page-hero-overview{position:relative!important;display:block!important;min-height:clamp(176px,16vw,218px)!important;border:0!important;border-radius:18px!important;background:linear-gradient(90deg,#fff 0%,#fff 30%,rgba(255,255,255,.94) 39%,rgba(255,255,255,.18) 60%,rgba(255,255,255,0) 76%)!important;box-shadow:none!important;overflow:hidden!important;margin:0!important}
     .rhi-page-hero-overview:before{display:none!important}
     .rhi-page-hero-overview .rhi-page-hero-copy{position:relative!important;z-index:4!important;width:min(48%,650px)!important;max-width:none!important;padding:32px 20px 28px 24px!important}
@@ -1769,6 +1769,8 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
       border:1px solid var(--hb-line)!important;
       box-shadow:none!important;
     }
+    .vehicle-control-row.mock-row .current-copy em,.vehicle-control-row.mock-row .power-copy em{display:block!important;margin-top:2px!important;font-size:7.5px!important;line-height:1.05!important;font-style:normal!important;font-weight:500!important;color:#8A5A12!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+    .lifecycle-control-wrap{min-width:0;display:grid;gap:2px;align-items:center}.lifecycle-control-wrap>.manage-lifecycle{width:100%!important;max-width:none!important}.lifecycle-disabled-reason{display:block;max-width:150px;font-size:8px;line-height:1.1;color:#8A5A12;font-weight:550;white-space:normal}
     .vehicle-actions.clean-actions{
       display:grid!important;
       grid-template-columns:minmax(132px,1.05fr) minmax(118px,.95fr) minmax(104px,.82fr) minmax(92px,.75fr) minmax(0,1fr) 42px 42px!important;

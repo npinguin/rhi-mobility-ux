@@ -183,7 +183,7 @@ class HomeBrainAssetShell {
 
   renderHeroVisual(model) {
     if (model.image) {
-      return `<img src="${this.rt.escape(model.image)}"
+      return `<img src="${this.rt.escape(model.image)}" loading="eager" decoding="async" fetchpriority="high"
                    data-vehicle-visual-preview="${model.type === "vehicle" ? "1" : "0"}"
                    data-charger-visual-preview="${model.type === "charger" ? "1" : "0"}"
                    data-image-gray="${this.rt.escape(model.imageGray ?? 0)}"
@@ -226,12 +226,12 @@ class HomeBrainAssetShell {
         ${m.detailRoute ? `<button class="metric-detail-link" data-nav="${this.rt.escape(m.detailRoute)}" title="${this.rt.escape(m.detailTitle || "Open related asset details")}"><ha-icon icon="mdi:plus"></ha-icon></button>` : ""}
       </div>`).join("");
     const mainSections = (model.sections || []).filter((s) => s && s.key !== "activity");
-    const chargerAppearance = model.type === "charger"
-      ? new HomeBrainChargerVisualPicker(this.rt).render(
-          model.registryEntry || { asset_id:model.id || "", asset_type:"charger", image_key:model.visualKey || "" },
-          { showClose:false, context:"detail" }
-        )
-      : "";
+    const appearanceAsset = model.registryEntry || { asset_id:model.id || "", asset_type:model.type || "", image_key:model.visualKey || "" };
+    const appearancePicker = model.type === "vehicle"
+      ? new HomeBrainVehicleVisualPicker(this.rt).render(appearanceAsset, { showClose:false, context:"detail" })
+      : model.type === "charger"
+        ? new HomeBrainChargerVisualPicker(this.rt).render(appearanceAsset, { showClose:false, context:"detail" })
+        : "";
 
     const detailHeroScene = rhiMobilityHeroAsset(model.type === "charger" ? "charging_detail" : "vehicle_detail");
 
@@ -241,19 +241,22 @@ class HomeBrainAssetShell {
           <div class="hi-version-block" style="position:absolute;top:18px;right:22px;text-align:right;font-size:10.5px;line-height:1.25;font-weight:400;color:var(--secondary-text-color,#6B7280);opacity:.82;background:none;border:0;box-shadow:none;padding:0;margin:0;z-index:3;pointer-events:none;"><div>UX ${this.rt.escape(UX_VERSION)}</div><div>Backend ${this.rt.escape(this.rt.backendVersion())}</div></div>
           ${hbMobilityNav(model.type === "charger" ? "chargers" : "vehicles")}
           <section class="hero detail-scene-hero">
-            <img class="detail-hero-scene" src="${this.rt.escape(detailHeroScene)}" alt="" aria-hidden="true" />
+            <img class="detail-hero-scene" src="${this.rt.escape(detailHeroScene)}" alt="" aria-hidden="true" loading="eager" decoding="sync" fetchpriority="high" />
             <div class="hero-left">
               <div class="title-row"><h1>${this.rt.escape(model.display)}</h1></div>
               <div class="detail-purpose">${this.rt.escape(model.type === "charger"
                 ? "Inspect charger availability, connection health, power, linked vehicle and direct controls for this charging point."
                 : "Inspect readiness, charging relationship, operational status and direct actions for this vehicle.")}</div>
             </div>
-            <div class="hero-image">${this.renderHeroVisual(model)}</div>
+            <div class="hero-image">
+              ${this.renderHeroVisual(model)}
+              ${appearancePicker ? `<button type="button" class="hero-appearance-edit" data-detail-appearance-toggle title="Choose appearance"><ha-icon icon="mdi:palette-outline"></ha-icon><span>Appearance</span></button>` : ""}
+            </div>
           </section>
 
+          ${appearancePicker ? `<section class="detail-appearance-panel" data-detail-appearance-panel hidden><div class="detail-appearance-panel-head"><div><small>Appearance</small><b>${this.rt.escape(model.display)}</b></div><button type="button" data-detail-appearance-close title="Close appearance selector"><ha-icon icon="mdi:close"></ha-icon></button></div>${appearancePicker}</section>` : ""}
           <section class="detail-status-grid status-count-${Math.min(4,statusItems.length)}" aria-label="Asset status">${status}</section>
           <section class="actions"><div class="actions-title">Quick actions</div>${actions || `<div class="no-actions">No actions available for this asset.</div>`}</section>
-          ${chargerAppearance ? `<details class="detail-appearance-fold"><summary><ha-icon icon="mdi:palette-outline"></ha-icon><span>Charger & colour</span><small>Visual library</small></summary>${chargerAppearance}</details>` : ""}
           <section class="grid">${mainSections.map((s) => this.renderSection(s)).join("")}</section>
           ${this.renderFooter(model)}
         </div>
@@ -298,6 +301,19 @@ class HomeBrainAssetShell {
         this.rt.navigate(btn.getAttribute("data-nav"));
       });
     });
+    const appearancePanel = this.root.querySelector("[data-detail-appearance-panel]");
+    this.root.querySelectorAll("[data-detail-appearance-toggle]").forEach((btn)=>btn.addEventListener("click",(ev)=>{
+      ev.preventDefault(); ev.stopPropagation();
+      if (!appearancePanel) return;
+      appearancePanel.hidden = !appearancePanel.hidden;
+      btn.classList.toggle("active", !appearancePanel.hidden);
+      if (!appearancePanel.hidden) appearancePanel.scrollIntoView({block:"nearest",behavior:"smooth"});
+    }));
+    this.root.querySelectorAll("[data-detail-appearance-close]").forEach((btn)=>btn.addEventListener("click",(ev)=>{
+      ev.preventDefault(); ev.stopPropagation();
+      if (appearancePanel) appearancePanel.hidden = true;
+      this.root.querySelectorAll("[data-detail-appearance-toggle]").forEach((toggle)=>toggle.classList.remove("active"));
+    }));
     this.root.querySelectorAll('input[type="range"][data-live-target]').forEach((el) => {
       const update = () => {
         const span = el.closest(".range-control")?.querySelector(".live-value");
@@ -603,11 +619,13 @@ class HomeBrainAssetShell {
       .row-value-with-link{display:flex;align-items:center;justify-content:flex-end;gap:8px;min-width:0;}
       .row-value-with-link span{min-width:0;overflow:hidden;text-overflow:ellipsis;}
       .hero-image { min-height:260px;display:flex;align-items:center;justify-content:center; }
-      .hero-image img { width:100%;height:285px;object-fit:contain;object-position:center; }
+      .hero-image img { width:100%;height:285px;object-fit:contain;object-position:center;transition:none!important;animation:none!important; }
       .hero-image img.image-fallback { opacity:.42!important; }
+      .hero-appearance-edit{position:absolute;right:10px;bottom:10px;z-index:5;height:36px;border:1px solid rgba(14,35,72,.12);border-radius:11px;background:rgba(255,255,255,.94);color:#1467F5;padding:0 11px;display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:650;cursor:pointer;box-shadow:0 8px 20px rgba(15,35,80,.08);pointer-events:auto}.hero-appearance-edit ha-icon{--mdc-icon-size:17px}.hero-appearance-edit.active{background:#1467F5;color:#fff;border-color:#1467F5}
+      .detail-appearance-panel[hidden]{display:none!important}.detail-appearance-panel{position:relative;z-index:8;width:min(100%,980px);margin:-2px auto 0;padding:12px;border:1px solid var(--hb-line);border-radius:16px;background:#fff;box-shadow:0 18px 44px rgba(15,35,80,.09);box-sizing:border-box}.detail-appearance-panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 2px 10px}.detail-appearance-panel-head div{display:grid;gap:2px}.detail-appearance-panel-head small{font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--hb-muted);font-weight:650}.detail-appearance-panel-head b{font-size:14px;color:var(--hb-ink)}.detail-appearance-panel-head button{width:32px;height:32px;border:1px solid var(--hb-line);border-radius:10px;background:#fff;color:var(--hb-muted);display:grid;place-items:center;cursor:pointer}.detail-appearance-panel .detail-vehicle-picker,.detail-appearance-panel .detail-charger-picker{margin:0!important;padding:0!important;border:0!important;background:transparent!important}.detail-appearance-panel .visual-picker-panel{margin:0!important}
       .hero-icon { width:220px;height:220px;border-radius:48px;background:linear-gradient(135deg,#EAF2FF,#FFFFFF);display:flex;align-items:center;justify-content:center;box-shadow:0 24px 55px rgba(15,35,80,.10); }
       .hero-icon ha-icon { --mdc-icon-size:120px;color:var(--hb-blue); }
-      .detail-appearance-fold{border:1px solid var(--hb-line);border-radius:16px;background:#fff;overflow:hidden}.detail-appearance-fold>summary{height:46px;display:flex;align-items:center;gap:8px;padding:0 14px;cursor:pointer;list-style:none;font-size:12.5px;font-weight:600}.detail-appearance-fold>summary::-webkit-details-marker{display:none}.detail-appearance-fold>summary ha-icon{--mdc-icon-size:18px;color:var(--hb-blue)}.detail-appearance-fold>summary small{margin-left:auto;color:var(--hb-muted);font-size:10.5px;font-weight:500}.detail-appearance-fold .charger-picker-panel{margin:0;border:0;border-top:1px solid var(--hb-line);border-radius:0}
+
             .actions { display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px; }.action { height:58px;border-radius:14px;border:1px solid rgba(14,35,72,.11);background:#fff;color:var(--hb-ink);font-weight:650;font-size:14px;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 12px 28px rgba(15,35,80,.06);cursor:pointer; }.action ha-icon { --mdc-icon-size:22px;color:var(--hb-blue); }.action.primary { background:linear-gradient(135deg,#1467F5,#3C7BFF);color:#fff;border-color:#1467F5; }.action.primary ha-icon { color:#fff; }
       .action small { display:block;font-size:9.5px;font-weight:650;line-height:1.05;opacity:.72;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; } .enum-action { flex-direction:column;height:auto;min-height:58px;padding:8px 10px; } .enum-action select { max-width:160px;border:1px solid rgba(14,35,72,.15);border-radius:10px;background:#fff;padding:4px 6px;font-size:11px;font-weight:600; } .enum-action.is-disabled { opacity:.55; } .no-actions { grid-column:1/-1;border:1px solid rgba(14,35,72,.10);border-radius:18px;background:#fff;padding:24px;color:var(--hb-muted);font-weight:600; }
       .grid { display:grid;grid-template-columns:repeat(4,minmax(260px,1fr));gap:12px; }

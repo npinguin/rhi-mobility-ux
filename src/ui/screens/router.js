@@ -101,9 +101,9 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
     if (view === "planning") {
       const plan = this.energyPlanning(rt);
       return hbMobilityStatusGrid(rt, [
-        { icon:"mdi:calendar-check-outline", label:"Today", value:this.fmtKwh(plan.today.plannedKwh), sub:plan.today.state || "Planned energy", tone:"neutral" },
-        { icon:"mdi:calendar-alert-outline", label:"Still to plan", value:this.fmtKwh(plan.today.stillToPlanKwh), sub:"Remaining today", tone:"neutral" },
-        { icon:"mdi:weather-sunset-up", label:"Tomorrow", value:this.fmtKwh(plan.tomorrow.plannedKwh), sub:plan.tomorrow.state || "Next horizon", tone:"neutral" }
+        { icon:"mdi:calendar-check-outline", label:"Planned today", value:plan.today.plannedKwh === null || plan.today.plannedKwh === undefined ? "Not published" : this.fmtKwh(plan.today.plannedKwh), sub:plan.today.state || "Energy planning", tone:"neutral" },
+        { icon:"mdi:calendar-alert-outline", label:"Still to plan", value:plan.today.stillToPlanKwh === null || plan.today.stillToPlanKwh === undefined ? "Not published" : this.fmtKwh(plan.today.stillToPlanKwh), sub:"Remaining energy today", tone:"neutral" },
+        { icon:"mdi:weather-sunset-up", label:"Tomorrow", value:plan.tomorrow.plannedKwh === null || plan.tomorrow.plannedKwh === undefined ? "Not published" : this.fmtKwh(plan.tomorrow.plannedKwh), sub:plan.tomorrow.state || "Next horizon", tone:"neutral" }
       ], "planning-top-status");
     }
     if (view === "strategies") {
@@ -204,9 +204,17 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
     ];
     const rows = mobilityRows.slice(0, 8).map((row) => {
       const id = String(row.asset_id || row.target_asset_id || row.flexible_asset_id || row.consumer_asset_id || row.participant_id || "Mobility asset");
-      const name = String(row.display_name || row.name || row.label || rt.assetDisplayName?.(id) || id);
-      const state = String(row.planning_state || row.state || row.status || row.reason_label || "Published");
-      return `<div class="rhi-data-row rhiVehicleRow">${this.vehicleIdentity(rt,id,row)}<span>${rt.escape(state)}</span></div>`;
+      const planned = row.planned_kwh ?? row.planned_energy_kwh ?? row.energy_kwh ?? null;
+      const start = row.planned_start || row.start_time || row.window_start || "";
+      const end = row.planned_end || row.end_time || row.window_end || "";
+      const state = String(row.planning_state || row.state || row.status || row.reason_label || "").trim();
+      const usefulState = state && state.toLowerCase() !== "published" ? state : "";
+      const answer = planned !== null && planned !== undefined && Number.isFinite(Number(planned))
+        ? `${Number(planned).toFixed(1)} kWh planned`
+        : (start || end)
+          ? [usefulState, start && end ? `${start} → ${end}` : (start || end)].filter(Boolean).join(" · ")
+          : (usefulState || "No per-asset schedule published");
+      return `<div class="rhi-data-row rhiVehicleRow">${this.vehicleIdentity(rt,id,row)}<span>${rt.escape(answer)}</span></div>`;
     }).join("");
     const contractGap = plan.available
       ? (plan.exactIdentityJoin && !mobilityRows.length ? "Energy planning is available, but no published planning row currently matches a canonical Mobility asset id." : "")
@@ -215,18 +223,18 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
     return `<section class="rhi-context-grid">
       <article class="rhi-context-card">
         <div class="rhi-context-card-kicker"><ha-icon icon="mdi:calendar-clock"></ha-icon>Energy-owned planning</div>
-        <h3>Operational charging plan</h3>
-        <p>Mobility shows Energy's public planning truth directly. No charging schedule, totals or feasibility is recalculated in the frontend.</p>
+        <h3>What will charge, and when?</h3>
+        <p>Only schedule and energy details explicitly published by Energy are shown. If a vehicle only participates in planning but has no schedule yet, that gap is stated directly.</p>
         ${rows ? `<div class="rhi-data-list">${rows}</div>` : ""}
         ${contractGap ? `<div class="rhi-context-note">${rt.escape(contractGap)}</div>` : ""}
       </article>
       <article class="rhi-context-card">
         <div class="rhi-context-card-kicker"><ha-icon icon="mdi:car-clock"></ha-icon>Mobility execution context</div>
-        <h3>Vehicle readiness</h3>
-        <p>Readiness, charger assignment, connection state and Mobility commands remain Mobility-owned. Planning is shown next to that execution truth instead of being duplicated here.</p>
+        <h3>Can the plan execute?</h3>
+        <p>Mobility keeps charger assignment, physical connection and command readiness separate from Energy planning. A published plan is not presented as executable unless those facts exist.</p>
         <div class="rhi-data-list">
-          <div class="rhi-data-row"><b>Planning source</b><span>${rt.escape(plan.source)}</span></div>
-          <div class="rhi-data-row"><b>Matched Mobility assets</b><span>${rt.escape(String(mobilityRows.length))}</span></div>
+          <div class="rhi-data-row"><b>Source</b><span>${rt.escape(plan.source)}</span></div>
+          <div class="rhi-data-row"><b>Vehicles in planning</b><span>${rt.escape(String(mobilityRows.length))}</span></div>
           <div class="rhi-data-row"><b>Plan state</b><span>${rt.escape(plan.state || "Unavailable")}</span></div>
         </div>
       </article>
@@ -345,15 +353,15 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
     return `<section class="rhi-context-grid log-grid">
       <article class="rhi-context-card rhi-log-wide">
         <div class="rhi-context-card-kicker"><ha-icon icon="mdi:text-box-search-outline"></ha-icon>Mobility log</div>
-        <h3>Recent activity</h3>
-        <p>Commands, runtime events and audit evidence are rendered directly from MOBILITY_ACTIVITY_V2.</p>
+        <h3>What happened?</h3>
+        <p>Recent vehicle, charger and command activity is shown with the asset, outcome and backend reason. Technical contract names stay out of the primary reading path.</p>
         ${entries ? `<div class="rhi-log-list">${entries}</div>` : `<div class="rhi-context-note">No activity rows are currently published.</div>`}
         ${gap}
       </article>
       <article class="rhi-context-card">
-        <div class="rhi-context-card-kicker"><ha-icon icon="mdi:alert-outline"></ha-icon>Exceptions</div>
-        <h3>${rt.escape(String(exceptions.length))} failed or rejected</h3>
-        <p>Backend-published execution reasons stay visible here without frontend reinterpretation.</p>
+        <div class="rhi-context-card-kicker"><ha-icon icon="mdi:alert-outline"></ha-icon>Exceptions · ${rt.escape(String(exceptions.length))}</div>
+        <h3>What needs attention?</h3>
+        <p>${exceptions.length ? `${rt.escape(String(exceptions.length))} failed or rejected item${exceptions.length === 1 ? "" : "s"}. The backend reason is shown below.` : "No failed or rejected activity is currently published."}</p>
         ${exceptions.slice(0,8).map((row)=>`<div class="rhi-data-row"><b>${rt.escape(titleOf(row))}</b><span>${rt.escape(reasonOf(row) || statusOf(row))}</span></div>`).join("")}
       </article>
     </section>`;
