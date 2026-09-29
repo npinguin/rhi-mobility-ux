@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 
 const publish=fs.readFileSync(new URL('../../.github/workflows/publish-hacs.yml',import.meta.url),'utf8');
+const validate=fs.readFileSync(new URL('../../.github/workflows/validate.yml',import.meta.url),'utf8');
 const release=fs.readFileSync(new URL('../../.github/workflows/release.yml',import.meta.url),'utf8');
 const q=JSON.parse(fs.readFileSync(new URL('../../release/QUALIFICATION.json',import.meta.url),'utf8'));
 const pkg=JSON.parse(fs.readFileSync(new URL('../../package.json',import.meta.url),'utf8'));
@@ -18,3 +19,7 @@ if(release.includes('test "$(git rev-parse "$TAG_SHA")" = "$(git rev-parse "$GIT
 if(release.includes('gh release upload')) throw new Error('stable promotion must not upload GitHub Release assets');
 
 console.log('PASS immutable complete-package candidate qualification lifecycle with zero release assets');
+
+if(validate.includes('Protect immutable published package')) throw new Error('engineering Validate must not force release-version churn');
+if(!publish.includes('reason=version_already_published')) throw new Error('Publish HACS must skip an already-published engineering version');
+if(!publish.includes("if: needs.scope.outputs.publish == 'true'")) throw new Error('candidate publication is not gated by version scope');
