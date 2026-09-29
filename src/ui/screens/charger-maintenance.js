@@ -760,16 +760,16 @@ ${hbMobilitySharedShellStyles()}
       }
       .charger-card .premium-image-hero .charger-visual-fallback{position:absolute!important;inset:0!important;display:none!important;place-items:center!important}.charger-card .premium-image-hero .charger-visual.image-missing .charger-visual-fallback{display:grid!important}.charger-card .premium-image-hero .charger-visual:not(.image-missing) .charger-visual-fallback{display:none!important}
       .charger-card .premium-image-hero .charger-head{
-        display:grid!important;grid-template-columns:40px minmax(0,1fr) auto!important;
+        display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;
         grid-template-rows:auto auto!important;align-items:center!important;gap:6px 9px!important;min-width:0!important;
       }
-      .charger-card .premium-image-hero .charger-icon{width:40px!important;height:40px!important;border-radius:12px!important;grid-row:1/3!important}
-      .charger-card .charger-title{min-width:0!important}
-      .charger-card .charger-title h3{font-size:16px!important;line-height:1.1!important;margin:0 0 2px!important}
+      .charger-card .premium-image-hero .charger-icon{display:none!important}
+      .charger-card .premium-image-hero .charger-title{grid-column:1!important;grid-row:1!important;min-width:0!important}
+      .charger-card .charger-title h3{font-size:16px!important;line-height:1.1!important;margin:0 0 2px!important;white-space:normal!important;overflow-wrap:break-word!important;word-break:normal!important}
       .charger-card .charger-title p{font-size:10px!important;line-height:1.2!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
-      .charger-card .premium-image-hero .status{grid-column:3!important;grid-row:1!important;align-self:center!important;justify-self:end!important;font-size:10px!important;padding:5px 8px!important}
+      .charger-card .premium-image-hero .status{grid-column:2!important;grid-row:1!important;align-self:center!important;justify-self:end!important;font-size:10px!important;padding:5px 8px!important}
       .charger-card .charger-appearance-action{
-        grid-column:2/4!important;grid-row:2!important;justify-self:start!important;
+        grid-column:1/3!important;grid-row:2!important;justify-self:start!important;
         height:31px!important;min-height:31px!important;border-radius:9px!important;padding:0 9px!important;font-size:10.5px!important;
       }
       .charger-card .charger-kpis{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:6px!important}
@@ -801,7 +801,7 @@ ${hbMobilitySharedShellStyles()}
         }
         .charger-card .premium-image-hero .charger-visual{height:92px!important;min-height:92px!important}
         .charger-card .premium-image-hero .charger-visual img{max-width:88px!important;max-height:86px!important}
-        .charger-card .premium-image-hero .charger-head{grid-template-columns:34px minmax(0,1fr) auto!important;gap:4px 7px!important}
+        .charger-card .premium-image-hero .charger-head{grid-template-columns:minmax(0,1fr) auto!important;gap:4px 7px!important}
         .charger-card .premium-image-hero .charger-icon{width:34px!important;height:34px!important;border-radius:10px!important}
         .charger-card .charger-title h3{font-size:14px!important}
         .charger-card .charger-title p{font-size:9px!important}

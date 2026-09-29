@@ -7,6 +7,7 @@ const assetShell=fs.readFileSync(new URL('../../src/ui/components/asset-shell.js
 const dashboard=fs.readFileSync(new URL('../../src/ui/screens/mobility-dashboard.js',import.meta.url),'utf8');
 const chargers=fs.readFileSync(new URL('../../src/ui/screens/charger-maintenance.js',import.meta.url),'utf8');
 const router=fs.readFileSync(new URL('../../src/ui/screens/router.js',import.meta.url),'utf8');
+const uxCore=fs.readFileSync(new URL('../../src/vendor/rhi-ux-core.js',import.meta.url),'utf8');
 
 for(const needle of [
   'display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important',
@@ -152,3 +153,26 @@ const heroIndex=assetShell.indexOf('class="hero detail-scene-hero"');
 const statusIndex=assetShell.indexOf('class="detail-status-grid status-count-');
 const actionsIndex=assetShell.indexOf('class="actions"');
 if(!(heroIndex >= 0 && statusIndex > heroIndex && actionsIndex > statusIndex)) throw new Error('detail page hierarchy must be hero -> status -> quick actions');
+
+
+for(const required of [
+  'grid-template-columns:minmax(0,1fr) auto!important',
+  '.charger-card .premium-image-hero .charger-title{grid-column:1!important;grid-row:1!important',
+  'overflow-wrap:break-word!important;word-break:normal!important',
+  '.charger-card .premium-image-hero .status{grid-column:2!important',
+  'grid-column:1/3!important;grid-row:2!important'
+]) {
+  if(!chargers.includes(required)) throw new Error(`charger rendered-anatomy regression: missing ${required}`);
+}
+if(chargers.includes('grid-template-columns:40px minmax(0,1fr) auto!important;')) throw new Error('charger identity returned to unusable 40px title column');
+
+for(const required of [
+  'contain:layout paint',
+  'max-width:132px!important',
+  'max-height:72px!important',
+  'object-fit:contain!important',
+  'transform:none!important'
+]) {
+  if(!uxCore.includes(required)) throw new Error(`visual picker containment regression: missing ${required}`);
+}
+console.log('PASS charger identity anatomy and picker artwork containment');
