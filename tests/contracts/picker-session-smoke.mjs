@@ -6,6 +6,7 @@ const blueprint=fs.readFileSync(new URL('../../documentation/SEMANTIC_PICKER_BLU
 const runtime=fs.readFileSync(new URL('../../src/runtime/ha-contract-runtime.js',import.meta.url),'utf8');
 const router=fs.readFileSync(new URL('../../src/ui/screens/router.js',import.meta.url),'utf8');
 const assetShell=fs.readFileSync(new URL('../../src/ui/components/asset-shell.js',import.meta.url),'utf8');
+const uxCore=fs.readFileSync(new URL('../../src/vendor/rhi-ux-core.js',import.meta.url),'utf8');
 
 const vehicleStart=dashboard.indexOf('this.shadowRoot.querySelectorAll("[data-picker-panel]")');
 const vehicleEnd=dashboard.indexOf('this.shadowRoot.querySelectorAll("button[data-lifecycle-asset]")',vehicleStart);
@@ -54,3 +55,36 @@ for(const source of [vehiclePicker,chargerPicker]){
   if(!source.includes('rhiUxVisualChoice')) throw new Error('picker must use shared Core visual-choice grammar');
 }
 if(vehiclePicker.includes('visual-choice-card') || chargerPicker.includes('visual-choice-card')) throw new Error('legacy picker choice presentation class remains active');
+
+
+for(const needle of [
+  'this._vehiclePendingAppearance = this._vehiclePendingAppearance || new Map()',
+  'pendingVehicleAppearance(rt, asset)',
+  'this._vehiclePendingAppearance.set(assetId',
+  'this.failVehicleAppearance(assetId',
+  'Appearance readback timed out; showing the canonical Mobility appearance again.'
+]) {
+  if(!dashboard.includes(needle)) throw new Error(`vehicle pending appearance lifecycle regression: missing ${needle}`);
+}
+for(const needle of [
+  'this._chargerPendingAppearance = this._chargerPendingAppearance || new Map()',
+  'pendingChargerAppearance(rt, asset)',
+  'this._chargerPendingAppearance.set(assetId',
+  'this.failChargerAppearance(assetId',
+  'Appearance readback timed out; showing the canonical Mobility appearance again.'
+]) {
+  if(!chargers.includes(needle)) throw new Error(`charger pending appearance lifecycle regression: missing ${needle}`);
+}
+if(!dashboard.includes('canonical === pending.key')) throw new Error('vehicle pending appearance must clear only on canonical image-key readback');
+if(!chargers.includes('canonical === pending.key')) throw new Error('charger pending appearance must clear only on canonical image-key readback');
+if(!assetShell.includes('const revert = (message) =>')) throw new Error('detail appearance writes must provide bounded revert behavior');
+if(!assetShell.includes('saveButton.classList.add("failed")')) throw new Error('detail appearance write failure must be visible');
+for(const needle of [
+  '.rhiUxVisualChoiceImage{position:relative!important',
+  'width:100%!important;height:76px!important',
+  'max-width:132px!important;max-height:72px!important',
+  'object-fit:contain!important'
+]) {
+  if(!uxCore.includes(needle)) throw new Error(`shared visual choice bounds regression: missing ${needle}`);
+}
+console.log('PASS appearance Save bridges pending presentation to canonical readback/revert');

@@ -1,5 +1,5 @@
 /**
- * Robotix Home Intelligence Mobility UX v1.0.0-rc.73
+ * Robotix Home Intelligence Mobility UX v1.0.0-rc.74
  * GENERATED FILE - DO NOT EDIT.
  * License: GPL-3.0-only
  */
@@ -665,7 +665,7 @@ function hbMobilityPresentationStyles() {
 // ---- src/app/header-and-navigation.js ----
 // Mobility presentation adapter onto the shared RHI UX Core.
 // Domain semantics remain owned by Mobility runtime/projections.
-const UX_VERSION = "1.0.0-rc.73";
+const UX_VERSION = "1.0.0-rc.74";
 const HB_MOBILITY_ROUTE_SEGMENTS = new Set([
   "overview","dashboard","vehicles","charger-maintenance","chargers",
   "planning","strategies","history","log","asset-detail","detail","charging"
@@ -6769,13 +6769,32 @@ class HomeBrainAssetShell {
         const profileId = saveButton.getAttribute("data-vehicle-profile-id") || "";
         const key = saveButton.getAttribute("data-vehicle-key") || "";
         if (!assetId || !key) return;
+        const revert = (message) => {
+          const asset = this.rt.vehicleById(assetId) || this.rt.assetById(assetId) || {asset_id:assetId,asset_type:"vehicle"};
+          const canonical = picker.selection(asset,{});
+          const pickerPreview = panel.querySelector('[data-picker-visual-preview="vehicle"]');
+          if (pickerPreview && canonical.vehicle?.package_file) {
+            pickerPreview.src = this.rt.cache(canonical.vehicle.package_file);
+            pickerPreview.style.filter = canonical.color?.filter || "none";
+          }
+          const hero = this.root.querySelector('[data-vehicle-visual-preview="1"]');
+          if (hero && canonical.vehicle?.package_file) {
+            hero.src = this.rt.cache(canonical.vehicle.package_file);
+            const gray = hero.getAttribute("data-image-gray") || "0";
+            hero.style.filter = `grayscale(${gray}) ${canonical.color?.filter || "none"} drop-shadow(0 24px 30px rgba(15,35,80,.15))`;
+          }
+          saveButton.disabled = false;
+          saveButton.classList.add("failed");
+          saveButton.title = message;
+        };
         saveButton.disabled = true;
+        saveButton.classList.remove("failed");
         const profileProp = this.rt.semanticProperty(assetId, "asset.profile_id");
         const currentProfile = String(profileProp?.value || "");
         const profileOk = !profileId || profileId === currentProfile || await this.rt.writePublishedPropertyAsync(assetId, "asset.profile_id", profileId);
-        if (!profileOk) { saveButton.disabled = false; return; }
+        if (!profileOk) { revert("Profile update was rejected. Appearance was not changed."); return; }
         const imageOk = await this.rt.writePublishedPropertyAsync(assetId, "vehicle.image_key", key);
-        if (!imageOk) { saveButton.disabled = false; return; }
+        if (!imageOk) { revert("Appearance update was rejected or canonical readback did not confirm it."); return; }
         saveButton.classList.add("sent");
       });
     });
@@ -6871,13 +6890,25 @@ class HomeBrainAssetShell {
         const profileId = saveButton.getAttribute("data-charger-profile-id") || "";
         const key = saveButton.getAttribute("data-charger-key") || "";
         if (!assetId || !key) return;
+        const revert = (message) => {
+          const asset = this.rt.chargerById(assetId) || this.rt.assetById(assetId) || {asset_id:assetId,asset_type:"charger"};
+          const canonical = picker.selection(asset,{});
+          const pickerPreview = panel.querySelector('[data-picker-visual-preview="charger"]');
+          if (pickerPreview && canonical.appearance?.package_file) pickerPreview.src = this.rt.cache(canonical.appearance.package_file);
+          const hero = this.root.querySelector('[data-charger-visual-preview="1"]');
+          if (hero && canonical.appearance?.package_file) hero.src = this.rt.cache(canonical.appearance.package_file);
+          saveButton.disabled = false;
+          saveButton.classList.add("failed");
+          saveButton.title = message;
+        };
         saveButton.disabled = true;
+        saveButton.classList.remove("failed");
         const profileProp = this.rt.semanticProperty(assetId, "asset.profile_id");
         const currentProfile = String(profileProp?.value || "");
         const profileOk = !profileId || profileId === currentProfile || await this.rt.writePublishedPropertyAsync(assetId, "asset.profile_id", profileId);
-        if (!profileOk) { saveButton.disabled = false; return; }
+        if (!profileOk) { revert("Profile update was rejected. Appearance was not changed."); return; }
         const imageOk = await this.rt.writePublishedPropertyAsync(assetId, "charger.image_key", key);
-        if (!imageOk) { saveButton.disabled = false; return; }
+        if (!imageOk) { revert("Appearance update was rejected or canonical readback did not confirm it."); return; }
         saveButton.classList.add("sent");
       });
     });
@@ -7307,12 +7338,35 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
     this._limitDrafts = this._limitDrafts || new Map();
     this._chargerPickerAsset = this._chargerPickerAsset || "";
     this._chargerPickerDraft = this._chargerPickerDraft || new Map();
+    this._chargerPendingAppearance = this._chargerPendingAppearance || new Map();
+    this._chargerAppearanceError = this._chargerAppearanceError || new Map();
     this._lastSignature = this._lastSignature || "";
     this._lastRenderAt = this._lastRenderAt || 0;
   }
 
   assetId(charger) { return charger?.asset_id || ""; }
   chargerId(charger) { return String(this.assetId(charger)).replace(/^charger_/, ""); }
+
+  pendingChargerAppearance(rt, asset) {
+    const assetId = this.assetId(asset);
+    const pending = this._chargerPendingAppearance.get(assetId) || null;
+    if (!pending) return null;
+    const canonical = String(rt.semanticProperty(assetId, "charger.image_key")?.value ?? "").trim();
+    if (canonical && canonical === pending.key) {
+      this._chargerPendingAppearance.delete(assetId);
+      this._chargerAppearanceError.delete(assetId);
+      return null;
+    }
+    return pending;
+  }
+
+  failChargerAppearance(assetId, message = "Appearance update was not confirmed by Mobility.") {
+    this._chargerPendingAppearance.delete(assetId);
+    this._chargerAppearanceError.set(assetId, message);
+    this._forceRender = true;
+    this._lastSignature = "";
+    if (this._hass) this.hass = this._hass;
+  }
 
   chargerRuntimeReady(rt, charger) {
     const model = new HomeBrainChargerAdapter(rt, this.chargerId(charger), { ...this.config, registry_entry:charger }).build();
@@ -7325,6 +7379,8 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
     const assetId = String(id || "").startsWith("charger_") ? String(id) : `charger_${id}`;
     const asset = rt ? (rt.chargerById(assetId) || rt.assetById(assetId) || { asset_id: assetId }) : { asset_id: assetId };
     if (rt) {
+      const pending = this.pendingChargerAppearance(rt, asset);
+      if (pending?.image) return pending.image;
       const prop = rt.propertyByCompoundKey(assetId, "charger.image_key");
       const raw = prop?.value ?? rt.visualImageKey(asset, "image") ?? asset?.image_key ?? "";
       const visual = typeof rhiMobilityResolveChargerVisual === "function" ? rhiMobilityResolveChargerVisual(asset, raw) : null;
@@ -7537,6 +7593,7 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
     ].join("");
 
     const pickerOpen = this._chargerPickerAsset === assetId;
+    const appearanceError = this._chargerAppearanceError.get(assetId) || "";
     return `<article class="charger-card ${issue ? "attention" : ""}">
       <div class="charger-identity-card">
         ${this.renderChargerHero(rt, id, name, status)}
@@ -7553,6 +7610,7 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
         </div>
       </div>
       ${pickerOpen ? this.renderChargerPicker(rt, charger) : ""}
+      ${appearanceError ? `<div class="appearance-write-error" role="status"><ha-icon icon="mdi:alert-circle-outline"></ha-icon><span>${rt.escape(appearanceError)}</span></div>` : ""}
       <div class="charger-kpis">
         ${this.field(rt, "Power", power, "mdi:flash")}
         ${this.field(rt, "Current", actualCurrent, "mdi:current-ac")}
@@ -7882,16 +7940,32 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
         const profileId = btn.getAttribute("data-charger-profile-id") || "";
         const key = btn.getAttribute("data-charger-key") || "";
         if (!assetId || !key) return;
+        const asset = rt.chargerById(assetId) || rt.assetById(assetId) || {asset_id:assetId,asset_type:"charger"};
+        const selection = new HomeBrainChargerVisualPicker(rt).selection(asset,this._chargerPickerDraft.get(assetId) || {});
+        this._chargerPendingAppearance.set(assetId,{
+          key,
+          image:selection?.appearance?.package_file || "",
+          started_at:Date.now()
+        });
+        this._chargerAppearanceError.delete(assetId);
+        this._forceRender=true; this._lastSignature="";
+        if(this._hass)this.hass=this._hass;
         btn.disabled = true;
         const profileProp = rt.semanticProperty(assetId, "asset.profile_id");
         const currentProfile = String(profileProp?.value || "");
         const profileOk = !profileId || profileId === currentProfile || await rt.writePublishedPropertyAsync(assetId, "asset.profile_id", profileId);
-        if (!profileOk) { btn.disabled = false; return; }
+        if (!profileOk) { this.failChargerAppearance(assetId,"Profile update was rejected. Appearance was not changed."); return; }
         const imageOk = await rt.writePublishedPropertyAsync(assetId, "charger.image_key", key);
-        if (!imageOk) { btn.disabled = false; return; }
+        if (!imageOk) { this.failChargerAppearance(assetId,"Appearance update was rejected or canonical readback did not confirm it."); return; }
         btn.classList.add("sent");
         this._chargerPickerDraft.delete(assetId);
-        setTimeout(()=>{ this._chargerPickerAsset=""; this._forceRender=true; this._lastSignature=""; if(this._hass)this.hass=this._hass; },450);
+        this._chargerPickerAsset="";
+        this._forceRender=true; this._lastSignature="";
+        if(this._hass)this.hass=this._hass;
+        setTimeout(()=>{
+          const pending=this._chargerPendingAppearance.get(assetId);
+          if(pending?.key===key) this.failChargerAppearance(assetId,"Appearance readback timed out; showing the canonical Mobility appearance again.");
+        },8000);
       });
     });
 
@@ -7952,6 +8026,7 @@ ${hbMobilitySharedShellStyles()}
       @media(max-width:880px){.charge-mini-strip.mock-controls{height:auto!important;flex-wrap:wrap!important}.mini-current-stepper.compact-current{flex:1 1 150px!important}.vehicle-actions.clean-actions{grid-template-columns:1fr 1fr 1fr 42px 42px!important}.action-spacer{display:none!important}}
 
       /* rc.27 shared visual-library management + mobile density. */
+      .appearance-write-error{display:flex;align-items:center;gap:7px;padding:8px 10px;border:1px solid #fed7aa;border-radius:10px;background:#fff7ed;color:#9a3412;font-size:10px;font-weight:600}.appearance-write-error ha-icon{--mdc-icon-size:16px}
       .charger-appearance-action{height:34px;border-radius:10px;border:1px solid rgba(14,35,72,.10);background:#fff;color:#1467F5;display:inline-flex;align-items:center;gap:6px;padding:0 10px;font-size:11px;font-weight:600;cursor:pointer;grid-column:2/4;justify-self:start}
       .charger-appearance-action ha-icon{--mdc-icon-size:16px}
       .charger-picker-panel{margin:0 12px 10px;padding:12px 14px;border:1px solid #cfe0f6;border-radius:14px;background:linear-gradient(135deg,#fbfdff,#f3f8ff);box-shadow:inset 0 1px 0 rgba(255,255,255,.8)}
@@ -8212,6 +8287,8 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     this._vehicleSort = this._vehicleSort || "default";
     this._vehiclePickerAsset = this._vehiclePickerAsset || "";
     this._vehiclePickerDraft = this._vehiclePickerDraft || new Map();
+    this._vehiclePendingAppearance = this._vehiclePendingAppearance || new Map();
+    this._vehicleAppearanceError = this._vehicleAppearanceError || new Map();
     this._lastDashboardRenderAt = this._lastDashboardRenderAt || 0;
     this._lastSignature = this._lastSignature || "";
     if (!this._viewPositionBound) {
@@ -8231,6 +8308,28 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
   assetId(asset) { return asset?.asset_id || ""; }
   vehicleId(asset) { return String(this.assetId(asset)).replace(/^vehicle_/, ""); }
   chargerId(assetOrId) { return String(assetOrId?.asset_id || assetOrId || "").replace(/^charger_/, ""); }
+
+  pendingVehicleAppearance(rt, asset) {
+    const assetId = this.assetId(asset);
+    const pending = this._vehiclePendingAppearance.get(assetId) || null;
+    if (!pending) return null;
+    const canonical = String(rt.semanticProperty(assetId, "vehicle.image_key")?.value ?? "").trim();
+    if (canonical && canonical === pending.key) {
+      this._vehiclePendingAppearance.delete(assetId);
+      this._vehicleAppearanceError.delete(assetId);
+      return null;
+    }
+    return pending;
+  }
+
+  failVehicleAppearance(assetId, message = "Appearance update was not confirmed by Mobility.") {
+    this._vehiclePendingAppearance.delete(assetId);
+    this._vehicleAppearanceError.set(assetId, message);
+    this._forceRender = true;
+    this._holdRenderUntil = 0;
+    this._lastSignature = "";
+    if (this._hass) this.hass = this._hass;
+  }
 
   /** Centralized charger image resolver.
    * Priority: profile/type words -> asset_id -> default. Keep this in one place
@@ -8548,8 +8647,10 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     const pickerOpen = this._vehiclePickerAsset === assetId;
     const pickerDraft = pickerOpen ? (this._vehiclePickerDraft.get(assetId) || {}) : {};
     const visual = this.vehicleVisualSelection(rt, asset, pickerDraft);
-    const visualFilter = visual?.color?.filter || "none";
-    const visualImage = pickerOpen && visual?.vehicle?.package_file ? visual.vehicle.package_file : image;
+    const pendingAppearance = this.pendingVehicleAppearance(rt, asset);
+    const visualFilter = pendingAppearance?.filter ?? visual?.color?.filter ?? "none";
+    const visualImage = pendingAppearance?.image || visual?.vehicle?.package_file || image;
+    const appearanceError = this._vehicleAppearanceError.get(assetId) || "";
     return `<article class="vehicle-card premium-vehicle-card">
       <div class="status-top-row vehicle-intelligence-strip">
         ${(Array.isArray(model?.status) ? model.status : []).slice(0, 5).map((tile) => this.intelligenceStatusRow(rt, tile)).join("")}
@@ -8568,6 +8669,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
         </div>
       </div>
       ${pickerOpen ? this.renderVehiclePicker(rt, asset) : ""}
+      ${appearanceError ? `<div class="appearance-write-error" role="status"><ha-icon icon="mdi:alert-circle-outline"></ha-icon><span>${rt.escape(appearanceError)}</span></div>` : ""}
       ${this.renderVehicleControlRow(rt, asset, chargers)}
       <div class="vehicle-actions clean-actions">
         ${vehicleCommands.map((cmd, index)=>this.renderCommand(rt, cmd, cmd?.label || "Action", this.commandIcon(cmd), index === 0 ? "primary-charge" : "")).join("")}
@@ -9323,16 +9425,34 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
       const profileId=btn.getAttribute("data-vehicle-profile-id") || "";
       const key=btn.getAttribute("data-vehicle-key") || "";
       if(!assetId || !key) return;
+      const asset=rt.vehicleById(assetId) || rt.assetById(assetId) || {asset_id:assetId,asset_type:"vehicle"};
+      const picker=new HomeBrainVehicleVisualPicker(rt);
+      const selection=picker.selection(asset,this._vehiclePickerDraft.get(assetId) || {});
+      this._vehiclePendingAppearance.set(assetId,{
+        key,
+        image:selection?.vehicle?.package_file || "",
+        filter:selection?.color?.filter || "none",
+        started_at:Date.now()
+      });
+      this._vehicleAppearanceError.delete(assetId);
+      this._forceRender=true; this._lastSignature="";
+      if(this._hass)this.hass=this._hass;
       btn.disabled=true;
       const profileProp=rt.semanticProperty(assetId,"asset.profile_id");
       const currentProfile=String(profileProp?.value || "");
       const profileOk=!profileId || profileId===currentProfile || await rt.writePublishedPropertyAsync(assetId,"asset.profile_id",profileId);
-      if(!profileOk){btn.disabled=false;return;}
+      if(!profileOk){this.failVehicleAppearance(assetId,"Profile update was rejected. Appearance was not changed.");return;}
       const imageOk=await rt.writePublishedPropertyAsync(assetId,"vehicle.image_key",key);
-      if(!imageOk){btn.disabled=false;return;}
+      if(!imageOk){this.failVehicleAppearance(assetId,"Appearance update was rejected or canonical readback did not confirm it.");return;}
       btn.classList.add("sent");
       this._vehiclePickerDraft.delete(assetId);
-      setTimeout(()=>{this._vehiclePickerAsset="";this._forceRender=true;this._lastSignature="";if(this._hass)this.hass=this._hass;},450);
+      this._vehiclePickerAsset="";
+      this._forceRender=true; this._lastSignature="";
+      if(this._hass)this.hass=this._hass;
+      setTimeout(()=>{
+        const pending=this._vehiclePendingAppearance.get(assetId);
+        if(pending?.key===key) this.failVehicleAppearance(assetId,"Appearance readback timed out; showing the canonical Mobility appearance again.");
+      },8000);
     }));
     this.shadowRoot.querySelectorAll("button[data-lifecycle-asset]").forEach((btn)=>btn.addEventListener("click",async ()=>{
       if (btn.disabled) return;
@@ -9404,6 +9524,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
   }
 
   overviewStyles() { return `
+    .appearance-write-error{display:flex;align-items:center;gap:7px;margin:0 2px;padding:8px 10px;border:1px solid #fed7aa;border-radius:10px;background:#fff7ed;color:#9a3412;font-size:10px;font-weight:600}.appearance-write-error ha-icon{--mdc-icon-size:16px}
     .rhi-page-hero-overview{position:relative!important;display:block!important;min-height:clamp(176px,16vw,218px)!important;border:0!important;border-radius:18px!important;background:linear-gradient(90deg,#fff 0%,#fff 30%,rgba(255,255,255,.94) 39%,rgba(255,255,255,.18) 60%,rgba(255,255,255,0) 76%)!important;box-shadow:none!important;overflow:hidden!important;margin:0!important}
     .rhi-page-hero-overview:before{display:none!important}
     .rhi-page-hero-overview .rhi-page-hero-copy{position:relative!important;z-index:4!important;width:min(48%,650px)!important;max-width:none!important;padding:32px 20px 28px 24px!important}

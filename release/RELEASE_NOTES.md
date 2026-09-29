@@ -1,24 +1,23 @@
-# v1.0.0-rc.73 — Mobility stabilization UX
+# v1.0.0-rc.74 — M0.10.22 product acceptance candidate
 
 ## User-facing behavior
 
-- makes vehicle↔charger assignment explicit and actionable in Vehicle Management;
-- shows reciprocal assigned-vehicle information in Charger Management while keeping physical connection distinct;
-- keeps long charger identity, location and profile information readable;
-- normalizes vehicle/charger appearance picker proportions across desktop, tablet and phone;
-- separates profile-owned defaults from instance configuration and keeps explicit deviations under Advanced overrides;
-- targets Mobility M0.10.21 for the stabilized relationship, security, command and identity semantics.
+- targets the immutable Mobility backend M0.10.22 candidate and keeps backend-owned lifecycle, charging-power, relationship and planning semantics authoritative;
+- keeps vehicle and charger appearance choice tiles bounded independently of source artwork dimensions through pinned UX Core 1.5.3;
+- after Save, immediately carries the selected vehicle/charger appearance into the primary management card as asset-scoped pending presentation;
+- clears pending appearance only when canonical Mobility image-key readback confirms the requested value;
+- reverts to canonical appearance and exposes a bounded UX error when profile/image writes are rejected or readback times out;
+- applies the same explicit failed/revert behavior to vehicle and charger detail pickers;
+- preserves requested charging power separately from physical setpoint/readback/actual values and preserves assigned-vs-physical relationship presentation.
 
 ## Engineering
 
-- consumes canonical Mobility V2 relationship/write metadata without frontend semantic reconstruction;
-- preserves deterministic HACS packaging and immutable candidate publication;
-- aligns UX engineering CI with the release-boundary model so ordinary defect PRs do not require version churn.
+- no frontend-owned persistence or semantic reconstruction was introduced;
+- pending appearance is presentation-only and never becomes domain truth;
+- target-runtime proof remains required for exact rc.74 + M0.10.22 before stable promotion;
+- rollback target is v1.0.0-rc.73.
 
-Scope: rhi-mobility-ux#115, #116 and #118.
-Rollback: **v1.0.0-rc.72**.
+Scope: appearance closure #127 plus rc.74/M0.10.22 target qualification.
 
 Known accepted technical debt: **0**.
 Known accepted feature debt: **0**.
-
-Target Home Assistant proof remains required for rendering, assignment/readback, restart/reload, upgrade and rollback before stable promotion.

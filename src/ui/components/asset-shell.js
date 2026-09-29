@@ -404,13 +404,32 @@ class HomeBrainAssetShell {
         const profileId = saveButton.getAttribute("data-vehicle-profile-id") || "";
         const key = saveButton.getAttribute("data-vehicle-key") || "";
         if (!assetId || !key) return;
+        const revert = (message) => {
+          const asset = this.rt.vehicleById(assetId) || this.rt.assetById(assetId) || {asset_id:assetId,asset_type:"vehicle"};
+          const canonical = picker.selection(asset,{});
+          const pickerPreview = panel.querySelector('[data-picker-visual-preview="vehicle"]');
+          if (pickerPreview && canonical.vehicle?.package_file) {
+            pickerPreview.src = this.rt.cache(canonical.vehicle.package_file);
+            pickerPreview.style.filter = canonical.color?.filter || "none";
+          }
+          const hero = this.root.querySelector('[data-vehicle-visual-preview="1"]');
+          if (hero && canonical.vehicle?.package_file) {
+            hero.src = this.rt.cache(canonical.vehicle.package_file);
+            const gray = hero.getAttribute("data-image-gray") || "0";
+            hero.style.filter = `grayscale(${gray}) ${canonical.color?.filter || "none"} drop-shadow(0 24px 30px rgba(15,35,80,.15))`;
+          }
+          saveButton.disabled = false;
+          saveButton.classList.add("failed");
+          saveButton.title = message;
+        };
         saveButton.disabled = true;
+        saveButton.classList.remove("failed");
         const profileProp = this.rt.semanticProperty(assetId, "asset.profile_id");
         const currentProfile = String(profileProp?.value || "");
         const profileOk = !profileId || profileId === currentProfile || await this.rt.writePublishedPropertyAsync(assetId, "asset.profile_id", profileId);
-        if (!profileOk) { saveButton.disabled = false; return; }
+        if (!profileOk) { revert("Profile update was rejected. Appearance was not changed."); return; }
         const imageOk = await this.rt.writePublishedPropertyAsync(assetId, "vehicle.image_key", key);
-        if (!imageOk) { saveButton.disabled = false; return; }
+        if (!imageOk) { revert("Appearance update was rejected or canonical readback did not confirm it."); return; }
         saveButton.classList.add("sent");
       });
     });
@@ -506,13 +525,25 @@ class HomeBrainAssetShell {
         const profileId = saveButton.getAttribute("data-charger-profile-id") || "";
         const key = saveButton.getAttribute("data-charger-key") || "";
         if (!assetId || !key) return;
+        const revert = (message) => {
+          const asset = this.rt.chargerById(assetId) || this.rt.assetById(assetId) || {asset_id:assetId,asset_type:"charger"};
+          const canonical = picker.selection(asset,{});
+          const pickerPreview = panel.querySelector('[data-picker-visual-preview="charger"]');
+          if (pickerPreview && canonical.appearance?.package_file) pickerPreview.src = this.rt.cache(canonical.appearance.package_file);
+          const hero = this.root.querySelector('[data-charger-visual-preview="1"]');
+          if (hero && canonical.appearance?.package_file) hero.src = this.rt.cache(canonical.appearance.package_file);
+          saveButton.disabled = false;
+          saveButton.classList.add("failed");
+          saveButton.title = message;
+        };
         saveButton.disabled = true;
+        saveButton.classList.remove("failed");
         const profileProp = this.rt.semanticProperty(assetId, "asset.profile_id");
         const currentProfile = String(profileProp?.value || "");
         const profileOk = !profileId || profileId === currentProfile || await this.rt.writePublishedPropertyAsync(assetId, "asset.profile_id", profileId);
-        if (!profileOk) { saveButton.disabled = false; return; }
+        if (!profileOk) { revert("Profile update was rejected. Appearance was not changed."); return; }
         const imageOk = await this.rt.writePublishedPropertyAsync(assetId, "charger.image_key", key);
-        if (!imageOk) { saveButton.disabled = false; return; }
+        if (!imageOk) { revert("Appearance update was rejected or canonical readback did not confirm it."); return; }
         saveButton.classList.add("sent");
       });
     });
