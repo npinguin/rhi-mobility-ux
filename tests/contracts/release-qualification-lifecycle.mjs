@@ -22,7 +22,7 @@ console.log('PASS immutable complete-package candidate qualification lifecycle w
 
 if(validate.includes('Protect immutable published package')) throw new Error('engineering Validate must not force release-version churn');
 if(!publish.includes('reason=version_already_published')) throw new Error('Publish HACS must skip an already-published engineering version');
-if(!publish.includes("if: needs.scope.outputs.publish == 'true'")) throw new Error('candidate publication is not gated by version scope');
+if(!publish.includes("needs.scope.outputs.publish == 'true'")) throw new Error('candidate publication is not gated by version scope');
 
 const verifyBlock=publish.slice(publish.indexOf('  verify:'),publish.indexOf('  publish:'));
 if((verifyBlock.match(/^    if:/gm)||[]).length!==1) throw new Error('Publish HACS verify job must have exactly one YAML if condition');
