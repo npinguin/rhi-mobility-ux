@@ -22,8 +22,6 @@
   "shared_visual_picker_grammar": "pending",
   "vehicle_image_persistence": "pending",
   "charger_image_persistence": "pending",
-  "backend_candidate": "M0.10.22",
-  "backend_source_sha": "bce0e4be85e7b1c4ef934929d735e6ab3623ce04",
   "lifecycle_persistence": "pending",
   "requested_kw_write_readback": "pending",
   "physical_relationship_truth": "pending",
