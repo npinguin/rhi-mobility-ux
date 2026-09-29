@@ -51,6 +51,7 @@ const v2Hass={states:{
   'sensor.rhi_mobility_runtime_v2':{state:'ready',attributes:{
     contract_id:'MOBILITY_PUBLIC_RUNTIME_V2',
     canonical:true,
+    release:{backend_release:'M0.10.21',release_name:'STABILIZATION_RUNTIME_UX'},
     fleet:{
       active_vehicle_count:5,
       active_charger_count:4,
@@ -96,6 +97,7 @@ const v2Hass={states:{
       vehicle_intelligence:{state:'assigned',summary:'Vehicle vehicle_id4',connected_vehicle_asset_id:'vehicle_id4',connected_vehicle_display_name:'ID4'}
     }]
   }},
+  'sensor.mobility_release_contract':{state:'M0.9.99',attributes:{backend_release:'M0.9.99',contract_health:'ready'}},
   'sensor.rhi_mobility_policy_v2':{state:'7',attributes:{
     contract_id:'MOBILITY_POLICY_V2',
     publisher:'rhi_mobility',
@@ -114,6 +116,8 @@ const v2Hass={states:{
 },callService:(domain,service,data)=>{v2Hass.lastCall={domain,service,data};}};
 const v2rt=new Runtime(v2Hass,{});
 if(v2rt.mobilityRuntimeV2()?.fleet?.connected_charger_count!==2) throw new Error('Runtime V2 fleet contract not consumed');
+if(v2rt.backendVersion()!=='M0.10.21') throw new Error(`canonical Runtime V2 release did not beat stale legacy release sensor: ${v2rt.backendVersion()}`);
+if(v2rt.releaseContract().authority!=='MOBILITY_PUBLIC_RUNTIME_V2') throw new Error('Runtime V2 is not release identity authority');
 if(v2rt.vehicleExperienceV2('vehicle_id4')?.security_intelligence?.state!=='secure') throw new Error('Experience V2 vehicle contract not consumed');
 if(v2rt.chargerExperienceV2('charger_peb')?.fault?.state!=='none') throw new Error('Experience V2 charger contract not consumed');
 if(v2rt.mobilityPolicyV2()?.policy?.maintenance?.due_soon_days!==90) throw new Error('Policy V2 contract not consumed');

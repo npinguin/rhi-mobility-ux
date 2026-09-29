@@ -179,6 +179,7 @@ class HomeBrainAssetRuntime {
     return {
       contract_id: attrs.contract_id,
       canonical: attrs.canonical === true,
+      release: attrs.release && typeof attrs.release === "object" ? { ...attrs.release } : {},
       assets: Array.isArray(attrs.assets) ? attrs.assets : [],
       fleet: attrs.fleet && typeof attrs.fleet === "object" ? attrs.fleet : {},
       relationships: Array.isArray(attrs.relationships) ? attrs.relationships : [],
@@ -750,11 +751,16 @@ class HomeBrainAssetRuntime {
 
 
   releaseContract() {
+    // Runtime V2 is the canonical active Mobility product contract and publishes the
+    // backend release alongside the same asset/relationship snapshot consumed by UX.
+    // Legacy release sensors are compatibility evidence only and may be absent.
+    const runtime = this.mobilityRuntimeV2();
+    const runtimeRelease = runtime?.release && typeof runtime.release === "object" ? runtime.release : {};
     const contractEntity = this.entity("sensor.mobility_release_contract");
     const identityEntity = this.entity("sensor.mobility_release_identity");
-    const e = contractEntity || identityEntity;
     const attrs = { ...(identityEntity?.attributes || {}), ...(contractEntity?.attributes || {}) };
     const backend = this.cleanValue(
+      runtimeRelease.backend_release ||
       attrs.backend_release ||
       attrs.backend_version ||
       attrs.backend_release_version ||
@@ -767,21 +773,26 @@ class HomeBrainAssetRuntime {
       "",
       "Unknown"
     ) || "Unknown";
+    const canonicalReady = Boolean(runtime && runtime.canonical === true);
     return {
       backend_release: backend,
       backend_version: backend,
+      release_name: this.cleanValue(runtimeRelease.release_name || attrs.release_name || attrs.release_title || "", "") || "",
       contract_version: this.cleanValue(attrs.contract_version || attrs.contract_release || attrs.contract || "", "Unknown") || "Unknown",
       schema_version: this.cleanValue(attrs.schema_version || attrs.schema || "", "Unknown") || "Unknown",
       build_date: this.cleanValue(attrs.build_date || attrs.release_date || attrs.generated_at || "", "Unknown") || "Unknown",
-      contract_health: this.cleanValue(attrs.contract_health || attrs.health || attrs.status || "Unknown", "Unknown") || "Unknown",
+      contract_health: this.cleanValue(
+        attrs.contract_health || attrs.health || attrs.status || (canonicalReady ? "ready" : "Unknown"),
+        "Unknown"
+      ) || "Unknown",
       runtime_health: this.cleanValue(attrs.runtime_health || attrs.runtime_status || "", "Unknown") || "Unknown",
       physical_acceptance: this.cleanValue(attrs.physical_acceptance || attrs.physical_execution_acceptance || "", "Unknown") || "Unknown",
-      release_acceptance: this.cleanValue(attrs.release_acceptance || attrs.acceptance || "", "Unknown") || "Unknown"
+      release_acceptance: this.cleanValue(attrs.release_acceptance || attrs.acceptance || "", "Unknown") || "Unknown",
+      authority: runtimeRelease.backend_release ? "MOBILITY_PUBLIC_RUNTIME_V2" : (contractEntity ? "sensor.mobility_release_contract" : (identityEntity ? "sensor.mobility_release_identity" : "unavailable"))
     };
   }
 
   backendVersion() {
-    // R22.7.9.21 contract lock: backend/version source is sensor.mobility_release_contract only.
     return this.releaseContract().backend_release;
   }
 
