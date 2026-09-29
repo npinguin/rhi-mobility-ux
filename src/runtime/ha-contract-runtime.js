@@ -1675,6 +1675,34 @@ class HomeBrainAssetRuntime {
       && !!prop.write_target_entity;
   }
 
+  isAppearanceProperty(prop = {}) {
+    const key = String(prop.property_key || "").trim().toLowerCase();
+    return key === "vehicle.image_key" || key === "charger.image_key";
+  }
+
+  isProductConfigurationProperty(prop = {}) {
+    // Product UX deliberately exposes only configuration intents that have a
+    // dedicated Mobility interaction. A backend source/sensor fact can still
+    // be technically writable, but it must not become an editor merely because
+    // transport metadata was accidentally projected.
+    const key = String(prop.property_key || "").trim().toLowerCase();
+    const allowed = new Set([
+      "asset.profile_id",
+      "vehicle.selected_charger",
+      "vehicle.requested_charge_power_kw",
+      "charger.requested_charge_power_kw",
+      "vehicle.target_soc_pct",
+      "vehicle.ready_by",
+      "vehicle.image_key",
+      "charger.image_key"
+    ]);
+    return allowed.has(key);
+  }
+
+  isProductWritableProperty(prop = {}) {
+    return this.isProductConfigurationProperty(prop) && this.isWritableProperty(prop);
+  }
+
   propertyEditorChoices(prop = {}) {
     // Backend-published choices/options are authoritative. Direct V2 metadata is primary.
     // UX never derives profile, charger or other configuration options from integrations or device identity.
@@ -1764,12 +1792,12 @@ class HomeBrainAssetRuntime {
   }
 
   propertyOperationalRow(prop) {
-    if (this.isWritableProperty(prop)) return this.propertyEditorRow(prop);
+    if (this.isProductWritableProperty(prop) && !this.isAppearanceProperty(prop)) return this.propertyEditorRow(prop);
     return { type:"readonly", icon: prop.icon || this.propertyIcon(prop.property_key), label:this.propertyDisplayLabel(prop), value:this.propertyDisplayValue(prop), detail_level:prop._ux_level, parent:prop._ux_parent, group:prop._ux_group };
   }
 
   propertyWriteSection(prop) {
-    if (this.isWritableProperty(prop)) return "editors";
+    if (this.isProductWritableProperty(prop) && !this.isAppearanceProperty(prop)) return "editors";
     return this.familyLogicalSectionForProperty(prop);
   }
 
