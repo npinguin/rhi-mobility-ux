@@ -183,7 +183,7 @@ class HomeBrainAssetShell {
 
   renderHeroVisual(model) {
     if (model.image) {
-      return `<img src="${this.rt.escape(model.image)}"
+      return `<img src="${this.rt.escape(model.image)}" loading="eager" decoding="async" fetchpriority="high"
                    data-vehicle-visual-preview="${model.type === "vehicle" ? "1" : "0"}"
                    data-charger-visual-preview="${model.type === "charger" ? "1" : "0"}"
                    data-image-gray="${this.rt.escape(model.imageGray ?? 0)}"
