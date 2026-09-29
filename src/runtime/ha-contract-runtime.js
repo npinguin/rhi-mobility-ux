@@ -2973,6 +2973,7 @@ class HomeBrainAssetRuntime {
       min: Number.isFinite(min) ? min : null, max: Number.isFinite(max) ? max : null,
       step: Number.isFinite(step) && step > 0 ? step : null,
       writable: this.isWritableProperty(prop),
+      reason: prop.write_blocked_reason || (this.isWritableProperty(prop) ? "" : "editing_not_available"),
       write_target_entity: prop.write_target_entity || "",
       write_service_domain: prop.write_service_domain || "",
       write_service_action: prop.write_service_action || "",
