@@ -74,4 +74,33 @@ if(id4Selection.model!=='ID.4') throw new Error(`ID.4 picker drifted model to ${
 if(id4Selection.vehicle?.id!=='volkswagen.id4.2024-2026.ev') throw new Error('ID.4 picker did not preserve current variant identity');
 if(detailPicker.includes('type="text"')) throw new Error('Vehicle Detail leaked raw vehicle.image_key text editor');
 
+
+// Log is a rendered product surface, not a placeholder. A published activity row
+// must materialize into visible markup with backend-owned status/reason.
+const Placeholder=vm.runInContext('HomeBrainMobilityPlaceholderCard',context);
+const logCard=new Placeholder();
+const logRt={
+  activityRowsFor:()=>[
+    {asset_id:'vehicle_test',activity_type:'command',command_label:'Lock vehicle',status:'rejected',reason:'vehicle_unavailable',observed_at:'2026-09-29T16:00:00Z'}
+  ],
+  mobilityActivityV2:()=>({activity_count:1}),
+  assetDisplayName:()=> 'Test vehicle',
+  escape:(v)=>String(v??'').replace(/[&<>]/g,(ch)=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[ch]))
+};
+const logHtml=logCard.renderLog(logRt);
+for(const needle of ['Recent activity','Lock vehicle','Test vehicle','rejected','vehicle_unavailable','1 failed or rejected']){
+  if(!logHtml.includes(needle)) throw new Error(`Log failed rendered activity acceptance: missing ${needle}`);
+}
+if(logHtml.includes('No activity rows are currently published.')) throw new Error('Log rendered empty state despite published activity rows');
+
+const gapHtml=logCard.renderLog({
+  activityRowsFor:()=>[],
+  mobilityActivityV2:()=>({activity_count:8}),
+  assetDisplayName:(id)=>id,
+  escape:(v)=>String(v??'')
+});
+if(!gapHtml.includes('reports 8 recent items but publishes no activity rows')) throw new Error('Log must fail visibly when count and rows disagree');
+
+console.log('PASS canonical Runtime V2 Log rows render visibly with explicit count/row gap');
+
 console.log('PASS bundle load, Overview execution, hierarchical Vehicle Detail picker and ID.4 identity prefill');
