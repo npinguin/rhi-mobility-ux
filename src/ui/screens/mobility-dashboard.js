@@ -1769,6 +1769,8 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
       border:1px solid var(--hb-line)!important;
       box-shadow:none!important;
     }
+    .vehicle-control-row.mock-row .current-copy em,.vehicle-control-row.mock-row .power-copy em{display:block!important;margin-top:2px!important;font-size:7.5px!important;line-height:1.05!important;font-style:normal!important;font-weight:500!important;color:#8A5A12!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+    .lifecycle-control-wrap{min-width:0;display:grid;gap:2px;align-items:center}.lifecycle-control-wrap>.manage-lifecycle{width:100%!important;max-width:none!important}.lifecycle-disabled-reason{display:block;max-width:150px;font-size:8px;line-height:1.1;color:#8A5A12;font-weight:550;white-space:normal}
     .vehicle-actions.clean-actions{
       display:grid!important;
       grid-template-columns:minmax(132px,1.05fr) minmax(118px,.95fr) minmax(104px,.82fr) minmax(92px,.75fr) minmax(0,1fr) 42px 42px!important;
