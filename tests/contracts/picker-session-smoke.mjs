@@ -54,3 +54,16 @@ for(const source of [vehiclePicker,chargerPicker]){
   if(!source.includes('rhiUxVisualChoice')) throw new Error('picker must use shared Core visual-choice grammar');
 }
 if(vehiclePicker.includes('visual-choice-card') || chargerPicker.includes('visual-choice-card')) throw new Error('legacy picker choice presentation class remains active');
+
+
+for (const [name,source,pending,key] of [
+  ['vehicle',dashboard,'_pendingVehicleAppearance','vehicle.image_key'],
+  ['charger',chargers,'_pendingChargerAppearance','charger.image_key']
+]) {
+  if(!source.includes(pending)) throw new Error(name+' picker must keep asset-scoped pending appearance after Save');
+  if(!source.includes('reconcilePending'+(name==='vehicle'?'Vehicle':'Charger')+'Appearance')) throw new Error(name+' picker must reconcile pending appearance to authoritative readback');
+  if(!source.includes(key)) throw new Error(name+' picker must reconcile against canonical image-key property');
+}
+if(dashboard.includes('setTimeout(()=>{this._vehiclePickerAsset=""')) throw new Error('vehicle appearance must not wait for delayed manual-style refresh');
+if(chargers.includes('setTimeout(()=>{ this._chargerPickerAsset=""')) throw new Error('charger appearance must not wait for delayed manual-style refresh');
+console.log('PASS Mobility appearance Save uses pending presentation until canonical readback');
