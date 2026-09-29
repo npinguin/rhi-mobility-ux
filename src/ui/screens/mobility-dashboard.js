@@ -12,6 +12,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     this._vehicleSort = this._vehicleSort || "default";
     this._vehiclePickerAsset = this._vehiclePickerAsset || "";
     this._vehiclePickerDraft = this._vehiclePickerDraft || new Map();
+    this._pendingVehicleAppearance = this._pendingVehicleAppearance || new Map();
     this._lastDashboardRenderAt = this._lastDashboardRenderAt || 0;
     this._lastSignature = this._lastSignature || "";
     if (!this._viewPositionBound) {
@@ -317,6 +318,15 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     return new HomeBrainVehicleVisualPicker(rt).selection(asset, draft);
   }
 
+  reconcilePendingVehicleAppearance(rt) {
+    for (const [assetId, pending] of this._pendingVehicleAppearance.entries()) {
+      const prop = rt.propertyByCompoundKey(assetId, "vehicle.image_key");
+      const actual = String(prop?.value ?? rt.visualImageKey(rt.assetById(assetId) || {}, "image") ?? "").trim();
+      if (actual && actual === String(pending?.key || "")) this._pendingVehicleAppearance.delete(assetId);
+    }
+  }
+
+
   renderVehiclePicker(rt, asset) {
     const assetId = this.assetId(asset);
     const draft = this._vehiclePickerDraft.get(assetId) || {};
@@ -346,10 +356,11 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     const vehicleCommands = model?.projection?.commands || [];
     const chargingActivity = this.chargingActivityDisplay(rt, asset);
     const pickerOpen = this._vehiclePickerAsset === assetId;
-    const pickerDraft = pickerOpen ? (this._vehiclePickerDraft.get(assetId) || {}) : {};
+    const pendingAppearance = this._pendingVehicleAppearance.get(assetId) || null;
+    const pickerDraft = pickerOpen ? (this._vehiclePickerDraft.get(assetId) || {}) : (pendingAppearance?.draft || {});
     const visual = this.vehicleVisualSelection(rt, asset, pickerDraft);
     const visualFilter = visual?.color?.filter || "none";
-    const visualImage = pickerOpen && visual?.vehicle?.package_file ? visual.vehicle.package_file : image;
+    const visualImage = (pickerOpen || pendingAppearance) && visual?.vehicle?.package_file ? visual.vehicle.package_file : image;
     return `<article class="vehicle-card premium-vehicle-card">
       <div class="status-top-row vehicle-intelligence-strip">
         ${(Array.isArray(model?.status) ? model.status : []).slice(0, 5).map((tile) => this.intelligenceStatusRow(rt, tile)).join("")}
@@ -389,8 +400,10 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     const assetId = this.assetId(asset);
     const display = model?.display || asset.display_name || rt.vehicleLabel(assetId);
     const image = model?.image || "";
-    const visual = this.vehicleVisualSelection(rt, asset);
+    const pendingAppearance = this._pendingVehicleAppearance.get(assetId) || null;
+    const visual = this.vehicleVisualSelection(rt, asset, pendingAppearance?.draft || {});
     const visualFilter = visual?.color?.filter || "none";
+    const overviewImage = pendingAppearance && visual?.vehicle?.package_file ? visual.vehicle.package_file : image;
     const route = rt.assetDetailRoute(asset);
     const signals = model?.projection?.signals || {};
     const charging = this.chargingActivityDisplay(rt, asset);
@@ -404,7 +417,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     };
     return `<article class="ov-vehicle-row">
       <button class="ov-vehicle-main" data-nav="${rt.escape(route)}" title="Open vehicle details">
-        <span class="ov-vehicle-image">${image ? `<img src="${rt.escape(rt.cache(image))}" alt="${rt.escape(display)}" style="filter:${rt.escape(visualFilter)}">` : `<ha-icon icon="mdi:car-electric"></ha-icon>`}</span>
+        <span class="ov-vehicle-image">${overviewImage ? `<img src="${rt.escape(rt.cache(overviewImage))}" alt="${rt.escape(display)}" style="filter:${rt.escape(visualFilter)}">` : `<ha-icon icon="mdi:car-electric"></ha-icon>`}</span>
         <span class="ov-vehicle-copy"><b>${rt.escape(display)}</b><small>${rt.escape(signalValue(signals.energy))} · ${rt.escape(signalValue(signals.range))}</small></span>
       </button>
       <div class="ov-signal ${signalTone(signals.security)}" title="${rt.escape(signals.security?.subvalue || "")}"><ha-icon icon="mdi:lock-outline"></ha-icon><span>Security</span><b>${rt.escape(signalValue(signals.security, "Unknown"))}</b></div>
@@ -897,6 +910,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
           this._lastDashboardRenderAt = now;
           const rt = new HomeBrainAssetRuntime(hass, this.config);
           this.rt = rt;
+          this.reconcilePendingVehicleAppearance(rt);
           const factory = new HomeBrainAssetFactory(rt);
           const vehicles = factory.vehicles().filter((a)=>a.lifecycle_state !== "Retired").sort((a,b)=>(Number(a.sort_order ?? 999)-Number(b.sort_order ?? 999)) || String(a.display_name).localeCompare(String(b.display_name)));
           const chargers = factory.chargers().filter((a)=>a.frontend_allowed !== false && rt.lifecycleStatus(a) === "active").sort((a,b)=>(Number(a.sort_order ?? 999)-Number(b.sort_order ?? 999)) || String(a.display_name).localeCompare(String(b.display_name)));
@@ -1128,11 +1142,16 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
       const currentProfile=String(profileProp?.value || "");
       const profileOk=!profileId || profileId===currentProfile || await rt.writePublishedPropertyAsync(assetId,"asset.profile_id",profileId);
       if(!profileOk){btn.disabled=false;return;}
+      const draft={ ...(this._vehiclePickerDraft.get(assetId) || {}) };
       const imageOk=await rt.writePublishedPropertyAsync(assetId,"vehicle.image_key",key);
       if(!imageOk){btn.disabled=false;return;}
+      this._pendingVehicleAppearance.set(assetId,{ key,draft });
       btn.classList.add("sent");
       this._vehiclePickerDraft.delete(assetId);
-      setTimeout(()=>{this._vehiclePickerAsset="";this._forceRender=true;this._lastSignature="";if(this._hass)this.hass=this._hass;},450);
+      this._vehiclePickerAsset="";
+      this._forceRender=true;
+      this._lastSignature="";
+      if(this._hass)this.hass=this._hass;
     }));
     this.shadowRoot.querySelectorAll("button[data-lifecycle-asset]").forEach((btn)=>btn.addEventListener("click",async ()=>{
       if (btn.disabled) return;
