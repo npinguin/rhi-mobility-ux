@@ -24,5 +24,7 @@ if(validate.includes('Protect immutable published package')) throw new Error('en
 if(!publish.includes('reason=version_already_published')) throw new Error('Publish HACS must skip an already-published engineering version');
 if(!publish.includes("needs.scope.outputs.publish == 'true'")) throw new Error('candidate publication is not gated by version scope');
 
-const verifyBlock=publish.slice(publish.indexOf('  verify:'),publish.indexOf('  publish:'));
+const verifyStart=publish.indexOf('\n  verify:');
+const publishStart=publish.indexOf('\n  publish:',verifyStart+1);
+const verifyBlock=publish.slice(verifyStart,publishStart);
 if((verifyBlock.match(/^    if:/gm)||[]).length!==1) throw new Error('Publish HACS verify job must have exactly one YAML if condition');
