@@ -2105,7 +2105,15 @@ class HomeBrainAssetRuntime {
       if (String(prop.access || "").toLowerCase() === "internal") continue;
       const propKeyLower = String(prop.property_key || prop.normalized_property || prop.fact_type || "").toLowerCase();
       if (["asset.mobility_enabled", "vehicle.mobility_enabled", "charger.mobility_enabled", "mobility_enabled"].includes(propKeyLower)) { engineeringPublicPropertyKeys.add(propKeyLower); continue; }
-      publishedPublicPropertyKeys.add(String(prop.property_key || prop.normalized_property || prop.fact_type || ""));
+      const publishedKey = String(prop.property_key || prop.normalized_property || prop.fact_type || "");
+      publishedPublicPropertyKeys.add(publishedKey);
+      if (this.isAppearanceProperty(prop)) {
+        // Appearance is rendered once, at the asset hero where users expect it.
+        // Count it as consumed here so contract completeness does not force a
+        // duplicate property-grid representation.
+        renderedPublicPropertyKeys.add(publishedKey);
+        continue;
+      }
       const family = this.propertyFamily(prop);
       const level = this.propertyDetailLevel(prop);
       const bucket = addFamily(family);
