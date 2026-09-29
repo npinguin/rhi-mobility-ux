@@ -67,7 +67,7 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
     const img = rt.cache(this.chargerImageFromId(id));
     const tone = this.statusTone(status);
     return `<div class="charger-visual ${tone}">
-      <img src="${rt.escape(img)}" alt="${rt.escape(name)}" loading="lazy"
+      <img src="${rt.escape(img)}" alt="${rt.escape(name)}" loading="eager" decoding="sync"
            onerror="this.onerror=null;this.classList.add('failed');this.closest('.charger-visual')?.classList.add('image-missing');" />
       <div class="charger-visual-fallback"><ha-icon icon="${id === 'utility_plug' ? 'mdi:power-socket-eu' : 'mdi:ev-station'}"></ha-icon></div>
     </div>`;
@@ -268,7 +268,6 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
     const appearanceError = this._chargerAppearanceError.get(assetId) || "";
     return `<article class="charger-card ${issue ? "attention" : ""}">
       <div class="charger-identity-card">
-        ${this.renderChargerHero(rt, id, name, status)}
         <div class="charger-identity-copy">
           <div class="charger-identity-top">
             <div class="charger-title">
@@ -280,6 +279,7 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
           </div>
           <button class="charger-appearance-action" data-charger-picker="${rt.escape(assetId)}" title="Choose charger appearance"><ha-icon icon="mdi:palette-outline"></ha-icon><span>Appearance</span></button>
         </div>
+        ${this.renderChargerHero(rt, id, name, status)}
       </div>
       ${pickerOpen ? this.renderChargerPicker(rt, charger) : ""}
       ${appearanceError ? `<div class="appearance-write-error" role="status"><ha-icon icon="mdi:alert-circle-outline"></ha-icon><span>${rt.escape(appearanceError)}</span></div>` : ""}
@@ -866,7 +866,7 @@ ${hbMobilitySharedShellStyles()}
       /* Canonical management identity card. New class names deliberately isolate this
          product surface from accumulated legacy premium-image-hero/header overrides. */
       .charger-card .charger-identity-card{
-        display:grid!important;grid-template-columns:160px minmax(0,1fr)!important;
+        display:grid!important;grid-template-columns:minmax(0,1fr) 160px!important;
         min-height:120px!important;gap:14px!important;padding:10px 12px!important;
         align-items:center!important;box-sizing:border-box!important;overflow:hidden!important;
         border:1px solid rgba(20,103,245,.10)!important;border-radius:13px!important;
@@ -905,12 +905,12 @@ ${hbMobilitySharedShellStyles()}
         height:31px!important;min-height:31px!important;margin:0!important;padding:0 9px!important;font-size:10.5px!important;
       }
       @media(max-width:760px){
-        .charger-card .charger-identity-card{grid-template-columns:118px minmax(0,1fr)!important;gap:10px!important}
+        .charger-card .charger-identity-card{grid-template-columns:minmax(0,1fr) 118px!important;gap:10px!important}
         .charger-card .charger-identity-card>.charger-visual{height:92px!important;min-height:92px!important;max-height:92px!important}
         .charger-card .charger-identity-card>.charger-visual img{max-width:108px!important;max-height:86px!important}
       }
       @media(max-width:430px){
-        .charger-card .charger-identity-card{grid-template-columns:94px minmax(0,1fr)!important;padding:8px!important;gap:8px!important}
+        .charger-card .charger-identity-card{grid-template-columns:minmax(0,1fr) 94px!important;padding:8px!important;gap:8px!important}
         .charger-card .charger-identity-card>.charger-visual{height:80px!important;min-height:80px!important;max-height:80px!important}
         .charger-card .charger-identity-card>.charger-visual img{max-width:86px!important;max-height:74px!important}
         .charger-card .charger-identity-card .charger-title h3{font-size:14px!important}
