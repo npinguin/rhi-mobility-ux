@@ -35,6 +35,7 @@ const hass={states:{
       editable:false,
       write_supported:false,
       write_binding_type:'number',
+      write_blocked_reason:'requested_power_capability_unavailable',
       write_service_domain:'',
       write_service_action:'',
       write_target_entity:''
@@ -53,6 +54,7 @@ if(editor.choices.length!==1 || editor.choices[0].value!=='wallbox_ocpp') throw 
 
 const runtimeControl=rt.propertyByCompoundKey(charger,'charger.requested_power_kw');
 if(rt.isWritableProperty(runtimeControl)) throw new Error('runtime requested power must fail closed without V1 write capability');
+if(rt.propertyEditorRow(runtimeControl).disabled_reason!=='requested_power_capability_unavailable') throw new Error('backend-owned control blocked reason was not surfaced');
 
 const inferred={asset_id:charger,property_key:'charger.power_kw',editable:true,write_supported:true,write_service_domain:'number',write_service_action:'set_value',write_target_entity:'number.fake',unit:'kW'};
 if(rt.isWritableProperty(inferred)) throw new Error('UX must not infer editor type from property name/unit without V1 write_binding_type');

@@ -156,18 +156,24 @@ if(!(heroIndex >= 0 && statusIndex > heroIndex && actionsIndex > statusIndex)) t
 
 
 for(const required of [
-  'grid-template-columns:minmax(0,1fr) auto!important',
-  '.charger-card .premium-image-hero .charger-title{grid-column:1!important;grid-row:1!important',
-  'overflow-wrap:break-word!important;word-break:normal!important',
-  '.charger-card .premium-image-hero .status{grid-column:2!important',
-  'grid-column:1/3!important;grid-row:2!important'
+  'class="charger-identity-card"',
+  'class="charger-identity-copy"',
+  'class="charger-identity-top"',
+  '.charger-card .charger-identity-card{',
+  'grid-template-columns:160px minmax(0,1fr)!important',
+  'overflow-wrap:normal!important;word-break:normal!important;hyphens:none!important',
+  '.charger-card .charger-identity-card>.charger-visual img{',
+  'object-fit:contain!important;object-position:center!important'
 ]) {
   if(!chargers.includes(required)) throw new Error(`charger rendered-anatomy regression: missing ${required}`);
 }
+if(chargers.includes('<div class="charger-hero-card premium-image-hero">')) throw new Error('management card returned to legacy premium-image-hero anatomy');
 if(chargers.includes('grid-template-columns:40px minmax(0,1fr) auto!important;')) throw new Error('charger identity returned to unusable 40px title column');
 
 for(const required of [
-  'contain:layout paint',
+  'contain:layout paint size',
+  '.rhiUxVisualChoiceImage{position:relative!important',
+  '.rhiUxVisualChoiceImage>img{position:static!important',
   'max-width:132px!important',
   'max-height:72px!important',
   'object-fit:contain!important',
@@ -175,4 +181,4 @@ for(const required of [
 ]) {
   if(!uxCore.includes(required)) throw new Error(`visual picker containment regression: missing ${required}`);
 }
-console.log('PASS charger identity anatomy and picker artwork containment');
+console.log('PASS canonical charger identity anatomy and hard-bounded picker artwork');
