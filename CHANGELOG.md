@@ -1,3 +1,11 @@
+## 1.0.0-rc.74 — M0.10.22 product acceptance candidate
+
+- targets exact Mobility backend M0.10.22 for combined product qualification;
+- adds asset-scoped pending vehicle/charger appearance after Save until canonical image-key readback confirms;
+- reverts rejected or timed-out appearance writes to canonical presentation with bounded error feedback;
+- preserves fixed picker image geometry from UX Core 1.5.3 and zero accepted technical/feature debt;
+- keeps lifecycle, requested-kW, physical relationship and planning semantics backend-owned.
+
 ## 1.0.0-rc.73 — Mobility stabilization UX
 
 - makes vehicle↔charger assignment explicit and actionable while preserving canonical V2 relationship ownership;
