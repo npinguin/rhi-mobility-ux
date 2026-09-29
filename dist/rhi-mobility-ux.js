@@ -1,5 +1,5 @@
 /**
- * Robotix Home Intelligence Mobility UX v1.0.0-rc.74
+ * Robotix Home Intelligence Mobility UX v1.0.0-rc.75
  * GENERATED FILE - DO NOT EDIT.
  * License: GPL-3.0-only
  */
@@ -569,16 +569,29 @@ const HB_MOBILITY_PAGE_HEROES = Object.freeze({
   log: { eyebrow:"", title:"Log", description:"Inspect operational and audit evidence with backend-owned reasons and status.", asset_key:"log" }
 });
 
+const HB_MOBILITY_PRELOADED_HEROES = globalThis.__rhiMobilityPreloadedHeroes || (globalThis.__rhiMobilityPreloadedHeroes = new Set());
+
+function hbMobilityPreloadHero(asset = "") {
+  const src = String(asset || "").trim();
+  if (!src || HB_MOBILITY_PRELOADED_HEROES.has(src) || typeof Image === "undefined") return;
+  HB_MOBILITY_PRELOADED_HEROES.add(src);
+  const img = new Image();
+  img.decoding = "async";
+  img.src = src;
+  if (typeof img.decode === "function") img.decode().catch(()=>{});
+}
+
 function hbMobilityPageHero(rt, tab, options = {}) {
   const spec = HB_MOBILITY_PAGE_HEROES[tab] || HB_MOBILITY_PAGE_HEROES.overview;
   const asset = options.asset || rhiMobilityHeroAsset(options.asset_key || spec.asset_key);
+  hbMobilityPreloadHero(asset);
   return rhiUxPageHero({
     eyebrow: options.eyebrow || spec.eyebrow || "",
     title: options.title || spec.title,
     description: options.description || spec.description,
     image: asset,
     imageAlt: ""
-  });
+  }).replace("<img ", '<img loading="eager" decoding="async" fetchpriority="high" ');
 }
 
 function hbMobilityStatusGrid(rt, items = [], className = "") {
@@ -612,6 +625,7 @@ function hbMobilityPresentationStyles() {
       --rhi-card-gap:8px;
       color:var(--rhi-color-text);
     }
+    .rhiUxPageHeroArt img{transition:none;animation:none;backface-visibility:hidden;transform:translateZ(0)}
     .vehicle-card,.charger-card,.vehicle-management-controls,.rhi-context-card{
       border-radius:var(--rhi-radius-lg);
       border-color:var(--rhi-color-line);
@@ -665,7 +679,7 @@ function hbMobilityPresentationStyles() {
 // ---- src/app/header-and-navigation.js ----
 // Mobility presentation adapter onto the shared RHI UX Core.
 // Domain semantics remain owned by Mobility runtime/projections.
-const UX_VERSION = "1.0.0-rc.74";
+const UX_VERSION = "1.0.0-rc.75";
 const HB_MOBILITY_ROUTE_SEGMENTS = new Set([
   "overview","dashboard","vehicles","charger-maintenance","chargers",
   "planning","strategies","history","log","asset-detail","detail","charging"
@@ -2592,6 +2606,34 @@ class HomeBrainAssetRuntime {
       && !!prop.write_target_entity;
   }
 
+  isAppearanceProperty(prop = {}) {
+    const key = String(prop.property_key || "").trim().toLowerCase();
+    return key === "vehicle.image_key" || key === "charger.image_key";
+  }
+
+  isProductConfigurationProperty(prop = {}) {
+    // Product UX deliberately exposes only configuration intents that have a
+    // dedicated Mobility interaction. A backend source/sensor fact can still
+    // be technically writable, but it must not become an editor merely because
+    // transport metadata was accidentally projected.
+    const key = String(prop.property_key || "").trim().toLowerCase();
+    const allowed = new Set([
+      "asset.profile_id",
+      "vehicle.selected_charger",
+      "vehicle.requested_charge_power_kw",
+      "charger.requested_charge_power_kw",
+      "vehicle.target_soc_pct",
+      "vehicle.ready_by",
+      "vehicle.image_key",
+      "charger.image_key"
+    ]);
+    return allowed.has(key);
+  }
+
+  isProductWritableProperty(prop = {}) {
+    return this.isProductConfigurationProperty(prop) && this.isWritableProperty(prop);
+  }
+
   propertyEditorChoices(prop = {}) {
     // Backend-published choices/options are authoritative. Direct V2 metadata is primary.
     // UX never derives profile, charger or other configuration options from integrations or device identity.
@@ -2681,12 +2723,12 @@ class HomeBrainAssetRuntime {
   }
 
   propertyOperationalRow(prop) {
-    if (this.isWritableProperty(prop)) return this.propertyEditorRow(prop);
+    if (this.isProductWritableProperty(prop) && !this.isAppearanceProperty(prop)) return this.propertyEditorRow(prop);
     return { type:"readonly", icon: prop.icon || this.propertyIcon(prop.property_key), label:this.propertyDisplayLabel(prop), value:this.propertyDisplayValue(prop), detail_level:prop._ux_level, parent:prop._ux_parent, group:prop._ux_group };
   }
 
   propertyWriteSection(prop) {
-    if (this.isWritableProperty(prop)) return "editors";
+    if (this.isProductWritableProperty(prop) && !this.isAppearanceProperty(prop)) return "editors";
     return this.familyLogicalSectionForProperty(prop);
   }
 
@@ -2994,7 +3036,15 @@ class HomeBrainAssetRuntime {
       if (String(prop.access || "").toLowerCase() === "internal") continue;
       const propKeyLower = String(prop.property_key || prop.normalized_property || prop.fact_type || "").toLowerCase();
       if (["asset.mobility_enabled", "vehicle.mobility_enabled", "charger.mobility_enabled", "mobility_enabled"].includes(propKeyLower)) { engineeringPublicPropertyKeys.add(propKeyLower); continue; }
-      publishedPublicPropertyKeys.add(String(prop.property_key || prop.normalized_property || prop.fact_type || ""));
+      const publishedKey = String(prop.property_key || prop.normalized_property || prop.fact_type || "");
+      publishedPublicPropertyKeys.add(publishedKey);
+      if (this.isAppearanceProperty(prop)) {
+        // Appearance is rendered once, at the asset hero where users expect it.
+        // Count it as consumed here so contract completeness does not force a
+        // duplicate property-grid representation.
+        renderedPublicPropertyKeys.add(publishedKey);
+        continue;
+      }
       const family = this.propertyFamily(prop);
       const level = this.propertyDetailLevel(prop);
       const bucket = addFamily(family);
@@ -3854,6 +3904,7 @@ class HomeBrainAssetRuntime {
       min: Number.isFinite(min) ? min : null, max: Number.isFinite(max) ? max : null,
       step: Number.isFinite(step) && step > 0 ? step : null,
       writable: this.isWritableProperty(prop),
+      reason: prop.write_blocked_reason || (this.isWritableProperty(prop) ? "" : "editing_not_available"),
       write_target_entity: prop.write_target_entity || "",
       write_service_domain: prop.write_service_domain || "",
       write_service_action: prop.write_service_action || "",
@@ -6548,7 +6599,7 @@ class HomeBrainAssetShell {
 
   renderHeroVisual(model) {
     if (model.image) {
-      return `<img src="${this.rt.escape(model.image)}"
+      return `<img src="${this.rt.escape(model.image)}" loading="eager" decoding="async" fetchpriority="high"
                    data-vehicle-visual-preview="${model.type === "vehicle" ? "1" : "0"}"
                    data-charger-visual-preview="${model.type === "charger" ? "1" : "0"}"
                    data-image-gray="${this.rt.escape(model.imageGray ?? 0)}"
@@ -6591,12 +6642,12 @@ class HomeBrainAssetShell {
         ${m.detailRoute ? `<button class="metric-detail-link" data-nav="${this.rt.escape(m.detailRoute)}" title="${this.rt.escape(m.detailTitle || "Open related asset details")}"><ha-icon icon="mdi:plus"></ha-icon></button>` : ""}
       </div>`).join("");
     const mainSections = (model.sections || []).filter((s) => s && s.key !== "activity");
-    const chargerAppearance = model.type === "charger"
-      ? new HomeBrainChargerVisualPicker(this.rt).render(
-          model.registryEntry || { asset_id:model.id || "", asset_type:"charger", image_key:model.visualKey || "" },
-          { showClose:false, context:"detail" }
-        )
-      : "";
+    const appearanceAsset = model.registryEntry || { asset_id:model.id || "", asset_type:model.type || "", image_key:model.visualKey || "" };
+    const appearancePicker = model.type === "vehicle"
+      ? new HomeBrainVehicleVisualPicker(this.rt).render(appearanceAsset, { showClose:false, context:"detail" })
+      : model.type === "charger"
+        ? new HomeBrainChargerVisualPicker(this.rt).render(appearanceAsset, { showClose:false, context:"detail" })
+        : "";
 
     const detailHeroScene = rhiMobilityHeroAsset(model.type === "charger" ? "charging_detail" : "vehicle_detail");
 
@@ -6606,19 +6657,22 @@ class HomeBrainAssetShell {
           <div class="hi-version-block" style="position:absolute;top:18px;right:22px;text-align:right;font-size:10.5px;line-height:1.25;font-weight:400;color:var(--secondary-text-color,#6B7280);opacity:.82;background:none;border:0;box-shadow:none;padding:0;margin:0;z-index:3;pointer-events:none;"><div>UX ${this.rt.escape(UX_VERSION)}</div><div>Backend ${this.rt.escape(this.rt.backendVersion())}</div></div>
           ${hbMobilityNav(model.type === "charger" ? "chargers" : "vehicles")}
           <section class="hero detail-scene-hero">
-            <img class="detail-hero-scene" src="${this.rt.escape(detailHeroScene)}" alt="" aria-hidden="true" />
+            <img class="detail-hero-scene" src="${this.rt.escape(detailHeroScene)}" alt="" aria-hidden="true" loading="eager" decoding="sync" fetchpriority="high" />
             <div class="hero-left">
               <div class="title-row"><h1>${this.rt.escape(model.display)}</h1></div>
               <div class="detail-purpose">${this.rt.escape(model.type === "charger"
                 ? "Inspect charger availability, connection health, power, linked vehicle and direct controls for this charging point."
                 : "Inspect readiness, charging relationship, operational status and direct actions for this vehicle.")}</div>
             </div>
-            <div class="hero-image">${this.renderHeroVisual(model)}</div>
+            <div class="hero-image">
+              ${this.renderHeroVisual(model)}
+              ${appearancePicker ? `<button type="button" class="hero-appearance-edit" data-detail-appearance-toggle title="Choose appearance"><ha-icon icon="mdi:palette-outline"></ha-icon><span>Appearance</span></button>` : ""}
+            </div>
           </section>
 
+          ${appearancePicker ? `<section class="detail-appearance-panel" data-detail-appearance-panel hidden><div class="detail-appearance-panel-head"><div><small>Appearance</small><b>${this.rt.escape(model.display)}</b></div><button type="button" data-detail-appearance-close title="Close appearance selector"><ha-icon icon="mdi:close"></ha-icon></button></div>${appearancePicker}</section>` : ""}
           <section class="detail-status-grid status-count-${Math.min(4,statusItems.length)}" aria-label="Asset status">${status}</section>
           <section class="actions"><div class="actions-title">Quick actions</div>${actions || `<div class="no-actions">No actions available for this asset.</div>`}</section>
-          ${chargerAppearance ? `<details class="detail-appearance-fold"><summary><ha-icon icon="mdi:palette-outline"></ha-icon><span>Charger & colour</span><small>Visual library</small></summary>${chargerAppearance}</details>` : ""}
           <section class="grid">${mainSections.map((s) => this.renderSection(s)).join("")}</section>
           ${this.renderFooter(model)}
         </div>
@@ -6663,6 +6717,19 @@ class HomeBrainAssetShell {
         this.rt.navigate(btn.getAttribute("data-nav"));
       });
     });
+    const appearancePanel = this.root.querySelector("[data-detail-appearance-panel]");
+    this.root.querySelectorAll("[data-detail-appearance-toggle]").forEach((btn)=>btn.addEventListener("click",(ev)=>{
+      ev.preventDefault(); ev.stopPropagation();
+      if (!appearancePanel) return;
+      appearancePanel.hidden = !appearancePanel.hidden;
+      btn.classList.toggle("active", !appearancePanel.hidden);
+      if (!appearancePanel.hidden) appearancePanel.scrollIntoView({block:"nearest",behavior:"smooth"});
+    }));
+    this.root.querySelectorAll("[data-detail-appearance-close]").forEach((btn)=>btn.addEventListener("click",(ev)=>{
+      ev.preventDefault(); ev.stopPropagation();
+      if (appearancePanel) appearancePanel.hidden = true;
+      this.root.querySelectorAll("[data-detail-appearance-toggle]").forEach((toggle)=>toggle.classList.remove("active"));
+    }));
     this.root.querySelectorAll('input[type="range"][data-live-target]').forEach((el) => {
       const update = () => {
         const span = el.closest(".range-control")?.querySelector(".live-value");
@@ -6968,11 +7035,13 @@ class HomeBrainAssetShell {
       .row-value-with-link{display:flex;align-items:center;justify-content:flex-end;gap:8px;min-width:0;}
       .row-value-with-link span{min-width:0;overflow:hidden;text-overflow:ellipsis;}
       .hero-image { min-height:260px;display:flex;align-items:center;justify-content:center; }
-      .hero-image img { width:100%;height:285px;object-fit:contain;object-position:center; }
+      .hero-image img { width:100%;height:285px;object-fit:contain;object-position:center;transition:none!important;animation:none!important; }
       .hero-image img.image-fallback { opacity:.42!important; }
+      .hero-appearance-edit{position:absolute;right:10px;bottom:10px;z-index:5;height:36px;border:1px solid rgba(14,35,72,.12);border-radius:11px;background:rgba(255,255,255,.94);color:#1467F5;padding:0 11px;display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:650;cursor:pointer;box-shadow:0 8px 20px rgba(15,35,80,.08);pointer-events:auto}.hero-appearance-edit ha-icon{--mdc-icon-size:17px}.hero-appearance-edit.active{background:#1467F5;color:#fff;border-color:#1467F5}
+      .detail-appearance-panel[hidden]{display:none!important}.detail-appearance-panel{position:relative;z-index:8;width:min(100%,980px);margin:-2px auto 0;padding:12px;border:1px solid var(--hb-line);border-radius:16px;background:#fff;box-shadow:0 18px 44px rgba(15,35,80,.09);box-sizing:border-box}.detail-appearance-panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 2px 10px}.detail-appearance-panel-head div{display:grid;gap:2px}.detail-appearance-panel-head small{font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--hb-muted);font-weight:650}.detail-appearance-panel-head b{font-size:14px;color:var(--hb-ink)}.detail-appearance-panel-head button{width:32px;height:32px;border:1px solid var(--hb-line);border-radius:10px;background:#fff;color:var(--hb-muted);display:grid;place-items:center;cursor:pointer}.detail-appearance-panel .detail-vehicle-picker,.detail-appearance-panel .detail-charger-picker{margin:0!important;padding:0!important;border:0!important;background:transparent!important}.detail-appearance-panel .visual-picker-panel{margin:0!important}
       .hero-icon { width:220px;height:220px;border-radius:48px;background:linear-gradient(135deg,#EAF2FF,#FFFFFF);display:flex;align-items:center;justify-content:center;box-shadow:0 24px 55px rgba(15,35,80,.10); }
       .hero-icon ha-icon { --mdc-icon-size:120px;color:var(--hb-blue); }
-      .detail-appearance-fold{border:1px solid var(--hb-line);border-radius:16px;background:#fff;overflow:hidden}.detail-appearance-fold>summary{height:46px;display:flex;align-items:center;gap:8px;padding:0 14px;cursor:pointer;list-style:none;font-size:12.5px;font-weight:600}.detail-appearance-fold>summary::-webkit-details-marker{display:none}.detail-appearance-fold>summary ha-icon{--mdc-icon-size:18px;color:var(--hb-blue)}.detail-appearance-fold>summary small{margin-left:auto;color:var(--hb-muted);font-size:10.5px;font-weight:500}.detail-appearance-fold .charger-picker-panel{margin:0;border:0;border-top:1px solid var(--hb-line);border-radius:0}
+
             .actions { display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px; }.action { height:58px;border-radius:14px;border:1px solid rgba(14,35,72,.11);background:#fff;color:var(--hb-ink);font-weight:650;font-size:14px;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 12px 28px rgba(15,35,80,.06);cursor:pointer; }.action ha-icon { --mdc-icon-size:22px;color:var(--hb-blue); }.action.primary { background:linear-gradient(135deg,#1467F5,#3C7BFF);color:#fff;border-color:#1467F5; }.action.primary ha-icon { color:#fff; }
       .action small { display:block;font-size:9.5px;font-weight:650;line-height:1.05;opacity:.72;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; } .enum-action { flex-direction:column;height:auto;min-height:58px;padding:8px 10px; } .enum-action select { max-width:160px;border:1px solid rgba(14,35,72,.15);border-radius:10px;background:#fff;padding:4px 6px;font-size:11px;font-weight:600; } .enum-action.is-disabled { opacity:.55; } .no-actions { grid-column:1/-1;border:1px solid rgba(14,35,72,.10);border-radius:18px;background:#fff;padding:24px;color:var(--hb-muted);font-weight:600; }
       .grid { display:grid;grid-template-columns:repeat(4,minmax(260px,1fr));gap:12px; }
@@ -7395,7 +7464,7 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
     const img = rt.cache(this.chargerImageFromId(id));
     const tone = this.statusTone(status);
     return `<div class="charger-visual ${tone}">
-      <img src="${rt.escape(img)}" alt="${rt.escape(name)}" loading="lazy"
+      <img src="${rt.escape(img)}" alt="${rt.escape(name)}" loading="eager" decoding="sync"
            onerror="this.onerror=null;this.classList.add('failed');this.closest('.charger-visual')?.classList.add('image-missing');" />
       <div class="charger-visual-fallback"><ha-icon icon="${id === 'utility_plug' ? 'mdi:power-socket-eu' : 'mdi:ev-station'}"></ha-icon></div>
     </div>`;
@@ -7513,7 +7582,8 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
     const model = rt.lifecycleWriteModel(charger, desired);
     const label = desired === "active" ? "Activate" : "Disable";
     const title = model.disabled ? (model.reason || "Lifecycle contract gap") : `${label} via lifecycle_status`;
-    return `<button class="${extraClass}" data-lifecycle-asset="${rt.escape(this.assetId(charger))}" data-lifecycle-value="${rt.escape(desired)}" ${model.disabled ? "disabled" : ""} title="${rt.escape(title)}"><ha-icon icon="mdi:power"></ha-icon><span>${rt.escape(label)}</span></button>`;
+    const button = `<button class="${extraClass}" data-lifecycle-asset="${rt.escape(this.assetId(charger))}" data-lifecycle-value="${rt.escape(desired)}" ${model.disabled ? "disabled" : ""} title="${rt.escape(title)}"><ha-icon icon="mdi:power"></ha-icon><span>${rt.escape(label)}</span></button>`;
+    return model.disabled && extraClass.includes("labeled-action") ? `<span class="lifecycle-control-wrap">${button}<small class="lifecycle-disabled-reason">${rt.escape(title)}</small></span>` : button;
   }
 
   renderCollapsedCharger(rt, charger) {
@@ -7596,7 +7666,6 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
     const appearanceError = this._chargerAppearanceError.get(assetId) || "";
     return `<article class="charger-card ${issue ? "attention" : ""}">
       <div class="charger-identity-card">
-        ${this.renderChargerHero(rt, id, name, status)}
         <div class="charger-identity-copy">
           <div class="charger-identity-top">
             <div class="charger-title">
@@ -7608,6 +7677,7 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
           </div>
           <button class="charger-appearance-action" data-charger-picker="${rt.escape(assetId)}" title="Choose charger appearance"><ha-icon icon="mdi:palette-outline"></ha-icon><span>Appearance</span></button>
         </div>
+        ${this.renderChargerHero(rt, id, name, status)}
       </div>
       ${pickerOpen ? this.renderChargerPicker(rt, charger) : ""}
       ${appearanceError ? `<div class="appearance-write-error" role="status"><ha-icon icon="mdi:alert-circle-outline"></ha-icon><span>${rt.escape(appearanceError)}</span></div>` : ""}
@@ -8193,8 +8263,9 @@ ${hbMobilitySharedShellStyles()}
 
       /* Canonical management identity card. New class names deliberately isolate this
          product surface from accumulated legacy premium-image-hero/header overrides. */
+      .lifecycle-control-wrap{display:grid;gap:2px;align-items:center;min-width:0}.lifecycle-control-wrap>.lifecycle-toggle{width:100%!important}.lifecycle-disabled-reason{display:block;max-width:180px;font-size:8px;line-height:1.1;color:#8A5A12;font-weight:550;white-space:normal}
       .charger-card .charger-identity-card{
-        display:grid!important;grid-template-columns:160px minmax(0,1fr)!important;
+        display:grid!important;grid-template-columns:minmax(0,1fr) 160px!important;
         min-height:120px!important;gap:14px!important;padding:10px 12px!important;
         align-items:center!important;box-sizing:border-box!important;overflow:hidden!important;
         border:1px solid rgba(20,103,245,.10)!important;border-radius:13px!important;
@@ -8233,12 +8304,12 @@ ${hbMobilitySharedShellStyles()}
         height:31px!important;min-height:31px!important;margin:0!important;padding:0 9px!important;font-size:10.5px!important;
       }
       @media(max-width:760px){
-        .charger-card .charger-identity-card{grid-template-columns:118px minmax(0,1fr)!important;gap:10px!important}
+        .charger-card .charger-identity-card{grid-template-columns:minmax(0,1fr) 118px!important;gap:10px!important}
         .charger-card .charger-identity-card>.charger-visual{height:92px!important;min-height:92px!important;max-height:92px!important}
         .charger-card .charger-identity-card>.charger-visual img{max-width:108px!important;max-height:86px!important}
       }
       @media(max-width:430px){
-        .charger-card .charger-identity-card{grid-template-columns:94px minmax(0,1fr)!important;padding:8px!important;gap:8px!important}
+        .charger-card .charger-identity-card{grid-template-columns:minmax(0,1fr) 94px!important;padding:8px!important;gap:8px!important}
         .charger-card .charger-identity-card>.charger-visual{height:80px!important;min-height:80px!important;max-height:80px!important}
         .charger-card .charger-identity-card>.charger-visual img{max-width:86px!important;max-height:74px!important}
         .charger-card .charger-identity-card .charger-title h3{font-size:14px!important}
@@ -8521,7 +8592,8 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     const model = rt.lifecycleWriteModel(asset, desired);
     const label = desired === "active" ? "Activate" : "Disable";
     const title = model.disabled ? (model.reason || "Lifecycle contract gap") : `${label} via lifecycle_status`;
-    return `<button class="action ${extraClass}" data-lifecycle-asset="${rt.escape(this.assetId(asset))}" data-lifecycle-value="${rt.escape(desired)}" ${model.disabled ? "disabled" : ""} title="${rt.escape(title)}"><ha-icon icon="mdi:power"></ha-icon><span>${rt.escape(label)}</span></button>`;
+    const button = `<button class="action ${extraClass}" data-lifecycle-asset="${rt.escape(this.assetId(asset))}" data-lifecycle-value="${rt.escape(desired)}" ${model.disabled ? "disabled" : ""} title="${rt.escape(title)}"><ha-icon icon="mdi:power"></ha-icon><span>${rt.escape(label)}</span></button>`;
+    return model.disabled && extraClass.includes("manage-lifecycle") ? `<span class="lifecycle-control-wrap">${button}<small class="lifecycle-disabled-reason">${rt.escape(title)}</small></span>` : button;
   }
 
   chargingActivityDisplay(rt, asset) {
@@ -8560,31 +8632,30 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
       step: Number.isFinite(chargePowerModel?.step) ? chargePowerModel.step : 0
     };
     const canCurrent = !!(chargePowerModel?.resolved && chargePowerModel?.writable && meta.step > 0 && meta.max >= meta.min);
-    const currentStepEntity = chargePowerModel?.write_target_entity || "";
-    // R22.12.11.24: Vehicle charge power is the user-facing setting.
-    // The connected/effective charger is the backend-owned execution target.
-    const showCurrent = !!chargePowerModel?.resolved;
-    const displayCurrent = currentValue === "—" ? "—" : `${currentValue} kW`;
+    const displayCurrent = currentValue === "—" ? "Unavailable" : `${currentValue} kW`;
+    const requestedReason = String(chargePowerModel?.reason || (!chargePowerModel?.resolved ? "Requested charging power is not published for this vehicle." : (!chargePowerModel?.writable ? "Requested charging power is read-only." : ""))).replaceAll("_"," ");
     const atMin = canCurrent && limitValue !== null && limitValue <= meta.min + 0.000001;
     const atMax = canCurrent && limitValue !== null && limitValue >= meta.max - 0.000001;
-    const currentControl = showCurrent ? `
-      <div class="mini-current-stepper compact-current ${canCurrent ? "" : "readonly"}" title="Vehicle charge power. Same charger-owned property contract as the detail editor.">
-        <span class="current-copy"><small>Vehicle charge power</small><strong>${rt.escape(displayCurrent)}</strong></span>
+    const currentControl = `
+      <div class="mini-current-stepper compact-current ${canCurrent ? "" : "readonly"}" title="${rt.escape(requestedReason || "Requested vehicle charging power")}">
+        <span class="current-copy"><small>Requested power</small><strong>${rt.escape(displayCurrent)}</strong>${!canCurrent && requestedReason ? `<em>${rt.escape(requestedReason)}</em>` : ""}</span>
         ${canCurrent ? `<button class="round-step" data-property-step="vehicle.requested_charge_power_kw" data-vehicle-asset="${rt.escape(ctx.assetId)}" data-charge-power-value="${rt.escape(limitValue ?? meta.min)}" data-delta="-${rt.escape(meta.step)}" data-min="${rt.escape(meta.min)}" data-max="${rt.escape(meta.max)}" data-unit="kW" ${atMin ? "disabled" : ""}>−</button>
         <button class="round-step" data-property-step="vehicle.requested_charge_power_kw" data-vehicle-asset="${rt.escape(ctx.assetId)}" data-charge-power-value="${rt.escape(limitValue ?? meta.min)}" data-delta="${rt.escape(meta.step)}" data-min="${rt.escape(meta.min)}" data-max="${rt.escape(meta.max)}" data-unit="kW" ${atMax ? "disabled" : ""}>+</button>` : ``}
-      </div>` : ``;
+      </div>`;
     const actualPowerNumber = Number(ctx.info?.power);
-    const actualPowerDisplay = Number.isFinite(actualPowerNumber) ? `${Math.max(0, actualPowerNumber).toFixed(1).replace(/\.0$/, "")} kW` : "—";
     const hasPhysicalCharger = !!ctx.info?.physical_charger;
-    const actualPowerControl = hasPhysicalCharger ? `
-      <div class="mini-power-read actual-power-read" title="Actual power from the physically connected charger canonical property contract.">
-        <span class="power-copy"><small>Power</small><strong>${rt.escape(actualPowerDisplay)}</strong></span>
-      </div>` : ``;
+    const actualKnown = hasPhysicalCharger && Number.isFinite(actualPowerNumber);
+    const actualPowerDisplay = actualKnown ? `${Math.max(0, actualPowerNumber).toFixed(1).replace(/\.0$/, "")} kW` : (ctx.info?.active ? "Power not proven" : "—");
+    const actualReason = actualKnown ? "Actual power from the physically connected charger." : (hasPhysicalCharger ? "Actual charger power is unavailable." : "Physical charger identity is not proven, so power is not attributed to this vehicle.");
+    const actualPowerControl = `
+      <div class="mini-power-read actual-power-read ${actualKnown ? "" : "readonly"}" title="${rt.escape(actualReason)}">
+        <span class="power-copy"><small>Charging now</small><strong>${rt.escape(actualPowerDisplay)}</strong>${!actualKnown ? `<em>${rt.escape(actualReason)}</em>` : ""}</span>
+      </div>`;
     return `<section class="vehicle-control-row mock-row" title="${rt.escape(ctx.info.detail)}">
       <div class="vehicle-metrics-strip mock-metrics">
         ${metricSlots.map((slot, index)=>`<div class="metric-chip ${index === 2 ? "battery-chip" : ""}" title="${rt.escape(slot.property_key || "Component contract gap")}"><span>${rt.escape(slot.label)}</span><b>${rt.escape(slot.resolved ? slot.display : "—")}</b></div>`).join("")}
       </div>
-      <div class="charge-mini-strip mock-controls ${showCurrent ? "has-speed" : "no-speed"} no-mode">
+      <div class="charge-mini-strip mock-controls has-speed no-mode">
         ${this.renderChargerAssignmentSelect(rt, vehicleAsset)}
         ${currentControl}
         ${actualPowerControl}
@@ -8709,7 +8780,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
         <span class="ov-vehicle-image">${image ? `<img src="${rt.escape(rt.cache(image))}" alt="${rt.escape(display)}" style="filter:${rt.escape(visualFilter)}">` : `<ha-icon icon="mdi:car-electric"></ha-icon>`}</span>
         <span class="ov-vehicle-copy"><b>${rt.escape(display)}</b><small>${rt.escape(signalValue(signals.energy))} · ${rt.escape(signalValue(signals.range))}</small></span>
       </button>
-      <div class="ov-signal ${signalTone(signals.security)}" title="${rt.escape(signals.security?.subvalue || "")}"><ha-icon icon="mdi:lock-outline"></ha-icon><span>Security</span><b>${rt.escape(signalValue(signals.security, "Unknown"))}</b></div>
+      <div class="ov-signal ${signalTone(signals.security)}" title="${rt.escape(signals.security?.subvalue || signals.security?.reason || "")}"><ha-icon icon="mdi:lock-outline"></ha-icon><span>Security</span><b>${rt.escape(signalValue(signals.security, "Unknown"))}</b></div>
       <div class="ov-signal" title="Published climate/comfort property"><ha-icon icon="mdi:fan"></ha-icon><span>Comfort</span><b>${rt.escape(signals.climate)}</b></div>
       <div class="ov-signal ${signalTone(signals.maintenance)}" title="${rt.escape(signals.maintenance?.subvalue || "")}"><ha-icon icon="mdi:wrench-outline"></ha-icon><span>Maintenance</span><b>${rt.escape(signalValue(signals.maintenance, "Unknown"))}</b></div>
       <div class="ov-charging-state"><ha-icon icon="mdi:lightning-bolt"></ha-icon><span>${rt.escape(charging)}</span></div>
@@ -9150,11 +9221,11 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
   intelligenceStatusRow(rt, tile = {}) {
     const label = tile.label || "Intelligence";
     const value = tile.value || "Contract gap";
-    const subvalue = tile.subvalue || "";
+    const detail = String(tile.subvalue || tile.reason || "").trim();
     const rawTone = String(tile.tone || "neutral").toLowerCase();
     const pillTone = rawTone === "error" ? "bad" : rawTone === "attention" ? "warn" : rawTone === "active" ? "ok" : "muted";
-    const title = subvalue ? `${label}: ${value} — ${subvalue}` : `${label}: ${value}`;
-    return `<div class="status-row intelligence-status-row" title="${rt.escape(title)}"><ha-icon icon="${rt.escape(tile.icon || "mdi:information-outline")}"></ha-icon><span>${rt.escape(label)}</span><b class="pill ${pillTone}">${rt.escape(value)}</b></div>`;
+    const title = detail ? `${label}: ${value} — ${detail}` : `${label}: ${value}`;
+    return `<div class="status-row intelligence-status-row" title="${rt.escape(title)}"><ha-icon icon="${rt.escape(tile.icon || "mdi:information-outline")}"></ha-icon><span>${rt.escape(label)}</span><b class="pill ${pillTone}">${rt.escape(value)}</b>${detail ? `<small>${rt.escape(detail)}</small>` : ""}</div>`;
   }
 
   issueRows(rt, vehicles) {
@@ -9524,7 +9595,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
   }
 
   overviewStyles() { return `
-    .appearance-write-error{display:flex;align-items:center;gap:7px;margin:0 2px;padding:8px 10px;border:1px solid #fed7aa;border-radius:10px;background:#fff7ed;color:#9a3412;font-size:10px;font-weight:600}.appearance-write-error ha-icon{--mdc-icon-size:16px}
+    .intelligence-status-row small{grid-column:2/-1;display:block;min-width:0;margin-top:-2px;font-size:7.5px;line-height:1.05;font-weight:500;color:#8A5A12;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n    .appearance-write-error{display:flex;align-items:center;gap:7px;margin:0 2px;padding:8px 10px;border:1px solid #fed7aa;border-radius:10px;background:#fff7ed;color:#9a3412;font-size:10px;font-weight:600}.appearance-write-error ha-icon{--mdc-icon-size:16px}
     .rhi-page-hero-overview{position:relative!important;display:block!important;min-height:clamp(176px,16vw,218px)!important;border:0!important;border-radius:18px!important;background:linear-gradient(90deg,#fff 0%,#fff 30%,rgba(255,255,255,.94) 39%,rgba(255,255,255,.18) 60%,rgba(255,255,255,0) 76%)!important;box-shadow:none!important;overflow:hidden!important;margin:0!important}
     .rhi-page-hero-overview:before{display:none!important}
     .rhi-page-hero-overview .rhi-page-hero-copy{position:relative!important;z-index:4!important;width:min(48%,650px)!important;max-width:none!important;padding:32px 20px 28px 24px!important}
@@ -10044,6 +10115,8 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
       border:1px solid var(--hb-line)!important;
       box-shadow:none!important;
     }
+    .vehicle-control-row.mock-row .current-copy em,.vehicle-control-row.mock-row .power-copy em{display:block!important;margin-top:2px!important;font-size:7.5px!important;line-height:1.05!important;font-style:normal!important;font-weight:500!important;color:#8A5A12!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+    .lifecycle-control-wrap{min-width:0;display:grid;gap:2px;align-items:center}.lifecycle-control-wrap>.manage-lifecycle{width:100%!important;max-width:none!important}.lifecycle-disabled-reason{display:block;max-width:150px;font-size:8px;line-height:1.1;color:#8A5A12;font-weight:550;white-space:normal}
     .vehicle-actions.clean-actions{
       display:grid!important;
       grid-template-columns:minmax(132px,1.05fr) minmax(118px,.95fr) minmax(104px,.82fr) minmax(92px,.75fr) minmax(0,1fr) 42px 42px!important;
@@ -10676,9 +10749,9 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
     if (view === "planning") {
       const plan = this.energyPlanning(rt);
       return hbMobilityStatusGrid(rt, [
-        { icon:"mdi:calendar-check-outline", label:"Today", value:this.fmtKwh(plan.today.plannedKwh), sub:plan.today.state || "Planned energy", tone:"neutral" },
-        { icon:"mdi:calendar-alert-outline", label:"Still to plan", value:this.fmtKwh(plan.today.stillToPlanKwh), sub:"Remaining today", tone:"neutral" },
-        { icon:"mdi:weather-sunset-up", label:"Tomorrow", value:this.fmtKwh(plan.tomorrow.plannedKwh), sub:plan.tomorrow.state || "Next horizon", tone:"neutral" }
+        { icon:"mdi:calendar-check-outline", label:"Planned today", value:plan.today.plannedKwh === null || plan.today.plannedKwh === undefined ? "Not published" : this.fmtKwh(plan.today.plannedKwh), sub:plan.today.state || "Energy planning", tone:"neutral" },
+        { icon:"mdi:calendar-alert-outline", label:"Still to plan", value:plan.today.stillToPlanKwh === null || plan.today.stillToPlanKwh === undefined ? "Not published" : this.fmtKwh(plan.today.stillToPlanKwh), sub:"Remaining energy today", tone:"neutral" },
+        { icon:"mdi:weather-sunset-up", label:"Tomorrow", value:plan.tomorrow.plannedKwh === null || plan.tomorrow.plannedKwh === undefined ? "Not published" : this.fmtKwh(plan.tomorrow.plannedKwh), sub:plan.tomorrow.state || "Next horizon", tone:"neutral" }
       ], "planning-top-status");
     }
     if (view === "strategies") {
@@ -10779,9 +10852,17 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
     ];
     const rows = mobilityRows.slice(0, 8).map((row) => {
       const id = String(row.asset_id || row.target_asset_id || row.flexible_asset_id || row.consumer_asset_id || row.participant_id || "Mobility asset");
-      const name = String(row.display_name || row.name || row.label || rt.assetDisplayName?.(id) || id);
-      const state = String(row.planning_state || row.state || row.status || row.reason_label || "Published");
-      return `<div class="rhi-data-row rhiVehicleRow">${this.vehicleIdentity(rt,id,row)}<span>${rt.escape(state)}</span></div>`;
+      const planned = row.planned_kwh ?? row.planned_energy_kwh ?? row.energy_kwh ?? null;
+      const start = row.planned_start || row.start_time || row.window_start || "";
+      const end = row.planned_end || row.end_time || row.window_end || "";
+      const state = String(row.planning_state || row.state || row.status || row.reason_label || "").trim();
+      const usefulState = state && state.toLowerCase() !== "published" ? state : "";
+      const answer = planned !== null && planned !== undefined && Number.isFinite(Number(planned))
+        ? `${Number(planned).toFixed(1)} kWh planned`
+        : (start || end)
+          ? [usefulState, start && end ? `${start} → ${end}` : (start || end)].filter(Boolean).join(" · ")
+          : (usefulState || "No per-asset schedule published");
+      return `<div class="rhi-data-row rhiVehicleRow">${this.vehicleIdentity(rt,id,row)}<span>${rt.escape(answer)}</span></div>`;
     }).join("");
     const contractGap = plan.available
       ? (plan.exactIdentityJoin && !mobilityRows.length ? "Energy planning is available, but no published planning row currently matches a canonical Mobility asset id." : "")
@@ -10790,18 +10871,18 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
     return `<section class="rhi-context-grid">
       <article class="rhi-context-card">
         <div class="rhi-context-card-kicker"><ha-icon icon="mdi:calendar-clock"></ha-icon>Energy-owned planning</div>
-        <h3>Operational charging plan</h3>
-        <p>Mobility shows Energy's public planning truth directly. No charging schedule, totals or feasibility is recalculated in the frontend.</p>
+        <h3>What will charge, and when?</h3>
+        <p>Only schedule and energy details explicitly published by Energy are shown. If a vehicle only participates in planning but has no schedule yet, that gap is stated directly.</p>
         ${rows ? `<div class="rhi-data-list">${rows}</div>` : ""}
         ${contractGap ? `<div class="rhi-context-note">${rt.escape(contractGap)}</div>` : ""}
       </article>
       <article class="rhi-context-card">
         <div class="rhi-context-card-kicker"><ha-icon icon="mdi:car-clock"></ha-icon>Mobility execution context</div>
-        <h3>Vehicle readiness</h3>
-        <p>Readiness, charger assignment, connection state and Mobility commands remain Mobility-owned. Planning is shown next to that execution truth instead of being duplicated here.</p>
+        <h3>Can the plan execute?</h3>
+        <p>Mobility keeps charger assignment, physical connection and command readiness separate from Energy planning. A published plan is not presented as executable unless those facts exist.</p>
         <div class="rhi-data-list">
-          <div class="rhi-data-row"><b>Planning source</b><span>${rt.escape(plan.source)}</span></div>
-          <div class="rhi-data-row"><b>Matched Mobility assets</b><span>${rt.escape(String(mobilityRows.length))}</span></div>
+          <div class="rhi-data-row"><b>Source</b><span>${rt.escape(plan.source)}</span></div>
+          <div class="rhi-data-row"><b>Vehicles in planning</b><span>${rt.escape(String(mobilityRows.length))}</span></div>
           <div class="rhi-data-row"><b>Plan state</b><span>${rt.escape(plan.state || "Unavailable")}</span></div>
         </div>
       </article>
@@ -10920,15 +11001,15 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
     return `<section class="rhi-context-grid log-grid">
       <article class="rhi-context-card rhi-log-wide">
         <div class="rhi-context-card-kicker"><ha-icon icon="mdi:text-box-search-outline"></ha-icon>Mobility log</div>
-        <h3>Recent activity</h3>
-        <p>Commands, runtime events and audit evidence are rendered directly from MOBILITY_ACTIVITY_V2.</p>
+        <h3>What happened?</h3>
+        <p>Recent vehicle, charger and command activity is shown with the asset, outcome and backend reason. Technical contract names stay out of the primary reading path.</p>
         ${entries ? `<div class="rhi-log-list">${entries}</div>` : `<div class="rhi-context-note">No activity rows are currently published.</div>`}
         ${gap}
       </article>
       <article class="rhi-context-card">
-        <div class="rhi-context-card-kicker"><ha-icon icon="mdi:alert-outline"></ha-icon>Exceptions</div>
-        <h3>${rt.escape(String(exceptions.length))} failed or rejected</h3>
-        <p>Backend-published execution reasons stay visible here without frontend reinterpretation.</p>
+        <div class="rhi-context-card-kicker"><ha-icon icon="mdi:alert-outline"></ha-icon>Exceptions · ${rt.escape(String(exceptions.length))}</div>
+        <h3>What needs attention?</h3>
+        <p>${exceptions.length ? `${rt.escape(String(exceptions.length))} failed or rejected item${exceptions.length === 1 ? "" : "s"}. The backend reason is shown below.` : "No failed or rejected activity is currently published."}</p>
         ${exceptions.slice(0,8).map((row)=>`<div class="rhi-data-row"><b>${rt.escape(titleOf(row))}</b><span>${rt.escape(reasonOf(row) || statusOf(row))}</span></div>`).join("")}
       </article>
     </section>`;
