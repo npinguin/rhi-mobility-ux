@@ -12,6 +12,8 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     this._vehicleSort = this._vehicleSort || "default";
     this._vehiclePickerAsset = this._vehiclePickerAsset || "";
     this._vehiclePickerDraft = this._vehiclePickerDraft || new Map();
+    this._vehiclePendingAppearance = this._vehiclePendingAppearance || new Map();
+    this._vehicleAppearanceError = this._vehicleAppearanceError || new Map();
     this._lastDashboardRenderAt = this._lastDashboardRenderAt || 0;
     this._lastSignature = this._lastSignature || "";
     if (!this._viewPositionBound) {
@@ -31,6 +33,28 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
   assetId(asset) { return asset?.asset_id || ""; }
   vehicleId(asset) { return String(this.assetId(asset)).replace(/^vehicle_/, ""); }
   chargerId(assetOrId) { return String(assetOrId?.asset_id || assetOrId || "").replace(/^charger_/, ""); }
+
+  pendingVehicleAppearance(rt, asset) {
+    const assetId = this.assetId(asset);
+    const pending = this._vehiclePendingAppearance.get(assetId) || null;
+    if (!pending) return null;
+    const canonical = String(rt.semanticProperty(assetId, "vehicle.image_key")?.value ?? "").trim();
+    if (canonical && canonical === pending.key) {
+      this._vehiclePendingAppearance.delete(assetId);
+      this._vehicleAppearanceError.delete(assetId);
+      return null;
+    }
+    return pending;
+  }
+
+  failVehicleAppearance(assetId, message = "Appearance update was not confirmed by Mobility.") {
+    this._vehiclePendingAppearance.delete(assetId);
+    this._vehicleAppearanceError.set(assetId, message);
+    this._forceRender = true;
+    this._holdRenderUntil = 0;
+    this._lastSignature = "";
+    if (this._hass) this.hass = this._hass;
+  }
 
   /** Centralized charger image resolver.
    * Priority: profile/type words -> asset_id -> default. Keep this in one place
@@ -348,8 +372,10 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     const pickerOpen = this._vehiclePickerAsset === assetId;
     const pickerDraft = pickerOpen ? (this._vehiclePickerDraft.get(assetId) || {}) : {};
     const visual = this.vehicleVisualSelection(rt, asset, pickerDraft);
-    const visualFilter = visual?.color?.filter || "none";
-    const visualImage = pickerOpen && visual?.vehicle?.package_file ? visual.vehicle.package_file : image;
+    const pendingAppearance = this.pendingVehicleAppearance(rt, asset);
+    const visualFilter = pendingAppearance?.filter ?? visual?.color?.filter ?? "none";
+    const visualImage = pendingAppearance?.image || visual?.vehicle?.package_file || image;
+    const appearanceError = this._vehicleAppearanceError.get(assetId) || "";
     return `<article class="vehicle-card premium-vehicle-card">
       <div class="status-top-row vehicle-intelligence-strip">
         ${(Array.isArray(model?.status) ? model.status : []).slice(0, 5).map((tile) => this.intelligenceStatusRow(rt, tile)).join("")}
@@ -368,6 +394,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
         </div>
       </div>
       ${pickerOpen ? this.renderVehiclePicker(rt, asset) : ""}
+      ${appearanceError ? `<div class="appearance-write-error" role="status"><ha-icon icon="mdi:alert-circle-outline"></ha-icon><span>${rt.escape(appearanceError)}</span></div>` : ""}
       ${this.renderVehicleControlRow(rt, asset, chargers)}
       <div class="vehicle-actions clean-actions">
         ${vehicleCommands.map((cmd, index)=>this.renderCommand(rt, cmd, cmd?.label || "Action", this.commandIcon(cmd), index === 0 ? "primary-charge" : "")).join("")}
@@ -1123,16 +1150,34 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
       const profileId=btn.getAttribute("data-vehicle-profile-id") || "";
       const key=btn.getAttribute("data-vehicle-key") || "";
       if(!assetId || !key) return;
+      const asset=rt.vehicleById(assetId) || rt.assetById(assetId) || {asset_id:assetId,asset_type:"vehicle"};
+      const picker=new HomeBrainVehicleVisualPicker(rt);
+      const selection=picker.selection(asset,this._vehiclePickerDraft.get(assetId) || {});
+      this._vehiclePendingAppearance.set(assetId,{
+        key,
+        image:selection?.vehicle?.package_file || "",
+        filter:selection?.color?.filter || "none",
+        started_at:Date.now()
+      });
+      this._vehicleAppearanceError.delete(assetId);
+      this._forceRender=true; this._lastSignature="";
+      if(this._hass)this.hass=this._hass;
       btn.disabled=true;
       const profileProp=rt.semanticProperty(assetId,"asset.profile_id");
       const currentProfile=String(profileProp?.value || "");
       const profileOk=!profileId || profileId===currentProfile || await rt.writePublishedPropertyAsync(assetId,"asset.profile_id",profileId);
-      if(!profileOk){btn.disabled=false;return;}
+      if(!profileOk){this.failVehicleAppearance(assetId,"Profile update was rejected. Appearance was not changed.");return;}
       const imageOk=await rt.writePublishedPropertyAsync(assetId,"vehicle.image_key",key);
-      if(!imageOk){btn.disabled=false;return;}
+      if(!imageOk){this.failVehicleAppearance(assetId,"Appearance update was rejected or canonical readback did not confirm it.");return;}
       btn.classList.add("sent");
       this._vehiclePickerDraft.delete(assetId);
-      setTimeout(()=>{this._vehiclePickerAsset="";this._forceRender=true;this._lastSignature="";if(this._hass)this.hass=this._hass;},450);
+      this._vehiclePickerAsset="";
+      this._forceRender=true; this._lastSignature="";
+      if(this._hass)this.hass=this._hass;
+      setTimeout(()=>{
+        const pending=this._vehiclePendingAppearance.get(assetId);
+        if(pending?.key===key) this.failVehicleAppearance(assetId,"Appearance readback timed out; showing the canonical Mobility appearance again.");
+      },8000);
     }));
     this.shadowRoot.querySelectorAll("button[data-lifecycle-asset]").forEach((btn)=>btn.addEventListener("click",async ()=>{
       if (btn.disabled) return;
@@ -1204,6 +1249,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
   }
 
   overviewStyles() { return `
+    .appearance-write-error{display:flex;align-items:center;gap:7px;margin:0 2px;padding:8px 10px;border:1px solid #fed7aa;border-radius:10px;background:#fff7ed;color:#9a3412;font-size:10px;font-weight:600}.appearance-write-error ha-icon{--mdc-icon-size:16px}
     .rhi-page-hero-overview{position:relative!important;display:block!important;min-height:clamp(176px,16vw,218px)!important;border:0!important;border-radius:18px!important;background:linear-gradient(90deg,#fff 0%,#fff 30%,rgba(255,255,255,.94) 39%,rgba(255,255,255,.18) 60%,rgba(255,255,255,0) 76%)!important;box-shadow:none!important;overflow:hidden!important;margin:0!important}
     .rhi-page-hero-overview:before{display:none!important}
     .rhi-page-hero-overview .rhi-page-hero-copy{position:relative!important;z-index:4!important;width:min(48%,650px)!important;max-width:none!important;padding:32px 20px 28px 24px!important}
