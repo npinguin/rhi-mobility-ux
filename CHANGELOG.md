@@ -1,3 +1,11 @@
+## 1.0.0-rc.73 — Mobility stabilization UX
+
+- makes vehicle↔charger assignment explicit and actionable while preserving canonical V2 relationship ownership;
+- shows reciprocal assigned vehicle separately from physical connection in Charger Management;
+- normalizes management-card and appearance-picker proportions;
+- separates profile-owned defaults from normal instance configuration with explicit Advanced overrides;
+- targets Mobility M0.10.21 and preserves zero accepted technical/feature debt.
+
 ## 1.0.0-rc.72 — unified appearance failure isolation
 
 - consume pinned RHI UX Core 1.5.3 shared visual picker primitives;
