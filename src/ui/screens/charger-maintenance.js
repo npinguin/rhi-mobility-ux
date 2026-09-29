@@ -819,6 +819,59 @@ ${hbMobilitySharedShellStyles()}
         .charger-card .command-row{grid-template-columns:1fr!important}
       }
 
+      /* Canonical management identity card. New class names deliberately isolate this
+         product surface from accumulated legacy premium-image-hero/header overrides. */
+      .charger-card .charger-identity-card{
+        display:grid!important;grid-template-columns:160px minmax(0,1fr)!important;
+        min-height:120px!important;gap:14px!important;padding:10px 12px!important;
+        align-items:center!important;box-sizing:border-box!important;overflow:hidden!important;
+        border:1px solid rgba(20,103,245,.10)!important;border-radius:13px!important;
+        background:linear-gradient(135deg,#fff 0%,#f8fbff 68%,#eef5ff 100%)!important;
+      }
+      .charger-card .charger-identity-card>.charger-visual{
+        position:relative!important;inset:auto!important;width:100%!important;height:104px!important;
+        min-height:104px!important;max-height:104px!important;display:grid!important;place-items:center!important;
+        overflow:hidden!important;border:0!important;border-radius:11px!important;background:rgba(255,255,255,.56)!important;
+      }
+      .charger-card .charger-identity-card>.charger-visual img{
+        position:static!important;inset:auto!important;display:block!important;width:100%!important;height:100%!important;
+        max-width:132px!important;max-height:98px!important;object-fit:contain!important;object-position:center!important;
+        transform:none!important;margin:auto!important;
+      }
+      .charger-card .charger-identity-copy{min-width:0!important;display:grid!important;gap:8px!important;align-content:center!important}
+      .charger-card .charger-identity-top{
+        display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;gap:10px!important;
+        align-items:start!important;min-width:0!important;
+      }
+      .charger-card .charger-identity-card .charger-title{min-width:0!important;max-width:100%!important}
+      .charger-card .charger-identity-card .charger-title h3{
+        margin:0 0 3px!important;font-size:16px!important;line-height:1.15!important;font-weight:600!important;
+        white-space:normal!important;overflow:visible!important;text-overflow:clip!important;
+        overflow-wrap:normal!important;word-break:normal!important;hyphens:none!important;
+      }
+      .charger-card .charger-identity-card .charger-title p{
+        margin:2px 0 0!important;font-size:10.5px!important;line-height:1.25!important;
+        white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;max-width:100%!important;
+      }
+      .charger-card .charger-identity-card .status{
+        justify-self:end!important;align-self:start!important;white-space:nowrap!important;font-size:10px!important;padding:5px 8px!important;
+      }
+      .charger-card .charger-identity-card .charger-appearance-action{
+        position:static!important;grid-column:auto!important;grid-row:auto!important;justify-self:start!important;
+        height:31px!important;min-height:31px!important;margin:0!important;padding:0 9px!important;font-size:10.5px!important;
+      }
+      @media(max-width:760px){
+        .charger-card .charger-identity-card{grid-template-columns:118px minmax(0,1fr)!important;gap:10px!important}
+        .charger-card .charger-identity-card>.charger-visual{height:92px!important;min-height:92px!important;max-height:92px!important}
+        .charger-card .charger-identity-card>.charger-visual img{max-width:108px!important;max-height:86px!important}
+      }
+      @media(max-width:430px){
+        .charger-card .charger-identity-card{grid-template-columns:94px minmax(0,1fr)!important;padding:8px!important;gap:8px!important}
+        .charger-card .charger-identity-card>.charger-visual{height:80px!important;min-height:80px!important;max-height:80px!important}
+        .charger-card .charger-identity-card>.charger-visual img{max-width:86px!important;max-height:74px!important}
+        .charger-card .charger-identity-card .charger-title h3{font-size:14px!important}
+        .charger-card .charger-identity-card .charger-title p{font-size:9.5px!important}
+      }
 
     `;
   }
