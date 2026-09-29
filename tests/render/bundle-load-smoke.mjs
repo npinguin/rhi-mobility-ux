@@ -88,7 +88,7 @@ const logRt={
   escape:(v)=>String(v??'').replace(/[&<>]/g,(ch)=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[ch]))
 };
 const logHtml=logCard.renderLog(logRt);
-for(const needle of ['Recent activity','Lock vehicle','Test vehicle','rejected','vehicle_unavailable','1 failed or rejected']){
+for(const needle of ['What happened?','What needs attention?','Lock vehicle','Test vehicle','rejected','vehicle_unavailable','1 failed or rejected']){
   if(!logHtml.includes(needle)) throw new Error(`Log failed rendered activity acceptance: missing ${needle}`);
 }
 if(logHtml.includes('No activity rows are currently published.')) throw new Error('Log rendered empty state despite published activity rows');
