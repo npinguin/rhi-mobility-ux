@@ -226,12 +226,12 @@ class HomeBrainAssetShell {
         ${m.detailRoute ? `<button class="metric-detail-link" data-nav="${this.rt.escape(m.detailRoute)}" title="${this.rt.escape(m.detailTitle || "Open related asset details")}"><ha-icon icon="mdi:plus"></ha-icon></button>` : ""}
       </div>`).join("");
     const mainSections = (model.sections || []).filter((s) => s && s.key !== "activity");
-    const chargerAppearance = model.type === "charger"
-      ? new HomeBrainChargerVisualPicker(this.rt).render(
-          model.registryEntry || { asset_id:model.id || "", asset_type:"charger", image_key:model.visualKey || "" },
-          { showClose:false, context:"detail" }
-        )
-      : "";
+    const appearanceAsset = model.registryEntry || { asset_id:model.id || "", asset_type:model.type || "", image_key:model.visualKey || "" };
+    const appearancePicker = model.type === "vehicle"
+      ? new HomeBrainVehicleVisualPicker(this.rt).render(appearanceAsset, { showClose:false, context:"detail" })
+      : model.type === "charger"
+        ? new HomeBrainChargerVisualPicker(this.rt).render(appearanceAsset, { showClose:false, context:"detail" })
+        : "";
 
     const detailHeroScene = rhiMobilityHeroAsset(model.type === "charger" ? "charging_detail" : "vehicle_detail");
 
@@ -241,19 +241,22 @@ class HomeBrainAssetShell {
           <div class="hi-version-block" style="position:absolute;top:18px;right:22px;text-align:right;font-size:10.5px;line-height:1.25;font-weight:400;color:var(--secondary-text-color,#6B7280);opacity:.82;background:none;border:0;box-shadow:none;padding:0;margin:0;z-index:3;pointer-events:none;"><div>UX ${this.rt.escape(UX_VERSION)}</div><div>Backend ${this.rt.escape(this.rt.backendVersion())}</div></div>
           ${hbMobilityNav(model.type === "charger" ? "chargers" : "vehicles")}
           <section class="hero detail-scene-hero">
-            <img class="detail-hero-scene" src="${this.rt.escape(detailHeroScene)}" alt="" aria-hidden="true" />
+            <img class="detail-hero-scene" src="${this.rt.escape(detailHeroScene)}" alt="" aria-hidden="true" loading="eager" decoding="sync" fetchpriority="high" />
             <div class="hero-left">
               <div class="title-row"><h1>${this.rt.escape(model.display)}</h1></div>
               <div class="detail-purpose">${this.rt.escape(model.type === "charger"
                 ? "Inspect charger availability, connection health, power, linked vehicle and direct controls for this charging point."
                 : "Inspect readiness, charging relationship, operational status and direct actions for this vehicle.")}</div>
             </div>
-            <div class="hero-image">${this.renderHeroVisual(model)}</div>
+            <div class="hero-image">
+              ${this.renderHeroVisual(model)}
+              ${appearancePicker ? `<button type="button" class="hero-appearance-edit" data-detail-appearance-toggle title="Choose appearance"><ha-icon icon="mdi:palette-outline"></ha-icon><span>Appearance</span></button>` : ""}
+            </div>
           </section>
 
+          ${appearancePicker ? `<section class="detail-appearance-panel" data-detail-appearance-panel hidden><div class="detail-appearance-panel-head"><div><small>Appearance</small><b>${this.rt.escape(model.display)}</b></div><button type="button" data-detail-appearance-close title="Close appearance selector"><ha-icon icon="mdi:close"></ha-icon></button></div>${appearancePicker}</section>` : ""}
           <section class="detail-status-grid status-count-${Math.min(4,statusItems.length)}" aria-label="Asset status">${status}</section>
           <section class="actions"><div class="actions-title">Quick actions</div>${actions || `<div class="no-actions">No actions available for this asset.</div>`}</section>
-          ${chargerAppearance ? `<details class="detail-appearance-fold"><summary><ha-icon icon="mdi:palette-outline"></ha-icon><span>Charger & colour</span><small>Visual library</small></summary>${chargerAppearance}</details>` : ""}
           <section class="grid">${mainSections.map((s) => this.renderSection(s)).join("")}</section>
           ${this.renderFooter(model)}
         </div>
