@@ -866,6 +866,7 @@ ${hbMobilitySharedShellStyles()}
 
       /* Canonical management identity card. New class names deliberately isolate this
          product surface from accumulated legacy premium-image-hero/header overrides. */
+      .lifecycle-control-wrap{display:grid;gap:2px;align-items:center;min-width:0}.lifecycle-control-wrap>.lifecycle-toggle{width:100%!important}.lifecycle-disabled-reason{display:block;max-width:180px;font-size:8px;line-height:1.1;color:#8A5A12;font-weight:550;white-space:normal}
       .charger-card .charger-identity-card{
         display:grid!important;grid-template-columns:minmax(0,1fr) 160px!important;
         min-height:120px!important;gap:14px!important;padding:10px 12px!important;
