@@ -434,7 +434,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
         <span class="ov-vehicle-image">${image ? `<img src="${rt.escape(rt.cache(image))}" alt="${rt.escape(display)}" style="filter:${rt.escape(visualFilter)}">` : `<ha-icon icon="mdi:car-electric"></ha-icon>`}</span>
         <span class="ov-vehicle-copy"><b>${rt.escape(display)}</b><small>${rt.escape(signalValue(signals.energy))} · ${rt.escape(signalValue(signals.range))}</small></span>
       </button>
-      <div class="ov-signal ${signalTone(signals.security)}" title="${rt.escape(signals.security?.subvalue || "")}"><ha-icon icon="mdi:lock-outline"></ha-icon><span>Security</span><b>${rt.escape(signalValue(signals.security, "Unknown"))}</b></div>
+      <div class="ov-signal ${signalTone(signals.security)}" title="${rt.escape(signals.security?.subvalue || signals.security?.reason || "")}"><ha-icon icon="mdi:lock-outline"></ha-icon><span>Security</span><b>${rt.escape(signalValue(signals.security, "Unknown"))}</b></div>
       <div class="ov-signal" title="Published climate/comfort property"><ha-icon icon="mdi:fan"></ha-icon><span>Comfort</span><b>${rt.escape(signals.climate)}</b></div>
       <div class="ov-signal ${signalTone(signals.maintenance)}" title="${rt.escape(signals.maintenance?.subvalue || "")}"><ha-icon icon="mdi:wrench-outline"></ha-icon><span>Maintenance</span><b>${rt.escape(signalValue(signals.maintenance, "Unknown"))}</b></div>
       <div class="ov-charging-state"><ha-icon icon="mdi:lightning-bolt"></ha-icon><span>${rt.escape(charging)}</span></div>
@@ -875,11 +875,11 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
   intelligenceStatusRow(rt, tile = {}) {
     const label = tile.label || "Intelligence";
     const value = tile.value || "Contract gap";
-    const subvalue = tile.subvalue || "";
+    const detail = String(tile.subvalue || tile.reason || "").trim();
     const rawTone = String(tile.tone || "neutral").toLowerCase();
     const pillTone = rawTone === "error" ? "bad" : rawTone === "attention" ? "warn" : rawTone === "active" ? "ok" : "muted";
-    const title = subvalue ? `${label}: ${value} — ${subvalue}` : `${label}: ${value}`;
-    return `<div class="status-row intelligence-status-row" title="${rt.escape(title)}"><ha-icon icon="${rt.escape(tile.icon || "mdi:information-outline")}"></ha-icon><span>${rt.escape(label)}</span><b class="pill ${pillTone}">${rt.escape(value)}</b></div>`;
+    const title = detail ? `${label}: ${value} — ${detail}` : `${label}: ${value}`;
+    return `<div class="status-row intelligence-status-row" title="${rt.escape(title)}"><ha-icon icon="${rt.escape(tile.icon || "mdi:information-outline")}"></ha-icon><span>${rt.escape(label)}</span><b class="pill ${pillTone}">${rt.escape(value)}</b>${detail ? `<small>${rt.escape(detail)}</small>` : ""}</div>`;
   }
 
   issueRows(rt, vehicles) {
@@ -1249,7 +1249,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
   }
 
   overviewStyles() { return `
-    .appearance-write-error{display:flex;align-items:center;gap:7px;margin:0 2px;padding:8px 10px;border:1px solid #fed7aa;border-radius:10px;background:#fff7ed;color:#9a3412;font-size:10px;font-weight:600}.appearance-write-error ha-icon{--mdc-icon-size:16px}
+    .intelligence-status-row small{grid-column:2/-1;display:block;min-width:0;margin-top:-2px;font-size:7.5px;line-height:1.05;font-weight:500;color:#8A5A12;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n    .appearance-write-error{display:flex;align-items:center;gap:7px;margin:0 2px;padding:8px 10px;border:1px solid #fed7aa;border-radius:10px;background:#fff7ed;color:#9a3412;font-size:10px;font-weight:600}.appearance-write-error ha-icon{--mdc-icon-size:16px}
     .rhi-page-hero-overview{position:relative!important;display:block!important;min-height:clamp(176px,16vw,218px)!important;border:0!important;border-radius:18px!important;background:linear-gradient(90deg,#fff 0%,#fff 30%,rgba(255,255,255,.94) 39%,rgba(255,255,255,.18) 60%,rgba(255,255,255,0) 76%)!important;box-shadow:none!important;overflow:hidden!important;margin:0!important}
     .rhi-page-hero-overview:before{display:none!important}
     .rhi-page-hero-overview .rhi-page-hero-copy{position:relative!important;z-index:4!important;width:min(48%,650px)!important;max-width:none!important;padding:32px 20px 28px 24px!important}
