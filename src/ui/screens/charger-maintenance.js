@@ -241,15 +241,17 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
 
     const pickerOpen = this._chargerPickerAsset === assetId;
     return `<article class="charger-card ${issue ? "attention" : ""}">
-      <div class="charger-hero-card premium-image-hero">
+      <div class="charger-identity-card">
         ${this.renderChargerHero(rt, id, name, status)}
-        <div class="charger-head">
-          <div class="charger-title">
-            <h3 title="${rt.escape(name)}">${rt.escape(name)}</h3>
-            <p class="charger-location" title="${rt.escape(charger.location || "Location not configured")}">${rt.escape(charger.location || "Location not configured")}</p>
-            <p class="charger-profile" title="${rt.escape(projection.identity?.profile || charger.profile || "Profile not configured")}">${rt.escape(projection.identity?.profile || charger.profile || "Profile not configured")}</p>
+        <div class="charger-identity-copy">
+          <div class="charger-identity-top">
+            <div class="charger-title">
+              <h3 title="${rt.escape(name)}">${rt.escape(name)}</h3>
+              <p class="charger-location" title="${rt.escape(charger.location || "Location not configured")}">${rt.escape(charger.location || "Location not configured")}</p>
+              <p class="charger-profile" title="${rt.escape(projection.identity?.profile || charger.profile || "Profile not configured")}">${rt.escape(projection.identity?.profile || charger.profile || "Profile not configured")}</p>
+            </div>
+            <span class="status ${this.statusTone(status)}">${rt.escape(status)}</span>
           </div>
-          <span class="status ${this.statusTone(status)}">${rt.escape(status)}</span>
           <button class="charger-appearance-action" data-charger-picker="${rt.escape(assetId)}" title="Choose charger appearance"><ha-icon icon="mdi:palette-outline"></ha-icon><span>Appearance</span></button>
         </div>
       </div>
