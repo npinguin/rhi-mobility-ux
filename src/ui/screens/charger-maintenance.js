@@ -185,7 +185,8 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
     const model = rt.lifecycleWriteModel(charger, desired);
     const label = desired === "active" ? "Activate" : "Disable";
     const title = model.disabled ? (model.reason || "Lifecycle contract gap") : `${label} via lifecycle_status`;
-    return `<button class="${extraClass}" data-lifecycle-asset="${rt.escape(this.assetId(charger))}" data-lifecycle-value="${rt.escape(desired)}" ${model.disabled ? "disabled" : ""} title="${rt.escape(title)}"><ha-icon icon="mdi:power"></ha-icon><span>${rt.escape(label)}</span></button>`;
+    const button = `<button class="${extraClass}" data-lifecycle-asset="${rt.escape(this.assetId(charger))}" data-lifecycle-value="${rt.escape(desired)}" ${model.disabled ? "disabled" : ""} title="${rt.escape(title)}"><ha-icon icon="mdi:power"></ha-icon><span>${rt.escape(label)}</span></button>`;
+    return button + (model.disabled && extraClass.includes("labeled-action") ? `<small class="lifecycle-disabled-reason">${rt.escape(title)}</small>` : "");
   }
 
   renderCollapsedCharger(rt, charger) {
