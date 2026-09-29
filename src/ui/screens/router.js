@@ -359,9 +359,9 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
         ${gap}
       </article>
       <article class="rhi-context-card">
-        <div class="rhi-context-card-kicker"><ha-icon icon="mdi:alert-outline"></ha-icon>Exceptions</div>
-        <h3>${rt.escape(String(exceptions.length))} failed or rejected</h3>
-        <p>Backend-published execution reasons stay visible here without frontend reinterpretation.</p>
+        <div class="rhi-context-card-kicker"><ha-icon icon="mdi:alert-outline"></ha-icon>Exceptions · ${rt.escape(String(exceptions.length))}</div>
+        <h3>What needs attention?</h3>
+        <p>${exceptions.length ? `${rt.escape(String(exceptions.length))} failed or rejected item${exceptions.length === 1 ? "" : "s"}. The backend reason is shown below.` : "No failed or rejected activity is currently published."}</p>
         ${exceptions.slice(0,8).map((row)=>`<div class="rhi-data-row"><b>${rt.escape(titleOf(row))}</b><span>${rt.escape(reasonOf(row) || statusOf(row))}</span></div>`).join("")}
       </article>
     </section>`;
