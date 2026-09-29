@@ -46,11 +46,11 @@ jobs:
 
   verify:
     needs: scope
-    if: needs.scope.outputs.publish == 'true'
     if: >-
-      github.event_name == 'workflow_dispatch' ||
-      (github.event.workflow_run.conclusion == 'success' &&
-       github.event.workflow_run.head_branch == 'main')
+      needs.scope.outputs.publish == 'true' &&
+      (github.event_name == 'workflow_dispatch' ||
+       (github.event.workflow_run.conclusion == 'success' &&
+        github.event.workflow_run.head_branch == 'main'))
     name: Verify validated HACS package
     runs-on: ubuntu-latest
     timeout-minutes: 10
