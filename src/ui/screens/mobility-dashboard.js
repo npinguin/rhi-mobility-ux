@@ -247,7 +247,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     const label = desired === "active" ? "Activate" : "Disable";
     const title = model.disabled ? (model.reason || "Lifecycle contract gap") : `${label} via lifecycle_status`;
     const button = `<button class="action ${extraClass}" data-lifecycle-asset="${rt.escape(this.assetId(asset))}" data-lifecycle-value="${rt.escape(desired)}" ${model.disabled ? "disabled" : ""} title="${rt.escape(title)}"><ha-icon icon="mdi:power"></ha-icon><span>${rt.escape(label)}</span></button>`;
-    return button + (model.disabled && extraClass.includes("manage-lifecycle") ? `<small class="lifecycle-disabled-reason">${rt.escape(title)}</small>` : "");
+    return model.disabled && extraClass.includes("manage-lifecycle") ? `<span class="lifecycle-control-wrap">${button}<small class="lifecycle-disabled-reason">${rt.escape(title)}</small></span>` : button;
   }
 
   chargingActivityDisplay(rt, asset) {
