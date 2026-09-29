@@ -11,6 +11,7 @@ const picker=fs.readFileSync(new URL('../../src/ui/components/vehicle-visual-pic
 const chargerPicker=fs.readFileSync(new URL('../../src/ui/components/charger-visual-picker.js',import.meta.url),'utf8');
 const chargerAdapter=fs.readFileSync(new URL('../../src/domain/adapters/charger-adapter.js',import.meta.url),'utf8');
 const chargers=fs.readFileSync(new URL('../../src/ui/screens/charger-maintenance.js',import.meta.url),'utf8');
+const uxCore=fs.readFileSync(new URL('../../src/vendor/rhi-ux-core.js',import.meta.url),'utf8');
 
 for(const needle of [
   'data-vehicle-filter',
@@ -106,7 +107,7 @@ for(const needle of [
   'mdi:car-electric',
   'mdi:shield-check-outline',
   'mdi:chevron-right',
-  'Charger appearance',
+  'data-charger-picker=',
   'grid-template-columns:repeat(4,minmax(0,1fr))!important'
 ]) if(!chargers.includes(needle)) throw new Error('rc.58 charger visual hierarchy regression: missing '+needle);
 if(chargers.includes('<div class="charger-icon"><ha-icon icon="mdi:ev-station"></ha-icon></div>')) throw new Error('generic charger identity icon returned beside real product artwork');
@@ -210,3 +211,35 @@ console.log('PASS rc.64 cross-screen vehicle range/battery summary and charger a
 }
 
 console.log('PASS Vehicles/Chargers content preservation, image-first picker, canonical artwork and rc.56 compact workspace architecture');
+
+
+// rc stabilization #116: Vehicle/Charger management share one relationship and visual grammar.
+for(const needle of [
+  'Assigned charger · Change',
+  'Assignment unavailable because vehicle.selected_charger is not published',
+  'Read-only selected charger from canonical vehicle property contract',
+  'relationship-copy'
+]) if(!dashboard.includes(needle)) throw new Error('relationship action grammar regression: missing '+needle);
+if(dashboard.includes('title="vehicle.selected_charger is not published"><ha-icon icon="mdi:ev-station"></ha-icon><strong>N/A</strong>')) {
+  throw new Error('writable/read-only relationship regressed to N/A pseudo-dropdown grammar');
+}
+
+for(const needle of [
+  'const relatedVehicle = rt.relatedVehicleForCharger(assetId)',
+  'Assigned vehicle',
+  'Physically connected vehicle',
+  'charger-assignment',
+  'charger-profile',
+  'charger-location'
+]) if(!chargers.includes(needle)) throw new Error('charger reciprocal/card anatomy regression: missing '+needle);
+if(chargers.includes('h3{margin:0;font-size:18px;font-weight:650;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}')) {
+  throw new Error('charger identity regressed to forced single-line truncation');
+}
+for(const needle of [
+  'grid-template-columns:repeat(3,minmax(0,1fr))',
+  'object-fit:contain',
+  'max-width:132px',
+  '@media(max-width:430px){.rhiUxVisualChoiceGrid{grid-template-columns:1fr}'
+]) if(!uxCore.includes(needle)) throw new Error('shared visual picker bounds regression: missing '+needle);
+
+console.log('PASS #116 management cards expose canonical relationships and bounded visual proportions');
