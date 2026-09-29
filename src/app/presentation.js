@@ -68,7 +68,7 @@ function hbMobilityPresentationStyles() {
       --rhi-card-gap:8px;
       color:var(--rhi-color-text);
     }
-    .rhiUxPageHeroArt img{transition:none!important;animation:none!important;backface-visibility:hidden!important;transform:translateZ(0)}
+    .rhiUxPageHeroArt img{transition:none;animation:none;backface-visibility:hidden;transform:translateZ(0)}
     .vehicle-card,.charger-card,.vehicle-management-controls,.rhi-context-card{
       border-radius:var(--rhi-radius-lg);
       border-color:var(--rhi-color-line);
