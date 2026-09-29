@@ -285,31 +285,30 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
       step: Number.isFinite(chargePowerModel?.step) ? chargePowerModel.step : 0
     };
     const canCurrent = !!(chargePowerModel?.resolved && chargePowerModel?.writable && meta.step > 0 && meta.max >= meta.min);
-    const currentStepEntity = chargePowerModel?.write_target_entity || "";
-    // R22.12.11.24: Vehicle charge power is the user-facing setting.
-    // The connected/effective charger is the backend-owned execution target.
-    const showCurrent = !!chargePowerModel?.resolved;
-    const displayCurrent = currentValue === "—" ? "—" : `${currentValue} kW`;
+    const displayCurrent = currentValue === "—" ? "Unavailable" : `${currentValue} kW`;
+    const requestedReason = String(chargePowerModel?.reason || (!chargePowerModel?.resolved ? "Requested charging power is not published for this vehicle." : (!chargePowerModel?.writable ? "Requested charging power is read-only." : ""))).replaceAll("_"," ");
     const atMin = canCurrent && limitValue !== null && limitValue <= meta.min + 0.000001;
     const atMax = canCurrent && limitValue !== null && limitValue >= meta.max - 0.000001;
-    const currentControl = showCurrent ? `
-      <div class="mini-current-stepper compact-current ${canCurrent ? "" : "readonly"}" title="Vehicle charge power. Same charger-owned property contract as the detail editor.">
-        <span class="current-copy"><small>Vehicle charge power</small><strong>${rt.escape(displayCurrent)}</strong></span>
+    const currentControl = `
+      <div class="mini-current-stepper compact-current ${canCurrent ? "" : "readonly"}" title="${rt.escape(requestedReason || "Requested vehicle charging power")}">
+        <span class="current-copy"><small>Requested power</small><strong>${rt.escape(displayCurrent)}</strong>${!canCurrent && requestedReason ? `<em>${rt.escape(requestedReason)}</em>` : ""}</span>
         ${canCurrent ? `<button class="round-step" data-property-step="vehicle.requested_charge_power_kw" data-vehicle-asset="${rt.escape(ctx.assetId)}" data-charge-power-value="${rt.escape(limitValue ?? meta.min)}" data-delta="-${rt.escape(meta.step)}" data-min="${rt.escape(meta.min)}" data-max="${rt.escape(meta.max)}" data-unit="kW" ${atMin ? "disabled" : ""}>−</button>
         <button class="round-step" data-property-step="vehicle.requested_charge_power_kw" data-vehicle-asset="${rt.escape(ctx.assetId)}" data-charge-power-value="${rt.escape(limitValue ?? meta.min)}" data-delta="${rt.escape(meta.step)}" data-min="${rt.escape(meta.min)}" data-max="${rt.escape(meta.max)}" data-unit="kW" ${atMax ? "disabled" : ""}>+</button>` : ``}
-      </div>` : ``;
+      </div>`;
     const actualPowerNumber = Number(ctx.info?.power);
-    const actualPowerDisplay = Number.isFinite(actualPowerNumber) ? `${Math.max(0, actualPowerNumber).toFixed(1).replace(/\.0$/, "")} kW` : "—";
     const hasPhysicalCharger = !!ctx.info?.physical_charger;
-    const actualPowerControl = hasPhysicalCharger ? `
-      <div class="mini-power-read actual-power-read" title="Actual power from the physically connected charger canonical property contract.">
-        <span class="power-copy"><small>Power</small><strong>${rt.escape(actualPowerDisplay)}</strong></span>
-      </div>` : ``;
+    const actualKnown = hasPhysicalCharger && Number.isFinite(actualPowerNumber);
+    const actualPowerDisplay = actualKnown ? `${Math.max(0, actualPowerNumber).toFixed(1).replace(/\.0$/, "")} kW` : (ctx.info?.active ? "Power not proven" : "—");
+    const actualReason = actualKnown ? "Actual power from the physically connected charger." : (hasPhysicalCharger ? "Actual charger power is unavailable." : "Physical charger identity is not proven, so power is not attributed to this vehicle.");
+    const actualPowerControl = `
+      <div class="mini-power-read actual-power-read ${actualKnown ? "" : "readonly"}" title="${rt.escape(actualReason)}">
+        <span class="power-copy"><small>Charging now</small><strong>${rt.escape(actualPowerDisplay)}</strong>${!actualKnown ? `<em>${rt.escape(actualReason)}</em>` : ""}</span>
+      </div>`;
     return `<section class="vehicle-control-row mock-row" title="${rt.escape(ctx.info.detail)}">
       <div class="vehicle-metrics-strip mock-metrics">
         ${metricSlots.map((slot, index)=>`<div class="metric-chip ${index === 2 ? "battery-chip" : ""}" title="${rt.escape(slot.property_key || "Component contract gap")}"><span>${rt.escape(slot.label)}</span><b>${rt.escape(slot.resolved ? slot.display : "—")}</b></div>`).join("")}
       </div>
-      <div class="charge-mini-strip mock-controls ${showCurrent ? "has-speed" : "no-speed"} no-mode">
+      <div class="charge-mini-strip mock-controls has-speed no-mode">
         ${this.renderChargerAssignmentSelect(rt, vehicleAsset)}
         ${currentControl}
         ${actualPowerControl}
