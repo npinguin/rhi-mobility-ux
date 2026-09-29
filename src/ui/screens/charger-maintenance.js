@@ -10,6 +10,7 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
     this._limitDrafts = this._limitDrafts || new Map();
     this._chargerPickerAsset = this._chargerPickerAsset || "";
     this._chargerPickerDraft = this._chargerPickerDraft || new Map();
+    this._pendingChargerAppearance = this._pendingChargerAppearance || new Map();
     this._lastSignature = this._lastSignature || "";
     this._lastRenderAt = this._lastRenderAt || 0;
   }
@@ -29,7 +30,8 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
     const asset = rt ? (rt.chargerById(assetId) || rt.assetById(assetId) || { asset_id: assetId }) : { asset_id: assetId };
     if (rt) {
       const prop = rt.propertyByCompoundKey(assetId, "charger.image_key");
-      const raw = prop?.value ?? rt.visualImageKey(asset, "image") ?? asset?.image_key ?? "";
+      const pending = this._pendingChargerAppearance.get(assetId);
+      const raw = pending?.key ?? prop?.value ?? rt.visualImageKey(asset, "image") ?? asset?.image_key ?? "";
       const visual = typeof rhiMobilityResolveChargerVisual === "function" ? rhiMobilityResolveChargerVisual(asset, raw) : null;
       if (visual?.appearance?.package_file) return visual.appearance.package_file;
       return rt.visualImageUrl(asset, "charger", "image", "charger_fallback");
@@ -51,6 +53,15 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
   chargerVisualSelection(rt, charger, draft = {}) {
     return new HomeBrainChargerVisualPicker(rt).selection(charger, draft);
   }
+
+  reconcilePendingChargerAppearance(rt) {
+    for (const [assetId, pending] of this._pendingChargerAppearance.entries()) {
+      const prop = rt.propertyByCompoundKey(assetId, "charger.image_key");
+      const actual = String(prop?.value ?? rt.visualImageKey(rt.assetById(assetId) || {}, "image") ?? "").trim();
+      if (actual && actual === String(pending?.key || "")) this._pendingChargerAppearance.delete(assetId);
+    }
+  }
+
 
   renderChargerPicker(rt, charger) {
     const assetId = this.assetId(charger);
@@ -281,6 +292,7 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
   set hass(hass) {
     this._hass = hass;
     const rt = new HomeBrainAssetRuntime(hass, this.config);
+    this.reconcilePendingChargerAppearance(rt);
     const factory = new HomeBrainAssetFactory(rt);
     const chargers = factory.chargers().filter((a) => rt.lifecycleStatus(a) !== "retired").sort((a,b)=>(Number(a.sort_order ?? 999)-Number(b.sort_order ?? 999)) || String(a.display_name).localeCompare(String(b.display_name)));
     const activeChargers = chargers.filter((c) => rt.lifecycleStatus(c) === "active");
@@ -579,11 +591,16 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
         const currentProfile = String(profileProp?.value || "");
         const profileOk = !profileId || profileId === currentProfile || await rt.writePublishedPropertyAsync(assetId, "asset.profile_id", profileId);
         if (!profileOk) { btn.disabled = false; return; }
+        const draft={ ...(this._chargerPickerDraft.get(assetId) || {}) };
         const imageOk = await rt.writePublishedPropertyAsync(assetId, "charger.image_key", key);
         if (!imageOk) { btn.disabled = false; return; }
+        this._pendingChargerAppearance.set(assetId,{ key,draft });
         btn.classList.add("sent");
         this._chargerPickerDraft.delete(assetId);
-        setTimeout(()=>{ this._chargerPickerAsset=""; this._forceRender=true; this._lastSignature=""; if(this._hass)this.hass=this._hass; },450);
+        this._chargerPickerAsset="";
+        this._forceRender=true;
+        this._lastSignature="";
+        if(this._hass)this.hass=this._hass;
       });
     });
 
