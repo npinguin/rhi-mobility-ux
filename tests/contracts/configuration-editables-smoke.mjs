@@ -119,7 +119,7 @@ for(const key of ['asset.profile_id','vehicle.selected_charger']) {
 }
 if(!vehicleAdapter.includes('label:"No charger"') || !vehicleAdapter.includes('allow_none:allowNone')) throw new Error('shared vehicle adapter must model backend-owned No charger semantics once');
 if(!dashboard.includes('adapter.chargerAssignmentModel()')) throw new Error('Overview/vehicle surfaces must consume the shared charger-assignment model');
-if(!dashboard.includes('<strong>N/A</strong>')) throw new Error('missing selected-charger backend contract must fail closed as N/A');
+if(!dashboard.includes('<strong>Unavailable</strong>')) throw new Error('missing selected-charger backend contract must fail closed as an explicit unavailable fact');
 
 const vehicleRuntimeControl=vrt.propertyByCompoundKey(vehicle,'vehicle.requested_charge_power_kw');
 if(vrt.isWritableProperty(vehicleRuntimeControl)) throw new Error('vehicle runtime requested power must fail closed without V1 write capability');
