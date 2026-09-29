@@ -12,16 +12,29 @@ const HB_MOBILITY_PAGE_HEROES = Object.freeze({
   log: { eyebrow:"", title:"Log", description:"Inspect operational and audit evidence with backend-owned reasons and status.", asset_key:"log" }
 });
 
+const HB_MOBILITY_PRELOADED_HEROES = globalThis.__rhiMobilityPreloadedHeroes || (globalThis.__rhiMobilityPreloadedHeroes = new Set());
+
+function hbMobilityPreloadHero(asset = "") {
+  const src = String(asset || "").trim();
+  if (!src || HB_MOBILITY_PRELOADED_HEROES.has(src) || typeof Image === "undefined") return;
+  HB_MOBILITY_PRELOADED_HEROES.add(src);
+  const img = new Image();
+  img.decoding = "async";
+  img.src = src;
+  if (typeof img.decode === "function") img.decode().catch(()=>{});
+}
+
 function hbMobilityPageHero(rt, tab, options = {}) {
   const spec = HB_MOBILITY_PAGE_HEROES[tab] || HB_MOBILITY_PAGE_HEROES.overview;
   const asset = options.asset || rhiMobilityHeroAsset(options.asset_key || spec.asset_key);
+  hbMobilityPreloadHero(asset);
   return rhiUxPageHero({
     eyebrow: options.eyebrow || spec.eyebrow || "",
     title: options.title || spec.title,
     description: options.description || spec.description,
     image: asset,
     imageAlt: ""
-  });
+  }).replace("<img ", '<img loading="eager" decoding="async" fetchpriority="high" ');
 }
 
 function hbMobilityStatusGrid(rt, items = [], className = "") {
@@ -55,6 +68,7 @@ function hbMobilityPresentationStyles() {
       --rhi-card-gap:8px;
       color:var(--rhi-color-text);
     }
+    .rhiUxPageHeroArt img{transition:none!important;animation:none!important;backface-visibility:hidden!important;transform:translateZ(0)}
     .vehicle-card,.charger-card,.vehicle-management-controls,.rhi-context-card{
       border-radius:var(--rhi-radius-lg);
       border-color:var(--rhi-color-line);
