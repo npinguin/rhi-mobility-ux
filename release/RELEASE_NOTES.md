@@ -1,23 +1,26 @@
-# v1.0.0-rc.74 — M0.10.22 product acceptance candidate
+# v1.0.0-rc.75 — Target-HA product UX closure
 
 ## User-facing behavior
 
-- targets the immutable Mobility backend M0.10.22 candidate and keeps backend-owned lifecycle, charging-power, relationship and planning semantics authoritative;
-- keeps vehicle and charger appearance choice tiles bounded independently of source artwork dimensions through pinned UX Core 1.5.3;
-- after Save, immediately carries the selected vehicle/charger appearance into the primary management card as asset-scoped pending presentation;
-- clears pending appearance only when canonical Mobility image-key readback confirms the requested value;
-- reverts to canonical appearance and exposes a bounded UX error when profile/image writes are rejected or readback times out;
-- applies the same explicit failed/revert behavior to vehicle and charger detail pickers;
-- preserves requested charging power separately from physical setpoint/readback/actual values and preserves assigned-vs-physical relationship presentation.
+- keeps requested charging power and actual charging power visible as separate answers for every vehicle, including explicit producer-owned reasons when either answer is unavailable;
+- refuses to attribute charger power to a vehicle when physical vehicle↔charger identity is not proven;
+- keeps backend-owned Security states unchanged while surfacing the published reason behind unsafe/incomplete states;
+- moves both Vehicle and Charger appearance selection to one hero-level interaction instead of rendering image selection deep inside detail property families;
+- keeps source/sensor facts read-only in product detail unless they are an explicit Mobility configuration intent;
+- restores Charger Management scan order to text/status left and charger visual right;
+- keeps blocked lifecycle controls visible with their backend reason instead of presenting a silent disabled button;
+- preloads/eagerly decodes hero media and removes cosmetic image transitions to reduce refresh flicker;
+- makes Planning distinguish zero from not-published and leads with “what will charge, and when?” without reconstructing Energy planning;
+- makes Log lead with “what happened?” and “what needs attention?” while preserving backend-owned activity reasons.
 
-## Engineering
+## Boundary
 
-- no frontend-owned persistence or semantic reconstruction was introduced;
-- pending appearance is presentation-only and never becomes domain truth;
-- target-runtime proof remains required for exact rc.74 + M0.10.22 before stable promotion;
-- rollback target is v1.0.0-rc.73.
+rc.75 deliberately does not mask producer defects observed on M0.10.22. Peblar profile transport mismatch, Plug Car Charger appearance writability, lifecycle write bindings, Audi Q8 requested-kW/physical-identity evidence and ID.4 security truth remain backend-owned follow-up items.
 
-Scope: appearance closure #127 plus rc.74/M0.10.22 target qualification.
+Backend baseline: **M0.10.22**.
+UX Core: **1.5.3**.
+Rollback: **v1.0.0-rc.74**.
 
 Known accepted technical debt: **0**.
 Known accepted feature debt: **0**.
+Target-runtime qualification remains required before stable promotion.
