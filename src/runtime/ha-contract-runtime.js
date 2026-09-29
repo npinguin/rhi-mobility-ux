@@ -1759,7 +1759,7 @@ class HomeBrainAssetRuntime {
       allow_none: allowNone,
       none_value: noneValue,
       disabled: !this.isWritableProperty(prop),
-      disabled_reason: !this.contractBool(prop.write_supported, false) ? "Editing not available" : (!editor ? "Editor metadata missing" : (!prop.write_service_domain || !prop.write_service_action || !prop.write_target_entity) ? "Write binding incomplete" : "")
+      disabled_reason: prop.write_blocked_reason || (!this.contractBool(prop.write_supported, false) ? "Editing not available" : (!editor ? "Editor metadata missing" : (!prop.write_service_domain || !prop.write_service_action || !prop.write_target_entity) ? "Write binding incomplete" : ""))
     };
   }
 
