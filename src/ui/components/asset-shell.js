@@ -301,6 +301,19 @@ class HomeBrainAssetShell {
         this.rt.navigate(btn.getAttribute("data-nav"));
       });
     });
+    const appearancePanel = this.root.querySelector("[data-detail-appearance-panel]");
+    this.root.querySelectorAll("[data-detail-appearance-toggle]").forEach((btn)=>btn.addEventListener("click",(ev)=>{
+      ev.preventDefault(); ev.stopPropagation();
+      if (!appearancePanel) return;
+      appearancePanel.hidden = !appearancePanel.hidden;
+      btn.classList.toggle("active", !appearancePanel.hidden);
+      if (!appearancePanel.hidden) appearancePanel.scrollIntoView({block:"nearest",behavior:"smooth"});
+    }));
+    this.root.querySelectorAll("[data-detail-appearance-close]").forEach((btn)=>btn.addEventListener("click",(ev)=>{
+      ev.preventDefault(); ev.stopPropagation();
+      if (appearancePanel) appearancePanel.hidden = true;
+      this.root.querySelectorAll("[data-detail-appearance-toggle]").forEach((toggle)=>toggle.classList.remove("active"));
+    }));
     this.root.querySelectorAll('input[type="range"][data-live-target]').forEach((el) => {
       const update = () => {
         const span = el.closest(".range-control")?.querySelector(".live-value");
@@ -606,8 +619,10 @@ class HomeBrainAssetShell {
       .row-value-with-link{display:flex;align-items:center;justify-content:flex-end;gap:8px;min-width:0;}
       .row-value-with-link span{min-width:0;overflow:hidden;text-overflow:ellipsis;}
       .hero-image { min-height:260px;display:flex;align-items:center;justify-content:center; }
-      .hero-image img { width:100%;height:285px;object-fit:contain;object-position:center; }
+      .hero-image img { width:100%;height:285px;object-fit:contain;object-position:center;transition:none!important;animation:none!important; }
       .hero-image img.image-fallback { opacity:.42!important; }
+      .hero-appearance-edit{position:absolute;right:10px;bottom:10px;z-index:5;height:36px;border:1px solid rgba(14,35,72,.12);border-radius:11px;background:rgba(255,255,255,.94);color:#1467F5;padding:0 11px;display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:650;cursor:pointer;box-shadow:0 8px 20px rgba(15,35,80,.08);pointer-events:auto}.hero-appearance-edit ha-icon{--mdc-icon-size:17px}.hero-appearance-edit.active{background:#1467F5;color:#fff;border-color:#1467F5}
+      .detail-appearance-panel[hidden]{display:none!important}.detail-appearance-panel{position:relative;z-index:8;width:min(100%,980px);margin:-2px auto 0;padding:12px;border:1px solid var(--hb-line);border-radius:16px;background:#fff;box-shadow:0 18px 44px rgba(15,35,80,.09);box-sizing:border-box}.detail-appearance-panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 2px 10px}.detail-appearance-panel-head div{display:grid;gap:2px}.detail-appearance-panel-head small{font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--hb-muted);font-weight:650}.detail-appearance-panel-head b{font-size:14px;color:var(--hb-ink)}.detail-appearance-panel-head button{width:32px;height:32px;border:1px solid var(--hb-line);border-radius:10px;background:#fff;color:var(--hb-muted);display:grid;place-items:center;cursor:pointer}.detail-appearance-panel .detail-vehicle-picker,.detail-appearance-panel .detail-charger-picker{margin:0!important;padding:0!important;border:0!important;background:transparent!important}.detail-appearance-panel .visual-picker-panel{margin:0!important}
       .hero-icon { width:220px;height:220px;border-radius:48px;background:linear-gradient(135deg,#EAF2FF,#FFFFFF);display:flex;align-items:center;justify-content:center;box-shadow:0 24px 55px rgba(15,35,80,.10); }
       .hero-icon ha-icon { --mdc-icon-size:120px;color:var(--hb-blue); }
       .detail-appearance-fold{border:1px solid var(--hb-line);border-radius:16px;background:#fff;overflow:hidden}.detail-appearance-fold>summary{height:46px;display:flex;align-items:center;gap:8px;padding:0 14px;cursor:pointer;list-style:none;font-size:12.5px;font-weight:600}.detail-appearance-fold>summary::-webkit-details-marker{display:none}.detail-appearance-fold>summary ha-icon{--mdc-icon-size:18px;color:var(--hb-blue)}.detail-appearance-fold>summary small{margin-left:auto;color:var(--hb-muted);font-size:10.5px;font-weight:500}.detail-appearance-fold .charger-picker-panel{margin:0;border:0;border-top:1px solid var(--hb-line);border-radius:0}
