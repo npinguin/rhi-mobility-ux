@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 
 const runtime=fs.readFileSync('src/runtime/ha-contract-runtime.js','utf8');
+const source=runtime;
 
 for(const required of [
   'async writePropertyValueAsync(',
