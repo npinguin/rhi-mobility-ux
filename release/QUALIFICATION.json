@@ -27,10 +27,10 @@
   "planning_intent_projection": "pending",
   "appearance_pending_readback_revert": "pending",
   "responsive_runtime": "pending",
-  "core_1_5_3_provenance": "pending",
   "product_question_ux": "pending",
   "detail_editor_containment": "pending",
   "hero_appearance_interaction": "pending",
   "hero_media_stability": "pending",
-  "select_transport_write_readback": "pending"
+  "select_transport_write_readback": "pending",
+  "core_1_5_4_provenance": "pending"
 }
