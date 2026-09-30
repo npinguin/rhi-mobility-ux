@@ -1,3 +1,9 @@
+## 1.0.0-rc.77
+
+- publish merged Core 1.5.4 appearance lifecycle under a new immutable candidate;
+- align tested backend to M0.10.23 and release status to Core 1.5.4;
+- preserve backend-owned connection/planning semantics and prevent post-tag rc.76 drift.
+
 ## 1.0.0-rc.76 — select transport hotfix
 
 - use producer-declared select transport values instead of presentation labels for HA writes;
