@@ -80,10 +80,9 @@ if(!chargers.includes('canonical === pending.key')) throw new Error('charger pen
 if(!assetShell.includes('const revert = (message) =>')) throw new Error('detail appearance writes must provide bounded revert behavior');
 if(!assetShell.includes('saveButton.classList.add("failed")')) throw new Error('detail appearance write failure must be visible');
 for(const needle of [
-  '.rhiUxVisualChoiceImage{position:relative!important',
-  'width:100%!important;height:76px!important',
-  'max-width:132px!important;max-height:72px!important',
-  'object-fit:contain!important'
+  '.rhiUxVisualChoiceImage{width:104px;height:68px;min-width:104px;min-height:68px;max-width:104px;max-height:68px',
+  '.rhiUxVisualChoiceImage img{display:block;width:100%;height:100%;min-width:0;min-height:0;max-width:100%;max-height:100%;object-fit:contain;object-position:center}',
+  '.rhiUxVisualChoice{grid-template-columns:96px minmax(0,1fr)}'
 ]) {
   if(!uxCore.includes(needle)) throw new Error(`shared visual choice bounds regression: missing ${needle}`);
 }
