@@ -1,5 +1,5 @@
 /**
- * Robotix Home Intelligence Mobility UX v1.0.0-rc.75
+ * Robotix Home Intelligence Mobility UX v1.0.0-rc.76
  * GENERATED FILE - DO NOT EDIT.
  * License: GPL-3.0-only
  */
@@ -679,7 +679,7 @@ function hbMobilityPresentationStyles() {
 // ---- src/app/header-and-navigation.js ----
 // Mobility presentation adapter onto the shared RHI UX Core.
 // Domain semantics remain owned by Mobility runtime/projections.
-const UX_VERSION = "1.0.0-rc.75";
+const UX_VERSION = "1.0.0-rc.76";
 const HB_MOBILITY_ROUTE_SEGMENTS = new Set([
   "overview","dashboard","vehicles","charger-maintenance","chargers",
   "planning","strategies","history","log","asset-detail","detail","charging"
@@ -2915,6 +2915,9 @@ class HomeBrainAssetRuntime {
       return String(value ?? "") === wanted;
     });
     if (match && typeof match === "object" && match !== null) {
+      const transportField = String(prop.transport_value_field || "transport_value").trim() || "transport_value";
+      const transport = match[transportField] ?? match.transport_value;
+      if (transport !== undefined && transport !== null && String(transport).trim() !== "") return transport;
       const label = match.label ?? match.display_name ?? match.name;
       if (label !== undefined && label !== null && String(label).trim() !== "") return label;
     }

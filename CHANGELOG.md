@@ -1,3 +1,9 @@
+## 1.0.0-rc.76 — select transport hotfix
+
+- use producer-declared select transport values instead of presentation labels for HA writes;
+- preserve semantic-value readback and M0.10.22 backend ownership;
+- close Peblar profile write failure without profile-specific UX mapping.
+
 ## 1.0.0-rc.75 — target-HA product UX closure
 
 - makes requested versus actual charging power a permanent per-vehicle user answer, with explicit producer reasons when unavailable;

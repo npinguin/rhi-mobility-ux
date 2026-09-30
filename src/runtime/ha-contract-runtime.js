@@ -1984,6 +1984,9 @@ class HomeBrainAssetRuntime {
       return String(value ?? "") === wanted;
     });
     if (match && typeof match === "object" && match !== null) {
+      const transportField = String(prop.transport_value_field || "transport_value").trim() || "transport_value";
+      const transport = match[transportField] ?? match.transport_value;
+      if (transport !== undefined && transport !== null && String(transport).trim() !== "") return transport;
       const label = match.label ?? match.display_name ?? match.name;
       if (label !== undefined && label !== null && String(label).trim() !== "") return label;
     }

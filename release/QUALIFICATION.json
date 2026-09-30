@@ -1,6 +1,6 @@
 {
-  "candidate_version": "1.0.0-rc.75",
-  "candidate_tag": "v1.0.0-rc.75",
+  "candidate_version": "1.0.0-rc.76",
+  "candidate_tag": "v1.0.0-rc.76",
   "candidate_sha": "pending",
   "target_home_assistant": "pending",
   "hacs_install": "pending",
@@ -31,5 +31,6 @@
   "product_question_ux": "pending",
   "detail_editor_containment": "pending",
   "hero_appearance_interaction": "pending",
-  "hero_media_stability": "pending"
+  "hero_media_stability": "pending",
+  "select_transport_write_readback": "pending"
 }
