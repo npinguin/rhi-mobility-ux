@@ -236,10 +236,10 @@ if(chargers.includes('h3{margin:0;font-size:18px;font-weight:650;letter-spacing:
   throw new Error('charger identity regressed to forced single-line truncation');
 }
 for(const needle of [
-  'grid-template-columns:repeat(3,minmax(0,1fr))',
-  'object-fit:contain',
-  'max-width:132px',
-  '@media(max-width:430px){.rhiUxVisualChoiceGrid{grid-template-columns:1fr}'
+  '.rhiUxVisualChoiceImage{width:104px;height:68px;min-width:104px;min-height:68px;max-width:104px;max-height:68px',
+  'object-fit:contain;object-position:center',
+  '.rhiUxVisualChoice{grid-template-columns:96px minmax(0,1fr)}',
+  '@media(max-width:760px)'
 ]) if(!uxCore.includes(needle)) throw new Error('shared visual picker bounds regression: missing '+needle);
 
 console.log('PASS #116 management cards expose canonical relationships and bounded visual proportions');
