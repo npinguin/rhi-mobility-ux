@@ -260,7 +260,7 @@ class HomeBrainAssetShell {
           <section class="grid">${mainSections.map((s) => this.renderSection(s)).join("")}</section>
           ${this.renderFooter(model)}
         </div>
-        <style>${this.styles()}
+        <style>${this.styles()}${typeof rhiUxVisualPickerStyles === "function" ? rhiUxVisualPickerStyles() : ""}
 /* R22.12.11.24 unified quick-action sizing */
 .action.enum-action,.cmd.enum-command{height:43px!important;min-height:43px!important;max-height:43px!important;display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:center!important;gap:8px!important;padding:0 11px!important;box-sizing:border-box!important;overflow:hidden!important}
 .action.enum-action ha-icon,.cmd.enum-command ha-icon{flex:0 0 auto!important;grid-row:auto!important}
