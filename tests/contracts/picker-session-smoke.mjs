@@ -80,9 +80,10 @@ if(!chargers.includes('canonical === pending.key')) throw new Error('charger pen
 if(!assetShell.includes('const revert = (message) =>')) throw new Error('detail appearance writes must provide bounded revert behavior');
 if(!assetShell.includes('saveButton.classList.add("failed")')) throw new Error('detail appearance write failure must be visible');
 for(const needle of [
-  '.rhiUxVisualChoiceImage{width:104px;height:68px;min-width:104px;min-height:68px;max-width:104px;max-height:68px',
-  '.rhiUxVisualChoiceImage img{display:block;width:100%;height:100%;min-width:0;min-height:0;max-width:100%;max-height:100%;object-fit:contain;object-position:center}',
-  '.rhiUxVisualChoice{grid-template-columns:96px minmax(0,1fr)}'
+  '.rhiUxVisualPickerPanel{width:min(920px,94vw);max-height:min(82vh,760px);overflow:hidden',
+  '.rhiUxVisualChoiceGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-rows:142px',
+  '.rhiUxVisualChoiceImage{width:100%;height:86px;min-width:0;min-height:86px;max-width:none;max-height:86px',
+  '.rhiUxVisualChoiceImage img{display:block;width:100%;height:100%;min-width:0;min-height:0;max-width:100%;max-height:100%;object-fit:contain;object-position:center}'
 ]) {
   if(!uxCore.includes(needle)) throw new Error(`shared visual choice bounds regression: missing ${needle}`);
 }
