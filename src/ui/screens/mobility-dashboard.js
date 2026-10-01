@@ -968,7 +968,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
           this.shadowRoot.innerHTML = `<ha-card><div class="page rhiUxDomainBody rhi-ux-root">${this.versionBlock(rt)}
             ${hbMobilityNav(navActive)}
             ${pageContent}
-          </div>${hbMobilityReleaseFooter(rt)}<style>${this.styles()}${navActive === "overview" ? this.overviewStyles() : ""}
+          </div>${hbMobilityReleaseFooter(rt)}<style>${this.styles()}${typeof rhiUxVisualPickerStyles === "function" ? rhiUxVisualPickerStyles() : ""}${navActive === "overview" ? this.overviewStyles() : ""}
             /* Canonical action sizing */
             .action.enum-action,.cmd.enum-command{height:40px!important;min-height:40px!important;max-height:40px!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:7px!important;padding:0 10px!important;box-sizing:border-box!important;overflow:hidden!important}
             .action.enum-action ha-icon,.cmd.enum-command ha-icon{flex:0 0 auto!important}
