@@ -1,3 +1,9 @@
+## 1.0.0-rc.78 — shared appearance picker parity
+
+- adopt packaged UX Core 1.5.5 fixed/bounded picker geometry;
+- apply real brand filtering to vehicle and charger candidate tiles;
+- target Mobility M0.10.25 and preserve backend-owned relationship/command truth.
+
 ## 1.0.0-rc.77
 
 - publish merged Core 1.5.4 appearance lifecycle under a new immutable candidate;

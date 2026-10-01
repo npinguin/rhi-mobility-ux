@@ -95,7 +95,8 @@ class HomeBrainVehicleVisualPicker {
     const assetId=current.asset_id;
     const close=options.showClose===false ? "" : `<button class="vehicle-picker-close" data-vehicle-picker-close="${this.rt.escape(assetId)}" title="Close appearance selector"><ha-icon icon="mdi:close"></ha-icon></button>`;
     const placeholder=(label,selected)=>`<option value="" ${selected?"selected":""} disabled>${label}</option>`;
-    const tiles=catalog.map((row)=>{
+    const visibleCatalog=current.brand ? catalog.filter((row)=>row.brand===current.brand) : catalog;
+    const tiles=visibleCatalog.map((row)=>{
       const color=(row.colors || [])[0] || null;
       const active=row.id===current.vehicle?.id;
       const src=row.package_file || "";

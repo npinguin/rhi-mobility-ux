@@ -88,7 +88,8 @@ class HomeBrainChargerVisualPicker {
     const close=options.showClose===false ? "" : `<button class="vehicle-picker-close" data-charger-picker-close="${this.rt.escape(assetId)}" title="Close appearance selector"><ha-icon icon="mdi:close"></ha-icon></button>`;
     const placeholder=(label,selected)=>`<option value="" ${selected?"selected":""} disabled>${label}</option>`;
 
-    const tiles=catalog.flatMap((row)=>(row.appearances || []).map((appearance)=>{
+    const visibleCatalog=current.brand ? catalog.filter((row)=>row.brand===current.brand) : catalog;
+    const tiles=visibleCatalog.flatMap((row)=>(row.appearances || []).map((appearance)=>{
       const active=row.id===current.charger?.id && appearance.id===current.appearance?.id;
       return rhiUxVisualChoice({id:`${row.id}:${appearance.id}`,image:appearance.package_file ? (typeof this.rt.cache==='function' ? this.rt.cache(appearance.package_file) : appearance.package_file) : "",imageAlt:[row.label,appearance.label].filter(Boolean).join(" "),label:row.label || row.model || "Charger",detail:appearance.label || row.variant || "Standard",selected:active,attributes:{"data-charger-visual-choice":row.id,"data-choice-brand":row.brand || "","data-choice-model":row.model || "","data-choice-appearance":appearance.id || ""}});
     })).join("");
