@@ -35,7 +35,7 @@ class HomeBrainAssetShell {
     const step = validation.step ?? prop.step ?? 1;
     const disabled = row.disabled ? "disabled" : "";
     const title = row.disabled_reason || row.help || "";
-    // Editors show the configured/readback value published by V1. For an
+    // Editors show the configured/readback value published by the canonical V2 property contract. For an
     // explicitly nullable configuration property (profile/selected charger), use
     // the backend-published none token rather than hiding the control.
     const editorValue = row.editor_value ?? prop.value ?? "";
