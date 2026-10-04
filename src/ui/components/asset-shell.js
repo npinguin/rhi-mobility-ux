@@ -160,7 +160,7 @@ class HomeBrainAssetShell {
   renderAction(action) {
     if (!action || action.hide) return "";
     const command = action.command || null;
-    const st = command ? this.rt.commandState(command) : { disabled:true, busy:false, failed:false, status:"contract_gap", reason:"Command contract gap" };
+    const st = command ? this.rt.commandState(command) : { disabled:true, busy:false, failed:false, status:"unavailable", reason:this.rt.t("common.information_missing",{},"Information is not available yet.") };
     const title = st.reason || st.status || "";
     const enums = command?.enum_options || {};
     const enumName = (command?.required_parameters || []).find((name) => Array.isArray(enums[name]) && enums[name].length) || "";
