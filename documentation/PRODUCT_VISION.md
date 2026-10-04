@@ -165,7 +165,7 @@ The picker hierarchy is Brand → Model → Variant → Colour. Opening a picker
 
 ## Shared Vehicle and Charger visual library
 
-Vehicle and Charger presentation follows one governed UX-owned pattern. Canonical V2 identity/configuration is primary; frozen V1 remains compatibility-only for older deployments.
+Vehicle and Charger presentation follows one governed UX-owned pattern. Canonical V2 identity/configuration is the only product authority.
 
 ```text
 canonical V2 identity/configuration
@@ -183,11 +183,11 @@ The same presentation pattern applies to both object types:
 
 - Brand → Model → Variant → Appearance/Colour;
 - one canonical artwork master per real model/physical appearance;
-- legacy keys are compatibility aliases only;
+- historical persisted visual keys may be accepted only as visual-input aliases and normalize immediately to the canonical visual identity;
 - technical specifications do not become visual identity;
 - every screen uses the same resolver;
 - `image_key` is an explicit persisted presentation choice only when the backend contract supports writing it;
-- persisted V2 presentation properties are canonical when published; compatibility aliases may only decode older stored keys and may never override a valid V2 key.
+- persisted V2 presentation properties are canonical when published; historical visual aliases may only decode an older stored appearance key and never provide operational/product truth.
 
 Current Charger catalog coverage is:
 
@@ -199,13 +199,14 @@ Power/current/phase capabilities stay backend/profile/runtime facts and are inte
 
 The visual-library update workflow, quality gates and future cross-domain reuse are governed by `documentation/VISUAL_LIBRARY_GOVERNANCE.md`. Charger product/artwork provenance is tracked in `documentation/CHARGER_ARTWORK_SOURCES.json`.
 
-## V2-first compatibility boundary
+## V2-only product boundary
 
-Current UX is V2-first. `MOBILITY_PUBLIC_RUNTIME_V2`, `MOBILITY_EXPERIENCE_V2`, `MOBILITY_POLICY_V2` and `MOBILITY_COMMAND_V2` are the product authorities.
+The Mobility product UX consumes only the V2 authorities: `MOBILITY_PUBLIC_RUNTIME_V2`, `MOBILITY_EXPERIENCE_V2`, `MOBILITY_POLICY_V2`, `MOBILITY_COMMAND_V2`, `MOBILITY_ACTIVITY_V2`, `MOBILITY_PROFILE_CATALOG_V2`, `MOBILITY_SUPERVISION_V2` and `MOBILITY_ENERGY_V2`.
 
-Frozen V1 surfaces exist only as explicit compatibility fallbacks for older deployments. A V1 projection may never override a published V2 value, conclusion, relationship, command or appearance choice.
+Older product indexes and compatibility interfaces are fully decommissioned from the active frontend. They may remain in historical documentation or archive material only; they are not read, probed or used as fallback truth by runtime product code.
 
-Features requiring backend truth that is not present in V2 render N/A/contract gap and are tracked in `documentation/BACKEND_INTERFACE_BACKLOG.md`. UX does not reconstruct that truth locally.
+Features requiring backend truth that is not available in V2 render a calm unavailable state and are recorded as a backend ownership gap in `documentation/BACKEND_INTERFACE_BACKLOG.md`. UX never reconstructs missing semantics locally.
+
 
 
 ## Mobility design language
