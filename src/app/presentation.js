@@ -3,13 +3,13 @@
 // Domain screens keep their semantics, data ownership and actions.
 
 const HB_MOBILITY_PAGE_HEROES = Object.freeze({
-  overview: { eyebrow:"", title:"Mobility Overview", description:"Know if your vehicles are ready, secure and comfortable, what is charging, and where action is needed.", asset_key:"overview" },
-  vehicles: { eyebrow:"", title:"Vehicle Management", description:"Check that your fleet is configured, assigned and operational, then manage the vehicles that need attention.", asset_key:"vehicles" },
-  chargers: { eyebrow:"", title:"Charger Management", description:"Check that your charging park is configured, available and operating as expected, then manage exceptions.", asset_key:"chargers" },
-  planning: { eyebrow:"", title:"Planning", description:"See the Energy-owned charging plan, what is already planned and what still needs attention.", asset_key:"planning" },
-  strategies: { eyebrow:"", title:"Strategies", description:"Understand configured intent and effective energy policy without duplicating backend semantics.", asset_key:"strategies" },
-  history: { eyebrow:"", title:"History", description:"Review measured vehicle energy, value and Mobility outcomes from their authoritative backend domains.", asset_key:"history" },
-  log: { eyebrow:"", title:"Log", description:"Inspect operational and audit evidence with backend-owned reasons and status.", asset_key:"log" }
+  overview: { titleKey:"hero.overview.title", descriptionKey:"hero.overview.description", fallbackTitle:"Mobility Overview", asset_key:"overview" },
+  vehicles: { titleKey:"hero.vehicles.title", descriptionKey:"hero.vehicles.description", fallbackTitle:"Vehicles", asset_key:"vehicles" },
+  chargers: { titleKey:"hero.chargers.title", descriptionKey:"hero.chargers.description", fallbackTitle:"Chargers", asset_key:"chargers" },
+  planning: { titleKey:"hero.planning.title", descriptionKey:"hero.planning.description", fallbackTitle:"Planning", asset_key:"planning" },
+  strategies: { titleKey:"hero.strategies.title", descriptionKey:"hero.strategies.description", fallbackTitle:"Strategies", asset_key:"strategies" },
+  history: { titleKey:"hero.history.title", descriptionKey:"hero.history.description", fallbackTitle:"History", asset_key:"history" },
+  log: { titleKey:"hero.log.title", descriptionKey:"hero.log.description", fallbackTitle:"Activity", asset_key:"log" }
 });
 
 const HB_MOBILITY_PRELOADED_HEROES = globalThis.__rhiMobilityPreloadedHeroes || (globalThis.__rhiMobilityPreloadedHeroes = new Set());
@@ -29,9 +29,9 @@ function hbMobilityPageHero(rt, tab, options = {}) {
   const asset = options.asset || rhiMobilityHeroAsset(options.asset_key || spec.asset_key);
   hbMobilityPreloadHero(asset);
   return rhiUxPageHero({
-    eyebrow: options.eyebrow || spec.eyebrow || "",
-    title: options.title || spec.title,
-    description: options.description || spec.description,
+    eyebrow: options.eyebrow || "",
+    title: options.title || rhiMobilityT(rt?.hass,spec.titleKey,{},spec.fallbackTitle),
+    description: options.description || rhiMobilityT(rt?.hass,spec.descriptionKey,{},""),
     image: asset,
     imageAlt: ""
   }).replace("<img ", '<img loading="eager" decoding="async" fetchpriority="high" ');
@@ -48,11 +48,11 @@ function hbMobilityStatusGrid(rt, items = [], className = "") {
   return className ? markup.replace('class="rhiUxStatusGrid"', `class="rhiUxStatusGrid ${rt?.escape ? rt.escape(className) : String(className)}"`) : markup;
 }
 
-function hbMobilityQuickActions(rt, actions = [], label = "Quick actions") {
+function hbMobilityQuickActions(rt, actions = [], label = "") {
   return rhiUxQuickActionBar({
-    label,
+    label:label || rhiMobilityT(rt?.hass,"common.quick_actions",{},"Quick actions"),
     actions: actions.map((action,index) => ({
-      label: action.label || "Open",
+      label: action.label || rhiMobilityT(rt?.hass,"common.open",{},"Open"),
       target: action.path || "",
       icon: action.icon || "mdi:arrow-right",
       primary: action.primary || index === 0,
