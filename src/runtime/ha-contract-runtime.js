@@ -77,13 +77,7 @@ class HomeBrainAssetRuntime {
 
   isAllowedContractEntity(entityId = "") {
     const id = String(entityId || "").trim();
-    if (!id) return false;
-    if (this.allowedContractEntityIds().has(id)) return true;
-    // R41.90.1 model-driven component contracts may publish component-specific
-    // property index entities. Allow only public property-index shaped entities;
-    // do not allow candidate, binding, source evidence or raw runtime entities.
-    if (/^sensor\.mobility_(vehicle|charger|person)_[a-z0-9_]+_property_index$/.test(id)) return true;
-    return false;
+    return !!id && this.allowedContractEntityIds().has(id);
   }
 
   assertAllowedContractEntity(entityId = "") {
