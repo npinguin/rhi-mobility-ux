@@ -3007,10 +3007,10 @@ class HomeBrainAssetRuntime {
 
   canonicalPropertyValue(assetId = "", propertyKey = "") {
     const canonical = this.canonicalAssetId(assetId);
-    const row = this.propertyByCompoundKey(canonical, propertyKey);
-    if (!row) return { resolved:false, value:"", row:null, reason:`${propertyKey} contract gap` };
+    const row = this.v2SemanticProperty(canonical, propertyKey);
+    if (!row) return { resolved:false, value:"", row:null, reason:"information_not_available" };
     const value = this.cleanValue(row.value, "");
-    if (value === "" || value === null || value === undefined) return { resolved:false, value:"", row, reason:`${propertyKey} missing value` };
+    if (value === "" || value === null || value === undefined) return { resolved:false, value:"", row, reason:"value_not_available" };
     return { resolved:true, value:String(value).trim(), row, reason:"" };
   }
 
