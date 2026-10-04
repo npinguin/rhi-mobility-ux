@@ -2224,13 +2224,10 @@ class HomeBrainAssetRuntime {
     return [];
   }
 
-  chargerFieldConfig(assetId = "", propertyKey = "") {
-    const row = this.v2SemanticProperty(assetId, propertyKey);
-    return row ? { property_key:propertyKey, component_id:row.component_id || "", section_id:row.section_id || "", display_order:row.display_order ?? 999 } : null;
-  }) {
+  chargerFieldConfig(propertyKey = "", component = {}) {
     const key = String(propertyKey || "").trim();
-    const map = component?.ux_fields_by_property || this.parseJsonValue(this.attr("sensor.mobility_charger_component_contract_index", "ux_fields_by_property_json", {}), {});
-    return (map && typeof map === "object" ? (map[key] || {}) : {}) || {};
+    const rows = Array.isArray(component?.properties) ? component.properties : [];
+    return rows.find((row)=>String(row?.property_key || "") === key) || {};
   }
 
   chargerPropertyRowForContract(prop = {}, component = {}) {
@@ -2795,67 +2792,11 @@ class HomeBrainAssetRuntime {
 
   commandsForSurface(assetId = "", surface = "operational") {
     const canonical = this.canonicalAssetId(assetId);
-    const v2Rows = this.commandV2RowsForSurface(canonical, surface);
-    if (v2Rows !== null) {
-      return v2Rows
-        .map((command)=>this.completeCommandIntent(command, canonical))
-        .filter((command)=>command && this.contractBool(command.frontend_allowed, true) === true);
-    }
-    const slotRows = this.commandSlotRowsForSurface(canonical, surface);
-    if (slotRows === null) return [];
-
-    // Frozen V1 compatibility path: placement comes from the slot index and
-    // readiness/invoke from mobility_command_index. This path is never consulted
-    // when MOBILITY_COMMAND_V2 exists.
-    const commands = this.uiCommandSurface(canonical).map((command)=>this.completeCommandIntent(command, canonical)).filter(Boolean);
-    const byId = new Map(commands.map((cmd)=>[String(cmd.command_id || ""), cmd]));
-    const byKey = new Map(commands.map((cmd)=>[String(cmd.command_key || ""), cmd]));
-    const seen = new Set();
-    return slotRows.map((slot)=>{
-      const rawPlacement = typeof slot === "string" ? { command_id: slot, command_key: slot } : (slot || {});
-      const slotId = String(rawPlacement.command_id || rawPlacement.id || rawPlacement.command || "");
-      const slotKey = String(rawPlacement.command_key || rawPlacement.key || rawPlacement.command || "");
-      // R43.2.54 owner separation: slot rows are placement only. Even when an older
-      // compatibility serialization still carries readiness/invoke fields, UX must
-      // ignore them so they cannot override sensor.mobility_command_index.
-      const placement = {
-        command_id: slotId,
-        command_key: slotKey,
-        surface: rawPlacement.surface || rawPlacement.surface_id || "",
-        section_id: rawPlacement.section_id || "",
-        component_id: rawPlacement.component_id || "",
-        display_order: rawPlacement.display_order ?? rawPlacement.order ?? null,
-        primary_action: this.contractBool(rawPlacement.primary_action, false)
-      };
-      const command = byId.get(slotId) || byKey.get(slotKey) || byId.get(slotKey) || byKey.get(slotId);
-      if (command) return { ...command, ...placement, command_id: command.command_id || slotId, command_key: command.command_key || slotKey };
-      if (!slotId && !slotKey) return null;
-      return {
-        ...placement,
-        asset_id: canonical,
-        command_id: slotId || slotKey,
-        command_key: slotKey || slotId,
-        label: this.titleize(slotId || slotKey),
-        frontend_allowed: true,
-        execution_allowed: false,
-        execution_reason: "Backend contract gap: placed command missing from mobility_command_index"
-      };
-    }).filter((command)=>{
-      if (!command || this.contractBool(command.frontend_allowed, true) === false) return false;
-      const key = String(command.command_id || command.command_key || "");
-      if (!key || seen.has(key)) return false;
-      seen.add(key);
-      return true;
-    }).map((command)=>{
-      const interaction = this.commandInteraction(command);
-      const enumOptions = {};
-      for (const parameter of interaction.required) {
-        if (String(parameter.type || "").toLowerCase() !== "enum") continue;
-        const sourced = this.commandEnumOptions(parameter);
-        enumOptions[parameter.name] = sourced.length ? sourced : (parameter.values || []).map((value)=>({ value, label:this.titleize(value) }));
-      }
-      return { ...command, interaction_mode:interaction.mode, interaction_supported:interaction.supported, interaction_reason:interaction.reason, required_parameters:interaction.required.map((parameter)=>parameter.name), enum_options:enumOptions };
-    });
+    const rows = this.commandV2RowsForSurface(canonical, surface);
+    if (rows === null) return [];
+    return rows
+      .map((command)=>this.completeCommandIntent(command, canonical))
+      .filter((command)=>command && this.contractBool(command.frontend_allowed, true) === true);
   }
 
   unifiedCommandsFor(assetId, surface = "operational") {
