@@ -17,18 +17,18 @@ function hbMobilityDashboardBase(pathname = "") {
 }
 
 const HB_MOBILITY_MODULES = Object.freeze([
-  { key:"mobility", label:"Mobility", path:"/overview", items:[
-    { key:"overview", label:"Overview", path:"/overview" },
-    { key:"vehicles", label:"Vehicle Management", path:"/dashboard" },
-    { key:"chargers", label:"Charger Management", path:"/charger-maintenance" }
+  { key:"mobility", labelKey:"nav.mobility", fallback:"Mobility", path:"/overview", items:[
+    { key:"overview", labelKey:"nav.overview", fallback:"Overview", path:"/overview" },
+    { key:"vehicles", labelKey:"nav.vehicles", fallback:"Vehicles", path:"/dashboard" },
+    { key:"chargers", labelKey:"nav.chargers", fallback:"Chargers", path:"/charger-maintenance" }
   ]},
-  { key:"intelligence", label:"Intelligence", path:"/planning", items:[
-    { key:"planning", label:"Planning", path:"/planning" },
-    { key:"strategies", label:"Strategies", path:"/strategies" }
+  { key:"intelligence", labelKey:"nav.intelligence", fallback:"Intelligence", path:"/planning", items:[
+    { key:"planning", labelKey:"nav.planning", fallback:"Planning", path:"/planning" },
+    { key:"strategies", labelKey:"nav.strategies", fallback:"Strategies", path:"/strategies" }
   ]},
-  { key:"insights", label:"Insights", path:"/history", items:[
-    { key:"history", label:"History", path:"/history" },
-    { key:"log", label:"Log", path:"/log" }
+  { key:"insights", labelKey:"nav.insights", fallback:"Insights", path:"/history", items:[
+    { key:"history", labelKey:"nav.history", fallback:"History", path:"/history" },
+    { key:"log", labelKey:"nav.log", fallback:"Activity", path:"/log" }
   ]}
 ]);
 
@@ -47,14 +47,14 @@ function hbMobilityModuleFor(active = "overview") {
   return HB_MOBILITY_MODULES.find(module => module.key === (item?.module || active)) || HB_MOBILITY_MODULES[0];
 }
 
-function hbMobilityCoreModules(configuredBase = "") {
+function hbMobilityCoreModules(configuredBase = "", hass = null) {
   return HB_MOBILITY_MODULES.map(module => ({
     id:module.key,
-    label:module.label,
+    label:rhiMobilityT(hass,module.labelKey,{},module.fallback),
     target:hbMobilityPath(module.path, configuredBase),
     items:module.items.map(item => ({
       id:item.key,
-      label:item.label,
+      label:rhiMobilityT(hass,item.labelKey,{},item.fallback),
       target:hbMobilityPath(item.path, configuredBase)
     }))
   }));
@@ -71,11 +71,14 @@ function hbMobilityNav(active = "overview", configuredBase = "") {
   })}<style>${hbMobilitySharedShellStyles()}</style></div>`;
 }
 
-function hbMobilityTitleBlock(title = "Mobility", description = "Vehicle readiness, charging, comfort and security in one calm control cockpit.") {
-  return `<section class="title"><p class="eyebrow">HOME INTELLIGENCE / MOBILITY</p><h1>${title}</h1><p>${description}</p></section>`;
+function hbMobilityTitleBlock(title = "", description = "") {
+  const resolvedTitle=title || rhiMobilityT(null,"nav.mobility",{},"Mobility");
+  const resolvedDescription=description || rhiMobilityT(null,"hero.overview.description",{},"See your mobility status and what needs attention.");
+  return `<section class="title"><p class="eyebrow">HOME INTELLIGENCE / MOBILITY</p><h1>${rhiUxEscape(resolvedTitle)}</h1><p>${rhiUxEscape(resolvedDescription)}</p></section>`;
 }
 
 function hbMobilityReleaseFooter(rt) {
+  if (rt?.config?.show_diagnostics !== true) return "";
   const rel=rt && rt.releaseContract ? rt.releaseContract() : {};
   const backend=rel.backend_release || rel.backend_version || "Unknown";
   let issue="";
@@ -83,46 +86,30 @@ function hbMobilityReleaseFooter(rt) {
   try {
     const summary=rt && rt.runtimeHealthSummary ? rt.runtimeHealthSummary() : null;
     const state=String(summary?.status || "").toUpperCase();
-    if (backend === "Unknown") {
-      issue="Backend contract unavailable";
-      severity="error";
-    } else if (["BLOCKED","INVALID"].includes(state)) {
-      issue="Mobility runtime issue";
-      severity="error";
-    } else if (["DEGRADED","STALE","UNKNOWN"].includes(state)) {
-      issue="Mobility runtime degraded";
-      severity="warning";
-    }
-  } catch (_) {
-    issue="Runtime health unavailable";
-    severity="warning";
-  }
-  return rhiUxTechnicalFooter({
-    product:"RHI Mobility",
-    uxVersion:UX_VERSION,
-    backendVersion:backend,
-    issue,
-    severity
-  });
+    if (backend === "Unknown") { issue="Backend unavailable"; severity="error"; }
+    else if (["BLOCKED","INVALID"].includes(state)) { issue="Runtime issue"; severity="error"; }
+    else if (["DEGRADED","STALE","UNKNOWN"].includes(state)) { issue="Runtime degraded"; severity="warning"; }
+  } catch (_) { issue="Runtime health unavailable"; severity="warning"; }
+  return rhiUxTechnicalFooter({ product:"RHI Mobility", uxVersion:UX_VERSION, backendVersion:backend, issue, severity });
 }
 
 function hbMobilityOutcomeStrip(rt, contextId = "mobility", fallback = {}) {
   const esc=(v)=>rt && rt.escape ? rt.escape(v) : rhiUxEscape(v);
-  const read=(field, fallbackValue="Unavailable") => {
+  const read=(field, fallbackValue=rhiMobilityT(rt?.hass,"common.unavailable",{},"Unavailable")) => {
     const value=rt && rt.supervisorOutcome ? rt.supervisorOutcome(contextId, field, null) : null;
     return value === undefined || value === null || value === "" ? fallbackValue : value;
   };
-  const status=read("status", fallback.status ?? "Unavailable");
-  const trust=read("trust", fallback.trust ?? (rt && rt.backendVersion ? rt.backendVersion() : "Unavailable"));
-  const attention=read("attention", fallback.attention ?? "Unavailable");
-  const opportunity=read("opportunity", fallback.opportunity ?? "Unavailable");
-  const recommendation=read("recommended_action", fallback.recommended_action ?? "Unavailable");
+  const status=read("status", fallback.status ?? rhiMobilityT(rt?.hass,"common.unavailable",{},"Unavailable"));
+  const trust=read("trust", fallback.trust ?? (rt && rt.backendVersion ? rt.backendVersion() : rhiMobilityT(rt?.hass,"common.unavailable",{},"Unavailable")));
+  const attention=read("attention", fallback.attention ?? rhiMobilityT(rt?.hass,"common.unavailable",{},"Unavailable"));
+  const opportunity=read("opportunity", fallback.opportunity ?? rhiMobilityT(rt?.hass,"common.unavailable",{},"Unavailable"));
+  const recommendation=read("recommended_action", fallback.recommended_action ?? rhiMobilityT(rt?.hass,"common.unavailable",{},"Unavailable"));
   const items=[
-    ["mdi:check-circle-outline","Status",status,"green"],
-    ["mdi:shield-check-outline","Trust",trust,"blue"],
-    ["mdi:alert-circle-outline","Attention",attention,"orange"],
-    ["mdi:lightbulb-outline","Opportunity",opportunity,"green"],
-    ["mdi:arrow-right-circle-outline","Recommended action",recommendation,"blue"]
+    ["mdi:check-circle-outline",rhiMobilityT(rt?.hass,"common.status",{},"Status"),status,"green"],
+    ["mdi:shield-check-outline",rhiMobilityT(rt?.hass,"common.trust",{},"Confidence"),trust,"blue"],
+    ["mdi:alert-circle-outline",rhiMobilityT(rt?.hass,"common.attention",{},"Attention"),attention,"orange"],
+    ["mdi:lightbulb-outline",rhiMobilityT(rt?.hass,"common.opportunity",{},"Opportunity"),opportunity,"green"],
+    ["mdi:arrow-right-circle-outline",rhiMobilityT(rt?.hass,"common.recommended_action",{},"Recommended action"),recommendation,"blue"]
   ];
   return `<section class="status-strip dashboard-status-strip outcome-header">
     ${items.map(([icon,label,value,tone]) => `<div class="metric tone-${tone}"><ha-icon icon="${icon}"></ha-icon><div><span>${label}</span><b>${esc(value)}</b></div></div>`).join("")}
