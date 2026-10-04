@@ -226,8 +226,8 @@ if(dashboard.includes('title="vehicle.selected_charger is not published"><ha-ico
 
 for(const needle of [
   'const relatedVehicle = rt.relatedVehicleForCharger(assetId)',
-  "rhiMobilityT(this._hass,'common.assigned_vehicle'",
-  "rhiMobilityT(this._hass,'common.connected_vehicle'",
+  'rt.t("common.assigned_vehicle"',
+  'rt.t("common.connected_vehicle"',
   'charger-assignment',
   'charger-profile',
   'charger-location'
