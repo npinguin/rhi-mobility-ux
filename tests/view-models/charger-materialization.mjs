@@ -75,6 +75,7 @@ const hass={states:Object.fromEntries([
 
 const rt=new Runtime(hass,{});
 const snapshot=rt.chargerProductSnapshot(aid);
+console.log("DEBUG charger V2 materialization",JSON.stringify({rows:rt.v2PropertyRows(aid).map(r=>({key:r.property_key,value:r.value,asset:r.asset_id,source:r._source_entity_id})),exact:rt.canonicalChargerPropertyValue(aid,"charger.operating_state"),snapshot}));
 if(snapshot.operating.display!=='Stopped') throw new Error('operating_state not materialized from V2 property publication');
 if(snapshot.connection.display!=='Connected') throw new Error('connection_state not materialized from V2 property publication');
 if(snapshot.power.display!=='0 kW') throw new Error(`power not materialized: ${snapshot.power.display}`);
