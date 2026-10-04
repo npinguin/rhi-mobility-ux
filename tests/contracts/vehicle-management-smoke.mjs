@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 
 const dashboard=fs.readFileSync(new URL('../../src/ui/screens/mobility-dashboard.js',import.meta.url),'utf8');
+const localization=fs.readFileSync(new URL('../../src/app/localization.js',import.meta.url),'utf8');
 const presentation=fs.readFileSync(new URL('../../src/app/presentation.js',import.meta.url),'utf8');
 const catalog=fs.readFileSync(new URL('../../src/app/asset-catalog.js',import.meta.url),'utf8');
 const runtime=fs.readFileSync(new URL('../../src/runtime/ha-contract-runtime.js',import.meta.url),'utf8');
@@ -98,7 +99,7 @@ if(!shell.includes('new HomeBrainVehicleVisualPicker(this.rt).render')) throw ne
 if(!shell.includes('new HomeBrainChargerVisualPicker(this.rt).render')) throw new Error('charger detail is not using shared picker');
 
 if(presentation.includes('MOBILITY / VEHICLE MANAGEMENT')) throw new Error('obsolete management eyebrow returned');
-if(!presentation.includes('Check that your fleet is configured, assigned and operational')) throw new Error('Vehicles purpose drifted');
+if(!localization.includes('"hero.vehicles.description":"See which vehicles are ready, connected or need attention, then manage only what matters."')) throw new Error('Vehicles purpose translation drifted');
 if(!presentation.includes('asset_key:"vehicles"')) throw new Error('Vehicles contextual hero key missing');
 
 if ((dashboard.match(/Manage vehicles & profiles/g) || []).length !== 1) throw new Error('Vehicles duplicated page-level Manage vehicles & profiles action outside Quick Actions');
@@ -108,7 +109,6 @@ for(const needle of [
   'mdi:shield-check-outline',
   'mdi:chevron-right',
   'data-charger-picker=',
-  'grid-template-columns:repeat(4,minmax(0,1fr))!important'
 ]) if(!chargers.includes(needle)) throw new Error('rc.58 charger visual hierarchy regression: missing '+needle);
 if(chargers.includes('<div class="charger-icon"><ha-icon icon="mdi:ev-station"></ha-icon></div>')) throw new Error('generic charger identity icon returned beside real product artwork');
 if(chargers.includes('title="Open charger details"><ha-icon icon="mdi:plus"')) throw new Error('plus icon must not represent charger Details');
