@@ -1,7 +1,7 @@
 {
   "candidate_version": "1.0.0-rc.79",
   "candidate_tag": "v1.0.0-rc.79",
-  "candidate_sha": "pending",
+  "candidate_sha": "77012500568e19534c6ef0c70336b474b7b0c39c",
   "target_home_assistant": "pending",
   "hacs_install": "pending",
   "public_runtime_v2": "pending",
@@ -16,7 +16,7 @@
   "rollback_to_previous_release": "pending",
   "runtime_proof": "pending",
   "rollback_proof": "pending",
-  "stable_promotion": "blocked",
+  "stable_promotion": "blocked_runtime_qualification",
   "cross_domain_navigation": "pending",
   "shared_visual_picker_grammar": "pending",
   "vehicle_image_persistence": "pending",
@@ -35,9 +35,10 @@
   "bounded_visual_picker": "pending",
   "vehicle_brand_filter": "pending",
   "charger_brand_filter": "pending",
-  "v1_product_api_decommissioned": "pending",
-  "zero_presentation_debt": "pending",
-  "multilingual_en_nl_fr": "pending",
-  "user_safe_copy": "pending",
-  "core_1_6_0_provenance": "pending"
+  "v1_product_api_decommissioned": "STATIC_PASS",
+  "zero_presentation_debt": "STATIC_PASS",
+  "multilingual_en_nl_fr": "STATIC_PASS",
+  "user_safe_copy": "STATIC_PASS",
+  "core_1_6_0_provenance": "STATIC_PASS",
+  "static_validation": "PASS"
 }
