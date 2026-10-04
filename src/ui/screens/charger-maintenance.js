@@ -176,7 +176,7 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
     if (status === "active") return "Active";
     if (status === "disabled") return "Disabled";
     if (status === "retired") return "Retired";
-    return "Contract gap";
+    return "Not available";
   }
 
   lifecycleToggleButton(rt, charger, extraClass = "mini-detail-link lifecycle-toggle labeled-action") {
@@ -184,7 +184,7 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
     const desired = status === "disabled" ? "active" : "disabled";
     const model = rt.lifecycleWriteModel(charger, desired);
     const label = desired === "active" ? "Activate" : "Disable";
-    const title = model.disabled ? (model.reason || "Lifecycle contract gap") : `${label} via lifecycle_status`;
+    const title = model.disabled ? (model.reason || "Status cannot be changed right now") : `${label}`;
     const button = `<button class="${extraClass}" data-lifecycle-asset="${rt.escape(this.assetId(charger))}" data-lifecycle-value="${rt.escape(desired)}" ${model.disabled ? "disabled" : ""} title="${rt.escape(title)}"><ha-icon icon="mdi:power"></ha-icon><span>${rt.escape(label)}</span></button>`;
     return model.disabled && extraClass.includes("labeled-action") ? `<span class="lifecycle-control-wrap">${button}<small class="lifecycle-disabled-reason">${rt.escape(title)}</small></span>` : button;
   }
@@ -238,33 +238,29 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
     const mode = "Automatic";
     const dataQuality = trust;
     const lastUpdate = charger.last_seen || "Unknown";
-    const roles = Array.isArray(charger.roles) ? charger.roles.join(", ") : (charger.roles || "—");
     const configFields = [
       this.detailField(rt, "Profile", charger.profile || "—"),
       this.detailField(rt, "Location", charger.location || "—"),
-      this.detailField(rt, "Lifecycle", this.lifecycleDisplay(rt, charger)),
-      this.detailField(rt, "Frontend allowed", String(charger.frontend_allowed !== false)),
+      this.detailField(rt, "Status", this.lifecycleDisplay(rt, charger)),
       this.detailField(rt, "Mode", mode),
       this.detailField(rt, "Assigned vehicle", assignedVehicle),
-      this.detailField(rt, "Physically connected vehicle", connectedVehicle),
-      this.detailField(rt, "Connector state", connector),
+      this.detailField(rt, "Connected vehicle", connectedVehicle),
+      this.detailField(rt, "Connector", connector),
       this.detailField(rt, "Current limit", currentLimit),
       this.detailField(rt, "Actual current", actualCurrent),
       this.detailField(rt, "Offered current", offeredCurrent),
-      this.detailField(rt, "Active phases", activePhases),
       this.detailField(rt, "Power", power),
       this.detailField(rt, "Session energy", session),
-      this.detailField(rt, "Execution owner", charger.execution_owner || "—"),
-      this.detailField(rt, "Roles", roles),
       this.detailField(rt, "Health", healthSummary.value),
-      this.detailField(rt, "Health reason", healthSummary.reason || "—"),
-      this.detailField(rt, "Last update", lastUpdate),
-      this.detailField(rt, "Command source", "mobility_command_index"),
-      this.detailField(rt, "Published commands", String(rt.commandRegistry(assetId).length)),
-      this.detailField(rt, "Asset id", assetId),
-      this.detailField(rt, "Sort order", String(charger.sort_order ?? "—"))
+      this.detailField(rt, "Last update", lastUpdate)
     ].join("");
-
+    const diagnosticsFields = [
+      this.detailField(rt, "Asset id", assetId),
+      this.detailField(rt, "Execution owner", charger.execution_owner || "—"),
+      this.detailField(rt, "Published commands", String(rt.commandRegistry(assetId).length)),
+      this.detailField(rt, "Sort order", String(charger.sort_order ?? "—")),
+      this.detailField(rt, "Backend reason", healthSummary.reason || "—")
+    ].join("");
     const pickerOpen = this._chargerPickerAsset === assetId;
     const appearanceError = this._chargerAppearanceError.get(assetId) || "";
     return `<article class="charger-card ${issue ? "attention" : ""}">
@@ -299,17 +295,10 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
         ${this.lifecycleToggleButton(rt, charger)}
       </div>
       <div class="command-row">${primary.length ? primary.map((c) => this.renderCommand(rt, c)).join("") : `<div class="empty-actions">No product command placement published for this charger.</div>`}</div>
-      <section class="fold-section ${maintenanceOpen ? "open" : ""}" data-panel-key="${rt.escape(`${assetId}:maintenance`)}">
-        <button class="fold-toggle" data-toggle-panel="${rt.escape(`${assetId}:maintenance`)}" type="button"><ha-icon icon="mdi:chevron-${maintenanceOpen ? "down" : "right"}"></ha-icon><span>Maintenance & diagnostics</span></button>
-        <div class="fold-panel">
-          <div class="detail-grid">
-            ${this.detailField(rt, "Health", healthSummary.value)}
-            ${this.detailField(rt, "Health reason", healthSummary.reason || "—")}
-            ${this.detailField(rt, "Command placement", "charger_actions.commands")}
-            ${this.detailField(rt, "Command readiness", "Command Index")}
-          </div>
-        </div>
-      </section>
+      ${this.config?.show_diagnostics === true ? `<section class="fold-section ${maintenanceOpen ? "open" : ""}" data-panel-key="${rt.escape(`${assetId}:maintenance`)}">
+        <button class="fold-toggle" data-toggle-panel="${rt.escape(`${assetId}:maintenance`)}" type="button"><ha-icon icon="mdi:chevron-${maintenanceOpen ? "down" : "right"}"></ha-icon><span>Technical diagnostics</span></button>
+        <div class="fold-panel"><div class="detail-grid">${diagnosticsFields}</div></div>
+      </section>` : ""}
       <section class="fold-section config-details ${configOpen ? "open" : ""}" data-panel-key="${rt.escape(`${assetId}:config`)}">
         <button class="fold-toggle" data-toggle-panel="${rt.escape(`${assetId}:config`)}" type="button"><ha-icon icon="mdi:chevron-${configOpen ? "down" : "right"}"></ha-icon><span>Profile & detailed configuration</span></button>
         <div class="fold-panel"><div class="detail-grid">${configFields}</div></div>
