@@ -53,14 +53,13 @@ No screen may independently redefine lifecycle, relationship identity, readiness
 - Charger product conclusions and fault: `MOBILITY_EXPERIENCE_V2.chargers[]`.
 - Thresholds and required coverage: `MOBILITY_POLICY_V2.policy`.
 - UX owns select / aggregate / format / present only; it does not recreate product states.
-- Canonical per-asset V2 semantic properties own detailed factual/configuration read/write. Frozen V1/scalar compatibility indexes may be consumed only as an explicit compatibility fallback while the V2 interface migration remains open; they may not become authority for new behavior.
-- Command placement: backend command-slot indexes only.
-- Command readiness/invoke: Mobility Command Index only.
-- Command activity/result: Mobility Activity Index only.
+- Canonical per-asset V2 semantic properties own detailed factual/configuration read/write. Missing publication fails closed; no older product index is consulted.
+- Command placement, readiness and invocation are owned by `MOBILITY_COMMAND_V2`.
+- Command activity/result is owned by `MOBILITY_ACTIVITY_V2`.
 
 ## Actual/readback
 
-Operational values render canonical actual/readback by default. Requested/setpoint values are interaction state only while editing or while backend write state is pending. The migration RC does not redesign existing controls; this invariant is preserved as the forward contract requirement.
+Operational values render canonical actual/readback by default. Requested/setpoint values are interaction state only while editing or while backend write state is pending. Current controls follow this invariant; no compatibility read path is retained.
 
 ## Test architecture
 
@@ -125,16 +124,10 @@ phone portrait / tablet / desktop
 Mobility UX may present Energy-owned planning, metering and value when the data is explicitly published through Energy public UX contracts. This is a read-only cross-domain projection boundary; it does not make Mobility the semantic owner.
 
 ```text
-Energy public UX contracts
-  ├─ sensor.energy_planning_index
-  ├─ sensor.energy_planning_experience_index
-  ├─ sensor.energy_strategy_profile_index
-  ├─ sensor.energy_strategy_effective_index
-  ├─ sensor.energy_asset_metering_index
-  └─ sensor.energy_value_accounting_index
-          ↓
-src/runtime/energy-*-projection.js
-          ↓ exact canonical asset-id join only
+Energy public V2 contract
+        ↓
+read-only Energy planning / strategy / metering / value projections
+        ↓ exact canonical asset-id join only
 Mobility Intelligence / Insights presentation
 ```
 
