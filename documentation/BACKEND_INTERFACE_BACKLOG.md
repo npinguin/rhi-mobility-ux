@@ -13,9 +13,7 @@ Experience V2     = user-facing conclusions
 UX                = select, aggregate, format and present
 ```
 
-No new UX feature may add a V1-only dependency or reconstruct a missing V2 product fact locally. Missing configuration completeness, runtime/data health, charge demand, policy classification, site-capacity or other unconfirmed semantics remain explicit contract gaps until #107 classifies them A/B/C/D.
-
-The existing V1 facade remains a temporary compatibility source for already-consumed facts only; it is not the target architecture.
+UX may not add or retain any legacy product dependency and may not reconstruct a missing V2 product fact locally. Missing configuration completeness, runtime/data health, charge demand, policy classification, site-capacity or other unconfirmed semantics remain backend ownership gaps until the owning V2 contract publishes them.
 
 This backlog captures product capabilities required by Mobility UX that are not yet authoritative in the current V2 public contracts.
 
@@ -75,7 +73,7 @@ Until available:
 
 ### Comfort/readiness semantic validity
 
-Observed V1 data can expose technically formatted climate/comfort values that are not valid user meaning, for example negative duration-like values.
+Historical source data demonstrated that technically formatted climate/comfort values can be invalid user meaning, for example negative duration-like values.
 
 Backend should publish product-valid comfort/readiness semantics and units. UX fails closed as N/A for clearly invalid duration-style presentation; it does not reinterpret the value.
 
@@ -113,6 +111,6 @@ No future V2.x field may be guessed, reverse-engineered from raw Home Assistant 
 
 ## Runtime V2 property-completeness evidence — fulfilled in Mobility M0.9.44
 
-Mobility M0.9.44 publishes per-asset `property_publication` evidence on Runtime V2, including expected and catalog property keys plus explicit `v1_fallback_allowed=false`.
+Mobility M0.9.44 publishes per-asset `property_publication` evidence on Runtime V2, including expected and catalog property keys.
 
-UX rc.49 consumes this evidence and compares expected keys with materialized direct V2 property entities. An expected-but-missing entity is now an explicit publication gap; it is never silently filled from a frozen V1 index.
+UX rc.49 consumes this evidence and compares expected keys with materialized direct V2 property entities. An expected-but-missing entity is now an explicit publication gap; it is never silently filled from another or older interface.
