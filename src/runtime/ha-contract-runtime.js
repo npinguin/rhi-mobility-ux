@@ -1405,7 +1405,7 @@ class HomeBrainAssetRuntime {
 
   uxEditorControlKind(prop = {}) {
     // Backend-published canonical write metadata is the sole editor authority.
-    // Direct V2 semantic properties are primary; frozen V1 metadata is compatibility-only.
+    // Direct V2 semantic properties are primary; V2 metadata is authoritative.
     // Do not infer editor type from property names, units, integrations or values.
     const binding = String(prop.write_binding_type || prop.editor || "").trim().toLowerCase();
     if (binding === "select") return "select";
@@ -1726,7 +1726,7 @@ class HomeBrainAssetRuntime {
   }
 
   // Charger product headline semantics intentionally have no intelligence-based
-  // compatibility resolver. Use chargerProductSnapshot() only.
+  // fallback resolver. Use chargerProductSnapshot() only.
 
   lifecyclePropertyRow(assetId = "") {
     const canonical = this.canonicalAssetId(assetId);
@@ -1995,7 +1995,7 @@ class HomeBrainAssetRuntime {
         engineeringPublicPropertyKeys.add(String(p.property_key || ""));
         details.push({ label:this.propertyDisplayLabel(p), value:`${this.propertyDisplayValue(p)} · key=${p.property_key}; quality=${p.quality || ""}; health=${p.health || ""}` });
       }
-      // V1 contract-complete guard: every public property must be visible in normal UX or
+      // Public-contract completeness guard: every public property must be visible in normal UX or
       // traceable from Engineering details. This prevents silent drops when family,
       // group, detail_level or access metadata changes in runtime.
       const familyPublicKeys = props.map((p)=>String(p.property_key || "")).filter(Boolean);
@@ -2034,7 +2034,7 @@ class HomeBrainAssetRuntime {
     // Keep contract consumption evidence out of normal detail UX. It belongs in validation
     // reports and Engineering details, not as a visible product section.
     if (this.config?.show_contract_consumption === true) {
-      sections.push({ key:"contract-consumption", title:"Contract Consumption", icon:"mdi:file-check-outline", header:"UX v1 completeness", rows:reportRows, details:[...warnings.map((w,i)=>({label:`Warning ${i+1}`, value:w})), ...summary.editableGaps.map((p)=>({label:`Editable gap ${p.property_key}`, value:"Missing write_supported/write_service_domain/write_service_action/write_target_entity"})), ...summary.executableCommandGaps.map((c)=>({label:`Command gap ${c.command_key || c.command_id}`, value:"execution_allowed=true but service metadata incomplete"}))] });
+      sections.push({ key:"contract-consumption", title:"Contract Consumption", icon:"mdi:file-check-outline", header:"UX completeness", rows:reportRows, details:[...warnings.map((w,i)=>({label:`Warning ${i+1}`, value:w})), ...summary.editableGaps.map((p)=>({label:`Editable gap ${p.property_key}`, value:"Missing write_supported/write_service_domain/write_service_action/write_target_entity"})), ...summary.executableCommandGaps.map((c)=>({label:`Command gap ${c.command_key || c.command_id}`, value:"execution_allowed=true but service metadata incomplete"}))] });
     }
     return sections.filter((s)=>s.rows?.length || s.details?.length);
   }
@@ -2569,9 +2569,7 @@ class HomeBrainAssetRuntime {
     if (!canonical || !wanted) return null;
     const rows = this.propertyRows(canonical).filter((r)=>String(r.property_key || "") === wanted || String(r._compound_key || "") === `${canonical}:${wanted}`);
     if (!rows.length) return null;
-    // Frozen V1 can expose the same canonical V2 property through more than one
-    // index. Prefer the richest canonical row so complete write metadata is not
-    // shadowed by a read-only duplicate.
+    // V2 property publication may contain duplicate transport rows; prefer the richest canonical row so complete write metadata is not shadowed.
     const score = (row) => {
       let value = 0;
       if (String(row.canonical_contract || "").toUpperCase() === "MOBILITY_PUBLIC_RUNTIME_V2") value += 16;
@@ -2616,7 +2614,7 @@ class HomeBrainAssetRuntime {
       secondary_label_field: row.secondary_label_field || "secondary_label",
       allow_none: this.contractBool(row.allow_none, false),
       none_value: row.none_value ?? "",
-      // V1 write metadata is authoritative. Never manufacture writeability from
+      // Backend V2 write metadata is authoritative. Never manufacture writeability from
       // the mere presence of a target/service binding.
       write_supported: this.contractBool(row.write_supported, false),
       write_binding_type: row.write_binding_type || row.editor || "",
@@ -2799,11 +2797,7 @@ class HomeBrainAssetRuntime {
       .filter((command)=>command && this.contractBool(command.frontend_allowed, true) === true);
   }
 
-  unifiedCommandsFor(assetId, surface = "operational") {
-    // Compatibility method retained for callers, but semantics are now identical to
-    // the R43.2.54 slot-owned command surface. No family/category filtering exists.
-    return this.commandsForSurface(assetId, surface);
-  }
+
 
   controlsFor(assetId = "") {
     // Public typed model: write controls are exposed on property rows as write_command.
@@ -2847,10 +2841,7 @@ class HomeBrainAssetRuntime {
     return null;
   }
 
-  compatibilityFactRow(assetId) {
-    // R22.8: embedded compatibility facts are transitional and forbidden for UX runtime values.
-    return null;
-  }
+
 
   factEntity(assetId, field) {
     const canonicalFact = this.factContractRow(assetId, field);
@@ -2949,8 +2940,7 @@ class HomeBrainAssetRuntime {
   }
 
   commandState(command) {
-    // MOBILITY_COMMAND_V2 is authoritative when present; V1 command-index rows are
-    // accepted only as a compatibility projection on older backends.
+    // MOBILITY_COMMAND_V2 is the sole product command authority.
     const status = command?.execution_status || command?.ui_state || command?.effective_availability || "";
     const reason = command?.blocked_reason || command?.execution_reason || command?.disabled_reason || "";
     const lower = String(status).toLowerCase();
