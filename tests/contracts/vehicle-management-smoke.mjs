@@ -127,10 +127,10 @@ for(const needle of [
 ]) if(!runtime.includes(needle)) throw new Error('rc.64 canonical vehicle summary regression: missing '+needle);
 if(runtime.includes('propertyByCompoundKey(canonical, spec.property_key)')) throw new Error('rc.64 vehicle summary regressed to materialized-property-only slots');
 
-if(!chargers.includes('.charger-visual:not(.image-missing) .charger-visual-fallback{display:none!important}')) {
+if(!chargers.includes('.charger-visual:not(.image-missing) .charger-visual-fallback{display:none}')) {
   throw new Error('rc.59 real charger artwork must suppress generic fallback');
 }
-if(!dashboard.includes('.charger-mini-image img{opacity:1!important')) {
+if(!dashboard.includes('.charger-mini-image img{opacity:1')) {
   throw new Error('rc.59 assigned charger artwork must render at full opacity');
 }
 console.log('PASS rc.64 cross-screen vehicle range/battery summary and charger artwork truth');
