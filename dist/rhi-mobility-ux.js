@@ -4146,7 +4146,7 @@ class HomeBrainAssetRuntime {
 
   canonicalPropertyValue(assetId = "", propertyKey = "") {
     const canonical = this.canonicalAssetId(assetId);
-    const row = this.v2SemanticProperty(canonical, propertyKey);
+    const row = this.propertyByCompoundKey(canonical, propertyKey);
     if (!row) return { resolved:false, value:"", row:null, reason:"information_not_available" };
     const value = this.cleanValue(row.value, "");
     if (value === "" || value === null || value === undefined) return { resolved:false, value:"", row, reason:"value_not_available" };
