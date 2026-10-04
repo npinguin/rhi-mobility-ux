@@ -1,5 +1,5 @@
 // 30-vehicle-adapter.js
-// Vehicle view-model adapter. Canonical V2 runtime/experience/configuration is primary; frozen V1 component materialization remains compatibility-only and fail-closed.
+// Vehicle view-model adapter. Canonical V2 runtime/experience/configuration is the sole product authority; presentation remains fail-closed.
 // Product semantics are rendered from named backend owners only. No fact/source
 // fallback, topology inference, command matrix, or frontend family reconstruction.
 
