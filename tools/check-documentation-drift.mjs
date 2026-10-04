@@ -64,13 +64,13 @@ if(!architecture.includes('Overview | Vehicles | Chargers | Detail')) failures.p
 if(readme.includes('vehicle_bmw_ix1_phev.png')) failures.push('README.md: obsolete BMW iX1 artwork path returned');
 if(readme.includes('MOBILITY_PUBLIC_RUNTIME_V1')) failures.push('README.md: V1 returned as primary architecture authority');
 if(!readme.includes('documentation/HISTORY_AND_LESSONS.md') || !readme.includes('documentation/KNOWN_DEFECTS.md')) failures.push('README.md: engineer history/open-issue entry points missing');
-if(!architecture.includes('V2 interface migration remains open')) failures.push('ARCHITECTURE missing explicit V2 migration compatibility boundary');
+if(!architecture.includes('Missing publication fails closed; no older product index is consulted')) failures.push('ARCHITECTURE missing V2-only fail-closed boundary');
 
 const vision=fs.readFileSync(path.join(root,'documentation/PRODUCT_VISION.md'),'utf8');
 const backlog=fs.readFileSync(path.join(root,'documentation/BACKEND_INTERFACE_BACKLOG.md'),'utf8');
 if(!vision.includes('One model, one ownership') || !vision.includes('No charger') || !vision.includes('refresh')) failures.push('PRODUCT_VISION missing locked Mobility UX invariants');
 if(vision.includes('V1 consumes only `MOBILITY_PUBLIC_RUNTIME_V1`') || vision.includes('current release line stays on frozen `MOBILITY_PUBLIC_RUNTIME_V1`')) failures.push('PRODUCT_VISION still declares V1 as current product authority');
-for(const token of ['MOBILITY_PUBLIC_RUNTIME_V2 = canonical facts','MOBILITY_EXPERIENCE_V2','MOBILITY_POLICY_V2','MOBILITY_COMMAND_V2','Frozen V1 surfaces exist only as explicit compatibility fallbacks']){
+for(const token of ['MOBILITY_PUBLIC_RUNTIME_V2 = canonical facts','MOBILITY_EXPERIENCE_V2','MOBILITY_POLICY_V2','MOBILITY_COMMAND_V2','Older product indexes and compatibility interfaces are fully decommissioned']){
   if(!vision.includes(token)) failures.push(`PRODUCT_VISION missing V2-first authority token: ${token}`);
 }
 if(!backlog.includes('HA-native user') || !backlog.includes('do not mock') || !backlog.includes('V2.x')) failures.push('BACKEND_INTERFACE_BACKLOG missing interface governance');
@@ -81,8 +81,8 @@ const history=fs.readFileSync(path.join(root,'documentation/HISTORY_AND_LESSONS.
 const pickerBlueprint=fs.readFileSync(path.join(root,'documentation/SEMANTIC_PICKER_BLUEPRINT.md'),'utf8');
 
 for(const token of [
-  'V2 interface migration is incomplete',
-  'Frozen V1 is compatibility-only',
+  'V2 product API decommission is structurally closed',
+  'Legacy product indexes, command-slot indexes, release fallbacks and compatibility reads are forbidden',
   'target Home Assistant',
   'canonical readback'
 ]){
@@ -101,7 +101,7 @@ for(const token of ['local draft','canonical backend readback','Reuse by Energy'
   if(!pickerBlueprint.includes(token)) failures.push(`SEMANTIC_PICKER_BLUEPRINT missing reusable invariant: ${token}`);
 }
 const runtimeOwns=ownership?.owners?.runtime?.owns || [];
-for(const token of ['MOBILITY_PUBLIC_RUNTIME_V2 access','MOBILITY_EXPERIENCE_V2 access','MOBILITY_POLICY_V2 access','frozen V1 compatibility fallback only']){
+for(const token of ['MOBILITY_PUBLIC_RUNTIME_V2 access','MOBILITY_EXPERIENCE_V2 access','MOBILITY_POLICY_V2 access','V2-only product authority; missing truth fails closed']){
   if(!runtimeOwns.includes(token)) failures.push(`src/OWNERSHIP runtime boundary missing: ${token}`);
 }
 if(runtimeOwns.includes('MOBILITY_PUBLIC_RUNTIME_V1 access')) failures.push('src/OWNERSHIP still declares V1 as primary runtime access');
