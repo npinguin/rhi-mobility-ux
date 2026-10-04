@@ -234,18 +234,18 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
 
   lifecycleDisplay(rt, asset) {
     const status = rt.lifecycleStatus(asset);
-    if (status === "active") return "Active";
-    if (status === "disabled") return "Disabled";
-    if (status === "retired") return "Retired";
-    return "Contract gap";
+    if (status === "active") return rt.t("state.active",{},"Active");
+    if (status === "disabled") return rt.t("state.disabled",{},"Disabled");
+    if (status === "retired") return rt.t("state.retired",{},"Retired");
+    return rt.t("common.not_available",{},"Not available");
   }
 
   lifecycleToggleButton(rt, asset, extraClass = "presence-toggle icon-only") {
     const status = rt.lifecycleStatus(asset);
     const desired = status === "disabled" ? "active" : "disabled";
     const model = rt.lifecycleWriteModel(asset, desired);
-    const label = desired === "active" ? "Activate" : "Disable";
-    const title = model.disabled ? (model.reason || "Lifecycle contract gap") : `${label} via lifecycle_status`;
+    const label = desired === "active" ? rt.t("state.active",{},"Activate") : rt.t("state.disabled",{},"Disable");
+    const title = model.disabled ? rt.t("state.status_change_unavailable",{},"Status cannot be changed right now") : label;
     const button = `<button class="action ${extraClass}" data-lifecycle-asset="${rt.escape(this.assetId(asset))}" data-lifecycle-value="${rt.escape(desired)}" ${model.disabled ? "disabled" : ""} title="${rt.escape(title)}"><ha-icon icon="mdi:power"></ha-icon><span>${rt.escape(label)}</span></button>`;
     return model.disabled && extraClass.includes("manage-lifecycle") ? `<span class="lifecycle-control-wrap">${button}<small class="lifecycle-disabled-reason">${rt.escape(title)}</small></span>` : button;
   }
@@ -253,7 +253,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
   chargingActivityDisplay(rt, asset) {
     const model = new HomeBrainVehicleAdapter(rt, this.vehicleId(asset), { ...this.config, registry_entry:asset }).build();
     const charging = model?.projection?.signals?.charging;
-    if (!charging) return "Unavailable";
+    if (!charging) return rt.t("common.unavailable",{},"Unavailable");
     const value = String(charging.display || charging.value || "Unavailable");
     const reason = String(charging.reason || "").trim();
     return reason && reason !== value ? `${value} · ${reason}` : value;
@@ -307,7 +307,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
       </div>`;
     return `<section class="vehicle-control-row mock-row" title="${rt.escape(ctx.info.detail)}">
       <div class="vehicle-metrics-strip mock-metrics">
-        ${metricSlots.map((slot, index)=>`<div class="metric-chip ${index === 2 ? "battery-chip" : ""}" title="${rt.escape(slot.property_key || "Component contract gap")}"><span>${rt.escape(slot.label)}</span><b>${rt.escape(slot.resolved ? slot.display : "—")}</b></div>`).join("")}
+        ${metricSlots.map((slot, index)=>`<div class="metric-chip ${index === 2 ? "battery-chip" : ""}" title="${rt.escape(slot.label || rt.t("common.not_available",{},"Not available"))}"><span>${rt.escape(slot.label)}</span><b>${rt.escape(slot.resolved ? slot.display : "—")}</b></div>`).join("")}
       </div>
       <div class="charge-mini-strip mock-controls has-speed no-mode">
         ${this.renderChargerAssignmentSelect(rt, vehicleAsset)}
@@ -868,13 +868,11 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     `;
   }
 
-  versionBlock(rt) {
-    return `<div class="hi-version-block" style="position:absolute;top:18px;right:22px;text-align:right;font-size:10.5px;line-height:1.25;font-weight:400;color:var(--secondary-text-color,#6B7280);opacity:.82;background:none;border:0;box-shadow:none;padding:0;margin:0;z-index:3;pointer-events:none;"><div>UX ${rt.escape(UX_VERSION)}</div><div>Backend ${rt.escape(rt.backendVersion())}</div></div>`;
-  }
+  versionBlock(rt) { return ""; }
 
   intelligenceStatusRow(rt, tile = {}) {
     const label = tile.label || "Intelligence";
-    const value = tile.value || "Contract gap";
+    const value = tile.value || rt.t("common.not_available",{},"Not available");
     const detail = String(tile.subvalue || tile.reason || "").trim();
     const rawTone = String(tile.tone || "neutral").toLowerCase();
     const pillTone = rawTone === "error" ? "bad" : rawTone === "attention" ? "warn" : rawTone === "active" ? "ok" : "muted";
