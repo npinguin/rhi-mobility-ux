@@ -6,13 +6,13 @@ class HomeBrainAssetRuntime {
   constructor(hass, config = {}) {
     this.hass = hass;
     this.config = config;
-    rhiMobilitySetLocaleFromHass(hass);
+    if (typeof rhiMobilitySetLocaleFromHass === "function") rhiMobilitySetLocaleFromHass(hass);
     this._cache = HomeBrainAssetRuntime._cache || (HomeBrainAssetRuntime._cache = new Map());
     this._memo = new Map();
   }
 
   t(key, params = {}, fallback = "") {
-    return rhiMobilityT(this.hass, key, params, fallback);
+    return typeof rhiMobilityT === "function" ? rhiMobilityT(this.hass, key, params, fallback) : (fallback || key);
   }
 
   productUnavailable(detail = "") {
