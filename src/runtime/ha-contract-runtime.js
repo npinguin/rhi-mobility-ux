@@ -6,8 +6,20 @@ class HomeBrainAssetRuntime {
   constructor(hass, config = {}) {
     this.hass = hass;
     this.config = config;
+    rhiMobilitySetLocaleFromHass(hass);
     this._cache = HomeBrainAssetRuntime._cache || (HomeBrainAssetRuntime._cache = new Map());
     this._memo = new Map();
+  }
+
+  t(key, params = {}, fallback = "") {
+    return rhiMobilityT(this.hass, key, params, fallback);
+  }
+
+  productUnavailable(detail = "") {
+    return {
+      value:this.t("common.not_available",{},"Not available"),
+      detail:detail || this.t("common.information_missing",{},"Information is not available yet.")
+    };
   }
 
 
@@ -227,21 +239,22 @@ class HomeBrainAssetRuntime {
 
   commandV2Label(commandKey = "") {
     const key = String(commandKey || "").split(".").pop() || "";
-    const labels = {
-      start:"Start charging",
-      stop:"Stop charging",
-      start_charging:"Start charging",
-      stop_charging:"Stop charging",
-      unlock_connector:"Unlock connector",
-      restart:"Restart",
-      identify:"Identify",
-      lock:"Lock",
-      unlock:"Unlock",
-      climate_start:"Start climate",
-      climate_stop:"Stop climate",
-      refresh:"Refresh"
+    const translationKeys = {
+      start:"action.start_charging",
+      stop:"action.stop_charging",
+      start_charging:"action.start_charging",
+      stop_charging:"action.stop_charging",
+      unlock_connector:"action.unlock_connector",
+      restart:"action.restart",
+      identify:"action.identify",
+      lock:"action.lock",
+      unlock:"action.unlock",
+      climate_start:"action.climate_start",
+      climate_stop:"action.climate_stop",
+      refresh:"action.refresh"
     };
-    return labels[key] || this.titleize(key.replace(/_/g, " "));
+    const translationKey = translationKeys[key] || "";
+    return translationKey ? this.t(translationKey,{},this.titleize(key.replace(/_/g, " "))) : this.titleize(key.replace(/_/g, " "));
   }
 
   commandV2Rows(assetId = "") {
@@ -1662,8 +1675,15 @@ class HomeBrainAssetRuntime {
     return first.summary && typeof first.summary === "object" ? { ...first, ...first.summary } : first;
   }
 
-  contractGapTile(label = "Status", icon = "mdi:alert-outline", detail = "Information is not available yet") {
-    return { icon, label, value:"Not available", subvalue:detail, tone:"attention", subIcon:"mdi:alert-outline" };
+  contractGapTile(label = "", icon = "mdi:alert-outline", detail = "") {
+    return {
+      icon,
+      label:label || this.t("common.status",{},"Status"),
+      value:this.t("common.not_available",{},"Not available"),
+      subvalue:detail || this.t("common.information_missing",{},"Information is not available yet."),
+      tone:"attention",
+      subIcon:"mdi:alert-outline"
+    };
   }
 
   normalizedIntelligenceTile(raw = null, required = {}) {
@@ -3452,14 +3472,16 @@ class HomeBrainAssetRuntime {
   }
 
   formatAge(value) {
-    if (!value && value !== 0) return "Unknown";
+    if (!value && value !== 0) return this.t("common.unknown",{},"Unknown");
     const raw = String(value).trim();
     const n = Number(raw.replace(",", "."));
     if (Number.isNaN(n)) return raw;
-    if (n < 60) return `${Math.round(n)} sec ago`;
-    if (n < 3600) return `${Math.round(n / 60)} min ago`;
-    if (n < 86400) return `${Math.round(n / 3600)} h ago`;
-    return `${Math.round(n / 86400)} d ago`;
+    const locale=rhiMobilityLocale(this.hass);
+    const relative=new Intl.RelativeTimeFormat(locale,{numeric:"auto"});
+    if (n < 60) return relative.format(-Math.round(n),"second");
+    if (n < 3600) return relative.format(-Math.round(n / 60),"minute");
+    if (n < 86400) return relative.format(-Math.round(n / 3600),"hour");
+    return relative.format(-Math.round(n / 86400),"day");
   }
 
   /** Convert command ids and contract values into calm product labels. */
