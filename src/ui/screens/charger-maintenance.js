@@ -149,7 +149,7 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
     return `<button class="cmd ${tone} ${compact ? "compact" : ""}" data-command-asset="${rt.escape(command.asset_id || "")}" data-command-id="${rt.escape(command.command_id || "")}" data-command-key="${rt.escape(command.command_key || command.command_id || "")}" ${state.disabled ? "disabled" : ""} title="${rt.escape(reason || command.label)}">
       <ha-icon icon="${this.commandIcon(command)}"></ha-icon>
       <span>${rt.escape(command.label)}</span>
-      ${state.busy ? `<small>Busy</small>` : state.failed ? `<small>${rt.escape(state.status)}</small>` : ""}
+      ${state.busy ? `<small>${rt.escape(rt.t("common.busy",{},"Working…"))}</small>` : state.failed ? `<small>${rt.escape(state.status)}</small>` : ""}
     </button>`;
   }
 
@@ -173,18 +173,18 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
 
   lifecycleDisplay(rt, charger) {
     const status = rt.lifecycleStatus(charger);
-    if (status === "active") return "Active";
-    if (status === "disabled") return "Disabled";
-    if (status === "retired") return "Retired";
-    return "Not available";
+    if (status === "active") return rt.t("state.active",{},"Active");
+    if (status === "disabled") return rt.t("state.disabled",{},"Disabled");
+    if (status === "retired") return rt.t("state.retired",{},"Retired");
+    return rt.t("common.not_available",{},"Not available");
   }
 
   lifecycleToggleButton(rt, charger, extraClass = "mini-detail-link lifecycle-toggle labeled-action") {
     const status = rt.lifecycleStatus(charger);
     const desired = status === "disabled" ? "active" : "disabled";
     const model = rt.lifecycleWriteModel(charger, desired);
-    const label = desired === "active" ? "Activate" : "Disable";
-    const title = model.disabled ? (model.reason || "Status cannot be changed right now") : `${label}`;
+    const label = desired === "active" ? rt.t("state.active",{},"Activate") : rt.t("state.disabled",{},"Disable");
+    const title = model.disabled ? rt.t("state.status_change_unavailable",{},"Status cannot be changed right now") : label;
     const button = `<button class="${extraClass}" data-lifecycle-asset="${rt.escape(this.assetId(charger))}" data-lifecycle-value="${rt.escape(desired)}" ${model.disabled ? "disabled" : ""} title="${rt.escape(title)}"><ha-icon icon="mdi:power"></ha-icon><span>${rt.escape(label)}</span></button>`;
     return model.disabled && extraClass.includes("labeled-action") ? `<span class="lifecycle-control-wrap">${button}<small class="lifecycle-disabled-reason">${rt.escape(title)}</small></span>` : button;
   }
@@ -214,7 +214,7 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
     const relatedVehicle = rt.relatedVehicleForCharger(assetId);
     const assignedVehicle = relatedVehicle.assetId
       ? (relatedVehicle.displayName || relatedVehicle.assetId)
-      : "No vehicle assigned";
+      : rt.t("common.no_vehicle_assigned",{},"No vehicle assigned");
     const power = facts.power?.display || "—";
     const actualCurrent = facts.actual_current?.display || "—";
     const currentLimit = facts.current_limit?.display || "—";
@@ -235,24 +235,24 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
     const issue = status.toLowerCase().includes("fault") || status.toLowerCase().includes("unavailable") || status.toLowerCase().includes("contract gap") || (healthSummary.resolved && !["ok", "healthy"].includes(String(healthSummary.value || "").toLowerCase()));
     const maintenanceOpen = this._openPanels.has(`${assetId}:maintenance`);
     const configOpen = this._openPanels.has(`${assetId}:config`);
-    const mode = "Automatic";
+    const mode = rt.t("common.automatic",{},"Automatic");
     const dataQuality = trust;
     const lastUpdate = charger.last_seen || "Unknown";
     const configFields = [
-      this.detailField(rt, "Profile", charger.profile || "—"),
-      this.detailField(rt, "Location", charger.location || "—"),
-      this.detailField(rt, "Status", this.lifecycleDisplay(rt, charger)),
-      this.detailField(rt, "Mode", mode),
-      this.detailField(rt, "Assigned vehicle", assignedVehicle),
-      this.detailField(rt, "Connected vehicle", connectedVehicle),
-      this.detailField(rt, "Connector", connector),
-      this.detailField(rt, "Current limit", currentLimit),
-      this.detailField(rt, "Actual current", actualCurrent),
-      this.detailField(rt, "Offered current", offeredCurrent),
-      this.detailField(rt, "Power", power),
-      this.detailField(rt, "Session energy", session),
-      this.detailField(rt, "Health", healthSummary.value),
-      this.detailField(rt, "Last update", lastUpdate)
+      this.detailField(rt, rt.t("common.profile",{},"Profile"), charger.profile || "—"),
+      this.detailField(rt, rt.t("common.location",{},"Location"), charger.location || "—"),
+      this.detailField(rt, rt.t("common.status",{},"Status"), this.lifecycleDisplay(rt, charger)),
+      this.detailField(rt, rt.t("common.mode",{},"Mode"), mode),
+      this.detailField(rt, rt.t("common.assigned_vehicle",{},"Assigned vehicle"), assignedVehicle),
+      this.detailField(rt, rt.t("common.connected_vehicle",{},"Connected vehicle"), connectedVehicle),
+      this.detailField(rt, rt.t("common.connector",{},"Connector"), connector),
+      this.detailField(rt, rt.t("common.current_limit",{},"Current limit"), currentLimit),
+      this.detailField(rt, rt.t("common.actual_current",{},"Actual current"), actualCurrent),
+      this.detailField(rt, rt.t("common.offered_current",{},"Offered current"), offeredCurrent),
+      this.detailField(rt, rt.t("common.power",{},"Power"), power),
+      this.detailField(rt, rt.t("common.session_energy",{},"Session energy"), session),
+      this.detailField(rt, rt.t("common.health",{},"Health"), healthSummary.value),
+      this.detailField(rt, rt.t("common.last_update",{},"Last update"), lastUpdate)
     ].join("");
     const diagnosticsFields = [
       this.detailField(rt, "Asset id", assetId),
@@ -269,12 +269,12 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
           <div class="charger-identity-top">
             <div class="charger-title">
               <h3 title="${rt.escape(name)}">${rt.escape(name)}</h3>
-              <p class="charger-location" title="${rt.escape(charger.location || "Location not configured")}">${rt.escape(charger.location || "Location not configured")}</p>
-              <p class="charger-profile" title="${rt.escape(projection.identity?.profile || charger.profile || "Profile not configured")}">${rt.escape(projection.identity?.profile || charger.profile || "Profile not configured")}</p>
+              <p class="charger-location" title="${rt.escape(charger.location || rt.t("common.not_configured",{},"Not configured"))}">${rt.escape(charger.location || rt.t("common.not_configured",{},"Not configured"))}</p>
+              <p class="charger-profile" title="${rt.escape(projection.identity?.profile || charger.profile || rt.t("common.not_configured",{},"Not configured"))}">${rt.escape(projection.identity?.profile || charger.profile || rt.t("common.not_configured",{},"Not configured"))}</p>
             </div>
             <span class="status ${this.statusTone(status)}">${rt.escape(status)}</span>
           </div>
-          <button class="charger-appearance-action" data-charger-picker="${rt.escape(assetId)}" title="Choose charger appearance"><ha-icon icon="mdi:palette-outline"></ha-icon><span>Appearance</span></button>
+          <button class="charger-appearance-action" data-charger-picker="${rt.escape(assetId)}" title="${rt.escape(rt.t("common.choose_appearance",{},"Choose appearance"))}"><ha-icon icon="mdi:palette-outline"></ha-icon><span>${rt.escape(rt.t("common.appearance",{},"Appearance"))}</span></button>
         </div>
         ${this.renderChargerHero(rt, id, name, status)}
       </div>
@@ -296,7 +296,7 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
       </div>
       <div class="command-row">${primary.length ? primary.map((c) => this.renderCommand(rt, c)).join("") : `<div class="empty-actions">No product command placement published for this charger.</div>`}</div>
       ${this.config?.show_diagnostics === true ? `<section class="fold-section ${maintenanceOpen ? "open" : ""}" data-panel-key="${rt.escape(`${assetId}:maintenance`)}">
-        <button class="fold-toggle" data-toggle-panel="${rt.escape(`${assetId}:maintenance`)}" type="button"><ha-icon icon="mdi:chevron-${maintenanceOpen ? "down" : "right"}"></ha-icon><span>Technical diagnostics</span></button>
+        <button class="fold-toggle" data-toggle-panel="${rt.escape(`${assetId}:maintenance`)}" type="button"><ha-icon icon="mdi:chevron-${maintenanceOpen ? "down" : "right"}"></ha-icon><span>${rt.escape(rt.t("common.technical_diagnostics",{},"Technical diagnostics"))}</span></button>
         <div class="fold-panel"><div class="detail-grid">${diagnosticsFields}</div></div>
       </section>` : ""}
       <section class="fold-section config-details ${configOpen ? "open" : ""}" data-panel-key="${rt.escape(`${assetId}:config`)}">
