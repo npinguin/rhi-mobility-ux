@@ -1,5 +1,5 @@
 /**
- * Robotix Home Intelligence Mobility UX v1.0.0-rc.78
+ * Robotix Home Intelligence Mobility UX v1.0.0-rc.79
  * GENERATED FILE - DO NOT EDIT.
  * License: GPL-3.0-only
  */
@@ -386,10 +386,10 @@ function rhiMobilityResolveVisualRef(visualRef = "") {
 }
 
 // ---- src/vendor/rhi-ux-core.js ----
-/* RHI UX Core 1.5.5 */
+/* RHI UX Core 1.6.0 */
 // RHI UX Core 1.5.5 — build-time presentation primitives only.
 // No domain semantics or Home Assistant contract/entity knowledge belongs here.
-const RHI_UX_CORE_VERSION = "1.5.5";
+const RHI_UX_CORE_VERSION = "1.6.0";
 const RHI_UX_COMPANY_LOGO_SVG = "<svg viewBox=\"75 116 1624 688\" role=\"img\" aria-labelledby=\"title desc\">\n<title id=\"title\">Robotix.be</title>\n<desc id=\"desc\">DomotiX · Network · Security</desc>\n<path fill=\"#0B4C86\" fill-rule=\"evenodd\" d=\"M536,549 L516,554 L512,556 L501,558 L497,560 L497,609 L512,608 L513,607 L525,606 L537,603 L537,551ZM1698,698 L1696,696 L1692,695 L1678,695 L1677,694 L1658,694 L1657,693 L1638,693 L1637,692 L1618,692 L1617,691 L1573,690 L1572,689 L1552,689 L1551,688 L1524,688 L1523,687 L1494,687 L1493,686 L1447,685 L1446,684 L1441,684 L1440,683 L1441,682 L1440,679 L1440,636 L1419,633 L1418,632 L1397,630 L1396,629 L1381,628 L1380,627 L1364,625 L1362,623 L1362,542 L1360,539 L1334,531 L1327,530 L1313,525 L1310,525 L1293,519 L1262,511 L1255,508 L1245,506 L1211,495 L1201,493 L1175,484 L1172,484 L1148,476 L1145,476 L1122,468 L1115,467 L1092,459 L1085,458 L1076,454 L1059,450 L1049,446 L1036,443 L1033,441 L1030,441 L1013,435 L1006,434 L997,430 L987,428 L964,420 L957,419 L944,414 L941,414 L928,409 L925,409 L909,403 L906,403 L890,397 L887,397 L867,404 L857,406 L848,410 L832,414 L819,419 L809,421 L784,430 L781,430 L771,434 L761,436 L752,440 L749,440 L721,450 L714,451 L683,462 L680,462 L639,476 L623,480 L620,482 L614,483 L601,488 L598,488 L595,490 L583,493 L573,497 L563,496 L562,495 L554,495 L547,499 L538,508 L343,571 L342,572 L342,638 L338,640 L332,640 L321,643 L315,643 L314,644 L309,644 L301,646 L300,648 L300,683 L296,685 L252,686 L251,687 L231,687 L230,688 L210,688 L209,689 L191,689 L190,690 L170,690 L169,691 L152,691 L151,692 L135,692 L134,693 L82,695 L81,696 L77,696 L76,700 L78,701 L121,701 L122,702 L299,704 L300,705 L300,729 L302,732 L306,733 L315,733 L316,734 L334,735 L335,736 L360,738 L361,739 L371,739 L372,740 L380,740 L381,741 L400,742 L401,743 L408,743 L409,744 L417,744 L418,745 L427,745 L428,746 L436,746 L437,747 L453,748 L454,749 L472,750 L473,751 L489,752 L490,753 L514,755 L515,756 L522,756 L523,757 L558,760 L559,761 L591,764 L599,766 L607,766 L608,767 L625,768 L632,770 L657,772 L665,774 L691,776 L692,777 L698,777 L706,779 L713,779 L714,780 L721,780 L729,782 L752,784 L753,785 L765,786 L766,787 L781,788 L789,790 L812,792 L813,793 L819,793 L820,794 L826,794 L827,795 L833,795 L841,797 L848,797 L849,798 L855,798 L856,799 L862,799 L870,801 L884,802 L885,801 L906,799 L907,798 L913,798 L914,797 L920,797 L921,796 L927,796 L928,795 L934,795 L935,794 L941,794 L942,793 L948,793 L949,792 L955,792 L956,791 L962,791 L970,789 L985,788 L986,787 L992,787 L999,785 L1006,785 L1007,784 L1035,781 L1036,780 L1042,780 L1050,778 L1057,778 L1058,777 L1065,777 L1066,776 L1072,776 L1080,774 L1103,772 L1104,771 L1112,771 L1113,770 L1127,769 L1128,768 L1149,766 L1150,765 L1157,765 L1165,763 L1173,763 L1174,762 L1190,761 L1191,760 L1205,759 L1213,757 L1223,757 L1224,756 L1256,753 L1257,752 L1264,752 L1265,751 L1272,751 L1273,750 L1316,746 L1324,744 L1332,744 L1333,743 L1341,743 L1342,742 L1350,742 L1351,741 L1359,741 L1360,740 L1369,740 L1370,739 L1378,739 L1379,738 L1387,738 L1388,737 L1398,737 L1399,736 L1416,735 L1417,734 L1424,734 L1425,733 L1434,733 L1440,731 L1440,708 L1441,707 L1440,706 L1442,704 L1513,704 L1514,703 L1524,703 L1527,704 L1528,703 L1657,702 L1658,701 L1695,701ZM1408,720 L1404,722 L1400,721 L1400,652 L1399,651 L1384,649 L1383,648 L1377,648 L1376,647 L1369,647 L1368,646 L1349,644 L1349,726 L1348,727 L1341,727 L1340,728 L1333,728 L1332,729 L1314,730 L1313,729 L1313,640 L1307,638 L1278,635 L1277,634 L1271,634 L1263,632 L1224,628 L1224,738 L1222,740 L1189,743 L1188,744 L1180,744 L1179,745 L1171,745 L1170,746 L1163,746 L1162,747 L1139,749 L1138,750 L1131,750 L1130,751 L1122,751 L1121,752 L1114,752 L1113,753 L1096,754 L1095,753 L1095,611 L1071,608 L1070,607 L1048,605 L1047,604 L1040,604 L1039,603 L1033,603 L1032,602 L1026,602 L1025,601 L1019,601 L1011,599 L1003,599 L995,597 L972,595 L971,594 L959,593 L958,592 L954,592 L953,593 L953,772 L951,774 L937,775 L936,776 L908,779 L900,781 L893,781 L885,783 L877,783 L876,782 L862,781 L861,780 L855,780 L847,778 L840,778 L839,777 L817,775 L816,774 L807,774 L806,773 L800,773 L799,772 L793,772 L785,770 L778,770 L777,769 L770,769 L769,768 L762,768 L761,767 L739,765 L738,764 L730,764 L729,763 L729,606 L714,607 L706,609 L676,612 L675,613 L661,614 L660,615 L646,616 L645,617 L631,618 L630,619 L623,619 L622,620 L622,750 L621,751 L588,748 L587,747 L571,746 L570,745 L562,745 L561,744 L552,744 L551,743 L544,743 L537,741 L537,631 L536,630 L507,633 L506,634 L500,634 L499,635 L485,636 L484,637 L476,638 L476,735 L475,736 L466,736 L465,735 L465,644 L464,643 L464,639 L402,648 L402,729 L401,730 L364,727 L361,725 L361,661 L364,659 L370,659 L371,658 L377,658 L378,657 L394,655 L395,654 L395,650 L394,649 L362,653 L361,654 L355,654 L354,655 L340,656 L339,657 L327,658 L326,659 L318,659 L317,660 L313,660 L312,659 L312,655 L322,652 L342,650 L355,647 L393,643 L406,640 L413,640 L414,639 L420,639 L421,638 L434,637 L435,636 L441,636 L449,634 L456,634 L457,633 L463,633 L471,631 L479,631 L480,630 L492,629 L493,628 L509,627 L510,626 L530,624 L536,622 L552,621 L553,620 L576,618 L583,616 L607,614 L608,613 L615,613 L616,612 L624,612 L632,610 L640,610 L648,608 L671,606 L672,605 L701,602 L702,601 L709,601 L710,600 L716,600 L717,599 L723,599 L731,597 L739,597 L747,595 L755,595 L762,593 L770,593 L771,592 L792,590 L800,588 L832,585 L833,584 L861,581 L862,580 L879,579 L880,578 L887,578 L888,577 L898,577 L906,579 L915,579 L916,580 L923,580 L924,581 L956,584 L963,586 L979,587 L986,589 L1002,590 L1003,591 L1031,594 L1039,596 L1046,596 L1054,598 L1062,598 L1063,599 L1069,599 L1076,601 L1083,601 L1084,602 L1090,602 L1098,604 L1106,604 L1107,605 L1113,605 L1114,606 L1120,606 L1121,607 L1127,607 L1135,609 L1143,609 L1144,610 L1166,612 L1167,613 L1181,614 L1189,616 L1197,616 L1198,617 L1210,618 L1211,619 L1218,619 L1219,620 L1233,621 L1234,622 L1242,622 L1243,623 L1272,626 L1273,627 L1279,627 L1287,629 L1312,631 L1313,632 L1319,632 L1320,633 L1339,635 L1340,636 L1347,636 L1354,638 L1362,638 L1363,639 L1369,639 L1376,641 L1404,644 L1408,646ZM885,440 L886,441 L886,560 L883,562 L875,562 L869,564 L861,564 L853,566 L846,566 L845,567 L817,570 L816,569 L816,460 L819,458 L822,458 L826,456 L829,456 L833,454 L836,454 L840,452 L843,452 L847,450 L858,448 L875,442ZM1339,551 L1339,612 L1338,613 L1338,620 L1337,621 L1332,620 L1330,617 L1330,589 L1331,588 L1331,578 L1330,577 L1331,559 L1330,558 L1330,554 L1316,549 L1283,541 L1276,538 L1269,537 L1251,531 L1248,531 L1248,606 L1246,608 L1238,608 L1237,607 L1230,607 L1222,605 L1215,605 L1214,604 L1208,604 L1207,603 L1201,603 L1200,602 L1194,602 L1193,601 L1187,601 L1186,600 L1180,600 L1172,598 L1149,596 L1142,594 L1135,594 L1128,592 L1086,587 L1085,586 L1066,584 L1065,583 L1058,583 L1057,582 L1035,580 L1034,579 L1021,578 L1020,577 L1014,577 L1013,576 L1007,576 L999,574 L992,574 L991,573 L985,573 L977,571 L963,570 L959,568 L959,524 L958,523 L958,509 L959,508 L959,455 L958,454 L958,448 L955,448 L941,443 L920,438 L891,429 L885,429 L860,437 L843,441 L823,448 L820,448 L813,451 L799,454 L786,459 L779,460 L766,465 L749,469 L743,472 L743,579 L741,581 L709,585 L708,586 L702,586 L701,587 L695,587 L694,588 L688,588 L687,589 L666,591 L665,592 L657,592 L656,593 L650,593 L649,594 L643,594 L635,596 L620,597 L612,599 L604,599 L603,598 L603,583 L602,582 L602,578 L603,577 L603,546 L602,545 L603,543 L603,523 L602,522 L602,513 L600,513 L556,527 L553,527 L543,531 L526,535 L488,548 L485,548 L482,550 L482,564 L480,566 L444,575 L440,577 L429,579 L425,581 L421,581 L414,584 L411,584 L395,589 L395,625 L396,626 L404,624 L416,623 L417,622 L423,622 L424,621 L451,618 L458,616 L464,616 L470,614 L478,614 L479,613 L489,612 L490,611 L490,556 L493,554 L522,547 L543,540 L545,547 L545,599 L544,600 L545,607 L543,609 L525,611 L518,613 L504,614 L503,615 L497,615 L496,616 L477,618 L476,619 L464,620 L463,621 L456,621 L455,622 L429,625 L428,626 L422,626 L421,627 L389,631 L388,632 L376,633 L375,634 L369,634 L362,636 L358,635 L358,583 L360,581 L372,578 L391,571 L394,571 L429,559 L432,559 L435,557 L444,555 L466,547 L469,547 L491,539 L494,539 L506,534 L509,534 L542,523 L545,523 L551,520 L564,517 L577,512 L580,512 L587,509 L590,509 L597,506 L610,503 L616,500 L636,495 L665,485 L679,482 L689,478 L692,478 L728,466 L735,465 L778,451 L785,450 L798,445 L818,440 L828,436 L848,431 L861,426 L870,424 L873,422 L884,420 L887,418 L913,426 L916,426 L926,430 L933,431 L936,433 L957,438 L999,451 L1006,452 L1023,458 L1030,459 L1033,461 L1065,469 L1085,476 L1092,477 L1099,480 L1120,485 L1130,489 L1141,491 L1147,494 L1182,503 L1212,513 L1231,517 L1265,528 L1268,528 L1272,530 L1303,538 L1309,541 L1316,542 L1326,546 L1336,548ZM1248,241 L1248,281 L1249,282 L1295,282 L1296,281 L1296,241 L1295,240 L1249,240ZM1493,178 L1490,184 L1487,195 L1487,246 L1488,247 L1489,255 L1493,263 L1498,270 L1503,274 L1515,280 L1523,282 L1533,282 L1534,283 L1640,282 L1641,280 L1641,250 L1640,246 L1549,246 L1546,245 L1541,240 L1540,237 L1541,234 L1639,234 L1641,226 L1641,198 L1640,197 L1640,191 L1635,178 L1625,167 L1618,163 L1602,159 L1526,159 L1525,160 L1517,161 L1505,166ZM1540,201 L1548,193 L1581,193 L1584,194 L1589,199 L1590,206 L1589,207 L1582,207 L1581,208 L1545,208 L1540,206ZM998,159 L995,161 L995,281 L996,282 L1049,282 L1049,160 L1048,159ZM1059,159 L1059,162 L1114,221 L1105,232 L1062,276 L1059,280 L1059,282 L1126,282 L1150,257 L1160,266 L1174,282 L1241,282 L1241,280 L1190,226 L1187,221 L1243,163 L1244,161 L1243,159 L1178,159 L1151,187 L1125,159 L1119,159 L1118,158 L1117,159ZM865,177 L852,165 L842,161 L834,160 L833,159 L819,159 L818,158 L815,159 L749,159 L748,160 L740,161 L728,166 L715,179 L712,185 L709,196 L709,245 L713,258 L718,266 L725,273 L737,279 L749,282 L831,282 L832,281 L841,280 L853,275 L866,262 L870,254 L872,246 L873,203 L872,202 L871,190ZM765,202 L770,198 L775,196 L805,196 L806,197 L810,197 L816,202 L819,211 L819,231 L816,239 L813,242 L804,245 L777,245 L768,242 L763,236 L763,230 L762,229 L762,211ZM514,177 L508,170 L499,164 L482,159 L456,159 L455,158 L446,158 L445,159 L392,159 L375,164 L365,171 L359,178 L353,193 L353,199 L352,200 L352,240 L353,241 L354,252 L358,261 L372,275 L385,280 L395,281 L396,282 L476,282 L477,281 L483,281 L491,279 L505,272 L513,264 L517,257 L520,248 L520,242 L521,241 L521,197 L520,196 L519,188ZM408,204 L414,198 L420,196 L450,196 L457,198 L463,204 L465,209 L465,232 L463,237 L457,243 L449,245 L422,245 L414,243 L409,239 L406,231 L406,210ZM894,134 L894,158 L893,159 L877,159 L876,160 L876,196 L893,196 L894,197 L894,247 L895,248 L896,257 L901,268 L911,277 L924,282 L929,282 L930,283 L965,283 L966,282 L980,281 L982,279 L982,245 L981,244 L959,245 L954,243 L951,240 L949,234 L949,197 L950,196 L979,196 L979,160 L978,159 L950,159 L949,158 L949,122 L948,121 L924,127 L920,127 L912,130 L899,132ZM134,122 L134,281 L135,282 L191,282 L192,281 L192,230 L193,229 L223,229 L272,282 L345,282 L343,277 L338,273 L295,227 L312,223 L323,217 L333,206 L336,199 L338,191 L338,155 L336,147 L332,139 L324,130 L315,125 L306,122 L289,121 L288,120 L137,120ZM192,163 L193,162 L266,162 L271,164 L275,168 L277,173 L277,178 L275,183 L271,187 L266,189 L193,189 L192,188ZM1311,117 L1310,118 L1310,260 L1311,261 L1310,263 L1310,280 L1311,282 L1358,282 L1362,272 L1372,279 L1383,282 L1435,282 L1448,279 L1458,274 L1467,265 L1471,258 L1474,247 L1474,240 L1475,239 L1474,193 L1471,183 L1465,173 L1458,167 L1451,163 L1435,159 L1390,159 L1375,163 L1366,169 L1365,168 L1365,118 L1364,117ZM1366,200 L1373,196 L1407,196 L1413,198 L1418,203 L1420,209 L1420,232 L1419,233 L1419,237 L1415,242 L1407,245 L1373,245 L1368,243 L1365,239 L1365,202ZM995,118 L995,151 L1049,151 L1049,117 L996,117ZM533,118 L533,281 L534,282 L582,282 L583,276 L585,272 L591,277 L597,280 L605,281 L606,282 L658,282 L674,278 L684,272 L690,266 L697,251 L698,239 L699,238 L699,229 L698,228 L698,193 L697,192 L697,188 L692,177 L684,168 L673,162 L661,159 L613,159 L600,162 L589,169 L588,168 L588,118 L587,117 L534,117ZM593,197 L596,196 L630,196 L638,199 L643,206 L643,234 L641,239 L638,242 L629,245 L598,245 L591,243 L588,239 L588,203Z\"/>\n<path fill=\"#5B95C8\" fill-rule=\"evenodd\" d=\"M1143,328 L1137,334 L1136,337 L1137,342 L1140,346 L1144,348 L1150,348 L1156,343 L1157,340 L1156,333 L1150,328ZM594,328 L588,334 L588,341 L593,347 L601,348 L607,344 L609,338 L608,334 L602,328ZM1591,313 L1590,314 L1609,341 L1609,360 L1617,360 L1618,359 L1618,341 L1635,317 L1636,313 L1635,312 L1628,312 L1614,331 L1612,330 L1605,319 L1599,312 L1598,313ZM1539,312 L1537,314 L1538,321 L1551,321 L1552,322 L1552,358 L1553,360 L1561,360 L1562,359 L1562,322 L1563,321 L1576,321 L1577,320 L1577,313 L1576,312ZM1519,312 L1512,313 L1512,360 L1520,360 L1521,358 L1521,314ZM1453,312 L1452,313 L1452,360 L1460,360 L1461,359 L1461,343 L1462,342 L1469,342 L1483,360 L1492,360 L1493,359 L1481,343 L1482,341 L1487,339 L1490,336 L1492,331 L1492,324 L1489,318 L1484,314 L1477,312ZM1461,322 L1462,321 L1478,321 L1482,324 L1483,329 L1478,334 L1462,334 L1461,333ZM1391,313 L1391,347 L1394,354 L1398,358 L1405,361 L1418,361 L1424,359 L1428,356 L1432,348 L1432,313 L1431,312 L1425,312 L1423,314 L1423,346 L1419,351 L1414,353 L1408,353 L1402,349 L1400,344 L1400,313 L1399,312ZM1273,313 L1273,359 L1274,360 L1308,360 L1308,352 L1283,352 L1282,351 L1282,341 L1283,340 L1305,340 L1306,339 L1306,332 L1283,332 L1282,331 L1282,322 L1283,321 L1306,321 L1308,319 L1308,314 L1306,312 L1275,312ZM1040,313 L1040,359 L1041,360 L1048,360 L1049,359 L1049,345 L1054,341 L1071,360 L1082,360 L1081,357 L1061,335 L1081,313 L1079,312 L1071,312 L1051,331 L1049,330 L1049,313 L1048,312ZM982,312 L981,313 L981,325 L980,326 L980,345 L981,346 L981,356 L980,358 L981,360 L989,360 L990,343 L991,342 L992,343 L993,342 L998,343 L1012,360 L1021,360 L1020,356 L1010,343 L1011,341 L1017,338 L1020,333 L1021,326 L1019,320 L1013,314 L1006,312ZM989,325 L991,321 L1007,321 L1011,324 L1012,328 L1006,334 L991,334 L990,333ZM832,313 L834,322 L838,332 L838,335 L847,360 L854,360 L856,358 L865,330 L867,332 L876,359 L877,360 L884,360 L885,359 L899,315 L898,312 L891,312 L890,313 L885,327 L883,337 L880,343 L870,313 L863,312 L861,314 L854,337 L851,342 L848,336 L841,313 L839,312ZM781,312 L780,313 L780,320 L781,321 L794,321 L795,322 L795,358 L796,360 L804,360 L804,329 L805,328 L805,322 L806,321 L818,321 L820,319 L820,314 L818,312ZM731,312 L729,314 L729,355 L730,356 L730,360 L765,360 L765,353 L764,352 L740,352 L739,351 L739,341 L740,340 L762,340 L763,339 L763,333 L762,332 L740,332 L739,331 L739,322 L740,321 L763,321 L765,319 L764,313 L763,312ZM664,313 L664,359 L665,360 L672,360 L673,359 L673,330 L674,329 L698,360 L707,360 L707,313 L706,312 L698,313 L698,342 L697,343 L673,312 L666,312ZM493,312 L492,314 L508,336 L491,359 L492,360 L501,360 L510,348 L515,344 L527,360 L536,360 L537,358 L521,337 L521,334 L536,315 L536,313 L535,312 L527,312 L514,328 L501,312ZM466,312 L465,313 L465,359 L466,360 L474,360 L474,312ZM410,312 L409,313 L409,319 L413,321 L423,321 L424,322 L424,359 L425,360 L432,360 L433,359 L433,322 L435,320 L436,321 L448,320 L449,319 L449,314 L448,312ZM274,313 L274,323 L273,324 L273,358 L275,360 L282,360 L283,359 L283,336 L284,335 L288,341 L296,358 L302,358 L307,350 L311,340 L313,338 L313,336 L315,334 L316,335 L316,359 L317,360 L324,360 L325,359 L325,313 L324,312 L315,312 L303,338 L299,343 L283,312 L275,312ZM139,312 L138,313 L138,359 L139,360 L161,360 L162,359 L166,359 L172,356 L179,349 L182,343 L182,330 L179,322 L172,315 L164,312ZM148,320 L163,321 L170,326 L173,333 L173,338 L171,344 L165,350 L162,351 L148,351 L147,350 L147,321ZM1344,312 L1339,314 L1330,322 L1326,332 L1327,345 L1330,351 L1338,358 L1346,361 L1357,361 L1368,356 L1371,353 L1371,351 L1366,346 L1361,350 L1354,353 L1349,353 L1343,351 L1338,346 L1336,342 L1336,331 L1338,327 L1343,322 L1348,320 L1358,321 L1365,326 L1368,325 L1371,320 L1366,315 L1359,312 L1354,312 L1353,311ZM1237,311 L1224,313 L1220,315 L1215,322 L1215,330 L1221,337 L1230,340 L1239,341 L1244,345 L1244,348 L1240,352 L1237,353 L1230,353 L1223,350 L1220,347 L1218,347 L1214,352 L1214,354 L1227,361 L1243,360 L1247,358 L1251,354 L1253,350 L1253,341 L1247,335 L1243,333 L1227,330 L1224,327 L1224,324 L1229,320 L1237,320 L1244,323 L1246,325 L1249,323 L1251,318 L1249,316ZM929,312 L922,315 L913,325 L911,331 L911,342 L915,351 L920,356 L927,360 L931,361 L946,360 L952,357 L959,350 L962,344 L962,329 L961,326 L954,317 L947,313 L939,311ZM930,321 L933,320 L944,321 L950,326 L953,333 L952,343 L943,352 L939,353 L930,352 L923,346 L920,339 L921,330 L924,325ZM355,315 L350,320 L345,330 L346,345 L352,354 L360,359 L367,361 L379,360 L387,356 L393,350 L397,340 L397,332 L394,323 L385,314 L377,311 L364,311ZM361,322 L365,320 L376,320 L381,322 L385,326 L387,330 L387,341 L385,345 L380,350 L375,352 L366,352 L358,347 L355,342 L354,333 L357,326ZM215,313 L205,322 L202,329 L201,338 L204,348 L211,356 L219,360 L230,361 L242,357 L249,351 L253,342 L253,336 L254,335 L253,334 L253,328 L250,322 L243,315 L234,311 L221,311ZM218,322 L222,320 L233,320 L237,322 L242,327 L244,332 L244,339 L241,346 L237,350 L232,352 L223,352 L217,349 L213,345 L211,340 L211,332 L213,327Z\"/>\n</svg>";
 
 function rhiUxEscape(value) {
@@ -400,6 +400,48 @@ function rhiUxEscape(value) {
 
 function rhiUxDisplay(value, fallback = "—") {
   return value === undefined || value === null || value === "" ? fallback : String(value);
+}
+
+function rhiUxLocaleCandidates(locale = "en") {
+  const normalized = String(locale || "en").trim().replace(/_/g, "-").toLowerCase();
+  const base = normalized.split("-")[0] || "en";
+  return [...new Set([normalized, base, "en"])];
+}
+
+function rhiUxTranslate(resources = {}, key = "", { locale = "en", params = {}, fallback = "" } = {}) {
+  const wanted = String(key || "");
+  let template = "";
+  for (const candidate of rhiUxLocaleCandidates(locale)) {
+    const row = resources?.[candidate];
+    if (row && Object.prototype.hasOwnProperty.call(row, wanted)) {
+      template = String(row[wanted] ?? "");
+      break;
+    }
+  }
+  if (!template) template = fallback || wanted;
+  return template.replace(/\{([a-zA-Z0-9_]+)\}/g, (_, name) => rhiUxDisplay(params?.[name], ""));
+}
+
+function rhiUxFormatNumber(value, { locale = "en", maximumFractionDigits = 2, minimumFractionDigits = 0 } = {}) {
+  if (value === undefined || value === null || value === "" || !Number.isFinite(Number(value))) return "—";
+  return new Intl.NumberFormat(locale, { maximumFractionDigits, minimumFractionDigits }).format(Number(value));
+}
+
+function rhiUxFormatCurrency(value, currency = "EUR", { locale = "en", maximumFractionDigits = 2 } = {}) {
+  if (value === undefined || value === null || value === "" || !Number.isFinite(Number(value))) return "—";
+  return new Intl.NumberFormat(locale, { style:"currency", currency, maximumFractionDigits }).format(Number(value));
+}
+
+function rhiUxFormatPercent(value, { locale = "en", scale = 100, maximumFractionDigits = 1 } = {}) {
+  if (value === undefined || value === null || value === "" || !Number.isFinite(Number(value))) return "—";
+  return new Intl.NumberFormat(locale, { style:"percent", maximumFractionDigits }).format(Number(value) / Number(scale || 100));
+}
+
+function rhiUxFormatDateTime(value, { locale = "en", dateStyle = "medium", timeStyle = "short" } = {}) {
+  if (value === undefined || value === null || value === "") return "—";
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) return "—";
+  return new Intl.DateTimeFormat(locale, { dateStyle, timeStyle }).format(date);
 }
 
 function rhiUxStatusItem({ icon = "•", label = "", value = "—", detail = "" } = {}) {
@@ -464,6 +506,34 @@ function rhiUxContextBar({ label = "View", controls = [], controlsId = "" } = {}
   const idAttr = controlsId ? ` aria-controls="${rhiUxEscape(controlsId)}"` : "";
   return `<section class="rhiUxContextBar" aria-label="${rhiUxEscape(label || "View controls")}"${idAttr}>${labelled}<div class="rhiUxContextControls">${body}</div></section>`;
 }
+
+
+function rhiUxPageTemplate({ hero = "", status = "", actions = "", context = "", content = "", className = "" } = {}) {
+  return `<main class="rhiUxPage rhiUxPageStack ${rhiUxEscape(className)}">${hero}${status}${actions}${context}<section class="rhiUxPageContent">${content}</section></main>`;
+}
+
+function rhiUxAssetIdentity({ eyebrow = "", title = "", subtitle = "", visual = "" } = {}) {
+  return `<header class="rhiUxAssetIdentity">${visual ? `<div class="rhiUxAssetVisual">${visual}</div>` : ""}<div class="rhiUxAssetIdentityCopy">${eyebrow ? `<small>${rhiUxEscape(eyebrow)}</small>` : ""}<h2>${rhiUxEscape(title)}</h2>${subtitle ? `<p>${rhiUxEscape(subtitle)}</p>` : ""}</div></header>`;
+}
+
+function rhiUxAssetFactGrid(items = []) {
+  return `<div class="rhiUxAssetFactGrid">${items.map(item => `<div class="rhiUxAssetFact"><small>${rhiUxEscape(item?.label || "")}</small><b>${rhiUxEscape(rhiUxDisplay(item?.value))}</b>${item?.detail ? `<span>${rhiUxEscape(item.detail)}</span>` : ""}</div>`).join("")}</div>`;
+}
+
+function rhiUxAssetRelationship({ label = "", value = "", detail = "", target = "" } = {}) {
+  return `<div class="rhiUxAssetRelationship"><div><small>${rhiUxEscape(label)}</small><b>${rhiUxEscape(rhiUxDisplay(value))}</b>${detail ? `<span>${rhiUxEscape(detail)}</span>` : ""}</div>${target ? `<button type="button" data-nav="${rhiUxEscape(target)}">Open</button>` : ""}</div>`;
+}
+
+function rhiUxAssetDisclosure({ title = "Details", content = "", open = false } = {}) {
+  return `<details class="rhiUxAssetDisclosure"${open ? " open" : ""}><summary>${rhiUxEscape(title)}</summary><div>${content}</div></details>`;
+}
+
+function rhiUxWriteFeedback({ state = "idle", message = "" } = {}) {
+  if (!message) return "";
+  return `<div class="rhiUxWriteFeedback" data-state="${rhiUxEscape(state)}" role="status">${rhiUxEscape(message)}</div>`;
+}
+
+
 
 
 const RHI_UX_NAVIGATION_STORAGE_KEY = "rhi.navigation.registry.v1";
@@ -562,7 +632,7 @@ function rhiUxVisualSelect({ label = "", value = "", options = [], placeholder =
 }
 
 function rhiUxCoreStyles() {
-  return "/* RHI UX Core 1.5.5 */\n:host,.rhi-ux-root{\n  --rhi-color-primary:#1467F5;\n  --rhi-color-primary-soft:#EAF3FF;\n  --rhi-color-text:#0F172A;\n  --rhi-color-muted:#64748B;\n  --rhi-color-muted-soft:#758399;\n  --rhi-color-line:#DCE5EF;\n  --rhi-color-line-soft:#EAF0F6;\n  --rhi-color-surface:#FFFFFF;\n  --rhi-color-surface-soft:#F8FAFC;\n  --rhi-color-ok:#22C55E;\n  --rhi-color-attention:#F59E0B;\n  --rhi-color-error:#B42318;\n  --rhi-color-unknown:#94A3B8;\n\n  --rhi-font-family:var(--ha-font-family-body,Roboto,Noto,sans-serif);\n  --rhi-font-family-mono:var(--ha-font-family-code,ui-monospace,SFMono-Regular,Menlo,Consolas,monospace);\n  --rhi-font-display:clamp(29px,2.55vw,42px);\n  --rhi-font-section:clamp(18px,1.4vw,22px);\n  --rhi-font-card:15px;\n  --rhi-font-body:12.5px;\n  --rhi-font-small:11px;\n  --rhi-font-label:10px;\n  --rhi-weight-regular:400;\n  --rhi-weight-medium:500;\n  --rhi-weight-strong:600;\n  --rhi-line-height-tight:1.15;\n  --rhi-line-height-body:1.42;\n\n  --rhi-space-1:4px;\n  --rhi-space-2:7px;\n  --rhi-space-3:10px;\n  --rhi-space-4:14px;\n  --rhi-space-5:18px;\n  --rhi-space-6:24px;\n  --rhi-radius-sm:9px;\n  --rhi-radius-md:12px;\n  --rhi-radius-lg:16px;\n  --rhi-radius-xl:20px;\n  --rhi-shadow-sm:0 4px 14px rgba(21,61,115,.025);\n  --rhi-shadow-md:0 7px 20px rgba(15,35,80,.035);\n  --rhi-page-max:1640px;\n  --rhi-page-pad-x:24px;\n  --rhi-page-pad-y:14px;\n  --rhi-control-h:38px;\n  --rhi-icon-action:18px;\n  --rhi-icon-status:24px;\n  --rhi-break-phone:430px;\n  --rhi-break-tablet:760px;\n  --rhi-break-desktop:1024px;\n  --rhi-domain-accent:var(--rhi-color-primary);\n\n  color:var(--rhi-color-text);\n  font-family:var(--rhi-font-family);\n  font-size:var(--rhi-font-body);\n  font-weight:var(--rhi-weight-regular);\n  line-height:var(--rhi-line-height-body);\n}\n\n.rhiUxDomainShell{\n  --rhi-nav-active-bg:var(--rhi-color-primary-soft);\n  --rhi-nav-active-border:#CFDEF1;\n  --rhi-nav-active-text:#0F4CA4;\n  position:relative;display:grid;grid-template-columns:minmax(0,1fr) clamp(190px,23%,280px);\n  width:100%;margin:0 0 12px;border:1px solid var(--rhi-color-line);border-radius:var(--rhi-radius-xl);\n  background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(249,251,254,.91));box-shadow:var(--rhi-shadow-md);overflow:hidden;\n}\n.rhiUxProductArea{min-width:0;overflow:hidden}\n.rhiUxDomainShellTop{min-height:78px;display:grid;grid-template-columns:minmax(168px,.52fr) minmax(0,1.48fr);align-items:center;gap:14px;padding:10px 22px 9px}\n.rhiUxDomainIdentity{display:grid;align-content:center;gap:2px;min-width:0;min-height:56px;padding:2px 0 0 4px}\n.rhiUxDomainIdentity span{font-size:13px;line-height:1.15;font-weight:var(--rhi-weight-regular);color:#58708F;white-space:nowrap}\n.rhiUxDomainIdentity strong{font-size:21px;line-height:1.03;letter-spacing:.045em;font-weight:var(--rhi-weight-strong);color:#0B467F;white-space:nowrap}\n.rhiUxModuleTabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;min-width:0}\n.rhiUxModuleTab,.rhiUxDomainTab{appearance:none;border:0;background:transparent;font:inherit;color:#53647D;cursor:pointer;white-space:nowrap}\n.rhiUxModuleTab{min-height:46px;border-radius:13px;padding:8px;font-size:12px;font-weight:var(--rhi-weight-medium)}\n.rhiUxModuleTab.active{background:var(--rhi-nav-active-bg);color:var(--rhi-nav-active-text);box-shadow:inset 0 0 0 1px var(--rhi-nav-active-border),0 6px 16px rgba(15,23,42,.035)}\n.rhiUxDomainShellBottom{padding:7px 22px 9px;border-top:1px solid var(--rhi-color-line-soft);background:rgba(255,255,255,.52);min-height:52px;box-sizing:border-box}\n.rhiUxDomainTabs{display:flex;align-items:center;gap:10px;min-height:34px;overflow-x:auto;scrollbar-width:none}\n.rhiUxDomainTabs::-webkit-scrollbar{display:none}\n.rhiUxDomainTab{flex:0 0 auto;min-height:34px;border-radius:11px;padding:7px 12px;font-size:11.5px;font-weight:var(--rhi-weight-medium);color:#5F6D80}\n.rhiUxDomainTab.active{background:var(--rhi-nav-active-bg);color:var(--rhi-nav-active-text);box-shadow:inset 0 0 0 1px var(--rhi-nav-active-border)}\n.rhiUxCompanyBrand{min-width:0;border-left:1px solid var(--rhi-color-line-soft);display:grid;place-items:center;padding:10px 16px;background:linear-gradient(180deg,rgba(252,254,255,.78),rgba(247,250,253,.58))}\n.rhiUxCompanyLogo{display:block;width:min(100%,250px);max-height:116px;line-height:0;overflow:hidden}\n.rhiUxCompanyLogo svg{display:block;width:100%;height:auto;max-height:116px;object-fit:contain;object-position:center}\n\n/* Canonical page stack: visual order is invariant across domains. */\n.rhiUxPageStack{display:flex;flex-direction:column}\n.rhiUxPageStack>.rhiUxPageHero{order:1}\n.rhiUxPageStack>.rhiUxStatusGrid{order:2}\n.rhiUxPageStack>.rhiUxQuickActionBar{order:3}\n\n/* Canonical page hero: image is one background layer, never a split side panel. */\n.rhiUxPageHero{\n  position:relative;display:block;height:188px;min-height:188px;overflow:hidden;\n  border:0;border-radius:var(--rhi-radius-lg);background:#fff;box-shadow:none;margin:0;\n}\n.rhiUxPageHeroCopy{\n  position:relative;z-index:4;width:min(48%,650px);max-width:none;padding:28px 18px 24px 22px;box-sizing:border-box;\n}\n.rhiUxPageHeroCopy>small{display:none}\n.rhiUxPageHeroCopy h1,.rhiUxPageHeroCopy h2{\n  margin:4px 0 8px;font-size:var(--rhi-font-display);line-height:1.02;letter-spacing:-.038em;\n  color:#0B1739;font-weight:var(--rhi-weight-strong);\n}\n.rhiUxPageHeroCopy p{\n  margin:0;max-width:520px;font-size:clamp(12.5px,1.05vw,15px);line-height:var(--rhi-line-height-body);\n  color:#536781;font-weight:var(--rhi-weight-regular);\n}\n.rhiUxPageHeroArt{position:absolute;z-index:1;inset:0 0 0 28%;display:block;overflow:hidden;pointer-events:none}\n.rhiUxPageHeroArt:before{\n  content:\"\";display:block;position:absolute;z-index:2;inset:0;\n  background:linear-gradient(90deg,#fff 0%,rgba(255,255,255,.95) 8%,rgba(255,255,255,.62) 19%,rgba(255,255,255,.10) 38%,rgba(255,255,255,0) 57%);\n}\n.rhiUxPageHeroArt img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 52%;transform:none}\n\n/* One canonical page status layer. */\n.rhiUxStatusGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin:7px 0 0;padding:0;border:0;background:transparent;box-shadow:none}\n.rhiUxStatusItem{\n  min-width:0;min-height:82px;display:grid;grid-template-columns:44px minmax(0,1fr);gap:10px;align-items:center;\n  padding:10px 12px;border:1px solid var(--rhi-color-line);border-radius:var(--rhi-radius-md);background:#fff;box-shadow:var(--rhi-shadow-md);\n}\n.rhiUxStatusIcon{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;background:#F0F5FC;color:#355D96;font-size:18px}\n.rhiUxStatusIcon ha-icon{--mdc-icon-size:var(--rhi-icon-status)}\n.rhiUxStatusCopy{min-width:0;display:block}\n.rhiUxStatusCopy small{display:block;margin:0 0 2px;color:#476487;font-size:var(--rhi-font-label);font-weight:var(--rhi-weight-medium);line-height:1.2}\n.rhiUxStatusCopy b{display:block;margin:0 0 2px;color:var(--rhi-color-text);font-size:clamp(14px,1.12vw,17px);font-weight:var(--rhi-weight-strong);line-height:1.12;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.rhiUxStatusCopy em{display:block;margin-top:2px;color:var(--rhi-color-muted);font-size:var(--rhi-font-small);font-style:normal;font-weight:var(--rhi-weight-regular);line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n\n/* Canonical page-level quick actions. */\n.rhiUxQuickActionBar,.rhiEnergyQuickActions,.rhi-top-actions{\n  min-height:48px;padding:5px 8px;margin:7px 0 0;border:1px solid var(--rhi-color-line);border-radius:var(--rhi-radius-md);\n  background:#fff;box-shadow:var(--rhi-shadow-sm);display:flex;align-items:center;gap:7px;flex-wrap:wrap;\n}\n.rhiUxQuickActionBar>small,.rhiEnergyQuickActions>small,.rhi-top-actions-title{\n  font-size:var(--rhi-font-label);letter-spacing:.10em;text-transform:uppercase;color:#476487;\n  font-weight:var(--rhi-weight-medium);margin-right:2px;white-space:nowrap;\n}\n.rhiUxQuickActions{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin:0}\n.rhiUxQuickAction,.rhiUxQuickActionBar button,.rhiEnergyQuickActions .hiAction,.rhi-top-action{\n  height:36px;min-height:36px;border:1px solid #D6E0EB;border-radius:9px;background:#fff;color:#125DB7;\n  box-shadow:none;font:inherit;font-size:11.5px;font-weight:var(--rhi-weight-medium);padding:0 12px;\n  display:inline-flex;align-items:center;justify-content:center;gap:7px;cursor:pointer;white-space:nowrap;\n}\n.rhiUxQuickAction.primary,.rhiUxQuickActionBar button:first-of-type,.rhiEnergyQuickActions .hiAction:first-of-type,.rhi-top-action.primary{\n  background:var(--rhi-color-primary);border-color:var(--rhi-color-primary);color:#fff;\n}\n.rhiUxQuickAction:disabled,.rhiEnergyQuickActions .hiAction:disabled,.rhi-top-action:disabled{opacity:.46}\n\n/* Canonical body grammar. */\n.rhiUxDomainBody{font-family:var(--rhi-font-family);color:var(--rhi-color-text);font-size:var(--rhi-font-body);line-height:var(--rhi-line-height-body)}\n.rhiUxDomainBody button,.rhiUxDomainBody select,.rhiUxDomainBody input,.rhiUxDomainBody textarea{font-family:inherit}\n.rhiUxPanel,.rhiUxDomainBody .panel,.rhiUxDomainBody .info,.rhiUxDomainBody .summary,.rhiUxDomainBody .ov-panel{\n  border:1px solid var(--rhi-color-line);border-radius:var(--rhi-radius-lg);background:var(--rhi-color-surface);box-shadow:var(--rhi-shadow-sm);\n}\n.rhiUxPanel{padding:14px 16px}\n.rhiUxDomainBody .panel h2,.rhiUxDomainBody .info h2,.rhiUxDomainBody .summary h2,.rhiUxDomainBody .ov-panel h2{\n  font-size:var(--rhi-font-section);font-weight:var(--rhi-weight-strong);line-height:var(--rhi-line-height-tight);letter-spacing:-.02em;color:var(--rhi-color-text);\n}\n.rhiUxDomainBody .panel h3,.rhiUxDomainBody .info h3,.rhiUxDomainBody .summary h3,.rhiUxDomainBody .ov-panel h3{\n  font-size:var(--rhi-font-card);font-weight:var(--rhi-weight-strong);line-height:1.2;color:var(--rhi-color-text);\n}\n.rhiUxDomainBody .panel p,.rhiUxDomainBody .info p,.rhiUxDomainBody .summary p,.rhiUxDomainBody .ov-panel p{\n  font-size:var(--rhi-font-body);font-weight:var(--rhi-weight-regular);line-height:var(--rhi-line-height-body);color:var(--rhi-color-muted);\n}\n.rhiUxDataList{display:grid;gap:6px}\n.rhiUxDataRow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;padding:9px 10px;border:1px solid var(--rhi-color-line-soft);border-radius:var(--rhi-radius-sm);background:var(--rhi-color-surface-soft)}\n.rhiUxState{display:grid;gap:4px;padding:14px 16px;border:1px dashed var(--rhi-color-line);border-radius:var(--rhi-radius-md);background:var(--rhi-color-surface-soft);color:var(--rhi-color-muted)}\n.rhiUxState b{color:var(--rhi-color-text);font-size:13px}\n.rhiUxState[data-state=\"attention\"]{border-color:#F6D48C;background:#FFFBEB}\n.rhiUxState[data-state=\"error\"]{border-color:#F1B8B4;background:#FFF7F7}\n.rhiUxConclusion{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;margin:8px 0 0;padding:10px 12px;border:1px solid var(--rhi-color-line);border-radius:var(--rhi-radius-md);background:linear-gradient(135deg,rgba(255,255,255,.98),rgba(247,250,252,.96))}\n.rhiUxConclusion small{font-size:var(--rhi-font-label);letter-spacing:.1em;text-transform:uppercase;color:var(--rhi-color-muted)}\n.rhiUxConclusion h2{font-size:var(--rhi-font-card);line-height:1.2;margin:1px 0 2px}\n.rhiUxConclusion p{font-size:var(--rhi-font-small);line-height:1.3;margin:0;color:var(--rhi-color-muted)}\n.rhiUxTechnicalFooter{display:flex;justify-content:center;flex-wrap:wrap;gap:4px 9px;margin:6px 0 0;padding:3px 2px 0;border-top:1px solid rgba(148,163,184,.20);color:#94A3B8;font-size:9px;line-height:1.2}\n.rhiUxTechnicalFooter span+span:before{content:\"·\";margin-right:9px;color:#CBD5E1}\n.rhiUxTechnicalFooter [data-severity=\"warning\"]{color:#B7791F;font-weight:var(--rhi-weight-strong)}\n.rhiUxTechnicalFooter [data-severity=\"error\"]{color:var(--rhi-color-error);font-weight:var(--rhi-weight-strong)}\n\n@media(max-width:1180px){\n  :host,.rhi-ux-root{--rhi-page-pad-x:18px}\n  .rhiUxPageHero{height:174px;min-height:174px}\n  .rhiUxPageHeroCopy{width:51%;padding:24px 14px 20px 18px}\n  .rhiUxPageHeroArt{inset:0 0 0 30%}\n  .rhiUxStatusItem{grid-template-columns:40px minmax(0,1fr);padding:9px 10px;min-height:78px}\n  .rhiUxStatusIcon{width:37px;height:37px}\n}\n@media(max-width:760px){\n  :host,.rhi-ux-root{--rhi-page-pad-x:10px;--rhi-page-pad-y:9px;--rhi-font-body:12px;--rhi-font-small:10.75px}\n  .rhiUxDomainShell{grid-template-columns:1fr}.rhiUxCompanyBrand{display:none}.rhiUxDomainShellTop{grid-template-columns:1fr;padding:10px 12px}.rhiUxDomainIdentity{min-height:auto}.rhiUxDomainShellBottom{padding:7px 12px 9px}\n  .rhiUxPageHero{height:154px;min-height:154px;border-radius:14px}\n  .rhiUxPageHeroCopy{width:59%;padding:18px 9px 16px 13px}\n  .rhiUxPageHeroCopy h1,.rhiUxPageHeroCopy h2{font-size:27px;letter-spacing:-.032em}\n  .rhiUxPageHeroCopy p{font-size:11px;line-height:1.32;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}\n  .rhiUxPageHeroArt{inset:0 0 0 34%}\n  .rhiUxStatusGrid{grid-template-columns:repeat(2,minmax(0,1fr))}\n  .rhiUxStatusItem{min-height:74px;grid-template-columns:34px minmax(0,1fr);gap:7px;padding:8px}\n  .rhiUxStatusIcon{width:32px;height:32px;border-radius:9px}.rhiUxStatusIcon ha-icon{--mdc-icon-size:20px}\n  .rhiUxQuickActionBar,.rhiEnergyQuickActions,.rhi-top-actions{overflow-x:auto;flex-wrap:nowrap}\n  .rhiUxQuickActionBar>small,.rhiEnergyQuickActions>small,.rhi-top-actions-title,.rhiUxQuickAction,.rhiUxQuickActionBar button,.rhiEnergyQuickActions .hiAction,.rhi-top-action{flex:0 0 auto}\n  .rhiUxConclusion{grid-template-columns:1fr}\n}\n@media(max-width:430px){\n  :host,.rhi-ux-root{--rhi-page-pad-x:8px;--rhi-page-pad-y:8px}\n  .rhiUxPageHero{height:146px;min-height:146px}\n  .rhiUxPageHeroCopy{width:64%;padding:16px 8px 14px 11px}\n  .rhiUxPageHeroCopy h1,.rhiUxPageHeroCopy h2{font-size:24px}\n  .rhiUxPageHeroCopy p{font-size:10.5px;-webkit-line-clamp:2}\n  .rhiUxPageHeroArt{inset:0 0 0 38%}\n  .rhiUxStatusGrid{grid-template-columns:1fr 1fr}\n}\n\n/* Optional body/section-scoped view and filter controls. */\n.rhiUxContextBar{\n  min-height:42px;padding:4px 7px;margin:0 0 8px;border:1px solid var(--rhi-color-line);border-radius:var(--rhi-radius-md);\n  background:#fff;box-shadow:var(--rhi-shadow-sm);display:flex;align-items:center;gap:7px;flex-wrap:wrap;\n}\n.rhiUxContextBar>small{\n  font-size:var(--rhi-font-label);letter-spacing:.10em;text-transform:uppercase;color:#476487;font-weight:var(--rhi-weight-medium);white-space:nowrap;\n}\n.rhiUxContextControls{display:flex;align-items:center;gap:6px;flex-wrap:wrap}\n.rhiUxContextControl{\n  min-height:32px;border:1px solid #D6E0EB;border-radius:9px;background:#fff;color:#355D96;font:inherit;font-size:11.5px;font-weight:var(--rhi-weight-medium);padding:0 11px;cursor:pointer;white-space:nowrap;\n}\n.rhiUxContextControl.active,.rhiUxContextControl[aria-pressed=\"true\"]{background:var(--rhi-color-primary-soft);border-color:#CFDEF1;color:#0F4CA4}\n.rhiUxContextControl:disabled{opacity:.46}\n@media(max-width:760px){.rhiUxContextBar{overflow-x:auto;flex-wrap:nowrap}.rhiUxContextBar>small,.rhiUxContextControls,.rhiUxContextControl{flex:0 0 auto}}\n\n/* Canonical cross-domain appearance picker. Domains own catalogs and persistence. */\n.rhiUxVisualPickerBackdrop{position:fixed;inset:0;z-index:9999;background:rgba(15,23,42,.44);display:grid;place-items:center;padding:20px}\n.rhiUxVisualPickerPanel{width:min(920px,94vw);max-height:min(82vh,760px);overflow:hidden;background:#fff;border:1px solid var(--rhi-color-line);border-radius:20px;box-shadow:0 30px 80px rgba(15,23,42,.24);padding:16px;box-sizing:border-box;display:grid;grid-template-rows:auto auto minmax(0,1fr) auto auto;gap:10px}\n.rhiUxVisualPickerHead{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;min-height:0}\n.rhiUxVisualPickerHead small{font-size:10px;font-weight:800;letter-spacing:.12em;color:#64748b}.rhiUxVisualPickerHead h3{margin:2px 0 0;font-size:20px}.rhiUxVisualPickerHead p{margin:3px 0 0;font-size:11px;color:#64748b}\n.rhiUxVisualPickerFilters{display:flex;gap:6px;flex-wrap:wrap;margin:0;min-height:0}\n.rhiUxVisualPickerFilters button{border:1px solid #dbe3ee;background:#fff;border-radius:999px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer}.rhiUxVisualPickerFilters button.selected{border-color:#93c5fd;background:#eff6ff;color:#1d4ed8}\n.rhiUxVisualChoiceGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-rows:142px;gap:8px;margin:0;overflow-y:auto;overscroll-behavior:contain;padding:2px 3px 4px 1px;align-content:start}\n.rhiUxVisualChoice{height:142px;min-height:142px;max-height:142px;display:grid;grid-template-rows:86px minmax(0,1fr);gap:6px;align-items:stretch;text-align:left;border:1px solid #e2e8f0;background:#fff;border-radius:12px;padding:8px;cursor:pointer;overflow:hidden}.rhiUxVisualChoice:hover{border-color:#93c5fd;background:#f8fbff}.rhiUxVisualChoice.selected{border-color:#2563eb;box-shadow:0 0 0 2px rgba(37,99,235,.12);background:#f8fbff}\n.rhiUxVisualChoiceImage{width:100%;height:86px;min-width:0;min-height:86px;max-width:none;max-height:86px;display:grid;place-items:center;overflow:hidden}.rhiUxVisualChoiceImage img{display:block;width:100%;height:100%;min-width:0;min-height:0;max-width:100%;max-height:100%;object-fit:contain;object-position:center}\n.rhiUxVisualChoiceCopy{min-width:0;align-self:end}.rhiUxVisualChoiceCopy small,.rhiUxVisualChoiceCopy b,.rhiUxVisualChoiceCopy em{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.rhiUxVisualChoiceCopy small{font-size:8px;color:#64748b;text-transform:uppercase}.rhiUxVisualChoiceCopy b{font-size:11px;margin-top:1px}.rhiUxVisualChoiceCopy em{font-size:9px;color:#64748b;font-style:normal;margin-top:1px}\n.rhiUxVisualPickerRefine{display:grid;grid-template-columns:repeat(4,minmax(120px,1fr));gap:8px;margin:0}.rhiUxVisualPickerRefine label span{display:block;font-size:8px;color:#64748b;margin-bottom:3px}.rhiUxVisualPickerRefine select{width:100%;height:34px;border:1px solid #dbe3ee;border-radius:8px;background:#fff;padding:0 8px}\n.rhiUxVisualPickerFooter{display:flex;align-items:center;gap:8px;margin:0;padding-top:9px;border-top:1px solid #edf1f6}.rhiUxVisualPickerSpacer{flex:1}.rhiUxVisualPickerFooter button{height:34px;border:1px solid #dbe3ee;border-radius:9px;background:#fff;padding:0 12px;font-size:10px;font-weight:700}.rhiUxVisualPickerFooter button.primary{background:#0b65ea;color:#fff;border-color:#0b65ea}.rhiUxVisualPickerFooter button:disabled{opacity:.45}\n@media(max-width:900px){.rhiUxVisualChoiceGrid{grid-template-columns:repeat(2,minmax(0,1fr))}}\n@media(max-width:560px){.rhiUxVisualPickerBackdrop{padding:8px}.rhiUxVisualPickerPanel{width:96vw;max-height:88vh;padding:12px}.rhiUxVisualChoiceGrid{grid-template-columns:1fr;grid-auto-rows:116px}.rhiUxVisualChoice{height:116px;min-height:116px;max-height:116px;grid-template-columns:94px minmax(0,1fr);grid-template-rows:1fr}.rhiUxVisualChoiceImage{width:94px;height:86px;min-width:94px;max-width:94px}.rhiUxVisualChoiceCopy{align-self:center}.rhiUxVisualPickerRefine{grid-template-columns:1fr 1fr}.rhiUxVisualPickerFooter{flex-wrap:wrap}}\n";
+  return "/* RHI UX Core 1.6.0 */\n:host,.rhi-ux-root{\n  --rhi-color-primary:#1467F5;\n  --rhi-color-primary-soft:#EAF3FF;\n  --rhi-color-text:#0F172A;\n  --rhi-color-muted:#64748B;\n  --rhi-color-muted-soft:#758399;\n  --rhi-color-line:#DCE5EF;\n  --rhi-color-line-soft:#EAF0F6;\n  --rhi-color-surface:#FFFFFF;\n  --rhi-color-surface-soft:#F8FAFC;\n  --rhi-color-ok:#22C55E;\n  --rhi-color-attention:#F59E0B;\n  --rhi-color-error:#B42318;\n  --rhi-color-unknown:#94A3B8;\n\n  --rhi-font-family:var(--ha-font-family-body,Roboto,Noto,sans-serif);\n  --rhi-font-family-mono:var(--ha-font-family-code,ui-monospace,SFMono-Regular,Menlo,Consolas,monospace);\n  --rhi-font-display:clamp(29px,2.55vw,42px);\n  --rhi-font-section:clamp(18px,1.4vw,22px);\n  --rhi-font-card:15px;\n  --rhi-font-body:12.5px;\n  --rhi-font-small:11px;\n  --rhi-font-label:10px;\n  --rhi-weight-regular:400;\n  --rhi-weight-medium:500;\n  --rhi-weight-strong:600;\n  --rhi-line-height-tight:1.15;\n  --rhi-line-height-body:1.42;\n\n  --rhi-space-1:4px;\n  --rhi-space-2:7px;\n  --rhi-space-3:10px;\n  --rhi-space-4:14px;\n  --rhi-space-5:18px;\n  --rhi-space-6:24px;\n  --rhi-radius-sm:9px;\n  --rhi-radius-md:12px;\n  --rhi-radius-lg:16px;\n  --rhi-radius-xl:20px;\n  --rhi-shadow-sm:0 4px 14px rgba(21,61,115,.025);\n  --rhi-shadow-md:0 7px 20px rgba(15,35,80,.035);\n  --rhi-page-max:1640px;\n  --rhi-page-pad-x:24px;\n  --rhi-page-pad-y:14px;\n  --rhi-control-h:38px;\n  --rhi-icon-action:18px;\n  --rhi-icon-status:24px;\n  --rhi-break-phone:430px;\n  --rhi-break-tablet:760px;\n  --rhi-break-desktop:1024px;\n  --rhi-domain-accent:var(--rhi-color-primary);\n\n  color:var(--rhi-color-text);\n  font-family:var(--rhi-font-family);\n  font-size:var(--rhi-font-body);\n  font-weight:var(--rhi-weight-regular);\n  line-height:var(--rhi-line-height-body);\n}\n\n.rhiUxDomainShell{\n  --rhi-nav-active-bg:var(--rhi-color-primary-soft);\n  --rhi-nav-active-border:#CFDEF1;\n  --rhi-nav-active-text:#0F4CA4;\n  position:relative;display:grid;grid-template-columns:minmax(0,1fr) clamp(190px,23%,280px);\n  width:100%;margin:0 0 12px;border:1px solid var(--rhi-color-line);border-radius:var(--rhi-radius-xl);\n  background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(249,251,254,.91));box-shadow:var(--rhi-shadow-md);overflow:hidden;\n}\n.rhiUxProductArea{min-width:0;overflow:hidden}\n.rhiUxDomainShellTop{min-height:68px;display:grid;grid-template-columns:minmax(168px,.52fr) minmax(0,1.48fr);align-items:center;gap:14px;padding:10px 22px 9px}\n.rhiUxDomainIdentity{display:grid;align-content:center;gap:2px;min-width:0;min-height:48px;padding:2px 0 0 4px}\n.rhiUxDomainIdentity span{font-size:13px;line-height:1.15;font-weight:var(--rhi-weight-regular);color:#58708F;white-space:nowrap}\n.rhiUxDomainIdentity strong{font-size:21px;line-height:1.03;letter-spacing:.045em;font-weight:var(--rhi-weight-strong);color:#0B467F;white-space:nowrap}\n.rhiUxModuleTabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;min-width:0}\n.rhiUxModuleTab,.rhiUxDomainTab{appearance:none;border:0;background:transparent;font:inherit;color:#53647D;cursor:pointer;white-space:nowrap}\n.rhiUxModuleTab{min-height:40px;border-radius:12px;padding:8px;font-size:12px;font-weight:var(--rhi-weight-medium)}\n.rhiUxModuleTab.active{background:var(--rhi-nav-active-bg);color:var(--rhi-nav-active-text);box-shadow:inset 0 0 0 1px var(--rhi-nav-active-border),0 6px 16px rgba(15,23,42,.035)}\n.rhiUxDomainShellBottom{padding:5px 22px 7px;border-top:1px solid var(--rhi-color-line-soft);background:rgba(255,255,255,.52);min-height:46px;box-sizing:border-box}\n.rhiUxDomainTabs{display:flex;align-items:center;gap:10px;min-height:34px;overflow-x:auto;scrollbar-width:none}\n.rhiUxDomainTabs::-webkit-scrollbar{display:none}\n.rhiUxDomainTab{flex:0 0 auto;min-height:34px;border-radius:11px;padding:7px 12px;font-size:11.5px;font-weight:var(--rhi-weight-medium);color:#5F6D80}\n.rhiUxDomainTab.active{background:var(--rhi-nav-active-bg);color:var(--rhi-nav-active-text);box-shadow:inset 0 0 0 1px var(--rhi-nav-active-border)}\n.rhiUxCompanyBrand{min-width:0;border-left:1px solid var(--rhi-color-line-soft);display:grid;place-items:center;padding:10px 16px;background:linear-gradient(180deg,rgba(252,254,255,.78),rgba(247,250,253,.58))}\n.rhiUxCompanyLogo{display:block;width:min(100%,250px);max-height:116px;line-height:0;overflow:hidden}\n.rhiUxCompanyLogo svg{display:block;width:100%;height:auto;max-height:116px;object-fit:contain;object-position:center}\n\n/* Canonical page stack: visual order is invariant across domains. */\n.rhiUxPageStack{display:flex;flex-direction:column}\n.rhiUxPageStack>.rhiUxPageHero{order:1}\n.rhiUxPageStack>.rhiUxStatusGrid{order:2}\n.rhiUxPageStack>.rhiUxQuickActionBar{order:3}\n\n/* Canonical page hero: image is one background layer, never a split side panel. */\n.rhiUxPageHero{\n  position:relative;display:block;height:146px;min-height:146px;overflow:hidden;\n  border:0;border-radius:var(--rhi-radius-lg);background:#fff;box-shadow:none;margin:0;\n}\n.rhiUxPageHeroCopy{\n  position:relative;z-index:4;width:min(48%,650px);max-width:none;padding:20px 18px 18px 22px;box-sizing:border-box;\n}\n.rhiUxPageHeroCopy>small{display:none}\n.rhiUxPageHeroCopy h1,.rhiUxPageHeroCopy h2{\n  margin:4px 0 8px;font-size:var(--rhi-font-display);line-height:1.02;letter-spacing:-.038em;\n  color:#0B1739;font-weight:var(--rhi-weight-strong);\n}\n.rhiUxPageHeroCopy p{\n  margin:0;max-width:520px;font-size:clamp(12.5px,1.05vw,15px);line-height:var(--rhi-line-height-body);\n  color:#536781;font-weight:var(--rhi-weight-regular);\n}\n.rhiUxPageHeroArt{position:absolute;z-index:1;inset:0 0 0 28%;display:block;overflow:hidden;pointer-events:none}\n.rhiUxPageHeroArt:before{\n  content:\"\";display:block;position:absolute;z-index:2;inset:0;\n  background:linear-gradient(90deg,#fff 0%,rgba(255,255,255,.95) 8%,rgba(255,255,255,.62) 19%,rgba(255,255,255,.10) 38%,rgba(255,255,255,0) 57%);\n}\n.rhiUxPageHeroArt img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 52%;transform:none}\n\n/* One canonical page status layer. */\n.rhiUxStatusGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin:7px 0 0;padding:0;border:0;background:transparent;box-shadow:none}\n.rhiUxStatusItem{\n  min-width:0;min-height:68px;display:grid;grid-template-columns:44px minmax(0,1fr);gap:10px;align-items:center;\n  padding:10px 12px;border:1px solid var(--rhi-color-line);border-radius:var(--rhi-radius-md);background:#fff;box-shadow:var(--rhi-shadow-md);\n}\n.rhiUxStatusIcon{width:36px;height:36px;border-radius:11px;display:flex;align-items:center;justify-content:center;background:#F0F5FC;color:#355D96;font-size:18px}\n.rhiUxStatusIcon ha-icon{--mdc-icon-size:var(--rhi-icon-status)}\n.rhiUxStatusCopy{min-width:0;display:block}\n.rhiUxStatusCopy small{display:block;margin:0 0 2px;color:#476487;font-size:var(--rhi-font-label);font-weight:var(--rhi-weight-medium);line-height:1.2}\n.rhiUxStatusCopy b{display:block;margin:0 0 2px;color:var(--rhi-color-text);font-size:clamp(14px,1.12vw,17px);font-weight:var(--rhi-weight-strong);line-height:1.12;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.rhiUxStatusCopy em{display:block;margin-top:2px;color:var(--rhi-color-muted);font-size:var(--rhi-font-small);font-style:normal;font-weight:var(--rhi-weight-regular);line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n\n/* Canonical page-level quick actions. */\n.rhiUxQuickActionBar,.rhiEnergyQuickActions,.rhi-top-actions{\n  min-height:48px;padding:5px 8px;margin:7px 0 0;border:1px solid var(--rhi-color-line);border-radius:var(--rhi-radius-md);\n  background:#fff;box-shadow:var(--rhi-shadow-sm);display:flex;align-items:center;gap:7px;flex-wrap:wrap;\n}\n.rhiUxQuickActionBar>small,.rhiEnergyQuickActions>small,.rhi-top-actions-title{\n  font-size:var(--rhi-font-label);letter-spacing:.10em;text-transform:uppercase;color:#476487;\n  font-weight:var(--rhi-weight-medium);margin-right:2px;white-space:nowrap;\n}\n.rhiUxQuickActions{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin:0}\n.rhiUxQuickAction,.rhiUxQuickActionBar button,.rhiEnergyQuickActions .hiAction,.rhi-top-action{\n  height:36px;min-height:36px;border:1px solid #D6E0EB;border-radius:9px;background:#fff;color:#125DB7;\n  box-shadow:none;font:inherit;font-size:11.5px;font-weight:var(--rhi-weight-medium);padding:0 12px;\n  display:inline-flex;align-items:center;justify-content:center;gap:7px;cursor:pointer;white-space:nowrap;\n}\n.rhiUxQuickAction.primary,.rhiUxQuickActionBar button:first-of-type,.rhiEnergyQuickActions .hiAction:first-of-type,.rhi-top-action.primary{\n  background:var(--rhi-color-primary);border-color:var(--rhi-color-primary);color:#fff;\n}\n.rhiUxQuickAction:disabled,.rhiEnergyQuickActions .hiAction:disabled,.rhi-top-action:disabled{opacity:.46}\n\n/* Canonical body grammar. */\n.rhiUxDomainBody{font-family:var(--rhi-font-family);color:var(--rhi-color-text);font-size:var(--rhi-font-body);line-height:var(--rhi-line-height-body)}\n.rhiUxDomainBody button,.rhiUxDomainBody select,.rhiUxDomainBody input,.rhiUxDomainBody textarea{font-family:inherit}\n.rhiUxPanel,.rhiUxDomainBody .panel,.rhiUxDomainBody .info,.rhiUxDomainBody .summary,.rhiUxDomainBody .ov-panel{\n  border:1px solid var(--rhi-color-line);border-radius:var(--rhi-radius-lg);background:var(--rhi-color-surface);box-shadow:var(--rhi-shadow-sm);\n}\n.rhiUxPanel{padding:14px 16px}\n.rhiUxDomainBody .panel h2,.rhiUxDomainBody .info h2,.rhiUxDomainBody .summary h2,.rhiUxDomainBody .ov-panel h2{\n  font-size:var(--rhi-font-section);font-weight:var(--rhi-weight-strong);line-height:var(--rhi-line-height-tight);letter-spacing:-.02em;color:var(--rhi-color-text);\n}\n.rhiUxDomainBody .panel h3,.rhiUxDomainBody .info h3,.rhiUxDomainBody .summary h3,.rhiUxDomainBody .ov-panel h3{\n  font-size:var(--rhi-font-card);font-weight:var(--rhi-weight-strong);line-height:1.2;color:var(--rhi-color-text);\n}\n.rhiUxDomainBody .panel p,.rhiUxDomainBody .info p,.rhiUxDomainBody .summary p,.rhiUxDomainBody .ov-panel p{\n  font-size:var(--rhi-font-body);font-weight:var(--rhi-weight-regular);line-height:var(--rhi-line-height-body);color:var(--rhi-color-muted);\n}\n.rhiUxDataList{display:grid;gap:6px}\n.rhiUxDataRow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;padding:9px 10px;border:1px solid var(--rhi-color-line-soft);border-radius:var(--rhi-radius-sm);background:var(--rhi-color-surface-soft)}\n.rhiUxState{display:grid;gap:4px;padding:14px 16px;border:1px dashed var(--rhi-color-line);border-radius:var(--rhi-radius-md);background:var(--rhi-color-surface-soft);color:var(--rhi-color-muted)}\n.rhiUxState b{color:var(--rhi-color-text);font-size:13px}\n.rhiUxState[data-state=\"attention\"]{border-color:#F6D48C;background:#FFFBEB}\n.rhiUxState[data-state=\"error\"]{border-color:#F1B8B4;background:#FFF7F7}\n.rhiUxConclusion{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;margin:8px 0 0;padding:10px 12px;border:1px solid var(--rhi-color-line);border-radius:var(--rhi-radius-md);background:linear-gradient(135deg,rgba(255,255,255,.98),rgba(247,250,252,.96))}\n.rhiUxConclusion small{font-size:var(--rhi-font-label);letter-spacing:.1em;text-transform:uppercase;color:var(--rhi-color-muted)}\n.rhiUxConclusion h2{font-size:var(--rhi-font-card);line-height:1.2;margin:1px 0 2px}\n.rhiUxConclusion p{font-size:var(--rhi-font-small);line-height:1.3;margin:0;color:var(--rhi-color-muted)}\n.rhiUxTechnicalFooter{display:flex;justify-content:center;flex-wrap:wrap;gap:4px 9px;margin:6px 0 0;padding:3px 2px 0;border-top:1px solid rgba(148,163,184,.20);color:#94A3B8;font-size:9px;line-height:1.2}\n.rhiUxTechnicalFooter span+span:before{content:\"·\";margin-right:9px;color:#CBD5E1}\n.rhiUxTechnicalFooter [data-severity=\"warning\"]{color:#B7791F;font-weight:var(--rhi-weight-strong)}\n.rhiUxTechnicalFooter [data-severity=\"error\"]{color:var(--rhi-color-error);font-weight:var(--rhi-weight-strong)}\n\n@media(max-width:1180px){\n  :host,.rhi-ux-root{--rhi-page-pad-x:18px}\n  .rhiUxPageHero{height:140px;min-height:140px}\n  .rhiUxPageHeroCopy{width:51%;padding:18px 14px 16px 18px}\n  .rhiUxPageHeroArt{inset:0 0 0 30%}\n  .rhiUxStatusItem{grid-template-columns:40px minmax(0,1fr);padding:9px 10px;min-height:66px}\n  .rhiUxStatusIcon{width:37px;height:37px}\n}\n@media(max-width:760px){\n  :host,.rhi-ux-root{--rhi-page-pad-x:10px;--rhi-page-pad-y:9px;--rhi-font-body:12px;--rhi-font-small:10.75px}\n  .rhiUxDomainShell{grid-template-columns:1fr}.rhiUxCompanyBrand{display:none}.rhiUxDomainShellTop{grid-template-columns:1fr;padding:10px 12px}.rhiUxDomainIdentity{min-height:auto}.rhiUxDomainShellBottom{padding:7px 12px 9px}\n  .rhiUxPageHero{height:128px;min-height:128px;border-radius:14px}\n  .rhiUxPageHeroCopy{width:59%;padding:18px 9px 16px 13px}\n  .rhiUxPageHeroCopy h1,.rhiUxPageHeroCopy h2{font-size:27px;letter-spacing:-.032em}\n  .rhiUxPageHeroCopy p{font-size:11px;line-height:1.32;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}\n  .rhiUxPageHeroArt{inset:0 0 0 34%}\n  .rhiUxStatusGrid{grid-template-columns:repeat(2,minmax(0,1fr))}\n  .rhiUxStatusItem{min-height:74px;grid-template-columns:34px minmax(0,1fr);gap:7px;padding:8px}\n  .rhiUxStatusIcon{width:32px;height:32px;border-radius:9px}.rhiUxStatusIcon ha-icon{--mdc-icon-size:20px}\n  .rhiUxQuickActionBar,.rhiEnergyQuickActions,.rhi-top-actions{overflow-x:auto;flex-wrap:nowrap}\n  .rhiUxQuickActionBar>small,.rhiEnergyQuickActions>small,.rhi-top-actions-title,.rhiUxQuickAction,.rhiUxQuickActionBar button,.rhiEnergyQuickActions .hiAction,.rhi-top-action{flex:0 0 auto}\n  .rhiUxConclusion{grid-template-columns:1fr}\n}\n@media(max-width:430px){\n  :host,.rhi-ux-root{--rhi-page-pad-x:8px;--rhi-page-pad-y:8px}\n  .rhiUxPageHero{height:118px;min-height:118px}\n  .rhiUxPageHeroCopy{width:64%;padding:16px 8px 14px 11px}\n  .rhiUxPageHeroCopy h1,.rhiUxPageHeroCopy h2{font-size:24px}\n  .rhiUxPageHeroCopy p{font-size:10.5px;-webkit-line-clamp:2}\n  .rhiUxPageHeroArt{inset:0 0 0 38%}\n  .rhiUxStatusGrid{grid-template-columns:1fr 1fr}\n}\n\n/* Optional body/section-scoped view and filter controls. */\n.rhiUxContextBar{\n  min-height:42px;padding:4px 7px;margin:0 0 8px;border:1px solid var(--rhi-color-line);border-radius:var(--rhi-radius-md);\n  background:#fff;box-shadow:var(--rhi-shadow-sm);display:flex;align-items:center;gap:7px;flex-wrap:wrap;\n}\n.rhiUxContextBar>small{\n  font-size:var(--rhi-font-label);letter-spacing:.10em;text-transform:uppercase;color:#476487;font-weight:var(--rhi-weight-medium);white-space:nowrap;\n}\n.rhiUxContextControls{display:flex;align-items:center;gap:6px;flex-wrap:wrap}\n.rhiUxContextControl{\n  min-height:32px;border:1px solid #D6E0EB;border-radius:9px;background:#fff;color:#355D96;font:inherit;font-size:11.5px;font-weight:var(--rhi-weight-medium);padding:0 11px;cursor:pointer;white-space:nowrap;\n}\n.rhiUxContextControl.active,.rhiUxContextControl[aria-pressed=\"true\"]{background:var(--rhi-color-primary-soft);border-color:#CFDEF1;color:#0F4CA4}\n.rhiUxContextControl:disabled{opacity:.46}\n@media(max-width:760px){.rhiUxContextBar{overflow-x:auto;flex-wrap:nowrap}.rhiUxContextBar>small,.rhiUxContextControls,.rhiUxContextControl{flex:0 0 auto}}\n\n/* Canonical cross-domain appearance picker. Domains own catalogs and persistence. */\n.rhiUxVisualPickerBackdrop{position:fixed;inset:0;z-index:9999;background:rgba(15,23,42,.44);display:grid;place-items:center;padding:20px}\n.rhiUxVisualPickerPanel{width:min(920px,94vw);max-height:min(82vh,760px);overflow:hidden;background:#fff;border:1px solid var(--rhi-color-line);border-radius:20px;box-shadow:0 30px 80px rgba(15,23,42,.24);padding:16px;box-sizing:border-box;display:grid;grid-template-rows:auto auto minmax(0,1fr) auto auto;gap:10px}\n.rhiUxVisualPickerHead{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;min-height:0}\n.rhiUxVisualPickerHead small{font-size:10px;font-weight:800;letter-spacing:.12em;color:#64748b}.rhiUxVisualPickerHead h3{margin:2px 0 0;font-size:20px}.rhiUxVisualPickerHead p{margin:3px 0 0;font-size:11px;color:#64748b}\n.rhiUxVisualPickerFilters{display:flex;gap:6px;flex-wrap:wrap;margin:0;min-height:0}\n.rhiUxVisualPickerFilters button{border:1px solid #dbe3ee;background:#fff;border-radius:999px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer}.rhiUxVisualPickerFilters button.selected{border-color:#93c5fd;background:#eff6ff;color:#1d4ed8}\n.rhiUxVisualChoiceGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-rows:142px;gap:8px;margin:0;overflow-y:auto;overscroll-behavior:contain;padding:2px 3px 4px 1px;align-content:start}\n.rhiUxVisualChoice{height:142px;min-height:142px;max-height:142px;display:grid;grid-template-rows:86px minmax(0,1fr);gap:6px;align-items:stretch;text-align:left;border:1px solid #e2e8f0;background:#fff;border-radius:12px;padding:8px;cursor:pointer;overflow:hidden}.rhiUxVisualChoice:hover{border-color:#93c5fd;background:#f8fbff}.rhiUxVisualChoice.selected{border-color:#2563eb;box-shadow:0 0 0 2px rgba(37,99,235,.12);background:#f8fbff}\n.rhiUxVisualChoiceImage{width:100%;height:86px;min-width:0;min-height:86px;max-width:none;max-height:86px;display:grid;place-items:center;overflow:hidden}.rhiUxVisualChoiceImage img{display:block;width:100%;height:100%;min-width:0;min-height:0;max-width:100%;max-height:100%;object-fit:contain;object-position:center}\n.rhiUxVisualChoiceCopy{min-width:0;align-self:end}.rhiUxVisualChoiceCopy small,.rhiUxVisualChoiceCopy b,.rhiUxVisualChoiceCopy em{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.rhiUxVisualChoiceCopy small{font-size:8px;color:#64748b;text-transform:uppercase}.rhiUxVisualChoiceCopy b{font-size:11px;margin-top:1px}.rhiUxVisualChoiceCopy em{font-size:9px;color:#64748b;font-style:normal;margin-top:1px}\n.rhiUxVisualPickerRefine{display:grid;grid-template-columns:repeat(4,minmax(120px,1fr));gap:8px;margin:0}.rhiUxVisualPickerRefine label span{display:block;font-size:8px;color:#64748b;margin-bottom:3px}.rhiUxVisualPickerRefine select{width:100%;height:34px;border:1px solid #dbe3ee;border-radius:8px;background:#fff;padding:0 8px}\n.rhiUxVisualPickerFooter{display:flex;align-items:center;gap:8px;margin:0;padding-top:9px;border-top:1px solid #edf1f6}.rhiUxVisualPickerSpacer{flex:1}.rhiUxVisualPickerFooter button{height:34px;border:1px solid #dbe3ee;border-radius:9px;background:#fff;padding:0 12px;font-size:10px;font-weight:700}.rhiUxVisualPickerFooter button.primary{background:#0b65ea;color:#fff;border-color:#0b65ea}.rhiUxVisualPickerFooter button:disabled{opacity:.45}\n@media(max-width:900px){.rhiUxVisualChoiceGrid{grid-template-columns:repeat(2,minmax(0,1fr))}}\n@media(max-width:560px){.rhiUxVisualPickerBackdrop{padding:8px}.rhiUxVisualPickerPanel{width:96vw;max-height:88vh;padding:12px}.rhiUxVisualChoiceGrid{grid-template-columns:1fr;grid-auto-rows:116px}.rhiUxVisualChoice{height:116px;min-height:116px;max-height:116px;grid-template-columns:94px minmax(0,1fr);grid-template-rows:1fr}.rhiUxVisualChoiceImage{width:94px;height:86px;min-width:94px;max-width:94px}.rhiUxVisualChoiceCopy{align-self:center}.rhiUxVisualPickerRefine{grid-template-columns:1fr 1fr}.rhiUxVisualPickerFooter{flex-wrap:wrap}}\n\n\n/* Canonical page and asset composition primitives. */\n.rhiUxPage{display:block;width:100%;max-width:var(--rhi-page-max);margin:0 auto;padding:var(--rhi-page-pad-y) var(--rhi-page-pad-x);box-sizing:border-box}\n.rhiUxPageContent{display:grid;gap:var(--rhi-space-3);margin-top:var(--rhi-space-3)}\n.rhiUxAssetIdentity{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:center;min-width:0}\n.rhiUxAssetVisual{width:72px;height:58px;display:grid;place-items:center;overflow:hidden}\n.rhiUxAssetVisual img{display:block;width:100%;height:100%;object-fit:contain}\n.rhiUxAssetIdentityCopy{min-width:0}.rhiUxAssetIdentityCopy small{display:block;color:var(--rhi-color-muted);font-size:var(--rhi-font-label);text-transform:uppercase;letter-spacing:.08em}\n.rhiUxAssetIdentityCopy h2{margin:2px 0;font-size:var(--rhi-font-section);line-height:1.12}.rhiUxAssetIdentityCopy p{margin:0;color:var(--rhi-color-muted);font-size:var(--rhi-font-body)}\n.rhiUxAssetFactGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--rhi-space-2)}\n.rhiUxAssetFact{min-width:0;padding:9px 10px;border:1px solid var(--rhi-color-line);border-radius:var(--rhi-radius-md);background:var(--rhi-color-surface)}\n.rhiUxAssetFact small,.rhiUxAssetFact b,.rhiUxAssetFact span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}\n.rhiUxAssetFact small{font-size:var(--rhi-font-label);color:var(--rhi-color-muted)}.rhiUxAssetFact b{margin-top:2px;font-size:13px}.rhiUxAssetFact span{margin-top:2px;font-size:var(--rhi-font-small);color:var(--rhi-color-muted)}\n.rhiUxAssetRelationship{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 10px;border:1px solid var(--rhi-color-line-soft);border-radius:var(--rhi-radius-md);background:var(--rhi-color-surface-soft)}\n.rhiUxAssetRelationship small,.rhiUxAssetRelationship b,.rhiUxAssetRelationship span{display:block}.rhiUxAssetRelationship small,.rhiUxAssetRelationship span{color:var(--rhi-color-muted);font-size:var(--rhi-font-small)}\n.rhiUxAssetDisclosure{border-top:1px solid var(--rhi-color-line-soft);padding-top:8px}.rhiUxAssetDisclosure summary{cursor:pointer;font-weight:var(--rhi-weight-medium)}\n.rhiUxAssetDisclosure>div{padding-top:8px}\n.rhiUxWriteFeedback{margin-top:6px;font-size:var(--rhi-font-small);color:var(--rhi-color-muted)}.rhiUxWriteFeedback[data-state=\"success\"]{color:#15803D}.rhiUxWriteFeedback[data-state=\"error\"]{color:var(--rhi-color-error)}\n@media(max-width:760px){.rhiUxAssetFactGrid{grid-template-columns:repeat(2,minmax(0,1fr))}}\n";
 }
 
 // ---- src/app/presentation.js ----
@@ -690,7 +760,7 @@ function hbMobilityPresentationStyles() {
 // ---- src/app/header-and-navigation.js ----
 // Mobility presentation adapter onto the shared RHI UX Core.
 // Domain semantics remain owned by Mobility runtime/projections.
-const UX_VERSION = "1.0.0-rc.78";
+const UX_VERSION = "1.0.0-rc.79";
 const HB_MOBILITY_ROUTE_SEGMENTS = new Set([
   "overview","dashboard","vehicles","charger-maintenance","chargers",
   "planning","strategies","history","log","asset-detail","detail","charging"
@@ -839,77 +909,77 @@ function hbMobilitySharedShellStyles() {
     .placeholder-kicker{display:inline-flex;align-items:center;gap:8px;margin-bottom:10px;color:var(--rhi-color-primary);font-size:12px;font-weight:650;text-transform:uppercase;letter-spacing:.04em}
     .placeholder-kicker ha-icon{--mdc-icon-size:18px}
     .footer-note{margin-top:12px;color:#66728B;font-size:12px;font-weight:600}
-    .status-strip.dashboard-status-strip,.status-strip.ops-status-strip,.outcome-header{width:100%!important;max-width:none!important;margin:8px 0 10px!important;display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;border:1px solid #E0E8F2!important;border-radius:16px!important;background:#fff!important;box-shadow:0 10px 24px rgba(15,35,80,.045)!important;overflow:hidden!important}
-    .status-strip.dashboard-status-strip .metric,.status-strip.ops-status-strip .metric,.outcome-header .metric{display:grid!important;grid-template-columns:28px minmax(0,1fr)!important;gap:8px!important;align-items:center!important;min-width:0!important;padding:12px 14px!important;border-right:1px solid #E8EEF6!important;background:transparent!important}
-    .status-strip.dashboard-status-strip .metric:last-child,.status-strip.ops-status-strip .metric:last-child,.outcome-header .metric:last-child{border-right:0!important}
+    .status-strip.dashboard-status-strip,.status-strip.ops-status-strip,.outcome-header{width:100%;max-width:none;margin:8px 0 10px;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));border:1px solid #E0E8F2;border-radius:16px;background:#fff;box-shadow:0 10px 24px rgba(15,35,80,.045);overflow:hidden}
+    .status-strip.dashboard-status-strip .metric,.status-strip.ops-status-strip .metric,.outcome-header .metric{display:grid;grid-template-columns:28px minmax(0,1fr);gap:8px;align-items:center;min-width:0;padding:12px 14px;border-right:1px solid #E8EEF6;background:transparent}
+    .status-strip.dashboard-status-strip .metric:last-child,.status-strip.ops-status-strip .metric:last-child,.outcome-header .metric:last-child{border-right:0}
     .status-strip.dashboard-status-strip .metric ha-icon,.status-strip.ops-status-strip .metric ha-icon,.outcome-header .metric ha-icon{--mdc-icon-size:20px}
     .status-strip.dashboard-status-strip .metric>div,.status-strip.ops-status-strip .metric>div,.outcome-header .metric>div{min-width:0}
-    .status-strip.dashboard-status-strip .metric span,.status-strip.ops-status-strip .metric span,.outcome-header .metric span{display:block!important;font-size:9px!important;font-weight:600!important;line-height:1.1!important;color:#708098!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
-    .status-strip.dashboard-status-strip .metric b,.status-strip.ops-status-strip .metric b,.outcome-header .metric b{display:block!important;margin-top:2px!important;font-size:12.5px!important;font-weight:650!important;line-height:1.15!important;color:#10213A!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
-    .status-strip .tone-green>ha-icon{color:#16A765!important}.status-strip .tone-blue>ha-icon{color:var(--rhi-color-primary)!important}.status-strip .tone-orange>ha-icon{color:var(--rhi-color-attention)!important}
-    .section-title{margin-top:4px!important;margin-bottom:8px!important}
-    .hi-version-block{display:none!important}
+    .status-strip.dashboard-status-strip .metric span,.status-strip.ops-status-strip .metric span,.outcome-header .metric span{display:block;font-size:9px;font-weight:600;line-height:1.1;color:#708098;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .status-strip.dashboard-status-strip .metric b,.status-strip.ops-status-strip .metric b,.outcome-header .metric b{display:block;margin-top:2px;font-size:12.5px;font-weight:650;line-height:1.15;color:#10213A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .status-strip .tone-green>ha-icon{color:#16A765}.status-strip .tone-blue>ha-icon{color:var(--rhi-color-primary)}.status-strip .tone-orange>ha-icon{color:var(--rhi-color-attention)}
+    .section-title{margin-top:4px;margin-bottom:8px}
+    .hi-version-block{display:none}
     @media(max-width:920px){
-      .status-strip.dashboard-status-strip,.status-strip.ops-status-strip,.outcome-header{grid-template-columns:repeat(5,minmax(150px,1fr))!important;overflow-x:auto!important}
-      .status-strip.dashboard-status-strip .metric,.status-strip.ops-status-strip .metric,.outcome-header .metric{min-width:150px!important}
+      .status-strip.dashboard-status-strip,.status-strip.ops-status-strip,.outcome-header{grid-template-columns:repeat(5,minmax(150px,1fr));overflow-x:auto}
+      .status-strip.dashboard-status-strip .metric,.status-strip.ops-status-strip .metric,.outcome-header .metric{min-width:150px}
     }
     @media(max-width:760px){
       .placeholder-grid{grid-template-columns:1fr}
     }
     /* rc.56 shared image-first appearance selector */
     .visual-picker-panel{
-      margin:0!important;padding:12px!important;border:1px solid #dce7f3!important;border-radius:14px!important;
-      background:#fbfdff!important;box-shadow:none!important;display:grid!important;gap:10px!important;
+      margin:0;padding:12px;border:1px solid #dce7f3;border-radius:14px;
+      background:#fbfdff;box-shadow:none;display:grid;gap:10px;
     }
-    .visual-picker-panel .vehicle-picker-head{display:flex!important;align-items:flex-start!important;justify-content:space-between!important;gap:12px!important}
-    .visual-picker-panel .vehicle-picker-head small{font-size:9px!important;letter-spacing:.11em!important;color:#64748b!important;font-weight:700!important}
-    .visual-picker-panel .vehicle-picker-head h3{margin:2px 0!important;font-size:15px!important;line-height:1.15!important;color:#0f172a!important}
-    .visual-picker-panel .vehicle-picker-head p{margin:0!important;font-size:10.5px!important;line-height:1.3!important;color:#64748b!important;font-weight:500!important}
-    .visual-picker-panel .vehicle-picker-close{width:30px!important;height:30px!important;min-width:30px!important;border:1px solid #dbe5f0!important;border-radius:9px!important;background:#fff!important;color:#64748b!important;padding:0!important;display:grid!important;place-items:center!important}
-    .visual-choice-grid{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(148px,1fr))!important;gap:8px!important;align-items:stretch!important}
+    .visual-picker-panel .vehicle-picker-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+    .visual-picker-panel .vehicle-picker-head small{font-size:9px;letter-spacing:.11em;color:#64748b;font-weight:700}
+    .visual-picker-panel .vehicle-picker-head h3{margin:2px 0;font-size:15px;line-height:1.15;color:#0f172a}
+    .visual-picker-panel .vehicle-picker-head p{margin:0;font-size:10.5px;line-height:1.3;color:#64748b;font-weight:500}
+    .visual-picker-panel .vehicle-picker-close{width:30px;height:30px;min-width:30px;border:1px solid #dbe5f0;border-radius:9px;background:#fff;color:#64748b;padding:0;display:grid;place-items:center}
+    .visual-choice-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:8px;align-items:stretch}
     .visual-choice-card{
-      position:relative!important;appearance:none!important;border:1px solid #e0e8f2!important;border-radius:12px!important;background:#fff!important;
-      min-width:0!important;min-height:126px!important;padding:8px!important;display:grid!important;grid-template-rows:78px auto!important;gap:6px!important;
-      text-align:left!important;cursor:pointer!important;color:#0f172a!important;box-shadow:none!important;overflow:hidden!important;
+      position:relative;appearance:none;border:1px solid #e0e8f2;border-radius:12px;background:#fff;
+      min-width:0;min-height:126px;padding:8px;display:grid;grid-template-rows:78px auto;gap:6px;
+      text-align:left;cursor:pointer;color:#0f172a;box-shadow:none;overflow:hidden;
     }
-    .visual-choice-card:hover{border-color:#a9c8f6!important;background:#f8fbff!important}
-    .visual-choice-card.active{border-color:#1467F5!important;box-shadow:0 0 0 2px rgba(20,103,245,.10)!important;background:#f7fbff!important}
-    .visual-choice-image{display:grid!important;place-items:center!important;min-width:0!important;height:78px!important;border-radius:9px!important;background:linear-gradient(135deg,#fff,#f5f8fc)!important;overflow:hidden!important}
-    .visual-choice-image img{display:block!important;width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;object-fit:contain!important;object-position:center!important;transform:none!important}
-    .visual-choice-image ha-icon{--mdc-icon-size:42px!important;color:#94a3b8!important}
-    .visual-choice-copy{display:grid!important;gap:2px!important;min-width:0!important}
-    .visual-choice-copy b{font-size:11px!important;font-weight:650!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
-    .visual-choice-copy small{font-size:9px!important;color:#64748b!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
-    .visual-choice-check{position:absolute!important;top:7px!important;right:7px!important;--mdc-icon-size:17px!important;color:#1467F5!important;opacity:0!important}
-    .visual-choice-card.active .visual-choice-check{opacity:1!important}
-    .visual-picker-refine{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:8px!important;margin:0!important;align-items:end!important}
-    .visual-picker-refine label{display:grid!important;gap:4px!important;min-width:0!important}
-    .visual-picker-refine label>span{font-size:8.5px!important;font-weight:700!important;text-transform:uppercase!important;letter-spacing:.045em!important;color:#64748b!important}
-    .visual-picker-refine select{width:100%!important;height:34px!important;min-height:34px!important;border:1px solid #d7e2ef!important;border-radius:8px!important;background:#fff!important;color:#0f172a!important;padding:0 8px!important;font-size:10.5px!important;font-weight:600!important}
-    .visual-picker-apply{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;gap:10px!important;align-items:center!important;padding-top:2px!important}
-    .visual-picker-selection{display:flex!important;align-items:baseline!important;gap:6px!important;min-width:0!important}
-    .visual-picker-selection small{font-size:9px!important;color:#64748b!important;text-transform:uppercase!important;font-weight:700!important}
-    .visual-picker-selection b{font-size:12px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
-    .visual-picker-selection span{font-size:10px!important;color:#64748b!important;white-space:nowrap!important}
-    .visual-picker-apply .vehicle-picker-save{height:36px!important;min-height:36px!important;border:1px solid #1467F5!important;border-radius:9px!important;background:#1467F5!important;color:#fff!important;padding:0 12px!important;display:inline-flex!important;align-items:center!important;gap:6px!important;font-size:10.5px!important;font-weight:650!important;cursor:pointer!important}
-    .visual-picker-apply .vehicle-picker-save:disabled{background:#eef2f7!important;border-color:#d9e2ec!important;color:#94a3b8!important;cursor:not-allowed!important}
-    .visual-picker-notice{display:flex!important;align-items:flex-start!important;gap:7px!important;padding:8px 10px!important;border:1px solid #e6edf5!important;border-radius:10px!important;background:#fff!important;color:#64748b!important;font-size:10px!important;line-height:1.3!important}
-    .visual-picker-notice ha-icon{--mdc-icon-size:16px!important;color:#64748b!important;flex:none!important}
-    .vehicle-picker-key,.vehicle-picker-gap{display:none!important}
+    .visual-choice-card:hover{border-color:#a9c8f6;background:#f8fbff}
+    .visual-choice-card.active{border-color:#1467F5;box-shadow:0 0 0 2px rgba(20,103,245,.10);background:#f7fbff}
+    .visual-choice-image{display:grid;place-items:center;min-width:0;height:78px;border-radius:9px;background:linear-gradient(135deg,#fff,#f5f8fc);overflow:hidden}
+    .visual-choice-image img{display:block;width:100%;height:100%;max-width:100%;max-height:100%;object-fit:contain;object-position:center;transform:none}
+    .visual-choice-image ha-icon{--mdc-icon-size:42px;color:#94a3b8}
+    .visual-choice-copy{display:grid;gap:2px;min-width:0}
+    .visual-choice-copy b{font-size:11px;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .visual-choice-copy small{font-size:9px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .visual-choice-check{position:absolute;top:7px;right:7px;--mdc-icon-size:17px;color:#1467F5;opacity:0}
+    .visual-choice-card.active .visual-choice-check{opacity:1}
+    .visual-picker-refine{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:0;align-items:end}
+    .visual-picker-refine label{display:grid;gap:4px;min-width:0}
+    .visual-picker-refine label>span{font-size:8.5px;font-weight:700;text-transform:uppercase;letter-spacing:.045em;color:#64748b}
+    .visual-picker-refine select{width:100%;height:34px;min-height:34px;border:1px solid #d7e2ef;border-radius:8px;background:#fff;color:#0f172a;padding:0 8px;font-size:10.5px;font-weight:600}
+    .visual-picker-apply{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding-top:2px}
+    .visual-picker-selection{display:flex;align-items:baseline;gap:6px;min-width:0}
+    .visual-picker-selection small{font-size:9px;color:#64748b;text-transform:uppercase;font-weight:700}
+    .visual-picker-selection b{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .visual-picker-selection span{font-size:10px;color:#64748b;white-space:nowrap}
+    .visual-picker-apply .vehicle-picker-save{height:36px;min-height:36px;border:1px solid #1467F5;border-radius:9px;background:#1467F5;color:#fff;padding:0 12px;display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:650;cursor:pointer}
+    .visual-picker-apply .vehicle-picker-save:disabled{background:#eef2f7;border-color:#d9e2ec;color:#94a3b8;cursor:not-allowed}
+    .visual-picker-notice{display:flex;align-items:flex-start;gap:7px;padding:8px 10px;border:1px solid #e6edf5;border-radius:10px;background:#fff;color:#64748b;font-size:10px;line-height:1.3}
+    .visual-picker-notice ha-icon{--mdc-icon-size:16px;color:#64748b;flex:none}
+    .vehicle-picker-key,.vehicle-picker-gap{display:none}
 
     @media(max-width:820px){
-      .visual-choice-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
-      .visual-picker-refine{grid-template-columns:repeat(2,minmax(0,1fr))!important}
-      .visual-picker-apply{grid-template-columns:1fr auto!important}
+      .visual-choice-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .visual-picker-refine{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .visual-picker-apply{grid-template-columns:1fr auto}
     }
     @media(max-width:520px){
-      .visual-picker-panel{padding:9px!important;gap:8px!important}
-      .visual-choice-grid{display:flex!important;overflow-x:auto!important;scroll-snap-type:x mandatory!important;padding-bottom:2px!important}
-      .visual-choice-card{flex:0 0 156px!important;scroll-snap-align:start!important}
-      .visual-picker-refine{grid-template-columns:1fr 1fr!important}
-      .visual-picker-apply{grid-template-columns:1fr!important}
-      .visual-picker-apply .vehicle-picker-save{width:100%!important;justify-content:center!important}
-      .visual-picker-selection{min-height:20px!important}
+      .visual-picker-panel{padding:9px;gap:8px}
+      .visual-choice-grid{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:2px}
+      .visual-choice-card{flex:0 0 156px;scroll-snap-align:start}
+      .visual-picker-refine{grid-template-columns:1fr 1fr}
+      .visual-picker-apply{grid-template-columns:1fr}
+      .visual-picker-apply .vehicle-picker-save{width:100%;justify-content:center}
+      .visual-picker-selection{min-height:20px}
     }
     ${typeof hbMobilityPresentationStyles === "function" ? hbMobilityPresentationStyles() : ""}
   `;
@@ -993,77 +1063,17 @@ class HomeBrainAssetRuntime {
       activity_v2: { contract_id: "MOBILITY_ACTIVITY_V2", role: "authority" },
       profile_catalog_v2: { contract_id: "MOBILITY_PROFILE_CATALOG_V2", role: "authority" },
       supervision_v2: { contract_id: "MOBILITY_SUPERVISION_V2", role: "authority" },
-      identity_navigation: { contract_id: "MOBILITY_PUBLIC_RUNTIME_V2", field: "assets", role: "authority" },
-      semantic_properties_v2: { canonical_contract: "MOBILITY_PUBLIC_RUNTIME_V2", role: "authority" },
-      vehicle_properties: { canonical_contract: "MOBILITY_PUBLIC_RUNTIME_V2", role: "authority" },
-      charger_properties: { canonical_contract: "MOBILITY_PUBLIC_RUNTIME_V2", role: "authority" },
-      relationships: { contract_id: "MOBILITY_PUBLIC_RUNTIME_V2", role: "authority" },
-      command_readiness: { contract_id: "MOBILITY_COMMAND_V2", role: "authority" },
-      command_results: { contract_id: "MOBILITY_ACTIVITY_V2", role: "authority" },
-      component_layout: { fields: ["component_id","section_id"], canonical_contract: "MOBILITY_PUBLIC_RUNTIME_V2", role: "authority" },
-      command_placement: { contract_id: "MOBILITY_COMMAND_V2", role: "authority" },
-      energy_boundary: { contract_id: "MOBILITY_ENERGY_V2", role: "external_consumer_only" },
-      asset_runtime_compatibility: { entity_id: "sensor.mobility_asset_runtime_contract_index", role: "diagnostics_only_deprecated" },
-      product_asset_compatibility: { entity_id: "sensor.mobility_product_asset_index", role: "diagnostics_only_deprecated" }
+      energy_v2: { contract_id: "MOBILITY_ENERGY_V2", role: "external_consumer_only" }
     };
   }
 
-  compatibilityAssetRuntimeRow(assetId = "") {
-    const canonical = this.canonicalAssetId(assetId);
-    if (!canonical) return null;
-    const attrs = this.entity("sensor.mobility_asset_runtime_contract_index")?.attributes || {};
-    const byId = this.parseJsonValue(attrs.assets_by_id, attrs.assets_by_id || {});
-    if (byId && typeof byId === "object" && !Array.isArray(byId) && byId[canonical]) return byId[canonical];
-    const rows = this.parseListValue(attrs.assets_json ?? attrs.assets ?? []);
-    return rows.find((row)=>String(row?.asset_id || "") === canonical) || null;
-  }
 
-  compatibilityLifecyclePropertyRow(assetId = "") {
-    const canonical = this.canonicalAssetId(assetId);
-    if (!canonical) return null;
-    const keys = canonical.startsWith("vehicle_")
-      ? ["asset.lifecycle_status", "vehicle.lifecycle_status"]
-      : ["asset.lifecycle_status", "charger.lifecycle_status"];
-    for (const key of keys) {
-      const row = this.v2SemanticProperty(canonical, key);
-      if (row) return row;
-    }
-    return null;
-  }
+
+
 
 
   allowedContractEntityIds() {
     return new Set([
-      "sensor.mobility_vehicle_property_index",
-      "sensor.mobility_vehicle_component_contract_index",
-      "sensor.mobility_charger_component_contract_index",
-      "sensor.mobility_ux_runtime_consumption_map",
-      "sensor.mobility_asset_runtime_contract_index",
-      "sensor.mobility_canonical_asset_contract_registry",
-      "sensor.mobility_vehicle_identity_property_index",
-      "sensor.mobility_vehicle_battery_property_index",
-      "sensor.mobility_vehicle_charging_property_index",
-      "sensor.mobility_vehicle_range_property_index",
-      "sensor.mobility_vehicle_access_property_index",
-      "sensor.mobility_vehicle_comfort_property_index",
-      "sensor.mobility_vehicle_location_property_index",
-      "sensor.mobility_vehicle_maintenance_property_index",
-      "sensor.mobility_vehicle_diagnostics_property_index",
-      "sensor.mobility_charger_property_index",
-      "sensor.mobility_person_property_index",
-      "sensor.mobility_relationship_index",
-      "sensor.mobility_command_index",
-      "sensor.mobility_vehicle_command_slot_index",
-      "sensor.mobility_charger_command_slot_index",
-      "sensor.mobility_intelligence_index",
-      "sensor.mobility_vehicle_intelligence_index",
-      "sensor.mobility_charger_intelligence_index",
-      "sensor.mobility_activity_index",
-      "sensor.mobility_asset_index",
-      "sensor.mobility_vehicle_profile_index",
-      "sensor.mobility_charger_profile_index",
-      "sensor.mobility_energy_asset_publication",
-      "sensor.mobility_release_contract",
       "sensor.rhi_mobility_runtime_v2",
       "sensor.rhi_mobility_experience_v2",
       "sensor.rhi_mobility_policy_v2",
@@ -1113,8 +1123,7 @@ class HomeBrainAssetRuntime {
 
   mobilityRuntimeV2() {
     const state = this.contractEntity("MOBILITY_PUBLIC_RUNTIME_V2", [
-      "sensor.rhi_mobility_runtime_v2",
-      "sensor.mobility_runtime_v2"
+      "sensor.rhi_mobility_runtime_v2"
     ]);
     const attrs = state?.attributes || {};
     if (String(attrs.contract_id || "") !== "MOBILITY_PUBLIC_RUNTIME_V2") return null;
@@ -1140,7 +1149,6 @@ class HomeBrainAssetRuntime {
       ...publication,
       expected_property_keys: Array.isArray(publication.expected_property_keys) ? publication.expected_property_keys : [],
       catalog_property_keys: Array.isArray(publication.catalog_property_keys) ? publication.catalog_property_keys : [],
-      v1_fallback_allowed: publication.v1_fallback_allowed === true
     };
   }
 
@@ -1162,8 +1170,7 @@ class HomeBrainAssetRuntime {
 
   mobilityExperienceV2() {
     const state = this.contractEntity("MOBILITY_EXPERIENCE_V2", [
-      "sensor.rhi_mobility_experience_v2",
-      "sensor.mobility_experience_v2"
+      "sensor.rhi_mobility_experience_v2"
     ]);
     const attrs = state?.attributes || {};
     if (String(attrs.contract_id || "") !== "MOBILITY_EXPERIENCE_V2") return null;
@@ -1177,8 +1184,7 @@ class HomeBrainAssetRuntime {
 
   mobilityPolicyV2() {
     const state = this.contractEntity("MOBILITY_POLICY_V2", [
-      "sensor.rhi_mobility_policy_v2",
-      "sensor.mobility_policy_v2"
+      "sensor.rhi_mobility_policy_v2"
     ]);
     const attrs = state?.attributes || {};
     if (String(attrs.contract_id || "") !== "MOBILITY_POLICY_V2") return null;
@@ -1192,8 +1198,7 @@ class HomeBrainAssetRuntime {
 
   mobilityCommandV2() {
     const state = this.contractEntity("MOBILITY_COMMAND_V2", [
-      "sensor.rhi_mobility_command_v2",
-      "sensor.mobility_command_v2"
+      "sensor.rhi_mobility_command_v2"
     ]);
     const attrs = state?.attributes || {};
     if (String(attrs.contract_id || "") !== "MOBILITY_COMMAND_V2") return null;
@@ -1427,19 +1432,11 @@ class HomeBrainAssetRuntime {
 
 
   indexAttr(attr, fallback = []) {
-    const key = `indexAttr:${attr}`;
-    if (this._memo.has(key)) return this._memo.get(key);
-    const raw = this.attr("sensor.mobility_asset_index", attr, undefined);
-    const parsed = this.parseListValue(raw);
-    const value = parsed.length ? parsed : fallback;
-    this._memo.set(key, value);
-    return value;
+    return Array.isArray(fallback) ? fallback : [];
   }
 
   typeIndexEntity(kind = "all") {
-    // R22.8: asset index is the only asset catalog/navigation source.
-    // Vehicle/charger indexes are compatibility/transitional and must not drive UX asset discovery.
-    return "sensor.mobility_asset_index";
+    return "sensor.rhi_mobility_runtime_v2";
   }
 
   assetIndexRows(kind = "all") {
@@ -1645,92 +1642,39 @@ class HomeBrainAssetRuntime {
   vehicleChargerRelationship(assetId) {
     const canonical = this.canonicalAssetId(assetId);
     const runtimeV2 = this.mobilityRuntimeV2();
-    if (runtimeV2) {
-      const relation = (runtimeV2.vehicle_charger_relationships || []).find((row)=>String(row?.vehicle_id || row?.asset_id || "") === canonical) || null;
-      const selected = this.cleanValue(relation?.configured_charger_id || "", "none") || "none";
-      const effective = this.cleanValue(relation?.effective_charger_id || "", "none") || "none";
-      const connected = relation?.observed_identity_proven === true
-        ? (this.cleanValue(relation?.physically_connected_charger_id || "", "none") || "none")
-        : "none";
-      return {
-        assigned:selected !== "none" ? selected : effective,
-        effective, selected, connected,
-        assigned_display_name:this.assetDisplayName(selected !== "none" ? selected : effective),
-        effective_display_name:this.assetDisplayName(effective),
-        connected_display_name:this.assetDisplayName(connected),
-        relationship_resolution:relation?.relationship_status || "",
-        reason:relation?.reason || "",
-        observed_identity_proven:relation?.observed_identity_proven === true,
-        row:relation,
-        physical_row:relation,
-        effective_row:relation,
-        selected_row:relation,
-        _authority:"MOBILITY_PUBLIC_RUNTIME_V2"
-      };
-    }
-    // Frozen V1 relationship index is compatibility-only on older backends.
-    const rows = this.relationshipRows(canonical).filter((r) => String(r.source_asset_id || r.asset_id || "") === String(canonical));
-    const selectedRow = rows.find((r) => String(r.relationship_type || "") === "vehicle_selected_charger") || null;
-    const effectiveRow = rows.find((r) => String(r.relationship_type || "") === "vehicle_effective_charger") || null;
-    const physicalRow = rows.find((r) => String(r.relationship_type || "") === "vehicle_physical_charger") || null;
-    const valueOf = (row) => this.cleanValue(row?.effective_target_asset_id || row?.target_asset_id || "", "none") || "none";
-    const selected = valueOf(selectedRow);
-    const effective = valueOf(effectiveRow);
-    const connected = valueOf(physicalRow);
-    const assigned = selected !== "none" ? selected : effective;
+    if (!runtimeV2) return { assigned:"none", effective:"none", selected:"none", connected:"none", row:null, relationship_resolution:"contract_gap" };
+    const relation = (runtimeV2.vehicle_charger_relationships || []).find((row)=>String(row?.vehicle_id || row?.asset_id || "") === canonical) || null;
+    if (!relation) return { assigned:"none", effective:"none", selected:"none", connected:"none", row:null, relationship_resolution:"not_published", _authority:"MOBILITY_PUBLIC_RUNTIME_V2" };
+    const selected = this.cleanValue(relation.configured_charger_id || "", "none") || "none";
+    const effective = this.cleanValue(relation.effective_charger_id || "", "none") || "none";
+    const connected = relation.observed_identity_proven === true ? (this.cleanValue(relation.physically_connected_charger_id || "", "none") || "none") : "none";
     return {
-      assigned, effective, selected, connected,
-      assigned_display_name: this.assetDisplayName(assigned),
-      effective_display_name: this.assetDisplayName(effective),
-      connected_display_name: this.assetDisplayName(connected),
-      relationship_resolution: physicalRow?.resolution_source || effectiveRow?.resolution_source || selectedRow?.resolution_source || "",
-      row: effectiveRow || selectedRow || physicalRow || null,
-      physical_row: physicalRow,
-      effective_row: effectiveRow,
-      selected_row: selectedRow
+      assigned:selected !== "none" ? selected : effective, effective, selected, connected,
+      assigned_display_name:this.assetDisplayName(selected !== "none" ? selected : effective),
+      effective_display_name:this.assetDisplayName(effective),
+      connected_display_name:this.assetDisplayName(connected),
+      relationship_resolution:relation.relationship_status || relation.resolution_status || "V2",
+      reason:relation.reason || "",
+      observed_identity_proven:relation.observed_identity_proven === true,
+      row:relation, physical_row:relation, effective_row:relation, selected_row:relation,
+      _authority:"MOBILITY_PUBLIC_RUNTIME_V2"
     };
   }
 
 
   releaseContract() {
-    // Runtime V2 is the canonical active Mobility product contract and publishes the
-    // backend release alongside the same asset/relationship snapshot consumed by UX.
-    // Legacy release sensors are compatibility evidence only and may be absent.
     const runtime = this.mobilityRuntimeV2();
-    const runtimeRelease = runtime?.release && typeof runtime.release === "object" ? runtime.release : {};
-    const contractEntity = this.entity("sensor.mobility_release_contract");
-    const identityEntity = this.entity("sensor.mobility_release_identity");
-    const attrs = { ...(identityEntity?.attributes || {}), ...(contractEntity?.attributes || {}) };
-    const backend = this.cleanValue(
-      runtimeRelease.backend_release ||
-      attrs.backend_release ||
-      attrs.backend_version ||
-      attrs.backend_release_version ||
-      attrs.release_version ||
-      attrs.release ||
-      attrs.version ||
-      attrs.package_version ||
-      contractEntity?.state ||
-      identityEntity?.state ||
-      "",
-      "Unknown"
-    ) || "Unknown";
-    const canonicalReady = Boolean(runtime && runtime.canonical === true);
+    const release = runtime?.release && typeof runtime.release === "object" ? runtime.release : {};
+    const backend = this.cleanValue(release.backend_release || release.backend_version || release.release || release.version || "", "Unknown") || "Unknown";
     return {
       backend_release: backend,
       backend_version: backend,
-      release_name: this.cleanValue(runtimeRelease.release_name || attrs.release_name || attrs.release_title || "", "") || "",
-      contract_version: this.cleanValue(attrs.contract_version || attrs.contract_release || attrs.contract || "", "Unknown") || "Unknown",
-      schema_version: this.cleanValue(attrs.schema_version || attrs.schema || "", "Unknown") || "Unknown",
-      build_date: this.cleanValue(attrs.build_date || attrs.release_date || attrs.generated_at || "", "Unknown") || "Unknown",
-      contract_health: this.cleanValue(
-        attrs.contract_health || attrs.health || attrs.status || (canonicalReady ? "ready" : "Unknown"),
-        "Unknown"
-      ) || "Unknown",
-      runtime_health: this.cleanValue(attrs.runtime_health || attrs.runtime_status || "", "Unknown") || "Unknown",
-      physical_acceptance: this.cleanValue(attrs.physical_acceptance || attrs.physical_execution_acceptance || "", "Unknown") || "Unknown",
-      release_acceptance: this.cleanValue(attrs.release_acceptance || attrs.acceptance || "", "Unknown") || "Unknown",
-      authority: runtimeRelease.backend_release ? "MOBILITY_PUBLIC_RUNTIME_V2" : (contractEntity ? "sensor.mobility_release_contract" : (identityEntity ? "sensor.mobility_release_identity" : "unavailable"))
+      release_name: release.release_name || "",
+      contract_version: runtime?.contract_id ? "2" : "Unknown",
+      contract_health: runtime?.canonical === true ? "OK" : "BLOCKED",
+      physical_acceptance: release.physical_acceptance || "Unknown",
+      release_acceptance: release.release_acceptance || "Unknown",
+      authority: runtime?.canonical === true ? "MOBILITY_PUBLIC_RUNTIME_V2" : "unavailable"
     };
   }
 
@@ -1770,23 +1714,7 @@ class HomeBrainAssetRuntime {
   }
 
   publicCommandRows() {
-    const v2 = this.commandV2Rows("");
-    if (v2 !== null) return v2;
-    if (this.mobilityRuntimeV2()) return [];
-    const rows = [];
-    const entity = this.entity("sensor.mobility_command_index");
-    const attrs = entity?.attributes || {};
-    for (const attrName of ["commands", "commands_by_asset", "rows"]) {
-      const value = this.parseJsonValue(attrs[attrName], attrs[attrName]);
-      rows.push(...this.commandsFromIndexValue(value, ""));
-    }
-    const seen = new Set();
-    return rows.map((r)=>this.normalizeCommandEntry(r, r?.asset_id || "")).filter(Boolean).filter((r)=>{
-      const key = `${r.asset_id}:${r.command_key || r.command_id}:${r.command_role || ""}`;
-      if (seen.has(key)) return false;
-      seen.add(key);
-      return true;
-    });
+    return this.commandV2Rows("") || [];
   }
 
   publicRelationshipRows() {
@@ -1935,52 +1863,13 @@ class HomeBrainAssetRuntime {
    * new registry is missing, actions disappear and the maintenance/contract
    * views expose that as a backend contract issue.
    */
-  commandRegistry(assetId) {
-    const canonical = this.canonicalAssetId(assetId);
-    const cacheKey = `commandRegistry:${canonical}`;
-    if (this._memo.has(cacheKey)) return this._memo.get(cacheKey);
-    const rows = this.uiCommandSurface(canonical)
-      .filter((c) => c && this.contractBool(c.frontend_allowed, true) === true)
-      .sort((a, b) => (Number(a.sort_order ?? 999) - Number(b.sort_order ?? 999)) || String(a.label).localeCompare(String(b.label)));
-    this._memo.set(cacheKey, rows);
-    return rows;
+  commandRegistry(assetId = "") {
+    return this.commandV2Rows(assetId) || [];
   }
 
 
   uiCommandSurface(assetId = "") {
-    const v2 = this.commandV2Rows(assetId);
-    if (v2 !== null) return v2;
-    const entityIds = ["sensor.mobility_command_index"];
-    for (const entityId of entityIds) {
-      const entity = this.entity(entityId);
-      if (!entity) continue;
-      const attrs = entity.attributes || {};
-      // R43.2.54: same authority, multiple transport serializations. Do not stop at
-      // the first partially populated attribute; union exact command-index rows and
-      // deduplicate by command_id so Restart/Identify/Unlock cannot disappear simply
-      // because START/STOP were present in an earlier serialization.
-      const commandAttrs = ["commands", "commands_json", "commands_by_asset", "commands_by_asset_json", "commands_by_id", "commands_by_id_json"];
-      const collected = [];
-      for (const attrName of commandAttrs) {
-        const raw = attrs[attrName];
-        let value = this.parseJsonValue(raw, null);
-        if (!value && raw && typeof raw === "object") value = raw;
-        collected.push(...this.commandsFromIndexValue(value, assetId));
-      }
-      const seen = new Set();
-      const normalized = collected
-        .map((entry) => this.normalizeCommandEntry(entry, entry?.asset_id || assetId))
-        .filter(Boolean)
-        .filter((entry) => {
-          const key = String(entry.command_id || entry.command_key || "");
-          if (!key || seen.has(key)) return false;
-          seen.add(key);
-          return true;
-        })
-        .sort((a, b) => (Number(a.sort_order ?? 999) - Number(b.sort_order ?? 999)) || String(a.label).localeCompare(String(b.label)));
-      if (normalized.length) return normalized;
-    }
-    return [];
+    return this.commandV2Rows(assetId) || [];
   }
 
   commandsFromIndexValue(value, assetId = "") {
@@ -2528,7 +2417,7 @@ class HomeBrainAssetRuntime {
 
   uxEditorControlKind(prop = {}) {
     // Backend-published canonical write metadata is the sole editor authority.
-    // Direct V2 semantic properties are primary; frozen V1 metadata is compatibility-only.
+    // Direct V2 semantic properties are primary; V2 metadata is authoritative.
     // Do not infer editor type from property names, units, integrations or values.
     const binding = String(prop.write_binding_type || prop.editor || "").trim().toLowerCase();
     if (binding === "select") return "select";
@@ -2777,27 +2666,11 @@ class HomeBrainAssetRuntime {
 
 
   clusterIntelligenceRows(assetType = "vehicle", assetId = "") {
-    const entityId = assetType === "charger" ? "sensor.mobility_charger_intelligence_index" : "sensor.mobility_vehicle_intelligence_index";
     const canonical = this.canonicalAssetId(assetId);
-    const attrs = this.entity(entityId)?.attributes || {};
-    const rows = [];
-    const collect = (value, keyHint = "") => {
-      const parsed = this.parseJsonValue(value, value);
-      if (Array.isArray(parsed)) {
-        for (const item of parsed) rows.push({ ...(item || {}), asset_id: item?.asset_id || item?.subject_asset_id || keyHint });
-      } else if (parsed && typeof parsed === "object") {
-        if (Array.isArray(parsed.rows)) collect(parsed.rows, keyHint);
-        if (Array.isArray(parsed.intelligence)) collect(parsed.intelligence, keyHint);
-        if (Array.isArray(parsed.clusters)) collect(parsed.clusters, keyHint);
-        for (const [key, val] of Object.entries(parsed)) {
-          if (["rows","intelligence","clusters","schema_version","contract_version","generated_at"].includes(key)) continue;
-          if (Array.isArray(val)) collect(val.map((r)=>({ asset_id:r?.asset_id || r?.subject_asset_id || key, ...r })), key);
-          else if (val && typeof val === "object") rows.push({ asset_id:val.asset_id || val.subject_asset_id || key, ...val });
-        }
-      }
-    };
-    for (const attrName of ["assets_json", "assets", "rows", "rows_json", "intelligence", "intelligence_json", "clusters", "clusters_json", "vehicles", "chargers", "by_asset", "intelligence_by_asset", "summary_by_asset"]) collect(attrs[attrName], "");
-    return rows.filter((r)=>!canonical || String(r.asset_id || r.subject_asset_id || r.related_asset_id || "") === canonical);
+    const experience = this.mobilityExperienceV2();
+    if (!experience) return [];
+    const source = String(assetType || "").toLowerCase() === "charger" ? (experience.chargers || []) : (experience.vehicles || []);
+    return source.filter((row)=>!canonical || String(row?.asset_id || "") === canonical);
   }
 
   clusterIntelligenceObject(assetId = "", assetType = "vehicle") {
@@ -2807,8 +2680,8 @@ class HomeBrainAssetRuntime {
     return first.summary && typeof first.summary === "object" ? { ...first, ...first.summary } : first;
   }
 
-  contractGapTile(label = "Contract", icon = "mdi:alert-outline", detail = "Required intelligence contract missing") {
-    return { icon, label, value:"Contract gap", subvalue:detail, tone:"attention", subIcon:"mdi:alert-outline" };
+  contractGapTile(label = "Status", icon = "mdi:alert-outline", detail = "Information is not available yet") {
+    return { icon, label, value:"Not available", subvalue:detail, tone:"attention", subIcon:"mdi:alert-outline" };
   }
 
   normalizedIntelligenceTile(raw = null, required = {}) {
@@ -2836,11 +2709,11 @@ class HomeBrainAssetRuntime {
     const obj = this.clusterIntelligenceObject(assetId, "vehicle");
     if (!obj) {
       return [
-        this.contractGapTile("Range", "mdi:road-variant", "sensor.mobility_vehicle_intelligence_index missing"),
-        this.contractGapTile("Energy", "mdi:battery-charging", "sensor.mobility_vehicle_intelligence_index missing"),
-        this.contractGapTile("Security", "mdi:lock-outline", "sensor.mobility_vehicle_intelligence_index missing"),
-        this.contractGapTile("Maintenance", "mdi:wrench-outline", "sensor.mobility_vehicle_intelligence_index missing"),
-        this.contractGapTile("Freshness", "mdi:clock-outline", "sensor.mobility_vehicle_intelligence_index missing")
+        this.contractGapTile("Range", "mdi:road-variant", "Information is not available yet"),
+        this.contractGapTile("Energy", "mdi:battery-charging", "Information is not available yet"),
+        this.contractGapTile("Security", "mdi:lock-outline", "Information is not available yet"),
+        this.contractGapTile("Maintenance", "mdi:wrench-outline", "Information is not available yet"),
+        this.contractGapTile("Freshness", "mdi:clock-outline", "Information is not available yet")
       ];
     }
     const range = obj.range_intelligence || obj.range || obj.range_summary || obj.Range || null;
@@ -2865,7 +2738,7 @@ class HomeBrainAssetRuntime {
   }
 
   // Charger product headline semantics intentionally have no intelligence-based
-  // compatibility resolver. Use chargerProductSnapshot() only.
+  // fallback resolver. Use chargerProductSnapshot() only.
 
   lifecyclePropertyRow(assetId = "") {
     const canonical = this.canonicalAssetId(assetId);
@@ -3134,7 +3007,7 @@ class HomeBrainAssetRuntime {
         engineeringPublicPropertyKeys.add(String(p.property_key || ""));
         details.push({ label:this.propertyDisplayLabel(p), value:`${this.propertyDisplayValue(p)} · key=${p.property_key}; quality=${p.quality || ""}; health=${p.health || ""}` });
       }
-      // V1 contract-complete guard: every public property must be visible in normal UX or
+      // Public-contract completeness guard: every public property must be visible in normal UX or
       // traceable from Engineering details. This prevents silent drops when family,
       // group, detail_level or access metadata changes in runtime.
       const familyPublicKeys = props.map((p)=>String(p.property_key || "")).filter(Boolean);
@@ -3173,7 +3046,7 @@ class HomeBrainAssetRuntime {
     // Keep contract consumption evidence out of normal detail UX. It belongs in validation
     // reports and Engineering details, not as a visible product section.
     if (this.config?.show_contract_consumption === true) {
-      sections.push({ key:"contract-consumption", title:"Contract Consumption", icon:"mdi:file-check-outline", header:"UX v1 completeness", rows:reportRows, details:[...warnings.map((w,i)=>({label:`Warning ${i+1}`, value:w})), ...summary.editableGaps.map((p)=>({label:`Editable gap ${p.property_key}`, value:"Missing write_supported/write_service_domain/write_service_action/write_target_entity"})), ...summary.executableCommandGaps.map((c)=>({label:`Command gap ${c.command_key || c.command_id}`, value:"execution_allowed=true but service metadata incomplete"}))] });
+      sections.push({ key:"contract-consumption", title:"Contract Consumption", icon:"mdi:file-check-outline", header:"UX completeness", rows:reportRows, details:[...warnings.map((w,i)=>({label:`Warning ${i+1}`, value:w})), ...summary.editableGaps.map((p)=>({label:`Editable gap ${p.property_key}`, value:"Missing write_supported/write_service_domain/write_service_action/write_target_entity"})), ...summary.executableCommandGaps.map((c)=>({label:`Command gap ${c.command_key || c.command_id}`, value:"execution_allowed=true but service metadata incomplete"}))] });
     }
     return sections.filter((s)=>s.rows?.length || s.details?.length);
   }
@@ -3213,41 +3086,15 @@ class HomeBrainAssetRuntime {
     return "mdi:database";
   }
 
-  vehicleComponentContractRows() {
-    const cacheKey = "vehicleComponentContractRows";
-    if (this._memo.has(cacheKey)) return this._memo.get(cacheKey);
-    // R22.12.11.30: components_json is the deployed serialized form of the
-    // same component contract. Parsing it is transport normalization, not a
-    // semantic fallback: ownership remains the single component-contract entity.
-    const parsedRows = this.canonicalRowsFromAttrs(
-      "sensor.mobility_vehicle_component_contract_index",
-      ["components_json", "components", "component_contract", "component_contract_index", "rows"],
-      "vehicle_component_contract"
-    ).map((row, index) => {
-      const component_id = String(row.component_id || row.id || row.key || "").trim();
-      const property_index_entity = String(row.property_index_entity || row.property_index || "").trim();
-      if (!component_id || !property_index_entity) return null;
-      return {
-        ...row,
-        component_id,
-        display_name: row.display_name || row.label || component_id,
-        tab_id: row.tab_id || component_id,
-        card_order: Number(row.card_order ?? row.order ?? index),
-        property_index_entity,
-        overview_properties: this.parseListValue(row.overview_properties),
-        action_properties: this.parseListValue(row.action_properties),
-        detail_properties: this.parseListValue(row.detail_properties),
-        engineering_properties: this.parseListValue(row.engineering_properties),
-        related_commands: this.parseListValue(row.related_commands)
-      };
-    }).filter(Boolean);
-    // If a backend exposes both object and *_json serializations during a
-    // rollout, consume the component exactly once.
-    const byComponentId = new Map();
-    for (const row of parsedRows) if (!byComponentId.has(row.component_id)) byComponentId.set(row.component_id, row);
-    const rows = [...byComponentId.values()].sort((a,b)=>Number(a.card_order || 999) - Number(b.card_order || 999));
-    this._memo.set(cacheKey, rows);
-    return rows;
+  vehicleComponentContractRows(assetId = "") {
+    const canonical = this.canonicalAssetId(assetId);
+    const grouped = new Map();
+    for (const row of this.v2PropertyRows(canonical)) {
+      const componentId = String(row.component_id || "details");
+      if (!grouped.has(componentId)) grouped.set(componentId,{ component_id:componentId, asset_id:canonical, properties:[] });
+      grouped.get(componentId).properties.push(row);
+    }
+    return [...grouped.values()];
   }
 
   vehicleComponentContractAvailable() {
@@ -3264,11 +3111,7 @@ class HomeBrainAssetRuntime {
     return this.vehicleComponentRows().find((c)=>String(c.component_id || "") === id) || null;
   }
 
-  vehicleComponentPropertyIndexEntities() {
-    const rows = this.vehicleComponentRows();
-    const entities = rows.map((c)=>String(c.property_index_entity || "").trim()).filter(Boolean);
-    return [...new Set(entities)];
-  }
+  vehicleComponentPropertyIndexEntities() { return []; }
 
   componentPropertyRows(assetId = "", componentId = "") {
     const canonical = this.canonicalAssetId(assetId);
@@ -3348,143 +3191,23 @@ class HomeBrainAssetRuntime {
   }
 
   vehicleComponentDetailSections(assetId = "") {
-    const canonical = this.canonicalAssetId(assetId);
-    const v2Sections = this.v2ComponentDetailSections(canonical, "vehicle");
-    if (v2Sections !== null) return v2Sections;
-    const components = this.vehicleComponentRows();
-    if (!components.length) {
-      return [{
-        key:"vehicle-layout-contract-gap",
-        title:"Layout contract gap",
-        icon:"mdi:alert-outline",
-        header:"Component contract unavailable",
-        rows:[{ type:"readonly", icon:"mdi:alert-outline", label:"Vehicle layout", value:"Contract gap" }],
-        details:[{ label:"Required owner", value:"sensor.mobility_vehicle_component_contract_index" }]
-      }];
-    }
-    const sections = [];
-    const groupDefs = [
-      { key:"overview", title:"Overview", list:"overview_properties" },
-      { key:"actions", title:"Controls", list:"action_properties" },
-      { key:"details", title:"Details", list:"detail_properties" },
-      { key:"engineering", title:"Engineering", list:"engineering_properties", detailsOnly:true }
-    ];
-    for (const component of components) {
-      const props = this.vehicleComponentProperties(canonical, component.component_id)
-        .filter((p)=>String(p.access || "").toLowerCase() !== "internal")
-        .sort((a,b)=>(Number(a.display_order ?? a.sort_order ?? 999)-Number(b.display_order ?? b.sort_order ?? 999)) || String(a.property_key || "").localeCompare(String(b.property_key || "")));
-      const byKey = new Map(props.map((p)=>[String(p.property_key || ""), p]).filter(([key])=>!!key));
-      const declared = new Set();
-      for (const def of groupDefs) for (const key of (component[def.list] || [])) declared.add(String(key));
-      const hasDeclaredPlacement = declared.size > 0;
-      const rows = [];
-      const details = [];
-      const rendered = new Set();
-
-      // A property listed in Actions is an editable-property placement, not a command.
-      // Prefer that placement when the same key is also present in Overview.
-      const actionKeys = new Set((component.action_properties || []).map(String));
-      for (const def of groupDefs) {
-        const keys = hasDeclaredPlacement
-          ? (component[def.list] || []).map(String).filter((key)=>!(def.key === "overview" && actionKeys.has(key)))
-          : (def.key === "overview" ? props.map((p)=>String(p.property_key || "")) : []);
-        const placed = keys.map((key)=>byKey.get(key)).filter(Boolean).filter((p)=>!rendered.has(String(p.property_key || "")));
-        if (!placed.length) continue;
-        if (def.detailsOnly) {
-          for (const p of placed) {
-            const key = String(p.property_key || "");
-            rendered.add(key);
-            details.push({ label:this.propertyDisplayLabel(p), value:`${this.propertyDisplayValue(p)} · key=${key}; component=${component.component_id}; engineering=true` });
-          }
-          continue;
-        }
-        rows.push({ type:"subheader", label:def.title, value:"" });
-        for (const p of placed) {
-          const key = String(p.property_key || "");
-          rendered.add(key);
-          rows.push(this.propertyOperationalRow(p));
-        }
-      }
-
-      // If the component declares exact placement lists, unlisted component properties
-      // are a backend layout-contract gap. Do not reconstruct placement from families.
-      if (hasDeclaredPlacement) {
-        for (const p of props) {
-          const key = String(p.property_key || "");
-          if (!key || rendered.has(key)) continue;
-          details.push({ label:`Unplaced: ${key}`, value:`owner=${component.property_index_entity}; component=${component.component_id}; layout_contract_gap=true` });
-        }
-      }
-
-      sections.push({
-        key:`vehicle-component-${component.component_id}`,
-        title:component.display_name || this.titleize(component.component_id),
-        icon:component.icon || (String(component.component_id).includes("charging") ? "mdi:ev-station" : String(component.component_id).includes("battery") ? "mdi:battery-charging" : String(component.component_id).includes("range") ? "mdi:map-marker-distance" : String(component.component_id).includes("access") ? "mdi:shield-car" : String(component.component_id).includes("comfort") ? "mdi:fan" : String(component.component_id).includes("location") ? "mdi:map-marker" : String(component.component_id).includes("maintenance") ? "mdi:wrench" : String(component.component_id).includes("diagnostic") ? "mdi:bug-check" : "mdi:car"),
-        header:`${props.length} properties`,
-        rows,
-        details
-      });
-    }
-    return sections.filter((s)=>s.rows?.length || s.details?.length);
+    return this.v2ComponentDetailSections(assetId, "vehicle") || [];
   }
 
 
-  chargerComponentContractRows() {
-    const cacheKey = "chargerComponentContractRows";
-    if (this._memo.has(cacheKey)) return this._memo.get(cacheKey);
-    const entityId = "sensor.mobility_charger_component_contract_index";
-    const attrs = this.entity(entityId)?.attributes || {};
-    const rows = [];
-    const collect = (value) => {
-      const parsed = this.parseJsonValue(value, value);
-      if (Array.isArray(parsed)) rows.push(...parsed);
-      else if (parsed && typeof parsed === "object") {
-        if (Array.isArray(parsed.cards)) rows.push(...parsed.cards);
-        else if (Array.isArray(parsed.rows)) rows.push(...parsed.rows);
-        else if (Array.isArray(parsed.components)) rows.push(...parsed.components);
-        else rows.push(...Object.values(parsed).filter((r)=>r && typeof r === "object"));
-      }
-    };
-    for (const attrName of ["ux_cards_json", "cards", "cards_json", "components", "component_contract", "component_contract_index", "rows"]) collect(attrs[attrName]);
-    const sectionCommandMap = this.parseJsonValue(attrs.related_commands_by_section_json, attrs.related_commands_by_section_json || {});
-    const fieldMap = this.parseJsonValue(attrs.ux_fields_by_property_json, attrs.ux_fields_by_property_json || {});
-    const layoutRules = this.parseJsonValue(attrs.ux_layout_rules_json, attrs.ux_layout_rules_json || {});
-    const forbiddenRendering = this.parseJsonValue(attrs.ux_forbidden_rendering_json, attrs.ux_forbidden_rendering_json || {});
-    const normalized = rows.map((row, index) => {
-      if (!row || typeof row !== "object") return null;
-      const component_id = String(row.component_id || row.card_id || row.id || row.key || "").trim();
-      const property_index_entity = String(row.property_index_entity || row.property_index || "").trim();
-      if (!component_id || !property_index_entity) return null;
-      const sections = this.parseListValue(row.sections || row.sections_json);
-      const relatedFromRow = this.parseListValue(row.related_commands || row.commands || row.command_keys);
-      return {
-        ...row,
-        component_id,
-        card_id: row.card_id || component_id,
-        display_name: row.display_name || row.title || row.label || component_id,
-        tab_id: row.tab_id || row.tab || (component_id.includes("engineering") ? "engineering" : component_id.includes("metering") ? "details" : "overview"),
-        card_order: Number(row.card_order ?? row.order ?? index),
-        property_index_entity,
-        runtime_contract_index_entity: "",
-        command_index_entity: String(row.command_index_entity || attrs.command_index_entity || "sensor.mobility_command_index").trim(),
-        sections,
-        overview_properties: this.parseListValue(row.overview_properties),
-        action_properties: this.parseListValue(row.action_properties),
-        detail_properties: this.parseListValue(row.detail_properties),
-        engineering_properties: this.parseListValue(row.engineering_properties),
-        related_commands: relatedFromRow,
-        related_commands_by_section: this.parseJsonValue(row.related_commands_by_section_json || row.related_commands_by_section, row.related_commands_by_section || sectionCommandMap || {}),
-        ux_fields_by_property: fieldMap,
-        ux_layout_rules: layoutRules,
-        ux_forbidden_rendering: forbiddenRendering
-      };
-    }).filter(Boolean).sort((a,b)=>Number(a.card_order || 999) - Number(b.card_order || 999));
-    this._memo.set(cacheKey, normalized);
-    return normalized;
+  chargerComponentContractRows(assetId = "") {
+    const canonical = this.canonicalAssetId(assetId);
+    const grouped = new Map();
+    for (const row of this.v2PropertyRows(canonical)) {
+      const componentId = String(row.component_id || "details");
+      if (!grouped.has(componentId)) grouped.set(componentId,{ component_id:componentId, asset_id:canonical, properties:[] });
+      grouped.get(componentId).properties.push(row);
+    }
+    return [...grouped.values()];
   }
 
   chargerComponentContractAvailable() {
-    return this.chargerComponentContractRows().length > 0;
+    return this.v2PropertyRows("").some((row)=>String(row.asset_type || "").toLowerCase()==="charger" && !!row.component_id);
   }
 
   chargerComponentRows() {
@@ -3497,11 +3220,7 @@ class HomeBrainAssetRuntime {
     return this.chargerComponentRows().find((c)=>String(c.component_id || c.card_id || "") === id) || null;
   }
 
-  chargerComponentPropertyIndexEntities() {
-    const rows = this.chargerComponentRows();
-    const entities = rows.map((c)=>String(c.property_index_entity || "").trim()).filter(Boolean);
-    return [...new Set(entities)];
-  }
+  chargerComponentPropertyIndexEntities() { return []; }
 
   chargerComponentPropertyRows(assetId = "", componentId = "") {
     const canonical = this.canonicalAssetId(assetId);
@@ -3519,8 +3238,8 @@ class HomeBrainAssetRuntime {
 
   chargerFieldConfig(propertyKey = "", component = {}) {
     const key = String(propertyKey || "").trim();
-    const map = component?.ux_fields_by_property || this.parseJsonValue(this.attr("sensor.mobility_charger_component_contract_index", "ux_fields_by_property_json", {}), {});
-    return (map && typeof map === "object" ? (map[key] || {}) : {}) || {};
+    const rows = Array.isArray(component?.properties) ? component.properties : [];
+    return rows.find((row)=>String(row?.property_key || "") === key) || {};
   }
 
   chargerPropertyRowForContract(prop = {}, component = {}) {
@@ -3549,121 +3268,11 @@ class HomeBrainAssetRuntime {
   }
 
   chargerComponentDetailSections(assetId = "") {
-    const canonical = this.canonicalAssetId(assetId);
-    const v2Sections = this.v2ComponentDetailSections(canonical, "charger");
-    if (v2Sections !== null) return v2Sections;
-    const components = this.chargerComponentRows();
-    const forbiddenProductStatusKeys = new Set(["charger.status", "source_status", "charger.operational_state"]);
-    const allProps = this.propertyRows(canonical).filter((p)=>String(p.access || "").toLowerCase() !== "internal");
-    const productProps = allProps.filter((p)=>!forbiddenProductStatusKeys.has(String(p.property_key || "")) && String(p.access || "").toLowerCase() !== "diagnostics_only");
-    const diagnosticsProps = allProps.filter((p)=>forbiddenProductStatusKeys.has(String(p.property_key || "")) || String(p.access || "").toLowerCase() === "diagnostics_only");
-    const productByKey = new Map(productProps.map((p)=>[String(p.property_key || ""), p]));
-    const diagnosticsByKey = new Map(diagnosticsProps.map((p)=>[String(p.property_key || ""), p]));
-    const fieldMap = this.parseJsonValue(this.attr("sensor.mobility_charger_component_contract_index", "ux_fields_by_property_json", {}), {});
-    const renderedKeys = new Set();
-    const sections = [];
-
-    const placementsFor = (component, sectionId) => {
-      if (!fieldMap || typeof fieldMap !== "object" || Array.isArray(fieldMap)) return [];
-      const componentId = String(component.component_id || component.card_id || "");
-      return Object.entries(fieldMap).map(([mapKey, cfg]) => {
-        if (!cfg || typeof cfg !== "object") return null;
-        const propertyKey = String(cfg.property_key || mapKey || "").trim();
-        const cardId = String(cfg.card_id || cfg.component_id || "").trim();
-        const cfgSection = String(cfg.section_id || cfg.section || "").trim();
-        if (!propertyKey || (cardId && cardId !== componentId) || (sectionId !== "__component__" && cfgSection !== sectionId)) return null;
-        return { propertyKey, cfg, order:Number(cfg.display_order ?? cfg.order ?? 999) };
-      }).filter(Boolean).sort((a,b)=>a.order-b.order || a.propertyKey.localeCompare(b.propertyKey));
-    };
-
-    const rowForPlacement = (placement, component, diagnostics = false) => {
-      const source = diagnostics ? diagnosticsByKey : productByKey;
-      const prop = source.get(placement.propertyKey);
-      if (!prop) return null;
-      renderedKeys.add(placement.propertyKey);
-      return this.chargerPropertyRowForContract({ ...prop, ...placement.cfg, display_name:placement.cfg.label || placement.cfg.display_name || prop.display_name }, component);
-    };
-
-    let engineeringComponent = null;
-    for (const component of components) {
-      const componentId = String(component.component_id || component.card_id || "");
-      if (componentId === "charger_actions") continue;
-      if (componentId === "charger_engineering") engineeringComponent = component;
-      const componentProps = this.chargerComponentPropertyRows(canonical, component.component_id)
-        .filter((p)=>String(p.access || "").toLowerCase() !== "internal")
-        .sort((a,b)=>(Number(a.display_order ?? a.sort_order ?? 999)-Number(b.display_order ?? b.sort_order ?? 999)) || String(a.property_key || "").localeCompare(String(b.property_key || "")));
-      const rows = [];
-      const details = [];
-      for (const sectionDef of this.chargerSectionDefinitions(component)) {
-        const sectionId = String(sectionDef.section_id || sectionDef.id || sectionDef.key || "details");
-        const isDiagnosticsSection = componentId === "charger_engineering" && this.norm(sectionId) === "diagnostics";
-        const isUnmappedSection = componentId === "charger_engineering" && this.norm(sectionId) === "unmapped";
-        let placedRows = [];
-        if (!isUnmappedSection) {
-          const placements = placementsFor(component, sectionId);
-          placedRows = placements.map((placement)=>rowForPlacement(placement, component, isDiagnosticsSection)).filter(Boolean);
-        }
-        if (isUnmappedSection) {
-          // Explicit backend-owned catch-all section. Showing unplaced properties here
-          // is allowed because the component contract itself declared `unmapped`.
-          const leftovers = productProps.filter((p)=>!renderedKeys.has(String(p.property_key || "")));
-          if (leftovers.length) {
-            rows.push({ type:"subheader", label:sectionDef.display_name || "Unmapped", value:"" });
-            for (const p of leftovers) {
-              renderedKeys.add(String(p.property_key || ""));
-              rows.push(this.chargerPropertyRowForContract(p, component));
-            }
-          }
-          continue;
-        }
-        if (!placedRows.length) continue;
-        if (sectionId !== "__component__") rows.push({ type:"subheader", label:sectionDef.display_name || this.titleize(sectionId.replace(/_/g," ")), value:"" });
-        rows.push(...placedRows);
-      }
-      sections.push({
-        key:`charger-component-${component.component_id}`,
-        title:component.display_name || this.titleize(component.component_id),
-        icon: component.icon || (componentId.includes("control") ? "mdi:tune" : componentId.includes("metering") ? "mdi:counter" : componentId.includes("engineering") ? "mdi:wrench" : "mdi:ev-station"),
-        header:`${rows.filter((r)=>r.type !== "subheader").length} fields`,
-        rows,
-        details
-      });
-    }
-
-    // If the contract has no explicit Engineering/Unmapped section, fail closed and
-    // report the missing placement instead of inventing a product card.
-    const unaccounted = productProps.filter((p)=>!renderedKeys.has(String(p.property_key || "")));
-    if (unaccounted.length && !engineeringComponent) {
-      sections.push({
-        key:"charger-layout-contract-gap",
-        title:"Layout contract gap",
-        icon:"mdi:alert-outline",
-        header:`${unaccounted.length} unplaced properties`,
-        rows:[{ type:"readonly", icon:"mdi:alert-outline", label:"Component placement", value:"Contract gap" }],
-        details:unaccounted.map((p)=>({ label:String(p.property_key || "Property"), value:`owner=${p._source_entity_id || "sensor.mobility_charger_property_index"}; missing component placement` }))
-      });
-    }
-
-    const diagnosticsUnplaced = diagnosticsProps.filter((p)=>!renderedKeys.has(String(p.property_key || "")));
-    if (diagnosticsUnplaced.length) {
-      sections.push({
-        key:"charger-component-source-diagnostics",
-        title:"Engineering / Source diagnostics",
-        icon:"mdi:stethoscope",
-        header:`${diagnosticsUnplaced.length} diagnostics`,
-        rows:[],
-        details:diagnosticsUnplaced.map((p)=>({ label:this.propertyDisplayLabel(p), value:`${this.propertyDisplayValue(p)} · key=${p.property_key}; diagnostics_only=true` }))
-      });
-    }
-    return sections.filter((section)=>section.rows?.length || section.details?.length);
+    return this.v2ComponentDetailSections(assetId, "charger") || [];
   }
 
   propertyIndexEntityForAsset(assetId = "") {
-    const canonical = this.canonicalAssetId(assetId);
-    if (canonical.startsWith("vehicle_")) return "sensor.mobility_vehicle_component_contract_index";
-    if (canonical.startsWith("charger_")) return this.chargerComponentContractAvailable() ? "sensor.mobility_charger_component_contract_index" : "sensor.mobility_charger_property_index";
-    if (canonical.startsWith("person_")) return "sensor.mobility_person_property_index";
-    return "";
+    return "sensor.rhi_mobility_runtime_v2";
   }
 
   v2PropertyRows(assetId = "") {
@@ -3872,36 +3481,9 @@ class HomeBrainAssetRuntime {
     const canonical = assetId ? this.canonicalAssetId(assetId) : "";
     const cacheKey = `propertyRows:${canonical || "all"}`;
     if (this._memo.has(cacheKey)) return this._memo.get(cacheKey);
-    const v2 = this.v2PropertyRows(canonical);
-    if (v2.length || this.mobilityRuntimeV2()) {
-      this._memo.set(cacheKey, v2);
-      return v2;
-    }
-    let entities = [];
-    if (canonical) {
-      if (canonical.startsWith("vehicle_")) entities = ["sensor.mobility_vehicle_property_index", ...this.vehicleComponentPropertyIndexEntities()];
-      else if (canonical.startsWith("charger_")) entities = ["sensor.mobility_charger_property_index", ...this.chargerComponentPropertyIndexEntities()];
-      else entities = [this.propertyIndexEntityForAsset(canonical)];
-    } else {
-      entities = [
-        "sensor.mobility_vehicle_property_index",
-        ...this.vehicleComponentPropertyIndexEntities(),
-        "sensor.mobility_charger_property_index",
-        ...this.chargerComponentPropertyIndexEntities(),
-        "sensor.mobility_person_property_index"
-      ];
-    }
-    const rows = [];
-    for (const entityId of [...new Set(entities.filter(Boolean))]) rows.push(...this.propertyRowsFromEntity(entityId, canonical));
-    const seen = new Set();
-    const normalized = rows.filter((r) => {
-      const key = `${r.asset_id}:${r.property_key}:${String(r.value)}`;
-      if (seen.has(key)) return false;
-      seen.add(key);
-      return true;
-    });
-    this._memo.set(cacheKey, normalized);
-    return normalized;
+    const rows = this.v2PropertyRows(canonical);
+    this._memo.set(cacheKey, rows);
+    return rows;
   }
 
   propertyControlModel(assetId = "", propertyKey = "") {
@@ -3999,9 +3581,7 @@ class HomeBrainAssetRuntime {
     if (!canonical || !wanted) return null;
     const rows = this.propertyRows(canonical).filter((r)=>String(r.property_key || "") === wanted || String(r._compound_key || "") === `${canonical}:${wanted}`);
     if (!rows.length) return null;
-    // Frozen V1 can expose the same canonical V2 property through more than one
-    // index. Prefer the richest canonical row so complete write metadata is not
-    // shadowed by a read-only duplicate.
+    // V2 property publication may contain duplicate transport rows; prefer the richest canonical row so complete write metadata is not shadowed.
     const score = (row) => {
       let value = 0;
       if (String(row.canonical_contract || "").toUpperCase() === "MOBILITY_PUBLIC_RUNTIME_V2") value += 16;
@@ -4046,7 +3626,7 @@ class HomeBrainAssetRuntime {
       secondary_label_field: row.secondary_label_field || "secondary_label",
       allow_none: this.contractBool(row.allow_none, false),
       none_value: row.none_value ?? "",
-      // V1 write metadata is authoritative. Never manufacture writeability from
+      // Backend V2 write metadata is authoritative. Never manufacture writeability from
       // the mere presence of a target/service binding.
       write_supported: this.contractBool(row.write_supported, false),
       write_binding_type: row.write_binding_type || row.editor || "",
@@ -4089,59 +3669,28 @@ class HomeBrainAssetRuntime {
     if (canonical.startsWith("vehicle_")) return this.vehicleChargerRelationship(canonical);
     if (!canonical.startsWith("charger_")) return { assigned:"none", connected:"none", effective:"none", selected:"none", row:null };
     const runtimeV2 = this.mobilityRuntimeV2();
-    if (runtimeV2) {
-      const relations = runtimeV2.vehicle_charger_relationships || [];
-      const configured = relations.filter((row)=>String(row?.configured_charger_id || "") === canonical);
-      const effectiveRows = relations.filter((row)=>String(row?.effective_charger_id || "") === canonical);
-      const physical = relations.filter((row)=>row?.observed_identity_proven === true && String(row?.physically_connected_charger_id || "") === canonical);
-      const one = (rows) => rows.length === 1 ? String(rows[0]?.vehicle_id || rows[0]?.asset_id || "none") : "none";
-      const selected = one(configured);
-      const effective = one(effectiveRows);
-      const connected = one(physical);
-      const assigned = selected !== "none" ? selected : effective;
-      return {
-        assigned, connected, effective, selected,
-        assigned_vehicle:assigned,
-        connected_vehicle:connected,
-        effective_vehicle:effective,
-        selected_vehicle:selected,
-        relationship_resolution:physical.length > 1 || effectiveRows.length > 1 || configured.length > 1 ? "CONFLICT" : "V2",
-        confidence:physical.length === 1 ? "proven" : "",
-        row:physical[0] || effectiveRows[0] || configured[0] || null,
-        connected_row:physical[0] || null,
-        effective_row:effectiveRows[0] || null,
-        selected_row:configured[0] || null,
-        _authority:"MOBILITY_PUBLIC_RUNTIME_V2"
-      };
-    }
-    const rows = this.relationshipRows(canonical).filter((r) => String(r.source_asset_id || r.asset_id || "") === String(canonical));
-    const selectedRow = rows.find((r) => String(r.relationship_type || "") === "charger_selected_vehicle") || null;
-    const effectiveRow = rows.find((r) => String(r.relationship_type || "") === "charger_effective_assigned_vehicle") || null;
-    const connectedRow = rows.find((r) => String(r.relationship_type || "") === "charger_connected_vehicle") || null;
-    const valueOf = (row) => this.cleanValue(row?.effective_target_asset_id || row?.target_asset_id || "", "none") || "none";
-    const selected = valueOf(selectedRow);
-    const effective = valueOf(effectiveRow);
-    const connected = valueOf(connectedRow);
-    const assigned = selected !== "none" ? selected : effective;
+    if (!runtimeV2) return { assigned:"none", connected:"none", effective:"none", selected:"none", row:null, relationship_resolution:"contract_gap" };
+    const relations = runtimeV2.vehicle_charger_relationships || [];
+    const configured = relations.filter((row)=>String(row?.configured_charger_id || "") === canonical);
+    const effectiveRows = relations.filter((row)=>String(row?.effective_charger_id || "") === canonical);
+    const physical = relations.filter((row)=>row?.observed_identity_proven === true && String(row?.physically_connected_charger_id || "") === canonical);
+    const one = (rows) => rows.length === 1 ? String(rows[0]?.vehicle_id || rows[0]?.asset_id || "none") : "none";
+    const selected = one(configured), effective = one(effectiveRows), connected = one(physical);
     return {
-      assigned, connected, effective, selected,
-      assigned_vehicle: assigned,
-      connected_vehicle: connected,
-      effective_vehicle: effective,
-      selected_vehicle: selected,
-      relationship_resolution: connectedRow?.resolution_source || effectiveRow?.resolution_source || selectedRow?.resolution_source || "",
-      confidence: connectedRow?.confidence || effectiveRow?.confidence || selectedRow?.confidence || "",
-      row: effectiveRow || selectedRow || connectedRow || null,
-      connected_row: connectedRow,
-      effective_row: effectiveRow,
-      selected_row: selectedRow
+      assigned:selected !== "none" ? selected : effective, connected, effective, selected,
+      assigned_vehicle:selected !== "none" ? selected : effective,
+      connected_vehicle:connected, effective_vehicle:effective, selected_vehicle:selected,
+      relationship_resolution:physical.length > 1 || effectiveRows.length > 1 || configured.length > 1 ? "CONFLICT" : "V2",
+      confidence:physical.length === 1 ? "proven" : "",
+      row:physical[0] || effectiveRows[0] || configured[0] || null,
+      connected_row:physical[0] || null, effective_row:effectiveRows[0] || null, selected_row:configured[0] || null,
+      _authority:"MOBILITY_PUBLIC_RUNTIME_V2"
     };
   }
 
   commandsFor(assetId) {
     const canonical = this.canonicalAssetId(assetId);
-    // Command V2 is authoritative when present. The frozen V1 command index is
-    // compatibility-only for older backends and never overrides a V2 publication.
+    // MOBILITY_COMMAND_V2 is the sole product command authority.
     return this.commandRegistry(canonical)
       .filter((c) => c && String(c.asset_id || "") === String(canonical))
       .filter((c) => this.contractBool(c.frontend_allowed, true) === true)
@@ -4247,159 +3796,20 @@ class HomeBrainAssetRuntime {
     };
   }
 
-  commandSlotContract(assetId = "") {
-    const canonical = this.canonicalAssetId(assetId);
-    const entityId = canonical.startsWith("charger_")
-      ? "sensor.mobility_charger_command_slot_index"
-      : canonical.startsWith("vehicle_")
-        ? "sensor.mobility_vehicle_command_slot_index"
-        : "";
-    if (!entityId || !this.entity(entityId)) return null;
-    const attrs = this.entity(entityId)?.attributes || {};
-    const actionKey = canonical.startsWith("charger_") ? "charger_actions" : "vehicle_actions";
+  commandSlotContract(assetId = "") { return null; }
 
-    // Same slot owner; accept object/JSON transport forms only.
-    for (const attrName of ["slots_by_asset", "slots_by_asset_json"]) {
-      const byAsset = this.parseJsonValue(attrs[attrName], attrs[attrName] || {});
-      if (byAsset && typeof byAsset === "object" && !Array.isArray(byAsset) && byAsset[canonical]) return byAsset[canonical];
-    }
-
-    for (const attrName of [actionKey, `${actionKey}_json`]) {
-      const directActions = this.parseJsonValue(attrs[attrName], attrs[attrName] || null);
-      if (directActions && typeof directActions === "object") {
-        if (!Array.isArray(directActions) && directActions[canonical]) return { asset_id: canonical, [actionKey]: directActions[canonical] };
-        if (!Array.isArray(directActions) && Array.isArray(directActions.commands)) {
-          const owned = directActions.commands.filter((row)=>!row?.asset_id || this.canonicalAssetId(row.asset_id) === canonical);
-          if (owned.length) return { asset_id: canonical, [actionKey]: { ...directActions, commands: owned } };
-        }
-      }
-    }
-
-    for (const attrName of ["slots_json", "slots", "rows", "rows_json"]) {
-      const rows = this.parseJsonValue(attrs[attrName], attrs[attrName] || []);
-      if (!Array.isArray(rows)) continue;
-      const row = rows.find((entry)=>this.canonicalAssetId(entry?.asset_id || "") === canonical) || null;
-      if (row) return row;
-    }
-    return null;
-  }
-
-  commandSlotRowsForSurface(assetId = "", surface = "quick_actions") {
-    const canonical = this.canonicalAssetId(assetId);
-    const slot = this.commandSlotContract(canonical);
-    if (!slot) return null;
-    const actionKey = canonical.startsWith("charger_") ? "charger_actions" : canonical.startsWith("vehicle_") ? "vehicle_actions" : "";
-    if (!actionKey) return null;
-
-    // R43.2.54: <asset_actions>.commands is one semantic placement container. Merge
-    // only structural serializations of that exact container, then deduplicate. The
-    // former first-array-wins parser could silently reduce four charger actions to
-    // START/STOP when another serialization was only partially materialized.
-    const candidates = [];
-    if (canonical.startsWith("vehicle_") && surface === "quick_actions") candidates.push(slot.quick_actions);
-    const nested = this.parseJsonValue(slot[actionKey], slot[actionKey] || null);
-    if (nested && typeof nested === "object" && !Array.isArray(nested)) candidates.push(nested.commands);
-    candidates.push(slot[`${actionKey}.commands`]);
-    const cardSections = this.parseJsonValue(slot.card_sections, slot.card_sections || null);
-    if (cardSections && typeof cardSections === "object" && !Array.isArray(cardSections)) {
-      candidates.push(cardSections[`${actionKey}.commands`]);
-      const section = this.parseJsonValue(cardSections[actionKey], cardSections[actionKey] || null);
-      if (section && typeof section === "object" && !Array.isArray(section)) candidates.push(section.commands);
-    }
-
-    const commands = [];
-    const seen = new Set();
-    for (const candidate of candidates) {
-      if (candidate === undefined || candidate === null || candidate === "") continue;
-      const parsed = this.parseJsonValue(candidate, null);
-      if (!Array.isArray(parsed)) continue;
-      for (const row of parsed) {
-        const key = typeof row === "string" ? row : String(row?.command_id || row?.command_key || row?.id || "");
-        if (!key || seen.has(key)) continue;
-        seen.add(key);
-        commands.push(row);
-      }
-    }
-
-    if (["quick_actions", "operational", actionKey].includes(surface)) return commands;
-    const wanted = this.norm(surface);
-    return commands.filter((row)=>{
-      const explicit = [row?.surface, row?.surface_id, row?.section_id, row?.placement, row?.component_id && row?.section_id ? `${row.component_id}.${row.section_id}` : ""]
-        .filter(Boolean).map((value)=>this.norm(value));
-      return explicit.includes(wanted);
-    });
-  }
+  commandSlotRowsForSurface(assetId = "", surface = "quick_actions") { return null; }
 
   commandsForSurface(assetId = "", surface = "operational") {
     const canonical = this.canonicalAssetId(assetId);
-    const v2Rows = this.commandV2RowsForSurface(canonical, surface);
-    if (v2Rows !== null) {
-      return v2Rows
-        .map((command)=>this.completeCommandIntent(command, canonical))
-        .filter((command)=>command && this.contractBool(command.frontend_allowed, true) === true);
-    }
-    const slotRows = this.commandSlotRowsForSurface(canonical, surface);
-    if (slotRows === null) return [];
-
-    // Frozen V1 compatibility path: placement comes from the slot index and
-    // readiness/invoke from mobility_command_index. This path is never consulted
-    // when MOBILITY_COMMAND_V2 exists.
-    const commands = this.uiCommandSurface(canonical).map((command)=>this.completeCommandIntent(command, canonical)).filter(Boolean);
-    const byId = new Map(commands.map((cmd)=>[String(cmd.command_id || ""), cmd]));
-    const byKey = new Map(commands.map((cmd)=>[String(cmd.command_key || ""), cmd]));
-    const seen = new Set();
-    return slotRows.map((slot)=>{
-      const rawPlacement = typeof slot === "string" ? { command_id: slot, command_key: slot } : (slot || {});
-      const slotId = String(rawPlacement.command_id || rawPlacement.id || rawPlacement.command || "");
-      const slotKey = String(rawPlacement.command_key || rawPlacement.key || rawPlacement.command || "");
-      // R43.2.54 owner separation: slot rows are placement only. Even when an older
-      // compatibility serialization still carries readiness/invoke fields, UX must
-      // ignore them so they cannot override sensor.mobility_command_index.
-      const placement = {
-        command_id: slotId,
-        command_key: slotKey,
-        surface: rawPlacement.surface || rawPlacement.surface_id || "",
-        section_id: rawPlacement.section_id || "",
-        component_id: rawPlacement.component_id || "",
-        display_order: rawPlacement.display_order ?? rawPlacement.order ?? null,
-        primary_action: this.contractBool(rawPlacement.primary_action, false)
-      };
-      const command = byId.get(slotId) || byKey.get(slotKey) || byId.get(slotKey) || byKey.get(slotId);
-      if (command) return { ...command, ...placement, command_id: command.command_id || slotId, command_key: command.command_key || slotKey };
-      if (!slotId && !slotKey) return null;
-      return {
-        ...placement,
-        asset_id: canonical,
-        command_id: slotId || slotKey,
-        command_key: slotKey || slotId,
-        label: this.titleize(slotId || slotKey),
-        frontend_allowed: true,
-        execution_allowed: false,
-        execution_reason: "Backend contract gap: placed command missing from mobility_command_index"
-      };
-    }).filter((command)=>{
-      if (!command || this.contractBool(command.frontend_allowed, true) === false) return false;
-      const key = String(command.command_id || command.command_key || "");
-      if (!key || seen.has(key)) return false;
-      seen.add(key);
-      return true;
-    }).map((command)=>{
-      const interaction = this.commandInteraction(command);
-      const enumOptions = {};
-      for (const parameter of interaction.required) {
-        if (String(parameter.type || "").toLowerCase() !== "enum") continue;
-        const sourced = this.commandEnumOptions(parameter);
-        enumOptions[parameter.name] = sourced.length ? sourced : (parameter.values || []).map((value)=>({ value, label:this.titleize(value) }));
-      }
-      return { ...command, interaction_mode:interaction.mode, interaction_supported:interaction.supported, interaction_reason:interaction.reason, required_parameters:interaction.required.map((parameter)=>parameter.name), enum_options:enumOptions };
-    });
+    const rows = this.commandV2RowsForSurface(canonical, surface);
+    if (rows === null) return [];
+    return rows
+      .map((command)=>this.completeCommandIntent(command, canonical))
+      .filter((command)=>command && this.contractBool(command.frontend_allowed, true) === true);
   }
 
-  unifiedCommandsFor(assetId, surface = "operational") {
-    // Compatibility method retained for callers, but semantics are now identical to
-    // the R43.2.54 slot-owned command surface. No family/category filtering exists.
-    return this.commandsForSurface(assetId, surface);
-  }
+
 
   controlsFor(assetId = "") {
     // Public typed model: write controls are exposed on property rows as write_command.
@@ -4443,10 +3853,7 @@ class HomeBrainAssetRuntime {
     return null;
   }
 
-  compatibilityFactRow(assetId) {
-    // R22.8: embedded compatibility facts are transitional and forbidden for UX runtime values.
-    return null;
-  }
+
 
   factEntity(assetId, field) {
     const canonicalFact = this.factContractRow(assetId, field);
@@ -4545,8 +3952,7 @@ class HomeBrainAssetRuntime {
   }
 
   commandState(command) {
-    // MOBILITY_COMMAND_V2 is authoritative when present; V1 command-index rows are
-    // accepted only as a compatibility projection on older backends.
+    // MOBILITY_COMMAND_V2 is the sole product command authority.
     const status = command?.execution_status || command?.ui_state || command?.effective_availability || "";
     const reason = command?.blocked_reason || command?.execution_reason || command?.disabled_reason || "";
     const lower = String(status).toLowerCase();
@@ -5115,7 +4521,7 @@ class HomeBrainAssetRuntime {
   }
 
   /**
-   * Execute the exact invocation published by sensor.mobility_command_index.
+   * Execute the exact invocation published by MOBILITY_COMMAND_V2.
    * The UI never reconstructs vendor/OEM producer bindings.
    */
   callCommand(command, data = {}) {
@@ -6694,11 +6100,11 @@ class HomeBrainAssetShell {
         </div>
         <style>${this.styles()}${typeof rhiUxVisualPickerStyles === "function" ? rhiUxVisualPickerStyles() : ""}
 /* R22.12.11.24 unified quick-action sizing */
-.action.enum-action,.cmd.enum-command{height:43px!important;min-height:43px!important;max-height:43px!important;display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:center!important;gap:8px!important;padding:0 11px!important;box-sizing:border-box!important;overflow:hidden!important}
-.action.enum-action ha-icon,.cmd.enum-command ha-icon{flex:0 0 auto!important;grid-row:auto!important}
-.action.enum-action select,.cmd.enum-command select{appearance:auto!important;-webkit-appearance:auto!important;min-width:0!important;max-width:170px!important;width:auto!important;border:0!important;background:transparent!important;color:inherit!important;font:inherit!important;font-size:12px!important;font-weight:600!important;padding:0 2px!important;line-height:1!important;box-shadow:none!important;cursor:pointer!important;grid-column:auto!important}
-.action.enum-action select:focus,.cmd.enum-command select:focus{outline:2px solid rgba(20,103,245,.20)!important;outline-offset:3px!important;border-radius:6px!important}
-.command-row>.cmd,.command-row>.enum-command{min-width:0!important;width:100%!important}
+.action.enum-action,.cmd.enum-command{height:43px;min-height:43px;max-height:43px;display:flex;flex-direction:row;align-items:center;justify-content:center;gap:8px;padding:0 11px;box-sizing:border-box;overflow:hidden}
+.action.enum-action ha-icon,.cmd.enum-command ha-icon{flex:0 0 auto;grid-row:auto}
+.action.enum-action select,.cmd.enum-command select{appearance:auto;-webkit-appearance:auto;min-width:0;max-width:170px;width:auto;border:0;background:transparent;color:inherit;font:inherit;font-size:12px;font-weight:600;padding:0 2px;line-height:1;box-shadow:none;cursor:pointer;grid-column:auto}
+.action.enum-action select:focus,.cmd.enum-command select:focus{outline:2px solid rgba(20,103,245,.20);outline-offset:3px;border-radius:6px}
+.command-row>.cmd,.command-row>.enum-command{min-width:0;width:100%}
 </style>
         ${hbMobilityReleaseFooter(this.rt)}
       </ha-card>`;
@@ -7051,10 +6457,10 @@ class HomeBrainAssetShell {
       .row-value-with-link{display:flex;align-items:center;justify-content:flex-end;gap:8px;min-width:0;}
       .row-value-with-link span{min-width:0;overflow:hidden;text-overflow:ellipsis;}
       .hero-image { min-height:260px;display:flex;align-items:center;justify-content:center; }
-      .hero-image img { width:100%;height:285px;object-fit:contain;object-position:center;transition:none!important;animation:none!important; }
-      .hero-image img.image-fallback { opacity:.42!important; }
+      .hero-image img { width:100%;height:285px;object-fit:contain;object-position:center;transition:none;animation:none; }
+      .hero-image img.image-fallback { opacity:.42; }
       .hero-appearance-edit{position:absolute;right:10px;bottom:10px;z-index:5;height:36px;border:1px solid rgba(14,35,72,.12);border-radius:11px;background:rgba(255,255,255,.94);color:#1467F5;padding:0 11px;display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:650;cursor:pointer;box-shadow:0 8px 20px rgba(15,35,80,.08);pointer-events:auto}.hero-appearance-edit ha-icon{--mdc-icon-size:17px}.hero-appearance-edit.active{background:#1467F5;color:#fff;border-color:#1467F5}
-      .detail-appearance-panel[hidden]{display:none!important}.detail-appearance-panel{position:relative;z-index:8;width:min(100%,980px);margin:-2px auto 0;padding:12px;border:1px solid var(--hb-line);border-radius:16px;background:#fff;box-shadow:0 18px 44px rgba(15,35,80,.09);box-sizing:border-box}.detail-appearance-panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 2px 10px}.detail-appearance-panel-head div{display:grid;gap:2px}.detail-appearance-panel-head small{font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--hb-muted);font-weight:650}.detail-appearance-panel-head b{font-size:14px;color:var(--hb-ink)}.detail-appearance-panel-head button{width:32px;height:32px;border:1px solid var(--hb-line);border-radius:10px;background:#fff;color:var(--hb-muted);display:grid;place-items:center;cursor:pointer}.detail-appearance-panel .detail-vehicle-picker,.detail-appearance-panel .detail-charger-picker{margin:0!important;padding:0!important;border:0!important;background:transparent!important}.detail-appearance-panel .visual-picker-panel{margin:0!important}
+      .detail-appearance-panel[hidden]{display:none}.detail-appearance-panel{position:relative;z-index:8;width:min(100%,980px);margin:-2px auto 0;padding:12px;border:1px solid var(--hb-line);border-radius:16px;background:#fff;box-shadow:0 18px 44px rgba(15,35,80,.09);box-sizing:border-box}.detail-appearance-panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 2px 10px}.detail-appearance-panel-head div{display:grid;gap:2px}.detail-appearance-panel-head small{font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--hb-muted);font-weight:650}.detail-appearance-panel-head b{font-size:14px;color:var(--hb-ink)}.detail-appearance-panel-head button{width:32px;height:32px;border:1px solid var(--hb-line);border-radius:10px;background:#fff;color:var(--hb-muted);display:grid;place-items:center;cursor:pointer}.detail-appearance-panel .detail-vehicle-picker,.detail-appearance-panel .detail-charger-picker{margin:0;padding:0;border:0;background:transparent}.detail-appearance-panel .visual-picker-panel{margin:0}
       .hero-icon { width:220px;height:220px;border-radius:48px;background:linear-gradient(135deg,#EAF2FF,#FFFFFF);display:flex;align-items:center;justify-content:center;box-shadow:0 24px 55px rgba(15,35,80,.10); }
       .hero-icon ha-icon { --mdc-icon-size:120px;color:var(--hb-blue); }
 
@@ -7095,7 +6501,7 @@ class HomeBrainAssetShell {
       .title-row { align-items:center; }
       .pill { padding:7px 13px; font-size:12px; font-weight:600; }
       .hero-image { position:absolute; z-index:1; right:122px; top:26px; width:54%; height:330px; min-height:0; display:flex; align-items:flex-start; justify-content:center; pointer-events:none; }
-      .hero-image img { width:100%; height:330px; object-fit:contain; object-position:center top; filter:drop-shadow(0 28px 34px rgba(15,35,80,.18))!important; }
+      .hero-image img { width:100%; height:330px; object-fit:contain; object-position:center top; filter:drop-shadow(0 28px 34px rgba(15,35,80,.18)); }
       .hero-charger-image { position:absolute; z-index:2; right:34px; top:82px; width:120px; height:218px; display:flex; align-items:center; justify-content:center; pointer-events:none; }
       .hero-charger-image img { max-width:112px; max-height:210px; object-fit:contain; filter:drop-shadow(0 18px 22px rgba(15,35,80,.14)); }
       .status-strip { position:relative; z-index:3; margin-top:46px; max-width:none;width:100%; grid-template-columns:repeat(5,minmax(0,1fr)); border-radius:17px; background:rgba(255,255,255,.94); backdrop-filter:blur(10px); box-shadow:0 16px 32px rgba(15,35,80,.08); }
@@ -7159,7 +6565,7 @@ class HomeBrainAssetShell {
       .title-row { gap:16px; align-items:center; }
       .pill { padding:7px 14px; font-size:12px; font-weight:650; }
       .hero-image { position:absolute; z-index:1; right:110px; top:56px; width:56%; height:290px; min-height:0; display:flex; align-items:flex-start; justify-content:center; pointer-events:none; }
-      .hero-image img { width:100%; height:300px; object-fit:contain; object-position:center top; filter:drop-shadow(0 26px 30px rgba(15,35,80,.17))!important; }
+      .hero-image img { width:100%; height:300px; object-fit:contain; object-position:center top; filter:drop-shadow(0 26px 30px rgba(15,35,80,.17)); }
       .hero-charger-image { position:absolute; z-index:2; right:32px; top:92px; width:105px; height:178px; display:flex; align-items:center; justify-content:center; background:transparent; pointer-events:none; }
       .hero-charger-image img { max-width:102px; max-height:170px; object-fit:contain; filter:drop-shadow(0 16px 20px rgba(15,35,80,.13)); }
       .hero-charger-name{position:absolute;left:50%;top:-10px;transform:translateX(-50%);max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px;font-weight:600;color:var(--hb-ink,#0F172A);text-align:center;}
@@ -7197,101 +6603,101 @@ class HomeBrainAssetShell {
 
       /* rc.23 mobile detail density + picker hardening */
       @media (max-width:560px) {
-        .page{padding:8px!important;gap:8px!important}
-        .hero{padding:16px 12px 12px!important;border-radius:16px!important}
-        h1{font-size:30px!important}
-        .hero-image{height:145px!important;margin-top:6px!important}
-        .hero-image img{height:145px!important}
-        .hero-charger-image{top:170px!important;right:12px!important;width:60px!important;height:86px!important}
-        .hero-charger-image img{max-width:58px!important;max-height:82px!important}
-        .status-strip{margin-top:8px!important}
-        .metric{padding:9px 10px!important}
-        .actions{gap:6px!important}
-        .action{min-height:44px!important}
-        .section-card{border-radius:14px!important}
-        .section-head{padding:10px 12px!important}
-        .section-body{padding:0 12px 8px!important}
+        .page{padding:8px;gap:8px}
+        .hero{padding:16px 12px 12px;border-radius:16px}
+        h1{font-size:30px}
+        .hero-image{height:145px;margin-top:6px}
+        .hero-image img{height:145px}
+        .hero-charger-image{top:170px;right:12px;width:60px;height:86px}
+        .hero-charger-image img{max-width:58px;max-height:82px}
+        .status-strip{margin-top:8px}
+        .metric{padding:9px 10px}
+        .actions{gap:6px}
+        .action{min-height:44px}
+        .section-card{border-radius:14px}
+        .section-head{padding:10px 12px}
+        .section-body{padding:0 12px 8px}
 
-        .detail-vehicle-picker{margin:6px 0 8px!important;padding:10px!important;border-radius:12px!important}
-        .detail-vehicle-picker .vehicle-picker-grid{grid-template-columns:1fr!important;gap:7px!important}
-        .detail-vehicle-picker .vehicle-picker-key{grid-column:auto!important}
+        .detail-vehicle-picker{margin:6px 0 8px;padding:10px;border-radius:12px}
+        .detail-vehicle-picker .vehicle-picker-grid{grid-template-columns:1fr;gap:7px}
+        .detail-vehicle-picker .vehicle-picker-key{grid-column:auto}
         .detail-vehicle-picker select,
         .detail-vehicle-picker .vehicle-picker-key code,
         .detail-vehicle-picker .vehicle-picker-save{
-          width:100%!important;height:44px!important;min-height:44px!important;box-sizing:border-box!important
+          width:100%;height:44px;min-height:44px;box-sizing:border-box
         }
-        .detail-vehicle-picker .vehicle-picker-save{justify-content:center!important}
-        .detail-vehicle-picker .vehicle-picker-head h3{font-size:14px!important}
-        .detail-vehicle-picker .vehicle-picker-head p{font-size:10px!important;line-height:1.25!important}
+        .detail-vehicle-picker .vehicle-picker-save{justify-content:center}
+        .detail-vehicle-picker .vehicle-picker-head h3{font-size:14px}
+        .detail-vehicle-picker .vehicle-picker-head p{font-size:10px;line-height:1.25}
         .detail-vehicle-picker .vehicle-picker-grid label>span,
-        .detail-vehicle-picker .vehicle-picker-key>span{font-size:9px!important}
+        .detail-vehicle-picker .vehicle-picker-key>span{font-size:9px}
       }
 
 
       /* R22.12.11.24 calm detail statusbar polish — icons are semantic hints, color only for active/attention. */
       :host{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
       *{}
-      h1{font-size:38px!important;line-height:1.08!important;font-weight:650!important;letter-spacing:-.025em!important;}
-      .subtitle,.breadcrumb{font-size:12.5px!important;font-weight:400!important;color:var(--hb-muted,#66728B)!important;}
-      .back-inline{font-size:12.5px!important;font-weight:600!important;}
-      .pill{font-size:11px!important;font-weight:500!important;}
-      .metric span{font-size:10.5px!important;font-weight:500!important;color:var(--hb-muted,#66728B)!important;}
-      .metric b{font-size:13.5px!important;font-weight:650!important;}
-      .metric-sub{font-size:10.5px!important;font-weight:500!important;color:var(--hb-muted,#66728B)!important;}
-      .metric.has-detail-link{grid-template-columns:26px minmax(0,1fr) 30px!important;}
-      .actions-title{font-size:13px!important;font-weight:600!important;}
-      .action{font-size:12.5px!important;font-weight:600!important;}
-      .section-title h2{font-size:18px!important;font-weight:600!important;letter-spacing:-.01em!important;}
-      .section-status,.label,.help{font-weight:500!important;}
-      .label{font-size:12px!important;color:#26334F!important;}
-      .help{font-size:10.5px!important;color:var(--hb-muted,#66728B)!important;}
-      .value,.range-control span,.detail-row b{font-size:12.5px!important;font-weight:600!important;}
-      .row-subheader{font-size:10.5px!important;font-weight:650!important;letter-spacing:.06em!important;}
-      select,.datetime{font-size:12px!important;font-weight:500!important;}
-      .title-row .pill{display:none!important;}
-      .status-strip{grid-template-columns:repeat(5,minmax(0,1fr))!important;}
-      .metric ha-icon{color:var(--secondary-text-color,#66728B)!important;}
-      .metric.tone-neutral ha-icon{color:var(--secondary-text-color,#66728B)!important;}
-      .metric.tone-active ha-icon{color:var(--primary-color,#1467F5)!important;}
-      .metric.tone-attention ha-icon,.metric.tone-orange ha-icon,.metric.tone-warn ha-icon{color:var(--warning-color,#F59E0B)!important;}
-      .metric.tone-error ha-icon,.metric.tone-bad ha-icon{color:var(--error-color,#C21E1E)!important;}
-      .metric.tone-green ha-icon,.metric.tone-blue ha-icon{color:var(--secondary-text-color,#66728B)!important;}
-      .metric.tone-active .metric-sub{color:var(--primary-color,#1467F5)!important;}
-      .metric.tone-attention b,.metric.tone-attention .metric-sub,.metric.tone-orange b,.metric.tone-orange .metric-sub,.metric.tone-warn b,.metric.tone-warn .metric-sub{color:var(--warning-color,#A15C00)!important;}
-      .metric-sub{display:flex!important;align-items:center;gap:4px;line-height:1.15;}
-      .metric-sub .metric-sub-icon{--mdc-icon-size:13px!important;flex:0 0 auto;}
+      h1{font-size:38px;line-height:1.08;font-weight:650;letter-spacing:-.025em;}
+      .subtitle,.breadcrumb{font-size:12.5px;font-weight:400;color:var(--hb-muted,#66728B);}
+      .back-inline{font-size:12.5px;font-weight:600;}
+      .pill{font-size:11px;font-weight:500;}
+      .metric span{font-size:10.5px;font-weight:500;color:var(--hb-muted,#66728B);}
+      .metric b{font-size:13.5px;font-weight:650;}
+      .metric-sub{font-size:10.5px;font-weight:500;color:var(--hb-muted,#66728B);}
+      .metric.has-detail-link{grid-template-columns:26px minmax(0,1fr) 30px;}
+      .actions-title{font-size:13px;font-weight:600;}
+      .action{font-size:12.5px;font-weight:600;}
+      .section-title h2{font-size:18px;font-weight:600;letter-spacing:-.01em;}
+      .section-status,.label,.help{font-weight:500;}
+      .label{font-size:12px;color:#26334F;}
+      .help{font-size:10.5px;color:var(--hb-muted,#66728B);}
+      .value,.range-control span,.detail-row b{font-size:12.5px;font-weight:600;}
+      .row-subheader{font-size:10.5px;font-weight:650;letter-spacing:.06em;}
+      select,.datetime{font-size:12px;font-weight:500;}
+      .title-row .pill{display:none;}
+      .status-strip{grid-template-columns:repeat(5,minmax(0,1fr));}
+      .metric ha-icon{color:var(--secondary-text-color,#66728B);}
+      .metric.tone-neutral ha-icon{color:var(--secondary-text-color,#66728B);}
+      .metric.tone-active ha-icon{color:var(--primary-color,#1467F5);}
+      .metric.tone-attention ha-icon,.metric.tone-orange ha-icon,.metric.tone-warn ha-icon{color:var(--warning-color,#F59E0B);}
+      .metric.tone-error ha-icon,.metric.tone-bad ha-icon{color:var(--error-color,#C21E1E);}
+      .metric.tone-green ha-icon,.metric.tone-blue ha-icon{color:var(--secondary-text-color,#66728B);}
+      .metric.tone-active .metric-sub{color:var(--primary-color,#1467F5);}
+      .metric.tone-attention b,.metric.tone-attention .metric-sub,.metric.tone-orange b,.metric.tone-orange .metric-sub,.metric.tone-warn b,.metric.tone-warn .metric-sub{color:var(--warning-color,#A15C00);}
+      .metric-sub{display:flex;align-items:center;gap:4px;line-height:1.15;}
+      .metric-sub .metric-sub-icon{--mdc-icon-size:13px;flex:0 0 auto;}
       .metric b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 
       /* rc.39 canonical detail composition: same visual grammar as top-level Mobility. */
-      .detail-scene-hero{position:relative!important;display:block!important;min-height:clamp(176px,16vw,218px)!important;height:auto!important;padding:0!important;margin:0!important;border:0!important;border-radius:18px!important;overflow:hidden!important;background:linear-gradient(90deg,#fff 0%,#fff 30%,rgba(255,255,255,.94) 39%,rgba(255,255,255,.18) 60%,rgba(255,255,255,0) 76%)!important;box-shadow:none!important}
-      .detail-scene-hero:before{display:none!important}
-      .detail-scene-hero:after{content:""!important;display:block!important;position:absolute!important;z-index:2!important;inset:0!important;background:linear-gradient(90deg,#fff 0%,rgba(255,255,255,.97) 18%,rgba(255,255,255,.76) 35%,rgba(255,255,255,.14) 58%,rgba(255,255,255,0) 78%)!important}
-      .detail-hero-scene{position:absolute!important;z-index:1!important;inset:0!important;width:100%!important;height:100%!important;object-fit:cover!important;object-position:center 52%!important;opacity:.30!important;pointer-events:none!important}
-      .detail-scene-hero .hero-left{position:relative!important;z-index:4!important;width:min(48%,650px)!important;min-width:0!important;max-width:none!important;padding:32px 20px 28px 24px!important}
-      .detail-scene-hero .title-row{display:block!important;margin:0!important}
-      .detail-scene-hero h1{margin:8px 0 10px!important;font-size:clamp(31px,3.1vw,48px)!important;line-height:.98!important;letter-spacing:-.048em!important;color:#08133A!important;font-weight:720!important;max-width:620px!important}
-      .detail-purpose{max-width:510px!important;margin:0!important;font-size:clamp(12px,1.15vw,16px)!important;line-height:1.42!important;color:#536A91!important;font-weight:500!important}
-      .detail-scene-hero .hero-image{position:absolute!important;z-index:3!important;right:3.5%!important;top:5%!important;width:49%!important;height:90%!important;min-height:0!important;display:flex!important;align-items:center!important;justify-content:center!important;pointer-events:none!important}
-      .detail-scene-hero .hero-image img{width:100%!important;height:100%!important;max-height:none!important;object-fit:contain!important;object-position:center!important;filter:drop-shadow(0 24px 30px rgba(15,35,80,.15))!important}
-      .detail-scene-hero .hero-icon{width:58%!important;height:75%!important;border-radius:30px!important}
-      .detail-status-grid{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:8px!important;margin:0!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important}.detail-status-grid.status-count-1{grid-template-columns:1fr!important}.detail-status-grid.status-count-2{grid-template-columns:repeat(2,minmax(0,1fr))!important}.detail-status-grid.status-count-3{grid-template-columns:repeat(3,minmax(0,1fr))!important}
-      .detail-status-grid .metric{min-width:0!important;min-height:94px!important;height:auto!important;display:grid!important;grid-template-columns:52px minmax(0,1fr)!important;gap:11px!important;align-items:center!important;padding:12px 14px!important;border:1px solid #DBE6F3!important;border-radius:15px!important;background:rgba(255,255,255,.97)!important;box-shadow:0 8px 22px rgba(21,61,115,.045)!important}
-      .detail-status-grid .metric ha-icon{width:46px!important;height:46px!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:9px!important;box-sizing:border-box!important;border-radius:14px!important;background:#EEF5FF!important;color:#1467F5!important;--mdc-icon-size:27px!important}
-      .detail-status-grid .metric span{display:block!important;margin:0 0 3px!important;color:#31558E!important;font-size:10px!important;font-weight:650!important}
-      .detail-status-grid .metric b{display:block!important;margin:0 0 3px!important;color:#0B173D!important;font-size:clamp(14px,1.2vw,18px)!important;font-weight:720!important;line-height:1.08!important}
-      .detail-status-grid .metric-sub{display:block!important;margin-top:2px!important;color:#55709B!important;font-size:10px!important;font-weight:500!important;line-height:1.2!important}
-      .detail-status-grid .metric.tone-attention ha-icon,.detail-status-grid .metric.tone-orange ha-icon,.detail-status-grid .metric.tone-warn ha-icon{background:#FFF4E8!important;color:#FF7500!important}
-      .detail-status-grid .metric.tone-green ha-icon,.detail-status-grid .metric.tone-ok ha-icon,.detail-status-grid .metric.tone-active ha-icon{background:#EEF5FF!important;color:#1467F5!important}
-      .actions{min-height:52px!important;padding:6px 10px!important;margin:0!important;border:1px solid #DBE6F3!important;border-radius:14px!important;background:#fff!important;box-shadow:0 5px 16px rgba(21,61,115,.03)!important;display:flex!important;align-items:center!important;gap:8px!important;flex-wrap:wrap!important}
-      .actions-title{font-size:9.5px!important;letter-spacing:.13em!important;text-transform:uppercase!important;color:#31558E!important;font-weight:700!important;margin-right:2px!important;flex:0 0 auto!important}
-      .actions .action{width:auto!important;min-width:0!important;height:40px!important;min-height:40px!important;border:1px solid #D8E4F1!important;border-radius:10px!important;background:#fff!important;color:#075FD8!important;box-shadow:none!important;font-size:11px!important;font-weight:660!important;padding:0 13px!important;display:inline-flex!important;align-items:center!important;gap:7px!important}
-      .actions .action.primary{background:#0B66F6!important;border-color:#0B66F6!important;color:#fff!important}
-      .actions .action ha-icon{--mdc-icon-size:17px!important;color:currentColor!important}
-      .no-actions{padding:10px 12px!important;border:0!important;background:transparent!important;box-shadow:none!important}
-      .breadcrumb,.back-inline,.hero-topline,.subtitle,.hero-charger-image{display:none!important}
-      @media(max-width:1024px){.detail-scene-hero{min-height:188px!important}.detail-scene-hero .hero-left{width:50%!important;padding:26px 16px 22px 18px!important}.detail-scene-hero .hero-image{right:2%!important;width:48%!important}.detail-status-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}.detail-status-grid .metric{grid-template-columns:42px minmax(0,1fr)!important;padding:10px!important;min-height:88px!important}.detail-status-grid .metric ha-icon{width:40px!important;height:40px!important;--mdc-icon-size:22px!important}}
-      @media(max-width:760px){.detail-scene-hero{min-height:168px!important}.detail-scene-hero .hero-left{width:58%!important;padding:20px 10px 18px 14px!important}.detail-scene-hero h1{font-size:29px!important}.detail-purpose{font-size:12px!important}.detail-scene-hero .hero-image{right:0!important;width:44%!important}.detail-status-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.actions{overflow-x:auto!important;flex-wrap:nowrap!important}.actions-title,.actions .action{flex:0 0 auto!important}}
-      @media(max-width:430px){.detail-scene-hero{min-height:154px!important}.detail-scene-hero .hero-left{width:64%!important;padding:17px 8px 15px 12px!important}.detail-scene-hero h1{font-size:25px!important}.detail-purpose{font-size:10px!important;line-height:1.3!important}.detail-scene-hero .hero-image{width:41%!important}.detail-status-grid{grid-template-columns:1fr 1fr!important}.detail-status-grid .metric{grid-template-columns:34px minmax(0,1fr)!important;min-height:76px!important;padding:8px!important;gap:7px!important}.detail-status-grid .metric ha-icon{width:32px!important;height:32px!important;border-radius:10px!important;--mdc-icon-size:18px!important;padding:6px!important}}
+      .detail-scene-hero{position:relative;display:block;min-height:clamp(176px,16vw,218px);height:auto;padding:0;margin:0;border:0;border-radius:18px;overflow:hidden;background:linear-gradient(90deg,#fff 0%,#fff 30%,rgba(255,255,255,.94) 39%,rgba(255,255,255,.18) 60%,rgba(255,255,255,0) 76%);box-shadow:none}
+      .detail-scene-hero:before{display:none}
+      .detail-scene-hero:after{content:"";display:block;position:absolute;z-index:2;inset:0;background:linear-gradient(90deg,#fff 0%,rgba(255,255,255,.97) 18%,rgba(255,255,255,.76) 35%,rgba(255,255,255,.14) 58%,rgba(255,255,255,0) 78%)}
+      .detail-hero-scene{position:absolute;z-index:1;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 52%;opacity:.30;pointer-events:none}
+      .detail-scene-hero .hero-left{position:relative;z-index:4;width:min(48%,650px);min-width:0;max-width:none;padding:32px 20px 28px 24px}
+      .detail-scene-hero .title-row{display:block;margin:0}
+      .detail-scene-hero h1{margin:8px 0 10px;font-size:clamp(31px,3.1vw,48px);line-height:.98;letter-spacing:-.048em;color:#08133A;font-weight:720;max-width:620px}
+      .detail-purpose{max-width:510px;margin:0;font-size:clamp(12px,1.15vw,16px);line-height:1.42;color:#536A91;font-weight:500}
+      .detail-scene-hero .hero-image{position:absolute;z-index:3;right:3.5%;top:5%;width:49%;height:90%;min-height:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
+      .detail-scene-hero .hero-image img{width:100%;height:100%;max-height:none;object-fit:contain;object-position:center;filter:drop-shadow(0 24px 30px rgba(15,35,80,.15))}
+      .detail-scene-hero .hero-icon{width:58%;height:75%;border-radius:30px}
+      .detail-status-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:0;padding:0;border:0;background:transparent;box-shadow:none}.detail-status-grid.status-count-1{grid-template-columns:1fr}.detail-status-grid.status-count-2{grid-template-columns:repeat(2,minmax(0,1fr))}.detail-status-grid.status-count-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+      .detail-status-grid .metric{min-width:0;min-height:94px;height:auto;display:grid;grid-template-columns:52px minmax(0,1fr);gap:11px;align-items:center;padding:12px 14px;border:1px solid #DBE6F3;border-radius:15px;background:rgba(255,255,255,.97);box-shadow:0 8px 22px rgba(21,61,115,.045)}
+      .detail-status-grid .metric ha-icon{width:46px;height:46px;display:flex;align-items:center;justify-content:center;padding:9px;box-sizing:border-box;border-radius:14px;background:#EEF5FF;color:#1467F5;--mdc-icon-size:27px}
+      .detail-status-grid .metric span{display:block;margin:0 0 3px;color:#31558E;font-size:10px;font-weight:650}
+      .detail-status-grid .metric b{display:block;margin:0 0 3px;color:#0B173D;font-size:clamp(14px,1.2vw,18px);font-weight:720;line-height:1.08}
+      .detail-status-grid .metric-sub{display:block;margin-top:2px;color:#55709B;font-size:10px;font-weight:500;line-height:1.2}
+      .detail-status-grid .metric.tone-attention ha-icon,.detail-status-grid .metric.tone-orange ha-icon,.detail-status-grid .metric.tone-warn ha-icon{background:#FFF4E8;color:#FF7500}
+      .detail-status-grid .metric.tone-green ha-icon,.detail-status-grid .metric.tone-ok ha-icon,.detail-status-grid .metric.tone-active ha-icon{background:#EEF5FF;color:#1467F5}
+      .actions{min-height:52px;padding:6px 10px;margin:0;border:1px solid #DBE6F3;border-radius:14px;background:#fff;box-shadow:0 5px 16px rgba(21,61,115,.03);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+      .actions-title{font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:#31558E;font-weight:700;margin-right:2px;flex:0 0 auto}
+      .actions .action{width:auto;min-width:0;height:40px;min-height:40px;border:1px solid #D8E4F1;border-radius:10px;background:#fff;color:#075FD8;box-shadow:none;font-size:11px;font-weight:660;padding:0 13px;display:inline-flex;align-items:center;gap:7px}
+      .actions .action.primary{background:#0B66F6;border-color:#0B66F6;color:#fff}
+      .actions .action ha-icon{--mdc-icon-size:17px;color:currentColor}
+      .no-actions{padding:10px 12px;border:0;background:transparent;box-shadow:none}
+      .breadcrumb,.back-inline,.hero-topline,.subtitle,.hero-charger-image{display:none}
+      @media(max-width:1024px){.detail-scene-hero{min-height:188px}.detail-scene-hero .hero-left{width:50%;padding:26px 16px 22px 18px}.detail-scene-hero .hero-image{right:2%;width:48%}.detail-status-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.detail-status-grid .metric{grid-template-columns:42px minmax(0,1fr);padding:10px;min-height:88px}.detail-status-grid .metric ha-icon{width:40px;height:40px;--mdc-icon-size:22px}}
+      @media(max-width:760px){.detail-scene-hero{min-height:168px}.detail-scene-hero .hero-left{width:58%;padding:20px 10px 18px 14px}.detail-scene-hero h1{font-size:29px}.detail-purpose{font-size:12px}.detail-scene-hero .hero-image{right:0;width:44%}.detail-status-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.actions{overflow-x:auto;flex-wrap:nowrap}.actions-title,.actions .action{flex:0 0 auto}}
+      @media(max-width:430px){.detail-scene-hero{min-height:154px}.detail-scene-hero .hero-left{width:64%;padding:17px 8px 15px 12px}.detail-scene-hero h1{font-size:25px}.detail-purpose{font-size:10px;line-height:1.3}.detail-scene-hero .hero-image{width:41%}.detail-status-grid{grid-template-columns:1fr 1fr}.detail-status-grid .metric{grid-template-columns:34px minmax(0,1fr);min-height:76px;padding:8px;gap:7px}.detail-status-grid .metric ha-icon{width:32px;height:32px;border-radius:10px;--mdc-icon-size:18px;padding:6px}}
     `;
   }
 }
@@ -7823,11 +7229,11 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
       </div>
       <style>${this.styles()}
 /* R22.12.11.24 unified quick-action sizing */
-.action.enum-action,.cmd.enum-command{height:43px!important;min-height:43px!important;max-height:43px!important;display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:center!important;gap:8px!important;padding:0 11px!important;box-sizing:border-box!important;overflow:hidden!important}
-.action.enum-action ha-icon,.cmd.enum-command ha-icon{flex:0 0 auto!important;grid-row:auto!important}
-.action.enum-action select,.cmd.enum-command select{appearance:auto!important;-webkit-appearance:auto!important;min-width:0!important;max-width:170px!important;width:auto!important;border:0!important;background:transparent!important;color:inherit!important;font:inherit!important;font-size:12px!important;font-weight:600!important;padding:0 2px!important;line-height:1!important;box-shadow:none!important;cursor:pointer!important;grid-column:auto!important}
-.action.enum-action select:focus,.cmd.enum-command select:focus{outline:2px solid rgba(20,103,245,.20)!important;outline-offset:3px!important;border-radius:6px!important}
-.command-row>.cmd,.command-row>.enum-command{min-width:0!important;width:100%!important}
+.action.enum-action,.cmd.enum-command{height:43px;min-height:43px;max-height:43px;display:flex;flex-direction:row;align-items:center;justify-content:center;gap:8px;padding:0 11px;box-sizing:border-box;overflow:hidden}
+.action.enum-action ha-icon,.cmd.enum-command ha-icon{flex:0 0 auto;grid-row:auto}
+.action.enum-action select,.cmd.enum-command select{appearance:auto;-webkit-appearance:auto;min-width:0;max-width:170px;width:auto;border:0;background:transparent;color:inherit;font:inherit;font-size:12px;font-weight:600;padding:0 2px;line-height:1;box-shadow:none;cursor:pointer;grid-column:auto}
+.action.enum-action select:focus,.cmd.enum-command select:focus{outline:2px solid rgba(20,103,245,.20);outline-offset:3px;border-radius:6px}
+.command-row>.cmd,.command-row>.enum-command{min-width:0;width:100%}
 </style>
       ${hbMobilityReleaseFooter(rt)}
     </ha-card>`;
@@ -8068,26 +7474,26 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
   styles() {
     return `
       :host{display:block;--hb-blue:#1467F5;--hb-soft-blue:#EEF5FF;--hb-ink:#06142D;--hb-muted:#66728B;--hb-line:#E6EDF7;--hb-shadow:0 18px 44px rgba(15,35,80,.075);user-select:text;-webkit-user-select:text;color:var(--hb-ink)}
-      ha-card{background:transparent;border:0;box-shadow:none}.page{position:relative;width:min(100%,1560px);margin:0 auto;padding:18px 26px 30px;box-sizing:border-box;display:grid;gap:12px}.release-badge{position:absolute;top:6px;right:26px;z-index:3;border:1px solid rgba(14,35,72,.10);background:rgba(255,255,255,.92);color:#33415C;border-radius:999px;padding:5px 10px;font-size:12px;font-weight:650;line-height:1;box-shadow:0 8px 20px rgba(15,35,80,.055)}.hero{border:1px solid rgba(14,35,72,.10);border-radius:24px;background:linear-gradient(135deg,#FFFFFF 0%,#F8FBFF 48%,#EEF5FF 100%);box-shadow:var(--hb-shadow);padding:28px 34px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:center}.hero-side{display:grid;grid-template-columns:auto auto;gap:12px;align-items:center}.hero-side.no-registered-chargers{grid-template-columns:auto;justify-self:end}.charger-hero-visual{width:230px;height:112px;border-radius:24px;background:linear-gradient(135deg,rgba(238,245,255,.95),rgba(255,255,255,.7));border:1px solid rgba(20,103,245,.10);display:flex;align-items:center;justify-content:center;gap:16px;box-shadow:inset 0 1px 0 rgba(255,255,255,.7)}.charger-device{position:relative;width:58px;height:82px;border-radius:18px;background:#FFFFFF;border:1px solid var(--hb-line);box-shadow:0 14px 30px rgba(15,35,80,.12);display:flex;align-items:center;justify-content:center}.charger-device ha-icon{--mdc-icon-size:34px;color:var(--hb-blue)}.charger-device span{position:absolute;top:9px;width:22px;height:4px;border-radius:99px;background:#2DD56F}.flow-line{width:64px;height:6px;border-radius:999px;background:linear-gradient(90deg,#CFE0FF,#1467F5);box-shadow:0 0 18px rgba(20,103,245,.25)}.charger-car{width:58px;height:58px;border-radius:20px;background:#fff;border:1px solid var(--hb-line);box-shadow:0 14px 30px rgba(15,35,80,.10);display:flex;align-items:center;justify-content:center}.charger-car ha-icon{--mdc-icon-size:34px;color:var(--hb-ink)}.eyebrow{font-size:12px;font-weight:650;letter-spacing:.08em;text-transform:uppercase;color:var(--hb-blue);margin-bottom:8px}h1{font-size:46px;line-height:1;letter-spacing:-.055em;margin:0 0 10px;font-weight:650}p{margin:0;color:#34405A;font-size:16px;line-height:1.45;font-weight:600;max-width:780px}.hero-metrics{display:grid;grid-template-columns:repeat(3,112px);gap:10px}.hero-metrics div{background:rgba(255,255,255,.92);border:1px solid var(--hb-line);border-radius:18px;padding:14px;text-align:center;box-shadow:0 10px 28px rgba(15,35,80,.055)}.hero-metrics b{display:block;font-size:28px;font-weight:650}.hero-metrics span{font-size:12px;color:var(--hb-muted);font-weight:600}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:16px;align-items:start}.inactive-list{display:grid;gap:10px}.inactive-row{background:#fff;border:1px solid var(--hb-line);border-radius:18px;box-shadow:0 12px 36px rgba(15,35,80,.055);padding:10px 12px;display:grid;grid-template-columns:82px 1fr auto;gap:14px;align-items:center}.inactive-state{background:#EEF2F7;color:#53627A;border-radius:999px;font-weight:650;font-size:12px;padding:7px 10px;text-align:center}.inactive-copy h3{margin:0 0 2px;font-size:16px;font-weight:650}.inactive-copy p{margin:0;color:#64708A;font-weight:600}.inactive-actions{display:flex;gap:8px}.cmd.icon-only{width:36px!important;min-width:36px!important;max-width:36px!important;padding:0!important}.cmd.icon-only span{display:none!important}.debt-strip{display:flex;align-items:center;gap:12px;background:#F8FBFF;border:1px solid #DDEAFF;border-radius:18px;padding:12px 18px;color:#45536C;font-size:13px;font-weight:600}.debt-strip ha-icon{color:#1467F5}.charger-card{background:#fff;border:1px solid var(--hb-line);border-radius:20px;box-shadow:var(--hb-shadow);padding:14px;display:grid;gap:12px;min-width:0;align-self:start;align-content:start}.charger-card.attention{border-color:rgba(242,140,0,.35);background:linear-gradient(180deg,#fff,#fffaf3)}.charger-hero-card{min-height:178px;border-radius:16px;border:1px solid rgba(20,103,245,.10);background:linear-gradient(135deg,#FFFFFF 0%,#F7FAFF 52%,#EEF5FF 100%);padding:13px 14px;display:grid;grid-template-columns:minmax(0,1fr) minmax(136px,32%);gap:12px;align-items:center;overflow:hidden}.charger-head{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto auto;gap:8px 12px;align-items:start;min-width:0}.charger-head.compact{grid-template-columns:44px minmax(0,1fr);align-content:start}.charger-head.compact .status{grid-column:1/-1;justify-self:start;margin-top:10px}.charger-icon{width:48px;height:48px;border-radius:16px;background:var(--hb-soft-blue);display:flex;align-items:center;justify-content:center}.charger-icon ha-icon{--mdc-icon-size:26px;color:var(--hb-blue)}h3{margin:0;font-size:18px;font-weight:650;letter-spacing:-.02em;white-space:normal;overflow-wrap:anywhere}.charger-title{min-width:0}.charger-title p{font-size:11px;color:var(--hb-muted);font-weight:600;margin:4px 0 0;white-space:normal;overflow-wrap:anywhere}.charger-title .charger-profile{color:#355D96}.charger-visual{position:relative;height:150px;border-radius:16px;background:rgba(255,255,255,.72);display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:inset 0 1px 0 rgba(255,255,255,.8)}.charger-visual:before{content:"";position:absolute;inset:auto 14px 14px;height:12px;border-radius:50%;background:rgba(15,35,80,.08);filter:blur(8px)}.charger-visual img{position:relative;z-index:2;width:100%;height:100%;max-width:150px;max-height:144px;object-fit:contain;object-position:center;filter:drop-shadow(0 16px 20px rgba(15,35,80,.14))}.charger-visual img.failed{display:none}.charger-visual-fallback{display:none;position:relative;z-index:1;width:86px;height:86px;border-radius:26px;background:#fff;border:1px solid var(--hb-line);align-items:center;justify-content:center;box-shadow:0 16px 30px rgba(15,35,80,.10)}.charger-visual.image-missing .charger-visual-fallback{display:flex}.charger-visual-fallback ha-icon{--mdc-icon-size:46px;color:var(--hb-blue)}.status{border-radius:999px;padding:7px 10px;font-size:12px;font-weight:650;border:1px solid rgba(14,35,72,.08);white-space:nowrap}.status.ok{background:#E7F6EA;color:#087A35}.status.warn{background:#FFF1D9;color:#B76500}.status.bad{background:#FDE4E4;color:#C21E1E}.status.muted{background:#EEF1F6;color:#64708A}.charger-kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.field{border:1px solid var(--hb-line);background:#FAFCFF;border-radius:15px;padding:11px;display:grid;grid-template-columns:24px minmax(0,1fr);column-gap:8px;align-items:center}.field ha-icon{--mdc-icon-size:20px;color:var(--hb-blue);grid-row:1/3}.field span{font-size:11px;color:var(--hb-muted);font-weight:600}.field b{font-size:14px;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.soft-line{display:flex;flex-wrap:wrap;gap:8px;border-top:1px solid rgba(14,35,72,.07);padding-top:12px}.soft-line span{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--hb-line);background:#fff;border-radius:12px;padding:7px 9px;color:#34405A;font-size:12px;font-weight:600;min-width:0}.soft-line .charger-assignment{display:grid;grid-template-columns:18px minmax(0,1fr);grid-template-rows:auto auto;column-gap:6px;max-width:100%}.soft-line .charger-assignment ha-icon{grid-row:1/3}.soft-line .charger-assignment small{font-size:9px;color:var(--hb-muted);font-weight:600}.soft-line .charger-assignment b{font-size:12px;white-space:normal;overflow-wrap:anywhere}.soft-line ha-icon{--mdc-icon-size:16px;color:var(--hb-blue)}.mini-detail-link.icon-only{width:36px;height:36px;min-width:34px;border-radius:13px;border:1px solid var(--hb-line);background:#fff;color:#1467F5;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 10px 22px rgba(15,35,80,.05);padding:0;cursor:pointer}.mini-detail-link.icon-only ha-icon{--mdc-icon-size:18px;color:#1467F5}.mini-detail-link.icon-only span{display:none!important}.command-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:9px}.cmd{min-height:43px;border:1px solid rgba(14,35,72,.10);border-radius:13px;background:#fff;color:var(--hb-ink);box-shadow:0 10px 22px rgba(15,35,80,.05);font-weight:650;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;padding:0 10px}.cmd ha-icon{--mdc-icon-size:19px;color:var(--hb-blue)}.cmd.sent{background:#EEF5FF;border-color:#CFE0FF;color:#0B4BC1}.cmd.busy{background:#FFF8E8;border-color:#F8DB99}.cmd.failed{background:#FEF3F2;border-color:#FECDCA;color:#B42318}.cmd:disabled{opacity:.56;cursor:not-allowed;box-shadow:none}.cmd small{font-size:10px;color:var(--hb-muted);font-weight:650}.cmd.compact{min-height:38px;font-size:12px}.cmd.enum-command{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:auto auto;gap:4px 8px;padding:7px 10px}.cmd.enum-command ha-icon{grid-row:1/3}.cmd.enum-command span{text-align:left}.cmd.enum-command select{grid-column:2;border:1px solid var(--hb-line);border-radius:8px;background:#fff;color:var(--hb-ink);font:inherit;font-size:11px;padding:4px 6px;min-width:0}.cmd.enum-command.is-disabled{opacity:.56}.fold-section{border-top:1px solid rgba(14,35,72,.07);padding-top:8px}.fold-toggle{appearance:none;border:0;background:transparent;color:var(--hb-blue);font-size:13px;font-weight:650;display:flex;align-items:center;gap:4px;padding:0;cursor:pointer}.fold-toggle ha-icon{--mdc-icon-size:16px}.fold-panel{display:none;margin-top:10px}.fold-section.open .fold-panel{display:block}.maintenance-row{margin-top:0}.limit-control{grid-column:1/-1;border:1px solid var(--hb-line);border-radius:15px;background:#FAFCFF;padding:11px;display:grid;gap:9px}.limit-control.missing{grid-template-columns:1fr auto;align-items:center}.limit-control b{font-weight:650}.limit-control span{font-size:12px;color:var(--hb-muted);font-weight:600}.limit-head{display:flex;justify-content:space-between;gap:12px}.limit-slider{width:100%;accent-color:var(--hb-blue)}.limit-actions{display:grid;grid-template-columns:1fr auto;gap:8px}.limit-note{font-size:10px;color:var(--hb-muted);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.limit-number{border:1px solid var(--hb-line);border-radius:12px;background:#fff;padding:8px 10px;font-weight:600;color:var(--hb-ink);min-width:0}.detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}.detail-field{border:1px solid var(--hb-line);border-radius:12px;background:#FAFCFF;padding:9px 10px;min-width:0}.detail-field span{display:block;font-size:10px;color:var(--hb-muted);font-weight:650;text-transform:uppercase;letter-spacing:.03em}.detail-field b{display:block;margin-top:3px;font-size:12px;color:var(--hb-ink);font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.empty-actions{grid-column:1/-1;border:1px dashed #CBD5E1;border-radius:13px;padding:13px;color:var(--hb-muted);font-size:13px;font-weight:600;text-align:center}.empty-state{grid-column:1/-1;border:1px dashed #CBD5E1;border-radius:20px;background:#fff;padding:34px;text-align:center;color:var(--hb-muted);font-weight:600}.empty-state ha-icon{--mdc-icon-size:48px;color:var(--hb-blue);opacity:.55}.empty-state h2{color:var(--hb-ink);margin:10px 0 6px}
+      ha-card{background:transparent;border:0;box-shadow:none}.page{position:relative;width:min(100%,1560px);margin:0 auto;padding:18px 26px 30px;box-sizing:border-box;display:grid;gap:12px}.release-badge{position:absolute;top:6px;right:26px;z-index:3;border:1px solid rgba(14,35,72,.10);background:rgba(255,255,255,.92);color:#33415C;border-radius:999px;padding:5px 10px;font-size:12px;font-weight:650;line-height:1;box-shadow:0 8px 20px rgba(15,35,80,.055)}.hero{border:1px solid rgba(14,35,72,.10);border-radius:24px;background:linear-gradient(135deg,#FFFFFF 0%,#F8FBFF 48%,#EEF5FF 100%);box-shadow:var(--hb-shadow);padding:28px 34px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:center}.hero-side{display:grid;grid-template-columns:auto auto;gap:12px;align-items:center}.hero-side.no-registered-chargers{grid-template-columns:auto;justify-self:end}.charger-hero-visual{width:230px;height:112px;border-radius:24px;background:linear-gradient(135deg,rgba(238,245,255,.95),rgba(255,255,255,.7));border:1px solid rgba(20,103,245,.10);display:flex;align-items:center;justify-content:center;gap:16px;box-shadow:inset 0 1px 0 rgba(255,255,255,.7)}.charger-device{position:relative;width:58px;height:82px;border-radius:18px;background:#FFFFFF;border:1px solid var(--hb-line);box-shadow:0 14px 30px rgba(15,35,80,.12);display:flex;align-items:center;justify-content:center}.charger-device ha-icon{--mdc-icon-size:34px;color:var(--hb-blue)}.charger-device span{position:absolute;top:9px;width:22px;height:4px;border-radius:99px;background:#2DD56F}.flow-line{width:64px;height:6px;border-radius:999px;background:linear-gradient(90deg,#CFE0FF,#1467F5);box-shadow:0 0 18px rgba(20,103,245,.25)}.charger-car{width:58px;height:58px;border-radius:20px;background:#fff;border:1px solid var(--hb-line);box-shadow:0 14px 30px rgba(15,35,80,.10);display:flex;align-items:center;justify-content:center}.charger-car ha-icon{--mdc-icon-size:34px;color:var(--hb-ink)}.eyebrow{font-size:12px;font-weight:650;letter-spacing:.08em;text-transform:uppercase;color:var(--hb-blue);margin-bottom:8px}h1{font-size:46px;line-height:1;letter-spacing:-.055em;margin:0 0 10px;font-weight:650}p{margin:0;color:#34405A;font-size:16px;line-height:1.45;font-weight:600;max-width:780px}.hero-metrics{display:grid;grid-template-columns:repeat(3,112px);gap:10px}.hero-metrics div{background:rgba(255,255,255,.92);border:1px solid var(--hb-line);border-radius:18px;padding:14px;text-align:center;box-shadow:0 10px 28px rgba(15,35,80,.055)}.hero-metrics b{display:block;font-size:28px;font-weight:650}.hero-metrics span{font-size:12px;color:var(--hb-muted);font-weight:600}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:16px;align-items:start}.inactive-list{display:grid;gap:10px}.inactive-row{background:#fff;border:1px solid var(--hb-line);border-radius:18px;box-shadow:0 12px 36px rgba(15,35,80,.055);padding:10px 12px;display:grid;grid-template-columns:82px 1fr auto;gap:14px;align-items:center}.inactive-state{background:#EEF2F7;color:#53627A;border-radius:999px;font-weight:650;font-size:12px;padding:7px 10px;text-align:center}.inactive-copy h3{margin:0 0 2px;font-size:16px;font-weight:650}.inactive-copy p{margin:0;color:#64708A;font-weight:600}.inactive-actions{display:flex;gap:8px}.cmd.icon-only{width:36px;min-width:36px;max-width:36px;padding:0}.cmd.icon-only span{display:none}.debt-strip{display:flex;align-items:center;gap:12px;background:#F8FBFF;border:1px solid #DDEAFF;border-radius:18px;padding:12px 18px;color:#45536C;font-size:13px;font-weight:600}.debt-strip ha-icon{color:#1467F5}.charger-card{background:#fff;border:1px solid var(--hb-line);border-radius:20px;box-shadow:var(--hb-shadow);padding:14px;display:grid;gap:12px;min-width:0;align-self:start;align-content:start}.charger-card.attention{border-color:rgba(242,140,0,.35);background:linear-gradient(180deg,#fff,#fffaf3)}.charger-hero-card{min-height:178px;border-radius:16px;border:1px solid rgba(20,103,245,.10);background:linear-gradient(135deg,#FFFFFF 0%,#F7FAFF 52%,#EEF5FF 100%);padding:13px 14px;display:grid;grid-template-columns:minmax(0,1fr) minmax(136px,32%);gap:12px;align-items:center;overflow:hidden}.charger-head{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto auto;gap:8px 12px;align-items:start;min-width:0}.charger-head.compact{grid-template-columns:44px minmax(0,1fr);align-content:start}.charger-head.compact .status{grid-column:1/-1;justify-self:start;margin-top:10px}.charger-icon{width:48px;height:48px;border-radius:16px;background:var(--hb-soft-blue);display:flex;align-items:center;justify-content:center}.charger-icon ha-icon{--mdc-icon-size:26px;color:var(--hb-blue)}h3{margin:0;font-size:18px;font-weight:650;letter-spacing:-.02em;white-space:normal;overflow-wrap:anywhere}.charger-title{min-width:0}.charger-title p{font-size:11px;color:var(--hb-muted);font-weight:600;margin:4px 0 0;white-space:normal;overflow-wrap:anywhere}.charger-title .charger-profile{color:#355D96}.charger-visual{position:relative;height:150px;border-radius:16px;background:rgba(255,255,255,.72);display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:inset 0 1px 0 rgba(255,255,255,.8)}.charger-visual:before{content:"";position:absolute;inset:auto 14px 14px;height:12px;border-radius:50%;background:rgba(15,35,80,.08);filter:blur(8px)}.charger-visual img{position:relative;z-index:2;width:100%;height:100%;max-width:150px;max-height:144px;object-fit:contain;object-position:center;filter:drop-shadow(0 16px 20px rgba(15,35,80,.14))}.charger-visual img.failed{display:none}.charger-visual-fallback{display:none;position:relative;z-index:1;width:86px;height:86px;border-radius:26px;background:#fff;border:1px solid var(--hb-line);align-items:center;justify-content:center;box-shadow:0 16px 30px rgba(15,35,80,.10)}.charger-visual.image-missing .charger-visual-fallback{display:flex}.charger-visual-fallback ha-icon{--mdc-icon-size:46px;color:var(--hb-blue)}.status{border-radius:999px;padding:7px 10px;font-size:12px;font-weight:650;border:1px solid rgba(14,35,72,.08);white-space:nowrap}.status.ok{background:#E7F6EA;color:#087A35}.status.warn{background:#FFF1D9;color:#B76500}.status.bad{background:#FDE4E4;color:#C21E1E}.status.muted{background:#EEF1F6;color:#64708A}.charger-kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.field{border:1px solid var(--hb-line);background:#FAFCFF;border-radius:15px;padding:11px;display:grid;grid-template-columns:24px minmax(0,1fr);column-gap:8px;align-items:center}.field ha-icon{--mdc-icon-size:20px;color:var(--hb-blue);grid-row:1/3}.field span{font-size:11px;color:var(--hb-muted);font-weight:600}.field b{font-size:14px;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.soft-line{display:flex;flex-wrap:wrap;gap:8px;border-top:1px solid rgba(14,35,72,.07);padding-top:12px}.soft-line span{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--hb-line);background:#fff;border-radius:12px;padding:7px 9px;color:#34405A;font-size:12px;font-weight:600;min-width:0}.soft-line .charger-assignment{display:grid;grid-template-columns:18px minmax(0,1fr);grid-template-rows:auto auto;column-gap:6px;max-width:100%}.soft-line .charger-assignment ha-icon{grid-row:1/3}.soft-line .charger-assignment small{font-size:9px;color:var(--hb-muted);font-weight:600}.soft-line .charger-assignment b{font-size:12px;white-space:normal;overflow-wrap:anywhere}.soft-line ha-icon{--mdc-icon-size:16px;color:var(--hb-blue)}.mini-detail-link.icon-only{width:36px;height:36px;min-width:34px;border-radius:13px;border:1px solid var(--hb-line);background:#fff;color:#1467F5;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 10px 22px rgba(15,35,80,.05);padding:0;cursor:pointer}.mini-detail-link.icon-only ha-icon{--mdc-icon-size:18px;color:#1467F5}.mini-detail-link.icon-only span{display:none}.command-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:9px}.cmd{min-height:43px;border:1px solid rgba(14,35,72,.10);border-radius:13px;background:#fff;color:var(--hb-ink);box-shadow:0 10px 22px rgba(15,35,80,.05);font-weight:650;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;padding:0 10px}.cmd ha-icon{--mdc-icon-size:19px;color:var(--hb-blue)}.cmd.sent{background:#EEF5FF;border-color:#CFE0FF;color:#0B4BC1}.cmd.busy{background:#FFF8E8;border-color:#F8DB99}.cmd.failed{background:#FEF3F2;border-color:#FECDCA;color:#B42318}.cmd:disabled{opacity:.56;cursor:not-allowed;box-shadow:none}.cmd small{font-size:10px;color:var(--hb-muted);font-weight:650}.cmd.compact{min-height:38px;font-size:12px}.cmd.enum-command{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:auto auto;gap:4px 8px;padding:7px 10px}.cmd.enum-command ha-icon{grid-row:1/3}.cmd.enum-command span{text-align:left}.cmd.enum-command select{grid-column:2;border:1px solid var(--hb-line);border-radius:8px;background:#fff;color:var(--hb-ink);font:inherit;font-size:11px;padding:4px 6px;min-width:0}.cmd.enum-command.is-disabled{opacity:.56}.fold-section{border-top:1px solid rgba(14,35,72,.07);padding-top:8px}.fold-toggle{appearance:none;border:0;background:transparent;color:var(--hb-blue);font-size:13px;font-weight:650;display:flex;align-items:center;gap:4px;padding:0;cursor:pointer}.fold-toggle ha-icon{--mdc-icon-size:16px}.fold-panel{display:none;margin-top:10px}.fold-section.open .fold-panel{display:block}.maintenance-row{margin-top:0}.limit-control{grid-column:1/-1;border:1px solid var(--hb-line);border-radius:15px;background:#FAFCFF;padding:11px;display:grid;gap:9px}.limit-control.missing{grid-template-columns:1fr auto;align-items:center}.limit-control b{font-weight:650}.limit-control span{font-size:12px;color:var(--hb-muted);font-weight:600}.limit-head{display:flex;justify-content:space-between;gap:12px}.limit-slider{width:100%;accent-color:var(--hb-blue)}.limit-actions{display:grid;grid-template-columns:1fr auto;gap:8px}.limit-note{font-size:10px;color:var(--hb-muted);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.limit-number{border:1px solid var(--hb-line);border-radius:12px;background:#fff;padding:8px 10px;font-weight:600;color:var(--hb-ink);min-width:0}.detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}.detail-field{border:1px solid var(--hb-line);border-radius:12px;background:#FAFCFF;padding:9px 10px;min-width:0}.detail-field span{display:block;font-size:10px;color:var(--hb-muted);font-weight:650;text-transform:uppercase;letter-spacing:.03em}.detail-field b{display:block;margin-top:3px;font-size:12px;color:var(--hb-ink);font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.empty-actions{grid-column:1/-1;border:1px dashed #CBD5E1;border-radius:13px;padding:13px;color:var(--hb-muted);font-size:13px;font-weight:600;text-align:center}.empty-state{grid-column:1/-1;border:1px dashed #CBD5E1;border-radius:20px;background:#fff;padding:34px;text-align:center;color:var(--hb-muted);font-weight:600}.empty-state ha-icon{--mdc-icon-size:48px;color:var(--hb-blue);opacity:.55}.empty-state h2{color:var(--hb-ink);margin:10px 0 6px}
       .charger-hero-visual.image-strip{width:310px;height:130px;gap:10px;padding:10px;box-sizing:border-box;overflow:hidden}.charger-hero-visual.image-strip img{max-width:92px;max-height:106px;object-fit:contain;filter:drop-shadow(0 18px 22px rgba(15,35,80,.16))}.premium-image-hero{min-height:226px;grid-template-columns:1fr;grid-template-rows:142px auto;padding:14px;background:linear-gradient(135deg,#FFFFFF 0%,#F8FBFF 48%,#EEF5FF 100%)}.premium-image-hero .charger-visual{height:142px;width:100%;background:linear-gradient(135deg,rgba(238,245,255,.95),rgba(255,255,255,.72));border:1px solid rgba(20,103,245,.10)}.premium-image-hero .charger-visual img{max-width:150px;max-height:132px}.premium-image-hero .charger-head{grid-template-columns:44px minmax(0,1fr) auto}.premium-image-hero .charger-icon{width:44px;height:44px;border-radius:15px}.premium-image-hero .status{align-self:center}.charger-visual.ok:after{content:"";position:absolute;top:14px;right:16px;width:34px;height:6px;border-radius:999px;background:#37D67A;box-shadow:0 0 16px rgba(55,214,122,.35)}.charger-visual.warn:after{content:"";position:absolute;top:14px;right:16px;width:34px;height:6px;border-radius:999px;background:#F8B84E}.charger-visual.bad:after{content:"";position:absolute;top:14px;right:16px;width:34px;height:6px;border-radius:999px;background:#F04438}
 /* R22.10.3 shared horizontal outcome/status header */
 .status-strip.dashboard-status-strip,.status-strip.ops-status-strip{
-  display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;
-  border:1px solid rgba(14,35,72,.11)!important;border-radius:17px!important;
-  background:rgba(255,255,255,.96)!important;box-shadow:0 16px 32px rgba(15,35,80,.08)!important;
-  overflow:hidden!important;max-width:none!important;width:100%!important;margin:8px 0 10px!important;
+  display:grid;grid-template-columns:repeat(5,minmax(0,1fr));
+  border:1px solid rgba(14,35,72,.11);border-radius:17px;
+  background:rgba(255,255,255,.96);box-shadow:0 16px 32px rgba(15,35,80,.08);
+  overflow:hidden;max-width:none;width:100%;margin:8px 0 10px;
 }
 .status-strip.dashboard-status-strip .metric,.status-strip.ops-status-strip .metric{
-  display:grid!important;grid-template-columns:34px minmax(0,1fr)!important;gap:8px!important;align-items:center!important;
-  padding:14px 16px!important;border-right:1px solid #E6ECF5!important;min-width:0!important;background:transparent!important;
+  display:grid;grid-template-columns:34px minmax(0,1fr);gap:8px;align-items:center;
+  padding:14px 16px;border-right:1px solid #E6ECF5;min-width:0;background:transparent;
 }
-.status-strip.dashboard-status-strip .metric:last-child,.status-strip.ops-status-strip .metric:last-child{border-right:0!important;}
+.status-strip.dashboard-status-strip .metric:last-child,.status-strip.ops-status-strip .metric:last-child{border-right:0;}
 .status-strip.dashboard-status-strip .metric ha-icon,.status-strip.ops-status-strip .metric ha-icon{--mdc-icon-size:23px;color:#1467F5;}
-.status-strip.dashboard-status-strip .metric.tone-green ha-icon,.status-strip.ops-status-strip .metric.tone-green ha-icon{color:#18A957!important;}
-.status-strip.dashboard-status-strip .metric.tone-orange ha-icon,.status-strip.ops-status-strip .metric.tone-orange ha-icon{color:#F59E0B!important;}
+.status-strip.dashboard-status-strip .metric.tone-green ha-icon,.status-strip.ops-status-strip .metric.tone-green ha-icon{color:#18A957;}
+.status-strip.dashboard-status-strip .metric.tone-orange ha-icon,.status-strip.ops-status-strip .metric.tone-orange ha-icon{color:#F59E0B;}
 .status-strip.dashboard-status-strip .metric span,.status-strip.ops-status-strip .metric span{display:block;font-size:11px;font-weight:600;color:#66728B;line-height:1.1;}
 .status-strip.dashboard-status-strip .metric b,.status-strip.ops-status-strip .metric b{display:block;font-size:16px;font-weight:600;color:#071327;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-@media(max-width:760px){.status-strip.dashboard-status-strip,.status-strip.ops-status-strip{grid-template-columns:1fr!important;max-width:100%!important}.status-strip.dashboard-status-strip .metric,.status-strip.ops-status-strip .metric{border-right:0!important;border-bottom:1px solid #E6ECF5!important}.status-strip.dashboard-status-strip .metric:last-child,.status-strip.ops-status-strip .metric:last-child{border-bottom:0!important}}
+@media(max-width:760px){.status-strip.dashboard-status-strip,.status-strip.ops-status-strip{grid-template-columns:1fr;max-width:100%}.status-strip.dashboard-status-strip .metric,.status-strip.ops-status-strip .metric{border-right:0;border-bottom:1px solid #E6ECF5}.status-strip.dashboard-status-strip .metric:last-child,.status-strip.ops-status-strip .metric:last-child{border-bottom:0}}
 ${hbMobilitySharedShellStyles()}
 @media(max-width:900px){.page{padding:14px}.hero{grid-template-columns:1fr;padding:22px}.hero-side{grid-template-columns:1fr}.hero .charger-hero-visual{display:none}.hero-metrics{grid-template-columns:repeat(3,1fr)}h1{font-size:36px}.grid{grid-template-columns:1fr}.charger-hero-card{grid-template-columns:1fr}.charger-kpis{grid-template-columns:1fr}.charger-head{grid-template-columns:44px minmax(0,1fr);}.status{grid-column:1/-1;justify-self:start}.command-row{grid-template-columns:1fr 1fr}}
       @media(max-width:520px){.hero-metrics{grid-template-columns:1fr}.charger-hero-card{grid-template-columns:1fr}.charger-visual{height:120px}.command-row{grid-template-columns:1fr}.detail-grid{grid-template-columns:1fr}}
@@ -8096,20 +7502,20 @@ ${hbMobilitySharedShellStyles()}
       /* R22.10.3 operations aligned with main dashboard */
       .title{position:relative;padding:6px 0 0}.title .eyebrow{font-size:12px;font-weight:650;letter-spacing:.08em;text-transform:uppercase;color:var(--hb-blue);margin-bottom:6px}.title h1{font-size:42px;line-height:1;letter-spacing:-.055em;margin:0 0 8px;font-weight:650}.title p{font-size:14px;color:#06142D;font-weight:600;max-width:780px}.top-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.summary{min-height:76px;border:1px solid var(--hb-line);border-radius:20px;background:#fff;box-shadow:var(--hb-shadow);padding:14px 18px;display:grid;grid-template-columns:56px 1fr;gap:14px;align-items:center}.summary.attention{border-color:#FFD8A8}.summary.recommendation{border-color:#C9DEFF}.summary-icon{width:44px;height:44px;border-radius:16px;background:#FFF1D9;display:flex;align-items:center;justify-content:center}.summary-icon.blue{background:#1467F5;color:white}.summary-icon ha-icon{color:#F39A1B}.summary-icon.blue ha-icon{color:white}.summary h3{margin:0 0 6px;font-size:16px;font-weight:650}.summary ul{margin:0;padding:0;list-style:none}.summary li{display:flex;gap:14px;font-size:12px;color:#34405A;font-weight:600}.section-title{display:flex;align-items:center;justify-content:space-between;margin-top:4px}.section-title h2{margin:0;font-size:20px;font-weight:650}.section-title span{font-size:12px;color:#66728B;border:1px solid var(--hb-line);border-radius:999px;padding:4px 10px;background:#fff;font-weight:650}.bottom-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.info{background:#fff;border:1px solid var(--hb-line);border-radius:18px;box-shadow:0 14px 34px rgba(15,35,80,.055);padding:14px 16px;min-height:82px}.info h3{display:flex;align-items:center;gap:8px;font-size:15px;margin:0 0 8px}.info h3 ha-icon{color:#1467F5}.info p{font-size:12px;font-weight:600;color:#34405A}@media(max-width:860px){.top-grid,.bottom-grid{grid-template-columns:1fr}}
       /* R22.10.3 charge speed restore: compact, contract-driven, no min/max helper text. */
-      .charge-mini-strip.mock-controls{display:flex!important;align-items:stretch!important;gap:8px!important;height:42px!important;overflow:hidden!important;min-width:0!important;grid-template-columns:none!important}
-      .charger-select{flex:1 1 230px!important;min-width:170px!important}
-      .mode-select{flex:0 1 132px!important;min-width:112px!important}
-      .mini-current-stepper.compact-current{flex:0 0 156px!important;display:grid!important;grid-template-columns:minmax(56px,1fr) 32px 32px!important;align-items:center!important;gap:6px!important;padding:0 8px!important;background:#fff!important;border:1px solid var(--hb-line)!important;border-radius:12px!important;box-shadow:none!important;min-width:0!important;height:42px!important;min-height:42px!important}
-      .mini-current-stepper.compact-current .current-copy{display:flex!important;flex-direction:column!important;justify-content:center!important;min-width:0!important;line-height:1.05!important;overflow:hidden!important}
-      .mini-current-stepper.compact-current small{display:block!important;font-size:9px!important;font-weight:500!important;color:#6A768D!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;text-transform:none!important;letter-spacing:0!important;margin:0!important}
-      .mini-current-stepper.compact-current strong{font-size:13px!important;font-weight:600!important;color:#06142D!important;white-space:nowrap!important;line-height:1.15!important;margin-top:2px!important}
-      .mini-current-stepper.compact-current.readonly{grid-template-columns:minmax(56px,1fr)!important;flex-basis:112px!important}
-      .mini-current-stepper.compact-current .round-step{width:30px!important;height:30px!important;min-width:30px!important;border-radius:12px!important;background:#fff!important;border:1px solid var(--hb-line)!important;color:#1467F5!important;font-size:18px!important;font-weight:500!important;box-shadow:none!important;padding:0!important;display:flex!important;align-items:center!important;justify-content:center!important}
-      .mini-power-read{display:none!important}
-      .vehicle-actions.clean-actions{grid-template-columns:minmax(142px,1.05fr) minmax(130px,1fr) minmax(110px,.85fr) 1fr 42px 42px!important;align-items:center!important}
-      .vehicle-actions.clean-actions .presence-toggle.icon-only,.vehicle-actions.clean-actions .details-action.icon-only{justify-self:end!important;background:#fff!important;color:#1467F5!important;border-color:var(--hb-line)!important}
-      .vehicle-actions.clean-actions .presence-toggle.icon-only ha-icon,.vehicle-actions.clean-actions .details-action.icon-only ha-icon{color:#1467F5!important}
-      @media(max-width:880px){.charge-mini-strip.mock-controls{height:auto!important;flex-wrap:wrap!important}.mini-current-stepper.compact-current{flex:1 1 150px!important}.vehicle-actions.clean-actions{grid-template-columns:1fr 1fr 1fr 42px 42px!important}.action-spacer{display:none!important}}
+      .charge-mini-strip.mock-controls{display:flex;align-items:stretch;gap:8px;height:42px;overflow:hidden;min-width:0;grid-template-columns:none}
+      .charger-select{flex:1 1 230px;min-width:170px}
+      .mode-select{flex:0 1 132px;min-width:112px}
+      .mini-current-stepper.compact-current{flex:0 0 156px;display:grid;grid-template-columns:minmax(56px,1fr) 32px 32px;align-items:center;gap:6px;padding:0 8px;background:#fff;border:1px solid var(--hb-line);border-radius:12px;box-shadow:none;min-width:0;height:42px;min-height:42px}
+      .mini-current-stepper.compact-current .current-copy{display:flex;flex-direction:column;justify-content:center;min-width:0;line-height:1.05;overflow:hidden}
+      .mini-current-stepper.compact-current small{display:block;font-size:9px;font-weight:500;color:#6A768D;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-transform:none;letter-spacing:0;margin:0}
+      .mini-current-stepper.compact-current strong{font-size:13px;font-weight:600;color:#06142D;white-space:nowrap;line-height:1.15;margin-top:2px}
+      .mini-current-stepper.compact-current.readonly{grid-template-columns:minmax(56px,1fr);flex-basis:112px}
+      .mini-current-stepper.compact-current .round-step{width:30px;height:30px;min-width:30px;border-radius:12px;background:#fff;border:1px solid var(--hb-line);color:#1467F5;font-size:18px;font-weight:500;box-shadow:none;padding:0;display:flex;align-items:center;justify-content:center}
+      .mini-power-read{display:none}
+      .vehicle-actions.clean-actions{grid-template-columns:minmax(142px,1.05fr) minmax(130px,1fr) minmax(110px,.85fr) 1fr 42px 42px;align-items:center}
+      .vehicle-actions.clean-actions .presence-toggle.icon-only,.vehicle-actions.clean-actions .details-action.icon-only{justify-self:end;background:#fff;color:#1467F5;border-color:var(--hb-line)}
+      .vehicle-actions.clean-actions .presence-toggle.icon-only ha-icon,.vehicle-actions.clean-actions .details-action.icon-only ha-icon{color:#1467F5}
+      @media(max-width:880px){.charge-mini-strip.mock-controls{height:auto;flex-wrap:wrap}.mini-current-stepper.compact-current{flex:1 1 150px}.vehicle-actions.clean-actions{grid-template-columns:1fr 1fr 1fr 42px 42px}.action-spacer{display:none}}
 
       /* rc.27 shared visual-library management + mobile density. */
       .appearance-write-error{display:flex;align-items:center;gap:7px;padding:8px 10px;border:1px solid #fed7aa;border-radius:10px;background:#fff7ed;color:#9a3412;font-size:10px;font-weight:600}.appearance-write-error ha-icon{--mdc-icon-size:16px}
@@ -8132,204 +7538,204 @@ ${hbMobilitySharedShellStyles()}
       .charger-picker-panel .vehicle-picker-gap{grid-column:1/-1;margin-top:8px;font-size:9.5px;color:#9a5a16;display:flex;gap:6px;align-items:center}
       @media(max-width:900px){.charger-picker-panel .vehicle-picker-grid{grid-template-columns:1fr 1fr}.charger-picker-panel .vehicle-picker-hierarchy .vehicle-picker-key{grid-column:1/-1}.charger-picker-panel .vehicle-picker-hierarchy .vehicle-picker-save{grid-column:auto}}
       @media(max-width:560px){
-        .page{padding:8px 8px 18px!important;gap:8px!important}
-        .charger-card{padding:10px!important;gap:8px!important;border-radius:16px!important}
-        .charger-hero-card{grid-template-columns:minmax(0,1fr) 96px!important;min-height:116px!important;padding:10px!important;border-radius:14px!important}
-        .charger-visual{height:96px!important}.charger-visual img{max-width:90px!important;max-height:90px!important}
-        .charger-head{grid-template-columns:38px minmax(0,1fr) auto!important;gap:8px!important}
-        .charger-icon{width:38px!important;height:38px!important;border-radius:12px!important}
-        .charger-title h3{font-size:15px!important}.charger-title p{font-size:10px!important}
-        .charger-kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important}
-        .soft-line{gap:6px!important;flex-wrap:wrap!important}
-        .charger-appearance-action{grid-column:2/4!important;height:32px!important;padding:0 8px!important}
-        .grid{grid-template-columns:1fr!important;gap:10px!important}
+        .page{padding:8px 8px 18px;gap:8px}
+        .charger-card{padding:10px;gap:8px;border-radius:16px}
+        .charger-hero-card{grid-template-columns:minmax(0,1fr) 96px;min-height:116px;padding:10px;border-radius:14px}
+        .charger-visual{height:96px}.charger-visual img{max-width:90px;max-height:90px}
+        .charger-head{grid-template-columns:38px minmax(0,1fr) auto;gap:8px}
+        .charger-icon{width:38px;height:38px;border-radius:12px}
+        .charger-title h3{font-size:15px}.charger-title p{font-size:10px}
+        .charger-kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+        .soft-line{gap:6px;flex-wrap:wrap}
+        .charger-appearance-action{grid-column:2/4;height:32px;padding:0 8px}
+        .grid{grid-template-columns:1fr;gap:10px}
       }
 
       /* rc.58 charger icon hierarchy and compact operational layout. */
-      .charger-head{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;grid-template-rows:auto auto!important;gap:6px 10px!important;align-items:center!important;min-width:0!important}
-      .charger-head .charger-title{grid-column:1!important;grid-row:1!important;min-width:0!important}
-      .charger-head>.status{grid-column:2!important;grid-row:1!important;justify-self:end!important}
-      .charger-head>.charger-appearance-action{grid-column:1/-1!important;grid-row:2!important;justify-self:start!important}
-      .charger-icon{display:none!important}
-      .charger-title h3{font-size:17px!important;font-weight:600!important}
-      .charger-title p{font-size:11px!important;font-weight:450!important;color:#66728B!important}
-      .charger-kpis{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:7px!important}
-      .field{min-height:52px!important;padding:8px 10px!important;border-radius:11px!important;background:#fff!important}
-      .field ha-icon{--mdc-icon-size:19px!important;color:#355D96!important}
-      .field span{font-size:10px!important;font-weight:500!important}
-      .field b{font-size:13px!important;font-weight:600!important}
-      .charger-state-actions{align-items:center!important}
-      .charger-state-actions>span:not(.soft-line-spacer){background:transparent!important;border:0!important;padding:5px 4px!important}
-      .charger-state-actions ha-icon{--mdc-icon-size:18px!important;color:#355D96!important}
-      .soft-line-spacer{flex:1 1 auto!important;border:0!important;background:transparent!important;padding:0!important}
-      .mini-detail-link.labeled-action{width:auto!important;min-width:0!important;height:34px!important;padding:0 10px!important;border-radius:9px!important;gap:6px!important;font-size:11px!important;font-weight:550!important;color:#355D96!important;box-shadow:none!important}
-      .mini-detail-link.labeled-action span{display:inline!important}
-      .mini-detail-link.labeled-action ha-icon{--mdc-icon-size:17px!important;color:#355D96!important}
-      .command-row{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))!important;gap:7px!important}
-      .cmd{min-height:38px!important;border-radius:10px!important;box-shadow:none!important;font-weight:550!important}
-      .cmd ha-icon{--mdc-icon-size:18px!important}
-      .cmd:disabled{opacity:.62!important;color:#7A8699!important;background:#FAFBFC!important}
+      .charger-head{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto auto;gap:6px 10px;align-items:center;min-width:0}
+      .charger-head .charger-title{grid-column:1;grid-row:1;min-width:0}
+      .charger-head>.status{grid-column:2;grid-row:1;justify-self:end}
+      .charger-head>.charger-appearance-action{grid-column:1/-1;grid-row:2;justify-self:start}
+      .charger-icon{display:none}
+      .charger-title h3{font-size:17px;font-weight:600}
+      .charger-title p{font-size:11px;font-weight:450;color:#66728B}
+      .charger-kpis{grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+      .field{min-height:52px;padding:8px 10px;border-radius:11px;background:#fff}
+      .field ha-icon{--mdc-icon-size:19px;color:#355D96}
+      .field span{font-size:10px;font-weight:500}
+      .field b{font-size:13px;font-weight:600}
+      .charger-state-actions{align-items:center}
+      .charger-state-actions>span:not(.soft-line-spacer){background:transparent;border:0;padding:5px 4px}
+      .charger-state-actions ha-icon{--mdc-icon-size:18px;color:#355D96}
+      .soft-line-spacer{flex:1 1 auto;border:0;background:transparent;padding:0}
+      .mini-detail-link.labeled-action{width:auto;min-width:0;height:34px;padding:0 10px;border-radius:9px;gap:6px;font-size:11px;font-weight:550;color:#355D96;box-shadow:none}
+      .mini-detail-link.labeled-action span{display:inline}
+      .mini-detail-link.labeled-action ha-icon{--mdc-icon-size:17px;color:#355D96}
+      .command-row{grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:7px}
+      .cmd{min-height:38px;border-radius:10px;box-shadow:none;font-weight:550}
+      .cmd ha-icon{--mdc-icon-size:18px}
+      .cmd:disabled{opacity:.62;color:#7A8699;background:#FAFBFC}
       @media(max-width:760px){
-        .charger-kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important}
-        .soft-line-spacer{display:none!important}
-        .charger-state-actions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important}
-        .charger-state-actions .labeled-action{width:100%!important;justify-content:center!important}
+        .charger-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+        .soft-line-spacer{display:none}
+        .charger-state-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+        .charger-state-actions .labeled-action{width:100%;justify-content:center}
       }
 
       /* R22.12.11.24 Energy typography alignment — charger maintenance. */
       :host{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
       *{}
-      .title h1{font-size:34px!important;line-height:1.08!important;font-weight:650!important;letter-spacing:-.025em!important;}
-      .title p{font-size:13px!important;font-weight:400!important;color:var(--hb-muted,#66728B)!important;}
-      .eyebrow{font-size:11px!important;font-weight:650!important;}
-      .charger-name,.charger-mini-copy b{font-weight:600!important;}
-      .card-title,.info h3,.section-title h2{font-weight:600!important;}
-      .label,.subtext,.charger-mini-copy span{font-weight:500!important;color:var(--hb-muted,#66728B)!important;}
-      .value,strong{font-weight:650!important;}
-      .action{font-weight:600!important;}
+      .title h1{font-size:34px;line-height:1.08;font-weight:650;letter-spacing:-.025em;}
+      .title p{font-size:13px;font-weight:400;color:var(--hb-muted,#66728B);}
+      .eyebrow{font-size:11px;font-weight:650;}
+      .charger-name,.charger-mini-copy b{font-weight:600;}
+      .card-title,.info h3,.section-title h2{font-weight:600;}
+      .label,.subtext,.charger-mini-copy span{font-weight:500;color:var(--hb-muted,#66728B);}
+      .value,strong{font-weight:650;}
+      .action{font-weight:600;}
       /* rc.56 compact Chargers body — keep operational content, remove oversized visual stage. */
-      .page{gap:9px!important;padding:12px 18px 24px!important}
+      .page{gap:9px;padding:12px 18px 24px}
       .hero{
-        min-height:0!important;padding:14px 18px!important;border-radius:18px!important;
-        box-shadow:0 8px 24px rgba(15,35,80,.045)!important;gap:16px!important;
+        min-height:0;padding:14px 18px;border-radius:18px;
+        box-shadow:0 8px 24px rgba(15,35,80,.045);gap:16px;
       }
-      .hero h1{font-size:30px!important;margin-bottom:5px!important}
-      .hero p{font-size:11.5px!important;line-height:1.35!important;font-weight:500!important}
-      .hero-metrics{grid-template-columns:repeat(3,96px)!important;gap:6px!important}
-      .hero-metrics div{padding:8px!important;border-radius:11px!important;box-shadow:none!important}
-      .hero-metrics b{font-size:20px!important}.hero-metrics span{font-size:9.5px!important}
-      .grid{display:grid!important;grid-template-columns:1fr!important;gap:10px!important}
+      .hero h1{font-size:30px;margin-bottom:5px}
+      .hero p{font-size:11.5px;line-height:1.35;font-weight:500}
+      .hero-metrics{grid-template-columns:repeat(3,96px);gap:6px}
+      .hero-metrics div{padding:8px;border-radius:11px;box-shadow:none}
+      .hero-metrics b{font-size:20px}.hero-metrics span{font-size:9.5px}
+      .grid{display:grid;grid-template-columns:1fr;gap:10px}
       .charger-card{
-        padding:10px!important;gap:8px!important;border-radius:16px!important;
-        box-shadow:0 8px 24px rgba(15,35,80,.045)!important;border-color:#e2e8f0!important;
+        padding:10px;gap:8px;border-radius:16px;
+        box-shadow:0 8px 24px rgba(15,35,80,.045);border-color:#e2e8f0;
       }
       .charger-card .premium-image-hero{
-        display:grid!important;grid-template-columns:210px minmax(0,1fr)!important;grid-template-rows:1fr!important;
-        min-height:126px!important;height:126px!important;gap:12px!important;padding:8px 11px!important;
-        border-radius:13px!important;align-items:center!important;overflow:hidden!important;
-        background:linear-gradient(135deg,#fff 0%,#f8fbff 68%,#eef5ff 100%)!important;
+        display:grid;grid-template-columns:210px minmax(0,1fr);grid-template-rows:1fr;
+        min-height:126px;height:126px;gap:12px;padding:8px 11px;
+        border-radius:13px;align-items:center;overflow:hidden;
+        background:linear-gradient(135deg,#fff 0%,#f8fbff 68%,#eef5ff 100%);
       }
       .charger-card .premium-image-hero .charger-visual{
-        position:relative!important;width:100%!important;height:108px!important;min-height:108px!important;
-        display:grid!important;place-items:center!important;border:0!important;border-radius:11px!important;
-        background:rgba(255,255,255,.52)!important;overflow:hidden!important;
+        position:relative;width:100%;height:108px;min-height:108px;
+        display:grid;place-items:center;border:0;border-radius:11px;
+        background:rgba(255,255,255,.52);overflow:hidden;
       }
       .charger-card .premium-image-hero .charger-visual img{
-        display:block!important;width:100%!important;height:100%!important;max-width:118px!important;max-height:102px!important;
-        object-fit:contain!important;object-position:center!important;transform:none!important;
+        display:block;width:100%;height:100%;max-width:118px;max-height:102px;
+        object-fit:contain;object-position:center;transform:none;
       }
-      .charger-card .premium-image-hero .charger-visual-fallback{position:absolute!important;inset:0!important;display:none!important;place-items:center!important}.charger-card .premium-image-hero .charger-visual.image-missing .charger-visual-fallback{display:grid!important}.charger-card .premium-image-hero .charger-visual:not(.image-missing) .charger-visual-fallback{display:none!important}
+      .charger-card .premium-image-hero .charger-visual-fallback{position:absolute;inset:0;display:none;place-items:center}.charger-card .premium-image-hero .charger-visual.image-missing .charger-visual-fallback{display:grid}.charger-card .premium-image-hero .charger-visual:not(.image-missing) .charger-visual-fallback{display:none}
       .charger-card .premium-image-hero .charger-head{
-        display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;
-        grid-template-rows:auto auto!important;align-items:center!important;gap:6px 9px!important;min-width:0!important;
+        display:grid;grid-template-columns:minmax(0,1fr) auto;
+        grid-template-rows:auto auto;align-items:center;gap:6px 9px;min-width:0;
       }
-      .charger-card .premium-image-hero .charger-icon{display:none!important}
-      .charger-card .premium-image-hero .charger-title{grid-column:1!important;grid-row:1!important;min-width:0!important}
-      .charger-card .charger-title h3{font-size:16px!important;line-height:1.1!important;margin:0 0 2px!important;white-space:normal!important;overflow-wrap:break-word!important;word-break:normal!important}
-      .charger-card .charger-title p{font-size:10px!important;line-height:1.2!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
-      .charger-card .premium-image-hero .status{grid-column:2!important;grid-row:1!important;align-self:center!important;justify-self:end!important;font-size:10px!important;padding:5px 8px!important}
+      .charger-card .premium-image-hero .charger-icon{display:none}
+      .charger-card .premium-image-hero .charger-title{grid-column:1;grid-row:1;min-width:0}
+      .charger-card .charger-title h3{font-size:16px;line-height:1.1;margin:0 0 2px;white-space:normal;overflow-wrap:break-word;word-break:normal}
+      .charger-card .charger-title p{font-size:10px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      .charger-card .premium-image-hero .status{grid-column:2;grid-row:1;align-self:center;justify-self:end;font-size:10px;padding:5px 8px}
       .charger-card .charger-appearance-action{
-        grid-column:1/3!important;grid-row:2!important;justify-self:start!important;
-        height:31px!important;min-height:31px!important;border-radius:9px!important;padding:0 9px!important;font-size:10.5px!important;
+        grid-column:1/3;grid-row:2;justify-self:start;
+        height:31px;min-height:31px;border-radius:9px;padding:0 9px;font-size:10.5px;
       }
-      .charger-card .charger-kpis{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:6px!important}
-      .charger-card .field{padding:7px 8px!important;border-radius:10px!important;grid-template-columns:20px minmax(0,1fr)!important;column-gap:6px!important}
-      .charger-card .field ha-icon{--mdc-icon-size:17px!important}.charger-card .field span{font-size:9px!important}.charger-card .field b{font-size:12px!important}
-      .charger-card .soft-line{padding-top:7px!important;gap:5px!important}
-      .charger-card .soft-line span{padding:5px 7px!important;font-size:10.5px!important}
-      .charger-card .command-row{gap:6px!important}.charger-card .cmd{min-height:38px!important;border-radius:10px!important;font-size:11px!important}
-      .charger-card .fold-section{padding-top:6px!important}.charger-card .fold-toggle{font-size:11.5px!important}
-      .charger-card .visual-picker-panel{margin:0!important}
+      .charger-card .charger-kpis{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+      .charger-card .field{padding:7px 8px;border-radius:10px;grid-template-columns:20px minmax(0,1fr);column-gap:6px}
+      .charger-card .field ha-icon{--mdc-icon-size:17px}.charger-card .field span{font-size:9px}.charger-card .field b{font-size:12px}
+      .charger-card .soft-line{padding-top:7px;gap:5px}
+      .charger-card .soft-line span{padding:5px 7px;font-size:10.5px}
+      .charger-card .command-row{gap:6px}.charger-card .cmd{min-height:38px;border-radius:10px;font-size:11px}
+      .charger-card .fold-section{padding-top:6px}.charger-card .fold-toggle{font-size:11.5px}
+      .charger-card .visual-picker-panel{margin:0}
 
       @media(max-width:900px){
-        .page{padding:10px 12px 20px!important}
-        .hero{grid-template-columns:1fr!important}
-        .hero-side{justify-self:stretch!important;grid-template-columns:1fr auto!important}
-        .hero .charger-hero-visual{display:none!important}
-        .charger-card .premium-image-hero{grid-template-columns:170px minmax(0,1fr)!important}
-        .charger-card .charger-kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+        .page{padding:10px 12px 20px}
+        .hero{grid-template-columns:1fr}
+        .hero-side{justify-self:stretch;grid-template-columns:1fr auto}
+        .hero .charger-hero-visual{display:none}
+        .charger-card .premium-image-hero{grid-template-columns:170px minmax(0,1fr)}
+        .charger-card .charger-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
       }
       @media(max-width:620px){
-        .page{padding:8px 8px 18px!important}
-        .hero{padding:12px!important}
-        .hero h1{font-size:24px!important}
-        .hero-metrics{grid-template-columns:repeat(3,minmax(0,1fr))!important}
-        .charger-card{padding:8px!important;gap:7px!important}
+        .page{padding:8px 8px 18px}
+        .hero{padding:12px}
+        .hero h1{font-size:24px}
+        .hero-metrics{grid-template-columns:repeat(3,minmax(0,1fr))}
+        .charger-card{padding:8px;gap:7px}
         .charger-card .premium-image-hero{
-          grid-template-columns:112px minmax(0,1fr)!important;height:106px!important;min-height:106px!important;
-          padding:7px 8px!important;gap:8px!important;
+          grid-template-columns:112px minmax(0,1fr);height:106px;min-height:106px;
+          padding:7px 8px;gap:8px;
         }
-        .charger-card .premium-image-hero .charger-visual{height:92px!important;min-height:92px!important}
-        .charger-card .premium-image-hero .charger-visual img{max-width:88px!important;max-height:86px!important}
-        .charger-card .premium-image-hero .charger-head{grid-template-columns:minmax(0,1fr) auto!important;gap:4px 7px!important}
-        .charger-card .premium-image-hero .charger-icon{width:34px!important;height:34px!important;border-radius:10px!important}
-        .charger-card .charger-title h3{font-size:14px!important}
-        .charger-card .charger-title p{font-size:9px!important}
-        .charger-card .premium-image-hero .status{font-size:9px!important;padding:4px 6px!important}
-        .charger-card .charger-appearance-action{height:29px!important;min-height:29px!important;font-size:9.5px!important;padding:0 7px!important}
-        .charger-card .charger-kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important}
-        .charger-card .soft-line{flex-wrap:wrap!important}
-        .charger-card .command-row{grid-template-columns:1fr 1fr!important}
+        .charger-card .premium-image-hero .charger-visual{height:92px;min-height:92px}
+        .charger-card .premium-image-hero .charger-visual img{max-width:88px;max-height:86px}
+        .charger-card .premium-image-hero .charger-head{grid-template-columns:minmax(0,1fr) auto;gap:4px 7px}
+        .charger-card .premium-image-hero .charger-icon{width:34px;height:34px;border-radius:10px}
+        .charger-card .charger-title h3{font-size:14px}
+        .charger-card .charger-title p{font-size:9px}
+        .charger-card .premium-image-hero .status{font-size:9px;padding:4px 6px}
+        .charger-card .charger-appearance-action{height:29px;min-height:29px;font-size:9.5px;padding:0 7px}
+        .charger-card .charger-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+        .charger-card .soft-line{flex-wrap:wrap}
+        .charger-card .command-row{grid-template-columns:1fr 1fr}
       }
       @media(max-width:410px){
-        .charger-card .premium-image-hero{grid-template-columns:96px minmax(0,1fr)!important}
-        .charger-card .premium-image-hero .charger-visual img{max-width:78px!important}
-        .charger-card .command-row{grid-template-columns:1fr!important}
+        .charger-card .premium-image-hero{grid-template-columns:96px minmax(0,1fr)}
+        .charger-card .premium-image-hero .charger-visual img{max-width:78px}
+        .charger-card .command-row{grid-template-columns:1fr}
       }
 
       /* Canonical management identity card. New class names deliberately isolate this
          product surface from accumulated legacy premium-image-hero/header overrides. */
-      .lifecycle-control-wrap{display:grid;gap:2px;align-items:center;min-width:0}.lifecycle-control-wrap>.lifecycle-toggle{width:100%!important}.lifecycle-disabled-reason{display:block;max-width:180px;font-size:8px;line-height:1.1;color:#8A5A12;font-weight:550;white-space:normal}
+      .lifecycle-control-wrap{display:grid;gap:2px;align-items:center;min-width:0}.lifecycle-control-wrap>.lifecycle-toggle{width:100%}.lifecycle-disabled-reason{display:block;max-width:180px;font-size:8px;line-height:1.1;color:#8A5A12;font-weight:550;white-space:normal}
       .charger-card .charger-identity-card{
-        display:grid!important;grid-template-columns:minmax(0,1fr) 160px!important;
-        min-height:120px!important;gap:14px!important;padding:10px 12px!important;
-        align-items:center!important;box-sizing:border-box!important;overflow:hidden!important;
-        border:1px solid rgba(20,103,245,.10)!important;border-radius:13px!important;
-        background:linear-gradient(135deg,#fff 0%,#f8fbff 68%,#eef5ff 100%)!important;
+        display:grid;grid-template-columns:minmax(0,1fr) 160px;
+        min-height:120px;gap:14px;padding:10px 12px;
+        align-items:center;box-sizing:border-box;overflow:hidden;
+        border:1px solid rgba(20,103,245,.10);border-radius:13px;
+        background:linear-gradient(135deg,#fff 0%,#f8fbff 68%,#eef5ff 100%);
       }
       .charger-card .charger-identity-card>.charger-visual{
-        position:relative!important;inset:auto!important;width:100%!important;height:104px!important;
-        min-height:104px!important;max-height:104px!important;display:grid!important;place-items:center!important;
-        overflow:hidden!important;border:0!important;border-radius:11px!important;background:rgba(255,255,255,.56)!important;
+        position:relative;inset:auto;width:100%;height:104px;
+        min-height:104px;max-height:104px;display:grid;place-items:center;
+        overflow:hidden;border:0;border-radius:11px;background:rgba(255,255,255,.56);
       }
       .charger-card .charger-identity-card>.charger-visual img{
-        position:static!important;inset:auto!important;display:block!important;width:100%!important;height:100%!important;
-        max-width:132px!important;max-height:98px!important;object-fit:contain!important;object-position:center!important;
-        transform:none!important;margin:auto!important;
+        position:static;inset:auto;display:block;width:100%;height:100%;
+        max-width:132px;max-height:98px;object-fit:contain;object-position:center;
+        transform:none;margin:auto;
       }
-      .charger-card .charger-identity-copy{min-width:0!important;display:grid!important;gap:8px!important;align-content:center!important}
+      .charger-card .charger-identity-copy{min-width:0;display:grid;gap:8px;align-content:center}
       .charger-card .charger-identity-top{
-        display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;gap:10px!important;
-        align-items:start!important;min-width:0!important;
+        display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;
+        align-items:start;min-width:0;
       }
-      .charger-card .charger-identity-card .charger-title{min-width:0!important;max-width:100%!important}
+      .charger-card .charger-identity-card .charger-title{min-width:0;max-width:100%}
       .charger-card .charger-identity-card .charger-title h3{
-        margin:0 0 3px!important;font-size:16px!important;line-height:1.15!important;font-weight:600!important;
-        white-space:normal!important;overflow:visible!important;text-overflow:clip!important;
-        overflow-wrap:normal!important;word-break:normal!important;hyphens:none!important;
+        margin:0 0 3px;font-size:16px;line-height:1.15;font-weight:600;
+        white-space:normal;overflow:visible;text-overflow:clip;
+        overflow-wrap:normal;word-break:normal;hyphens:none;
       }
       .charger-card .charger-identity-card .charger-title p{
-        margin:2px 0 0!important;font-size:10.5px!important;line-height:1.25!important;
-        white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;max-width:100%!important;
+        margin:2px 0 0;font-size:10.5px;line-height:1.25;
+        white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;
       }
       .charger-card .charger-identity-card .status{
-        justify-self:end!important;align-self:start!important;white-space:nowrap!important;font-size:10px!important;padding:5px 8px!important;
+        justify-self:end;align-self:start;white-space:nowrap;font-size:10px;padding:5px 8px;
       }
       .charger-card .charger-identity-card .charger-appearance-action{
-        position:static!important;grid-column:auto!important;grid-row:auto!important;justify-self:start!important;
-        height:31px!important;min-height:31px!important;margin:0!important;padding:0 9px!important;font-size:10.5px!important;
+        position:static;grid-column:auto;grid-row:auto;justify-self:start;
+        height:31px;min-height:31px;margin:0;padding:0 9px;font-size:10.5px;
       }
       @media(max-width:760px){
-        .charger-card .charger-identity-card{grid-template-columns:minmax(0,1fr) 118px!important;gap:10px!important}
-        .charger-card .charger-identity-card>.charger-visual{height:92px!important;min-height:92px!important;max-height:92px!important}
-        .charger-card .charger-identity-card>.charger-visual img{max-width:108px!important;max-height:86px!important}
+        .charger-card .charger-identity-card{grid-template-columns:minmax(0,1fr) 118px;gap:10px}
+        .charger-card .charger-identity-card>.charger-visual{height:92px;min-height:92px;max-height:92px}
+        .charger-card .charger-identity-card>.charger-visual img{max-width:108px;max-height:86px}
       }
       @media(max-width:430px){
-        .charger-card .charger-identity-card{grid-template-columns:minmax(0,1fr) 94px!important;padding:8px!important;gap:8px!important}
-        .charger-card .charger-identity-card>.charger-visual{height:80px!important;min-height:80px!important;max-height:80px!important}
-        .charger-card .charger-identity-card>.charger-visual img{max-width:86px!important;max-height:74px!important}
-        .charger-card .charger-identity-card .charger-title h3{font-size:14px!important}
-        .charger-card .charger-identity-card .charger-title p{font-size:9.5px!important}
+        .charger-card .charger-identity-card{grid-template-columns:minmax(0,1fr) 94px;padding:8px;gap:8px}
+        .charger-card .charger-identity-card>.charger-visual{height:80px;min-height:80px;max-height:80px}
+        .charger-card .charger-identity-card>.charger-visual img{max-width:86px;max-height:74px}
+        .charger-card .charger-identity-card .charger-title h3{font-size:14px}
+        .charger-card .charger-identity-card .charger-title p{font-size:9.5px}
       }
 
     `;
@@ -9332,9 +8738,9 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
             ${pageContent}
           </div>${hbMobilityReleaseFooter(rt)}<style>${this.styles()}${typeof rhiUxVisualPickerStyles === "function" ? rhiUxVisualPickerStyles() : ""}${navActive === "overview" ? this.overviewStyles() : ""}
             /* Canonical action sizing */
-            .action.enum-action,.cmd.enum-command{height:40px!important;min-height:40px!important;max-height:40px!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:7px!important;padding:0 10px!important;box-sizing:border-box!important;overflow:hidden!important}
-            .action.enum-action ha-icon,.cmd.enum-command ha-icon{flex:0 0 auto!important}
-            .action.enum-action select,.cmd.enum-command select{appearance:auto!important;min-width:0!important;max-width:170px!important;width:auto!important;border:0!important;background:transparent!important;color:inherit!important;font:inherit!important;font-size:12px!important;font-weight:600!important;padding:0 2px!important;box-shadow:none!important;cursor:pointer!important}
+            .action.enum-action,.cmd.enum-command{height:40px;min-height:40px;max-height:40px;display:flex;align-items:center;justify-content:center;gap:7px;padding:0 10px;box-sizing:border-box;overflow:hidden}
+            .action.enum-action ha-icon,.cmd.enum-command ha-icon{flex:0 0 auto}
+            .action.enum-action select,.cmd.enum-command select{appearance:auto;min-width:0;max-width:170px;width:auto;border:0;background:transparent;color:inherit;font:inherit;font-size:12px;font-weight:600;padding:0 2px;box-shadow:none;cursor:pointer}
           </style></ha-card>`;
           this.wireEvents(rt);
           this.restoreViewPositionOnce();
@@ -9363,11 +8769,11 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
           pre{white-space:pre-wrap;overflow:auto;background:#fff;border:1px solid #F0D0D0;border-radius:14px;padding:14px;font-size:12px;max-height:360px}
         
 /* R22.12.11.24 unified quick-action sizing */
-.action.enum-action,.cmd.enum-command{height:43px!important;min-height:43px!important;max-height:43px!important;display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:center!important;gap:8px!important;padding:0 11px!important;box-sizing:border-box!important;overflow:hidden!important}
-.action.enum-action ha-icon,.cmd.enum-command ha-icon{flex:0 0 auto!important;grid-row:auto!important}
-.action.enum-action select,.cmd.enum-command select{appearance:auto!important;-webkit-appearance:auto!important;min-width:0!important;max-width:170px!important;width:auto!important;border:0!important;background:transparent!important;color:inherit!important;font:inherit!important;font-size:12px!important;font-weight:600!important;padding:0 2px!important;line-height:1!important;box-shadow:none!important;cursor:pointer!important;grid-column:auto!important}
-.action.enum-action select:focus,.cmd.enum-command select:focus{outline:2px solid rgba(20,103,245,.20)!important;outline-offset:3px!important;border-radius:6px!important}
-.command-row>.cmd,.command-row>.enum-command{min-width:0!important;width:100%!important}
+.action.enum-action,.cmd.enum-command{height:43px;min-height:43px;max-height:43px;display:flex;flex-direction:row;align-items:center;justify-content:center;gap:8px;padding:0 11px;box-sizing:border-box;overflow:hidden}
+.action.enum-action ha-icon,.cmd.enum-command ha-icon{flex:0 0 auto;grid-row:auto}
+.action.enum-action select,.cmd.enum-command select{appearance:auto;-webkit-appearance:auto;min-width:0;max-width:170px;width:auto;border:0;background:transparent;color:inherit;font:inherit;font-size:12px;font-weight:600;padding:0 2px;line-height:1;box-shadow:none;cursor:pointer;grid-column:auto}
+.action.enum-action select:focus,.cmd.enum-command select:focus{outline:2px solid rgba(20,103,245,.20);outline-offset:3px;border-radius:6px}
+.command-row>.cmd,.command-row>.enum-command{min-width:0;width:100%}
 </style>
         ${hbMobilityReleaseFooter(new HomeBrainAssetRuntime(this._hass || hass, this.config))}
       </ha-card>`;
@@ -9612,110 +9018,110 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
 
   overviewStyles() { return `
     .intelligence-status-row small{grid-column:2/-1;display:block;min-width:0;margin-top:-2px;font-size:7.5px;line-height:1.05;font-weight:500;color:#8A5A12;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n    .appearance-write-error{display:flex;align-items:center;gap:7px;margin:0 2px;padding:8px 10px;border:1px solid #fed7aa;border-radius:10px;background:#fff7ed;color:#9a3412;font-size:10px;font-weight:600}.appearance-write-error ha-icon{--mdc-icon-size:16px}
-    .rhi-page-hero-overview{position:relative!important;display:block!important;min-height:clamp(176px,16vw,218px)!important;border:0!important;border-radius:18px!important;background:linear-gradient(90deg,#fff 0%,#fff 30%,rgba(255,255,255,.94) 39%,rgba(255,255,255,.18) 60%,rgba(255,255,255,0) 76%)!important;box-shadow:none!important;overflow:hidden!important;margin:0!important}
-    .rhi-page-hero-overview:before{display:none!important}
-    .rhi-page-hero-overview .rhi-page-hero-copy{position:relative!important;z-index:4!important;width:min(48%,650px)!important;max-width:none!important;padding:32px 20px 28px 24px!important}
-    .rhi-page-hero-overview .rhi-page-hero-copy>small{font-size:10px!important;color:#214A86!important;letter-spacing:.16em!important}
-    .rhi-page-hero-overview .rhi-page-hero-copy h1{font-size:clamp(31px,3.1vw,48px)!important;line-height:.98!important;letter-spacing:-.048em!important;color:#08133A!important;margin:8px 0 10px!important}
-    .rhi-page-hero-overview .rhi-page-hero-copy p{max-width:510px!important;font-size:clamp(12px,1.15vw,16px)!important;line-height:1.42!important;color:#536A91!important;font-weight:500!important}
-    .rhi-page-hero-overview .rhi-page-hero-meta{display:none!important}
-    .rhi-page-hero-overview .rhi-page-hero-art{position:absolute!important;z-index:1!important;inset:0 0 0 27%!important;min-height:0!important;display:block!important;overflow:hidden!important}
-    .rhi-page-hero-overview .rhi-page-hero-art:before{content:""!important;display:block!important;position:absolute!important;z-index:2!important;inset:0!important;background:linear-gradient(90deg,#fff 0%,rgba(255,255,255,.96) 9%,rgba(255,255,255,.68) 19%,rgba(255,255,255,.13) 37%,rgba(255,255,255,0) 55%)!important}
-    .rhi-page-hero-overview .rhi-page-hero-art img{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;min-height:0!important;max-height:none!important;object-fit:cover!important;object-position:center 52%!important;transform:none!important}
+    .rhi-page-hero-overview{position:relative;display:block;min-height:clamp(176px,16vw,218px);border:0;border-radius:18px;background:linear-gradient(90deg,#fff 0%,#fff 30%,rgba(255,255,255,.94) 39%,rgba(255,255,255,.18) 60%,rgba(255,255,255,0) 76%);box-shadow:none;overflow:hidden;margin:0}
+    .rhi-page-hero-overview:before{display:none}
+    .rhi-page-hero-overview .rhi-page-hero-copy{position:relative;z-index:4;width:min(48%,650px);max-width:none;padding:32px 20px 28px 24px}
+    .rhi-page-hero-overview .rhi-page-hero-copy>small{font-size:10px;color:#214A86;letter-spacing:.16em}
+    .rhi-page-hero-overview .rhi-page-hero-copy h1{font-size:clamp(31px,3.1vw,48px);line-height:.98;letter-spacing:-.048em;color:#08133A;margin:8px 0 10px}
+    .rhi-page-hero-overview .rhi-page-hero-copy p{max-width:510px;font-size:clamp(12px,1.15vw,16px);line-height:1.42;color:#536A91;font-weight:500}
+    .rhi-page-hero-overview .rhi-page-hero-meta{display:none}
+    .rhi-page-hero-overview .rhi-page-hero-art{position:absolute;z-index:1;inset:0 0 0 27%;min-height:0;display:block;overflow:hidden}
+    .rhi-page-hero-overview .rhi-page-hero-art:before{content:"";display:block;position:absolute;z-index:2;inset:0;background:linear-gradient(90deg,#fff 0%,rgba(255,255,255,.96) 9%,rgba(255,255,255,.68) 19%,rgba(255,255,255,.13) 37%,rgba(255,255,255,0) 55%)}
+    .rhi-page-hero-overview .rhi-page-hero-art img{position:absolute;inset:0;width:100%;height:100%;min-height:0;max-height:none;object-fit:cover;object-position:center 52%;transform:none}
 
-    .ov-domain-statusbar{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:8px!important;margin:0!important}
-    .ov-domain-statusbar .ov-status-item{min-width:0!important;min-height:94px!important;display:grid!important;grid-template-columns:52px minmax(0,1fr)!important;gap:11px!important;align-items:center!important;padding:12px 14px!important;border:1px solid #DBE6F3!important;border-radius:15px!important;background:rgba(255,255,255,.97)!important;box-shadow:0 8px 22px rgba(21,61,115,.045)!important}
-    .ov-domain-statusbar .ov-status-icon{width:46px!important;height:46px!important;border-radius:14px!important;display:flex!important;align-items:center!important;justify-content:center!important;background:#EEF5FF!important;color:#1467F5!important}
-    .ov-domain-statusbar .ov-status-icon ha-icon{--mdc-icon-size:27px!important}
-    .ov-domain-statusbar .charging .ov-status-icon{background:#EEF5FF!important;color:#1467F5!important}
-    .ov-domain-statusbar .range.warn .ov-status-icon,.ov-domain-statusbar .security.warn .ov-status-icon,.ov-domain-statusbar .maintenance.warn .ov-status-icon{background:#FFF4E8!important;color:#FF7500!important}
-    .ov-domain-statusbar .ov-status-item>div{min-width:0!important;display:block!important}
-    .ov-domain-statusbar small{display:block!important;margin:0 0 3px!important;color:#31558E!important;font-size:10px!important;font-weight:650!important}
-    .ov-domain-statusbar b{display:block!important;margin:0 0 3px!important;color:#0B173D!important;font-size:clamp(14px,1.25vw,18px)!important;font-weight:720!important;line-height:1.08!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
-    .ov-domain-statusbar .range.warn b,.ov-domain-statusbar .security.warn b,.ov-domain-statusbar .maintenance.warn b{color:#F05B0A!important}
-    .ov-domain-statusbar em{display:block!important;margin-top:2px!important;color:#55709B!important;font-size:10px!important;font-style:normal!important;font-weight:500!important;line-height:1.2!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+    .ov-domain-statusbar{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:0}
+    .ov-domain-statusbar .ov-status-item{min-width:0;min-height:94px;display:grid;grid-template-columns:52px minmax(0,1fr);gap:11px;align-items:center;padding:12px 14px;border:1px solid #DBE6F3;border-radius:15px;background:rgba(255,255,255,.97);box-shadow:0 8px 22px rgba(21,61,115,.045)}
+    .ov-domain-statusbar .ov-status-icon{width:46px;height:46px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:#EEF5FF;color:#1467F5}
+    .ov-domain-statusbar .ov-status-icon ha-icon{--mdc-icon-size:27px}
+    .ov-domain-statusbar .charging .ov-status-icon{background:#EEF5FF;color:#1467F5}
+    .ov-domain-statusbar .range.warn .ov-status-icon,.ov-domain-statusbar .security.warn .ov-status-icon,.ov-domain-statusbar .maintenance.warn .ov-status-icon{background:#FFF4E8;color:#FF7500}
+    .ov-domain-statusbar .ov-status-item>div{min-width:0;display:block}
+    .ov-domain-statusbar small{display:block;margin:0 0 3px;color:#31558E;font-size:10px;font-weight:650}
+    .ov-domain-statusbar b{display:block;margin:0 0 3px;color:#0B173D;font-size:clamp(14px,1.25vw,18px);font-weight:720;line-height:1.08;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .ov-domain-statusbar .range.warn b,.ov-domain-statusbar .security.warn b,.ov-domain-statusbar .maintenance.warn b{color:#F05B0A}
+    .ov-domain-statusbar em{display:block;margin-top:2px;color:#55709B;font-size:10px;font-style:normal;font-weight:500;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-    .ov-quickbar{margin:0!important;min-height:52px!important;padding:6px 10px!important;border:1px solid #DBE6F3!important;border-radius:14px!important;background:#fff!important;box-shadow:0 5px 16px rgba(21,61,115,.03)!important}
-    .ov-quick-title{font-size:9.5px!important;letter-spacing:.13em!important;color:#31558E!important}
-    .ov-nav-action{height:40px!important;min-height:40px!important;border:1px solid #D8E4F1!important;background:#fff!important;color:#075FD8!important;box-shadow:none!important;font-size:11px!important;font-weight:660!important}
-    .ov-nav-action.primary{background:#0B66F6!important;border-color:#0B66F6!important;color:#fff!important}
+    .ov-quickbar{margin:0;min-height:52px;padding:6px 10px;border:1px solid #DBE6F3;border-radius:14px;background:#fff;box-shadow:0 5px 16px rgba(21,61,115,.03)}
+    .ov-quick-title{font-size:9.5px;letter-spacing:.13em;color:#31558E}
+    .ov-nav-action{height:40px;min-height:40px;border:1px solid #D8E4F1;background:#fff;color:#075FD8;box-shadow:none;font-size:11px;font-weight:660}
+    .ov-nav-action.primary{background:#0B66F6;border-color:#0B66F6;color:#fff}
 
-    .ov-overview-vehicles{margin:0!important;padding:14px 16px 12px!important;border:1px solid #DDE7F2!important;border-radius:18px!important;background:#fff!important;box-shadow:0 8px 24px rgba(21,61,115,.04)!important}
-    .ov-overview-vehicles .ov-panel-head{margin:0 0 8px!important}
-    .ov-overview-vehicles .ov-panel-head h2{font-size:24px!important;color:#08133A!important}
-    .ov-overview-vehicles .ov-panel-head p{font-size:11px!important;color:#56709A!important}
-    .ov-overview-vehicles .ov-panel-head button{height:38px!important;border:1px solid #DCE7F4!important;border-radius:11px!important;background:#fff!important;color:#075FD8!important;font-weight:650!important}
-    .ov-overview-vehicles .ov-vehicle-list{display:grid!important;gap:7px!important}
-    .ov-overview-vehicles .ov-vehicle-row{min-height:82px!important;border:1px solid #DFE8F3!important;border-radius:13px!important;background:#fff!important;box-shadow:none!important;padding:7px 9px!important}
-    .ov-overview-vehicles .ov-vehicle-image{width:74px!important;height:48px!important}
-    .ov-overview-vehicles .ov-vehicle-copy b{font-size:13px!important;color:#0A173B!important}
-    .ov-overview-vehicles .ov-vehicle-copy small,.ov-overview-vehicles .ov-signal span,.ov-overview-vehicles .ov-charging-state{font-size:9px!important;color:#6680A6!important}
-    .ov-overview-vehicles .ov-signal b{font-size:10.5px!important}
-    .ov-overview-vehicles .mini-control.charger-select{min-height:34px!important;border-radius:9px!important}
-    .ov-overview-vehicles .ov-row-actions .cmd,.ov-overview-vehicles .ov-row-actions .action{height:34px!important;min-height:34px!important;font-size:10px!important}
+    .ov-overview-vehicles{margin:0;padding:14px 16px 12px;border:1px solid #DDE7F2;border-radius:18px;background:#fff;box-shadow:0 8px 24px rgba(21,61,115,.04)}
+    .ov-overview-vehicles .ov-panel-head{margin:0 0 8px}
+    .ov-overview-vehicles .ov-panel-head h2{font-size:24px;color:#08133A}
+    .ov-overview-vehicles .ov-panel-head p{font-size:11px;color:#56709A}
+    .ov-overview-vehicles .ov-panel-head button{height:38px;border:1px solid #DCE7F4;border-radius:11px;background:#fff;color:#075FD8;font-weight:650}
+    .ov-overview-vehicles .ov-vehicle-list{display:grid;gap:7px}
+    .ov-overview-vehicles .ov-vehicle-row{min-height:82px;border:1px solid #DFE8F3;border-radius:13px;background:#fff;box-shadow:none;padding:7px 9px}
+    .ov-overview-vehicles .ov-vehicle-image{width:74px;height:48px}
+    .ov-overview-vehicles .ov-vehicle-copy b{font-size:13px;color:#0A173B}
+    .ov-overview-vehicles .ov-vehicle-copy small,.ov-overview-vehicles .ov-signal span,.ov-overview-vehicles .ov-charging-state{font-size:9px;color:#6680A6}
+    .ov-overview-vehicles .ov-signal b{font-size:10.5px}
+    .ov-overview-vehicles .mini-control.charger-select{min-height:34px;border-radius:9px}
+    .ov-overview-vehicles .ov-row-actions .cmd,.ov-overview-vehicles .ov-row-actions .action{height:34px;min-height:34px;font-size:10px}
 
     @media(max-width:1024px){
-      .rhi-page-hero-overview{min-height:188px!important}
-      .rhi-page-hero-overview .rhi-page-hero-copy{width:50%!important;padding:26px 16px 22px 18px!important}
-      .rhi-page-hero-overview .rhi-page-hero-art{inset:0 0 0 30%!important}
-      .ov-domain-statusbar .ov-status-item{grid-template-columns:42px minmax(0,1fr)!important;padding:10px!important;min-height:88px!important}
-      .ov-domain-statusbar .ov-status-icon{width:40px!important;height:40px!important}
+      .rhi-page-hero-overview{min-height:188px}
+      .rhi-page-hero-overview .rhi-page-hero-copy{width:50%;padding:26px 16px 22px 18px}
+      .rhi-page-hero-overview .rhi-page-hero-art{inset:0 0 0 30%}
+      .ov-domain-statusbar .ov-status-item{grid-template-columns:42px minmax(0,1fr);padding:10px;min-height:88px}
+      .ov-domain-statusbar .ov-status-icon{width:40px;height:40px}
     }
     @media(max-width:760px){
-      .rhi-page-hero-overview{min-height:164px!important;border-radius:15px!important}
-      .rhi-page-hero-overview .rhi-page-hero-copy{width:62%!important;padding:20px 12px 18px 13px!important}
-      .rhi-page-hero-overview .rhi-page-hero-copy h1{font-size:27px!important}
-      .rhi-page-hero-overview .rhi-page-hero-copy p{font-size:10.5px!important;max-width:360px!important}
-      .rhi-page-hero-overview .rhi-page-hero-art{inset:0 0 0 38%!important}
-      .rhi-page-hero-overview .rhi-page-hero-art:before{background:linear-gradient(90deg,#fff 0%,rgba(255,255,255,.92) 18%,rgba(255,255,255,.25) 47%,transparent 70%)!important}
-      .ov-domain-statusbar{grid-template-columns:repeat(2,minmax(0,1fr))!important}
-      .ov-domain-statusbar .ov-status-item{min-height:82px!important}
-      .ov-quickbar{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important}
-      .ov-quick-title{grid-column:1/-1!important}
+      .rhi-page-hero-overview{min-height:164px;border-radius:15px}
+      .rhi-page-hero-overview .rhi-page-hero-copy{width:62%;padding:20px 12px 18px 13px}
+      .rhi-page-hero-overview .rhi-page-hero-copy h1{font-size:27px}
+      .rhi-page-hero-overview .rhi-page-hero-copy p{font-size:10.5px;max-width:360px}
+      .rhi-page-hero-overview .rhi-page-hero-art{inset:0 0 0 38%}
+      .rhi-page-hero-overview .rhi-page-hero-art:before{background:linear-gradient(90deg,#fff 0%,rgba(255,255,255,.92) 18%,rgba(255,255,255,.25) 47%,transparent 70%)}
+      .ov-domain-statusbar{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .ov-domain-statusbar .ov-status-item{min-height:82px}
+      .ov-quickbar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+      .ov-quick-title{grid-column:1/-1}
     }
     @media(max-width:430px){
-      .rhi-page-hero-overview{min-height:150px!important}
-      .rhi-page-hero-overview .rhi-page-hero-copy{width:70%!important;padding:17px 10px 14px!important}
-      .rhi-page-hero-overview .rhi-page-hero-copy h1{font-size:24px!important}
-      .rhi-page-hero-overview .rhi-page-hero-copy p{font-size:9.5px!important;-webkit-line-clamp:3!important}
-      .rhi-page-hero-overview .rhi-page-hero-art{inset:0 0 0 43%!important}
-      .ov-domain-statusbar{grid-template-columns:1fr!important}
-      .ov-domain-statusbar .ov-status-item{grid-template-columns:40px minmax(0,1fr)!important;min-height:72px!important}
-      .ov-overview-vehicles{padding:11px 9px!important}
+      .rhi-page-hero-overview{min-height:150px}
+      .rhi-page-hero-overview .rhi-page-hero-copy{width:70%;padding:17px 10px 14px}
+      .rhi-page-hero-overview .rhi-page-hero-copy h1{font-size:24px}
+      .rhi-page-hero-overview .rhi-page-hero-copy p{font-size:9.5px;-webkit-line-clamp:3}
+      .rhi-page-hero-overview .rhi-page-hero-art{inset:0 0 0 43%}
+      .ov-domain-statusbar{grid-template-columns:1fr}
+      .ov-domain-statusbar .ov-status-item{grid-template-columns:40px minmax(0,1fr);min-height:72px}
+      .ov-overview-vehicles{padding:11px 9px}
     }
   `; }
 
   styles() { return `
     :host{--hb-blue:#1467F5;--hb-ink:#061226;--hb-muted:#63718A;--hb-line:#E4ECF7;--hb-soft:#F6FAFF;--hb-shadow:0 22px 60px rgba(15,35,80,.08);color:var(--hb-ink);user-select:text;-webkit-user-select:text}
     *{user-select:text;-webkit-user-select:text} button,select,input,img,ha-icon{user-select:none;-webkit-user-select:none}
-    ha-card{background:transparent;border:0;box-shadow:none}.page{position:relative;width:min(100%,1680px);margin:0 auto;padding:18px 34px 38px;display:grid;gap:12px;box-sizing:border-box}.release-badge{position:absolute;top:10px;right:34px;border:1px solid rgba(14,35,72,.10);background:#fff;border-radius:999px;padding:5px 10px;font-size:12px;font-weight:650;color:#33415C;box-shadow:0 8px 20px rgba(15,35,80,.055)}.eyebrow{margin:0 0 6px!important;color:#1467F5!important;font-size:12px;font-weight:650;letter-spacing:.12em}.title h1{font-size:38px;letter-spacing:-.055em;margin:0 0 6px;font-weight:650}.title p{margin:0;color:#34405A;font-weight:600}.top-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.summary{border:1px solid var(--hb-line);border-radius:22px;background:#fff;box-shadow:var(--hb-shadow);min-height:108px;padding:20px;display:grid;grid-template-columns:56px 1fr;gap:16px;align-items:center}.summary.attention{border-color:rgba(245,143,32,.30);background:linear-gradient(135deg,#FFFAF2,#fff)}.summary.recommendation{border-color:rgba(20,103,245,.22);background:linear-gradient(135deg,#F5FAFF,#fff)}.summary-icon{width:52px;height:52px;border-radius:16px;background:rgba(255,145,0,.12);display:flex;align-items:center;justify-content:center;color:#F28C00}.summary-icon.blue{background:#1467F5;color:#fff}.summary-icon ha-icon{--mdc-icon-size:30px}.summary h3,.info h3{margin:0 0 8px;font-size:16px;font-weight:650}.summary ul,.info ul{list-style:none;margin:0;padding:0}.summary li{display:flex;flex-direction:column;gap:3px;border-top:1px solid rgba(14,35,72,.06);padding:7px 0;font-size:13px;color:#34405A;font-weight:600}.summary li.clear b{color:#087A35}.section-title{display:flex;align-items:end;justify-content:space-between;margin:0 2px -8px}.section-title h2{font-size:20px;letter-spacing:-.035em;margin:0;font-weight:650}.section-title span{font-size:12px;font-weight:650;color:#6A768D;background:#F4F7FB;border:1px solid var(--hb-line);border-radius:999px;padding:5px 9px}.vehicles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.vehicle-card{background:#fff;border:1px solid var(--hb-line);border-radius:24px;box-shadow:var(--hb-shadow);overflow:hidden}.premium-vehicle-card{display:grid;gap:0}.status-top-row{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;padding:16px 18px 8px}.status-row{display:flex;align-items:center;justify-content:center;gap:7px;min-height:40px;border:1px solid var(--hb-line);border-radius:14px;background:#fff;min-width:0}.status-row span{display:none}.status-row ha-icon{--mdc-icon-size:18px;color:#17233B;flex:0 0 auto}.vehicle-intelligence-strip .intelligence-status-row{display:grid;grid-template-columns:20px minmax(0,1fr);grid-template-rows:auto auto;justify-content:stretch;align-content:center;column-gap:7px;row-gap:1px;padding:5px 8px;min-height:40px}.vehicle-intelligence-strip .intelligence-status-row ha-icon{grid-row:1 / span 2;align-self:center}.vehicle-intelligence-strip .intelligence-status-row span{display:block!important;grid-column:2;font-size:9px;line-height:1;color:#6A768D;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.vehicle-intelligence-strip .intelligence-status-row .pill{grid-column:2;justify-content:flex-start;min-width:0;padding:3px 7px;font-size:10px}.pill{display:inline-flex;align-items:center;justify-content:center;border-radius:999px;padding:6px 10px;min-width:72px;max-width:100%;font-size:10px;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pill.ok{background:#E7F6EA;color:#087A35}.pill.warn{background:#FFF1D9;color:#B76500}.pill.bad{background:#FDE4E4;color:#C21E1E}.pill.muted{background:#EEF1F6;color:#64708A}.hero-split-row{display:grid;grid-template-columns:2fr 1fr;gap:12px;padding:8px 18px 12px;align-items:stretch}.vehicle-hero-panel{display:grid;grid-template-columns:minmax(0,.86fr) minmax(220px,1.14fr);gap:12px;min-height:170px;border:1px solid rgba(14,35,72,.06);border-radius:18px;background:linear-gradient(135deg,#fff,#F8FBFF);padding:18px;overflow:hidden}.vehicle-copy h2{font-size:25px;margin:0 0 4px;font-weight:650;letter-spacing:-.045em}.vehicle-copy p{margin:0;color:#34405A;font-weight:600}.vehicle-image{display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at center,rgba(20,103,245,.09),transparent 62%);min-width:0}.vehicle-image img{max-width:100%;max-height:176px;object-fit:contain;filter:drop-shadow(0 18px 28px rgba(15,35,80,.16))}.vehicle-image ha-icon{--mdc-icon-size:76px;color:#B8C3D6}.charger-hero-panel{border:1px solid var(--hb-line);border-radius:18px;background:linear-gradient(135deg,#F8FBFF,#fff);padding:14px;display:grid;grid-template-rows:auto 1fr;gap:8px;align-items:center;min-width:0}.charger-mini-image{height:118px;border-radius:16px;background:radial-gradient(circle at center,rgba(20,103,245,.10),transparent 65%);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}.charger-mini-image img{max-width:100%;max-height:112px;object-fit:contain;filter:drop-shadow(0 14px 24px rgba(15,35,80,.13))}.charger-mini-image ha-icon{display:none;--mdc-icon-size:46px;color:#8EA1BE}.charger-mini-image.image-missing ha-icon{display:block}.charger-mini-copy{display:flex;flex-direction:column;gap:2px;min-width:0}.charger-mini-copy b{font-size:15px;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.charger-mini-copy span{display:none!important}.relationship-lines{display:flex;flex-direction:column;gap:2px;margin-top:6px;font-size:10.5px;color:#64708A;font-weight:500;line-height:1.25}.relationship-lines span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.vehicle-control-row{display:grid;grid-template-columns:minmax(320px,1fr) minmax(420px,.95fr);gap:12px;padding:0 18px 12px;align-items:stretch}.vehicle-metrics-strip,.charge-mini-strip{display:grid;gap:8px}.vehicle-metrics-strip{grid-template-columns:repeat(3,minmax(92px,1fr))}.charge-mini-strip{grid-template-columns:minmax(170px,1.2fr) minmax(190px,1fr) minmax(110px,.7fr)}.metric-chip,.mini-control{min-height:42px;border:1px solid var(--hb-line);border-radius:13px;background:#fff;display:flex;align-items:center;gap:8px;padding:0 12px;min-width:0}.metric-chip{flex-direction:column;align-items:flex-start;justify-content:center;gap:2px}.metric-chip span{color:var(--hb-muted);font-size:10px;text-transform:uppercase;font-weight:650}.metric-chip b,.mini-control strong{font-size:14px;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mini-control ha-icon{--mdc-icon-size:18px;color:var(--hb-blue);flex:0 0 auto}.charger-select select{width:100%;border:0;background:transparent;font-weight:650;color:#17233B;min-width:0;outline:0}.charger-select.readonly{opacity:.72}.current-edit input{width:54px;min-width:0;border:0;background:transparent;font-weight:650;color:#061226;outline:0;text-align:right}.current-edit span{font-weight:650;color:#63718A}.inline-apply{border:1px solid rgba(14,35,72,.10);background:#fff;border-radius:10px;padding:6px 8px;font-size:11px;font-weight:650;color:#1467F5;cursor:pointer}.inline-apply:disabled{opacity:.38;cursor:not-allowed}.power-read{justify-content:flex-start}.vehicle-actions{border-top:1px solid rgba(14,35,72,.07);display:grid;grid-template-columns:1.05fr 1fr 1fr 1fr;gap:8px;padding:11px 18px}.clean-actions .details-action{margin-left:auto;width:100%}.action{min-height:42px;border:1px solid rgba(14,35,72,.11);border-radius:13px;background:#fff;color:var(--hb-ink);font-weight:650;display:flex;align-items:center;justify-content:center;gap:7px;cursor:pointer;box-shadow:0 10px 24px rgba(15,35,80,.035)}.action ha-icon{--mdc-icon-size:18px;color:var(--hb-blue)}.action.primary-charge{background:linear-gradient(135deg,#1467F5,#3B82F6);border-color:#1467F5;color:#fff}.action.primary-charge ha-icon{color:#fff}.action.sent{background:#EEF5FF;border-color:#CFE0FF;color:#0B4BC1}.action.busy{background:#FFF8E8}.action.failed{background:#FEF3F2;color:#B42318}.action:disabled{opacity:.55;cursor:not-allowed}.action.activate-soft{opacity:1;cursor:pointer}.inactive-list{display:grid;gap:10px}.inactive-row{background:#fff;border:1px solid var(--hb-line);border-radius:18px;box-shadow:0 12px 36px rgba(15,35,80,.055);padding:10px 12px;display:grid;grid-template-columns:78px 1fr auto;gap:14px;align-items:center}.inactive-image{width:78px;height:52px;border-radius:14px;background:#F4F8FF;display:flex;align-items:center;justify-content:center;overflow:hidden}.inactive-image img{max-width:100%;max-height:64px;object-fit:contain;filter:grayscale(.25) opacity(.82)}.inactive-image ha-icon{--mdc-icon-size:34px;color:#9AABC5}.inactive-copy h3{margin:0 0 2px;font-size:16px;font-weight:650}.inactive-copy p{margin:0;color:#64708A;font-weight:600}.inactive-actions{display:flex;gap:8px}.bottom-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.info{background:#fff;border:1px solid var(--hb-line);border-radius:18px;box-shadow:var(--hb-shadow);padding:18px;min-height:100px}.info h3{display:flex;align-items:center;gap:10px}.info h3 ha-icon{--mdc-icon-size:22px;color:var(--hb-blue)}.info p,.info li{color:#34405A;font-weight:600}.empty{grid-column:1/-1;border:1px dashed #CBD5E1;border-radius:18px;background:#fff;padding:28px;color:var(--hb-muted);font-weight:600;text-align:center}.domain-tabs-wrap{margin:8px 0 8px!important}.dashboard-status-strip.outcome-header{margin:8px 0 6px!important}.section-title{margin:0 2px -4px!important}.title h1{margin-bottom:3px!important}.title p{margin-bottom:0!important}@media(max-width:1500px){.vehicles{grid-template-columns:1fr}.vehicle-hero-panel{grid-template-columns:1fr 1.25fr}}@media(max-width:900px){.top-grid,.bottom-grid{grid-template-columns:1fr}.hero-split-row,.vehicle-control-row{grid-template-columns:1fr}.vehicle-hero-panel{grid-template-columns:1fr}.vehicle-actions{grid-template-columns:repeat(2,1fr)}.inactive-row{grid-template-columns:70px 1fr}.inactive-actions{grid-column:1/-1}.charge-mini-strip{grid-template-columns:1fr 1fr 1fr}.vehicle-image{min-height:150px}.status-top-row{grid-template-columns:repeat(5,minmax(54px,1fr));overflow:auto;padding-bottom:8px}}@media(max-width:640px){.page{padding:16px}.summary{grid-template-columns:1fr}.vehicle-metrics-strip,.charge-mini-strip,.vehicle-actions{grid-template-columns:1fr}.inactive-actions{flex-direction:column}.hero-split-row,.vehicle-control-row,.status-top-row{padding-left:12px;padding-right:12px}.pill{min-width:58px;font-size:9px}.vehicle-copy h2{font-size:22px}}
+    ha-card{background:transparent;border:0;box-shadow:none}.page{position:relative;width:min(100%,1680px);margin:0 auto;padding:18px 34px 38px;display:grid;gap:12px;box-sizing:border-box}.release-badge{position:absolute;top:10px;right:34px;border:1px solid rgba(14,35,72,.10);background:#fff;border-radius:999px;padding:5px 10px;font-size:12px;font-weight:650;color:#33415C;box-shadow:0 8px 20px rgba(15,35,80,.055)}.eyebrow{margin:0 0 6px;color:#1467F5;font-size:12px;font-weight:650;letter-spacing:.12em}.title h1{font-size:38px;letter-spacing:-.055em;margin:0 0 6px;font-weight:650}.title p{margin:0;color:#34405A;font-weight:600}.top-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.summary{border:1px solid var(--hb-line);border-radius:22px;background:#fff;box-shadow:var(--hb-shadow);min-height:108px;padding:20px;display:grid;grid-template-columns:56px 1fr;gap:16px;align-items:center}.summary.attention{border-color:rgba(245,143,32,.30);background:linear-gradient(135deg,#FFFAF2,#fff)}.summary.recommendation{border-color:rgba(20,103,245,.22);background:linear-gradient(135deg,#F5FAFF,#fff)}.summary-icon{width:52px;height:52px;border-radius:16px;background:rgba(255,145,0,.12);display:flex;align-items:center;justify-content:center;color:#F28C00}.summary-icon.blue{background:#1467F5;color:#fff}.summary-icon ha-icon{--mdc-icon-size:30px}.summary h3,.info h3{margin:0 0 8px;font-size:16px;font-weight:650}.summary ul,.info ul{list-style:none;margin:0;padding:0}.summary li{display:flex;flex-direction:column;gap:3px;border-top:1px solid rgba(14,35,72,.06);padding:7px 0;font-size:13px;color:#34405A;font-weight:600}.summary li.clear b{color:#087A35}.section-title{display:flex;align-items:end;justify-content:space-between;margin:0 2px -8px}.section-title h2{font-size:20px;letter-spacing:-.035em;margin:0;font-weight:650}.section-title span{font-size:12px;font-weight:650;color:#6A768D;background:#F4F7FB;border:1px solid var(--hb-line);border-radius:999px;padding:5px 9px}.vehicles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.vehicle-card{background:#fff;border:1px solid var(--hb-line);border-radius:24px;box-shadow:var(--hb-shadow);overflow:hidden}.premium-vehicle-card{display:grid;gap:0}.status-top-row{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;padding:16px 18px 8px}.status-row{display:flex;align-items:center;justify-content:center;gap:7px;min-height:40px;border:1px solid var(--hb-line);border-radius:14px;background:#fff;min-width:0}.status-row span{display:none}.status-row ha-icon{--mdc-icon-size:18px;color:#17233B;flex:0 0 auto}.vehicle-intelligence-strip .intelligence-status-row{display:grid;grid-template-columns:20px minmax(0,1fr);grid-template-rows:auto auto;justify-content:stretch;align-content:center;column-gap:7px;row-gap:1px;padding:5px 8px;min-height:40px}.vehicle-intelligence-strip .intelligence-status-row ha-icon{grid-row:1 / span 2;align-self:center}.vehicle-intelligence-strip .intelligence-status-row span{display:block;grid-column:2;font-size:9px;line-height:1;color:#6A768D;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.vehicle-intelligence-strip .intelligence-status-row .pill{grid-column:2;justify-content:flex-start;min-width:0;padding:3px 7px;font-size:10px}.pill{display:inline-flex;align-items:center;justify-content:center;border-radius:999px;padding:6px 10px;min-width:72px;max-width:100%;font-size:10px;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pill.ok{background:#E7F6EA;color:#087A35}.pill.warn{background:#FFF1D9;color:#B76500}.pill.bad{background:#FDE4E4;color:#C21E1E}.pill.muted{background:#EEF1F6;color:#64708A}.hero-split-row{display:grid;grid-template-columns:2fr 1fr;gap:12px;padding:8px 18px 12px;align-items:stretch}.vehicle-hero-panel{display:grid;grid-template-columns:minmax(0,.86fr) minmax(220px,1.14fr);gap:12px;min-height:170px;border:1px solid rgba(14,35,72,.06);border-radius:18px;background:linear-gradient(135deg,#fff,#F8FBFF);padding:18px;overflow:hidden}.vehicle-copy h2{font-size:25px;margin:0 0 4px;font-weight:650;letter-spacing:-.045em}.vehicle-copy p{margin:0;color:#34405A;font-weight:600}.vehicle-image{display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at center,rgba(20,103,245,.09),transparent 62%);min-width:0}.vehicle-image img{max-width:100%;max-height:176px;object-fit:contain;filter:drop-shadow(0 18px 28px rgba(15,35,80,.16))}.vehicle-image ha-icon{--mdc-icon-size:76px;color:#B8C3D6}.charger-hero-panel{border:1px solid var(--hb-line);border-radius:18px;background:linear-gradient(135deg,#F8FBFF,#fff);padding:14px;display:grid;grid-template-rows:auto 1fr;gap:8px;align-items:center;min-width:0}.charger-mini-image{height:118px;border-radius:16px;background:radial-gradient(circle at center,rgba(20,103,245,.10),transparent 65%);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}.charger-mini-image img{max-width:100%;max-height:112px;object-fit:contain;filter:drop-shadow(0 14px 24px rgba(15,35,80,.13))}.charger-mini-image ha-icon{display:none;--mdc-icon-size:46px;color:#8EA1BE}.charger-mini-image.image-missing ha-icon{display:block}.charger-mini-copy{display:flex;flex-direction:column;gap:2px;min-width:0}.charger-mini-copy b{font-size:15px;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.charger-mini-copy span{display:none}.relationship-lines{display:flex;flex-direction:column;gap:2px;margin-top:6px;font-size:10.5px;color:#64708A;font-weight:500;line-height:1.25}.relationship-lines span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.vehicle-control-row{display:grid;grid-template-columns:minmax(320px,1fr) minmax(420px,.95fr);gap:12px;padding:0 18px 12px;align-items:stretch}.vehicle-metrics-strip,.charge-mini-strip{display:grid;gap:8px}.vehicle-metrics-strip{grid-template-columns:repeat(3,minmax(92px,1fr))}.charge-mini-strip{grid-template-columns:minmax(170px,1.2fr) minmax(190px,1fr) minmax(110px,.7fr)}.metric-chip,.mini-control{min-height:42px;border:1px solid var(--hb-line);border-radius:13px;background:#fff;display:flex;align-items:center;gap:8px;padding:0 12px;min-width:0}.metric-chip{flex-direction:column;align-items:flex-start;justify-content:center;gap:2px}.metric-chip span{color:var(--hb-muted);font-size:10px;text-transform:uppercase;font-weight:650}.metric-chip b,.mini-control strong{font-size:14px;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mini-control ha-icon{--mdc-icon-size:18px;color:var(--hb-blue);flex:0 0 auto}.charger-select select{width:100%;border:0;background:transparent;font-weight:650;color:#17233B;min-width:0;outline:0}.charger-select.readonly{opacity:.72}.current-edit input{width:54px;min-width:0;border:0;background:transparent;font-weight:650;color:#061226;outline:0;text-align:right}.current-edit span{font-weight:650;color:#63718A}.inline-apply{border:1px solid rgba(14,35,72,.10);background:#fff;border-radius:10px;padding:6px 8px;font-size:11px;font-weight:650;color:#1467F5;cursor:pointer}.inline-apply:disabled{opacity:.38;cursor:not-allowed}.power-read{justify-content:flex-start}.vehicle-actions{border-top:1px solid rgba(14,35,72,.07);display:grid;grid-template-columns:1.05fr 1fr 1fr 1fr;gap:8px;padding:11px 18px}.clean-actions .details-action{margin-left:auto;width:100%}.action{min-height:42px;border:1px solid rgba(14,35,72,.11);border-radius:13px;background:#fff;color:var(--hb-ink);font-weight:650;display:flex;align-items:center;justify-content:center;gap:7px;cursor:pointer;box-shadow:0 10px 24px rgba(15,35,80,.035)}.action ha-icon{--mdc-icon-size:18px;color:var(--hb-blue)}.action.primary-charge{background:linear-gradient(135deg,#1467F5,#3B82F6);border-color:#1467F5;color:#fff}.action.primary-charge ha-icon{color:#fff}.action.sent{background:#EEF5FF;border-color:#CFE0FF;color:#0B4BC1}.action.busy{background:#FFF8E8}.action.failed{background:#FEF3F2;color:#B42318}.action:disabled{opacity:.55;cursor:not-allowed}.action.activate-soft{opacity:1;cursor:pointer}.inactive-list{display:grid;gap:10px}.inactive-row{background:#fff;border:1px solid var(--hb-line);border-radius:18px;box-shadow:0 12px 36px rgba(15,35,80,.055);padding:10px 12px;display:grid;grid-template-columns:78px 1fr auto;gap:14px;align-items:center}.inactive-image{width:78px;height:52px;border-radius:14px;background:#F4F8FF;display:flex;align-items:center;justify-content:center;overflow:hidden}.inactive-image img{max-width:100%;max-height:64px;object-fit:contain;filter:grayscale(.25) opacity(.82)}.inactive-image ha-icon{--mdc-icon-size:34px;color:#9AABC5}.inactive-copy h3{margin:0 0 2px;font-size:16px;font-weight:650}.inactive-copy p{margin:0;color:#64708A;font-weight:600}.inactive-actions{display:flex;gap:8px}.bottom-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.info{background:#fff;border:1px solid var(--hb-line);border-radius:18px;box-shadow:var(--hb-shadow);padding:18px;min-height:100px}.info h3{display:flex;align-items:center;gap:10px}.info h3 ha-icon{--mdc-icon-size:22px;color:var(--hb-blue)}.info p,.info li{color:#34405A;font-weight:600}.empty{grid-column:1/-1;border:1px dashed #CBD5E1;border-radius:18px;background:#fff;padding:28px;color:var(--hb-muted);font-weight:600;text-align:center}.domain-tabs-wrap{margin:8px 0 8px}.dashboard-status-strip.outcome-header{margin:8px 0 6px}.section-title{margin:0 2px -4px}.title h1{margin-bottom:3px}.title p{margin-bottom:0}@media(max-width:1500px){.vehicles{grid-template-columns:1fr}.vehicle-hero-panel{grid-template-columns:1fr 1.25fr}}@media(max-width:900px){.top-grid,.bottom-grid{grid-template-columns:1fr}.hero-split-row,.vehicle-control-row{grid-template-columns:1fr}.vehicle-hero-panel{grid-template-columns:1fr}.vehicle-actions{grid-template-columns:repeat(2,1fr)}.inactive-row{grid-template-columns:70px 1fr}.inactive-actions{grid-column:1/-1}.charge-mini-strip{grid-template-columns:1fr 1fr 1fr}.vehicle-image{min-height:150px}.status-top-row{grid-template-columns:repeat(5,minmax(54px,1fr));overflow:auto;padding-bottom:8px}}@media(max-width:640px){.page{padding:16px}.summary{grid-template-columns:1fr}.vehicle-metrics-strip,.charge-mini-strip,.vehicle-actions{grid-template-columns:1fr}.inactive-actions{flex-direction:column}.hero-split-row,.vehicle-control-row,.status-top-row{padding-left:12px;padding-right:12px}.pill{min-width:58px;font-size:9px}.vehicle-copy h2{font-size:22px}}
     /* 2.3.9 mock-aligned dashboard overrides */
     .hi-contract-warning{border:1px solid rgba(245,158,11,.32);background:#FFFBEB;color:#6B3F00;border-radius:16px;padding:10px 14px;font-size:12px;font-weight:600;display:grid;gap:6px;box-shadow:0 12px 28px rgba(80,55,0,.05)}.hi-contract-warning strong{font-weight:650}.hi-contract-warning-list{display:flex;flex-wrap:wrap;gap:6px}.hi-contract-warning-list span{border:1px solid rgba(245,158,11,.25);background:#fff;border-radius:999px;padding:4px 8px;font-weight:600;color:#7A4B00}
-    .release-badge{display:grid;gap:2px;place-items:center;padding:8px 13px;border-radius:16px;font-size:13px}.release-badge b{font-size:16px;color:#1467F5}.release-badge span{font-size:12px;color:#33415C;font-weight:650}.vehicles{grid-template-columns:repeat(2,minmax(560px,1fr));gap:12px}.vehicle-card{border-radius:22px}.status-top-row{padding:12px 14px 8px;gap:8px}.status-row{min-height:36px;border-radius:999px;justify-content:flex-start;padding:0 12px}.status-row span{display:none}.pill{min-width:86px;font-size:11px;padding:7px 12px}.hero-split-row{grid-template-columns:2.35fr 1fr;padding:6px 14px 8px;gap:12px}.vehicle-hero-panel{grid-template-columns:.62fr 1.38fr;min-height:205px;padding:22px;border-radius:18px}.vehicle-copy h2{font-size:27px}.vehicle-image img{max-height:230px;transform:scale(1.15);transform-origin:center;max-width:105%}.charger-hero-panel{min-height:205px;border-radius:18px;padding:16px}.charger-mini-image{height:128px}.charger-mini-image img{max-width:142px;max-height:126px}.vehicle-control-row.mock-row{grid-template-columns:minmax(330px,1.35fr) minmax(250px,.9fr);padding:0 14px 10px;gap:10px}.vehicle-metrics-strip.mock-metrics{grid-template-columns:repeat(3,minmax(100px,1fr));gap:0;border:1px solid var(--hb-line);border-radius:16px;overflow:hidden;background:#fff}.vehicle-metrics-strip.mock-metrics .metric-chip{border:0;border-right:1px solid var(--hb-line);border-radius:0;min-height:62px;padding:10px 14px}.vehicle-metrics-strip.mock-metrics .metric-chip:last-child{border-right:0}.metric-chip span{font-size:11px}.metric-chip b{font-size:21px}.battery-chip{position:relative}.battery-chip i{position:absolute;right:16px;bottom:16px;width:26px;height:8px;border-radius:999px;background:linear-gradient(90deg,#2CBF61 60%,#DCEBE2 60%)}.charge-mini-strip.mock-controls{grid-template-columns:minmax(148px,1fr) minmax(164px,1fr);gap:10px}.mini-control,.mini-current-stepper{min-height:62px;border:1px solid var(--hb-line);border-radius:16px;background:#fff;display:flex;align-items:center;gap:10px;padding:0 12px;min-width:0}.charger-select select{font-size:14px}.mini-current-stepper ha-icon,.mini-control ha-icon{--mdc-icon-size:22px;color:#1467F5}.mini-current-stepper strong{font-size:18px;min-width:48px;text-align:center}.mini-current-stepper small{font-size:11px;color:#63718A;font-weight:600}.round-step{width:34px;height:34px;border-radius:999px;border:1px solid var(--hb-line);background:#F6FAFF;color:#1467F5;font-size:22px;font-weight:650;line-height:1;cursor:pointer}.mini-current-stepper.readonly{opacity:.55;justify-content:center}.mini-current-stepper.readonly .round-step{display:none}.power-read{display:none}.vehicle-actions{grid-template-columns:1.05fr 1fr 1fr .9fr .95fr;padding:10px 14px 14px;gap:10px}.action{min-height:43px;border-radius:14px;font-size:14px}.danger-action{border-color:rgba(230,57,70,.35)!important;color:#D11A2A!important;background:#FFF3F3!important}.danger-action ha-icon{color:#D11A2A!important}.inactive-row{grid-template-columns:auto 1fr auto;border-radius:16px}.inactive-image{display:none}.debt-strip{display:flex;align-items:center;gap:14px;background:#F8FBFF;border:1px solid #DDEAFF;border-radius:18px;padding:12px 18px;color:#45536C;font-size:13px;font-weight:600}.debt-strip ha-icon{color:#1467F5}.debt-strip span:before{content:"•";margin-right:12px;color:#8EA1BE}@media(max-width:1300px){.vehicles{grid-template-columns:1fr}.vehicle-image img{max-height:240px}}@media(max-width:760px){.hero-split-row,.vehicle-control-row.mock-row{grid-template-columns:1fr}.vehicle-hero-panel{grid-template-columns:1fr}.vehicle-actions{grid-template-columns:1fr 1fr}.debt-strip{flex-wrap:wrap}.charge-mini-strip.mock-controls{grid-template-columns:1fr}}
+    .release-badge{display:grid;gap:2px;place-items:center;padding:8px 13px;border-radius:16px;font-size:13px}.release-badge b{font-size:16px;color:#1467F5}.release-badge span{font-size:12px;color:#33415C;font-weight:650}.vehicles{grid-template-columns:repeat(2,minmax(560px,1fr));gap:12px}.vehicle-card{border-radius:22px}.status-top-row{padding:12px 14px 8px;gap:8px}.status-row{min-height:36px;border-radius:999px;justify-content:flex-start;padding:0 12px}.status-row span{display:none}.pill{min-width:86px;font-size:11px;padding:7px 12px}.hero-split-row{grid-template-columns:2.35fr 1fr;padding:6px 14px 8px;gap:12px}.vehicle-hero-panel{grid-template-columns:.62fr 1.38fr;min-height:205px;padding:22px;border-radius:18px}.vehicle-copy h2{font-size:27px}.vehicle-image img{max-height:230px;transform:scale(1.15);transform-origin:center;max-width:105%}.charger-hero-panel{min-height:205px;border-radius:18px;padding:16px}.charger-mini-image{height:128px}.charger-mini-image img{max-width:142px;max-height:126px}.vehicle-control-row.mock-row{grid-template-columns:minmax(330px,1.35fr) minmax(250px,.9fr);padding:0 14px 10px;gap:10px}.vehicle-metrics-strip.mock-metrics{grid-template-columns:repeat(3,minmax(100px,1fr));gap:0;border:1px solid var(--hb-line);border-radius:16px;overflow:hidden;background:#fff}.vehicle-metrics-strip.mock-metrics .metric-chip{border:0;border-right:1px solid var(--hb-line);border-radius:0;min-height:62px;padding:10px 14px}.vehicle-metrics-strip.mock-metrics .metric-chip:last-child{border-right:0}.metric-chip span{font-size:11px}.metric-chip b{font-size:21px}.battery-chip{position:relative}.battery-chip i{position:absolute;right:16px;bottom:16px;width:26px;height:8px;border-radius:999px;background:linear-gradient(90deg,#2CBF61 60%,#DCEBE2 60%)}.charge-mini-strip.mock-controls{grid-template-columns:minmax(148px,1fr) minmax(164px,1fr);gap:10px}.mini-control,.mini-current-stepper{min-height:62px;border:1px solid var(--hb-line);border-radius:16px;background:#fff;display:flex;align-items:center;gap:10px;padding:0 12px;min-width:0}.charger-select select{font-size:14px}.mini-current-stepper ha-icon,.mini-control ha-icon{--mdc-icon-size:22px;color:#1467F5}.mini-current-stepper strong{font-size:18px;min-width:48px;text-align:center}.mini-current-stepper small{font-size:11px;color:#63718A;font-weight:600}.round-step{width:34px;height:34px;border-radius:999px;border:1px solid var(--hb-line);background:#F6FAFF;color:#1467F5;font-size:22px;font-weight:650;line-height:1;cursor:pointer}.mini-current-stepper.readonly{opacity:.55;justify-content:center}.mini-current-stepper.readonly .round-step{display:none}.power-read{display:none}.vehicle-actions{grid-template-columns:1.05fr 1fr 1fr .9fr .95fr;padding:10px 14px 14px;gap:10px}.action{min-height:43px;border-radius:14px;font-size:14px}.danger-action{border-color:rgba(230,57,70,.35);color:#D11A2A;background:#FFF3F3}.danger-action ha-icon{color:#D11A2A}.inactive-row{grid-template-columns:auto 1fr auto;border-radius:16px}.inactive-image{display:none}.debt-strip{display:flex;align-items:center;gap:14px;background:#F8FBFF;border:1px solid #DDEAFF;border-radius:18px;padding:12px 18px;color:#45536C;font-size:13px;font-weight:600}.debt-strip ha-icon{color:#1467F5}.debt-strip span:before{content:"•";margin-right:12px;color:#8EA1BE}@media(max-width:1300px){.vehicles{grid-template-columns:1fr}.vehicle-image img{max-height:240px}}@media(max-width:760px){.hero-split-row,.vehicle-control-row.mock-row{grid-template-columns:1fr}.vehicle-hero-panel{grid-template-columns:1fr}.vehicle-actions{grid-template-columns:1fr 1fr}.debt-strip{flex-wrap:wrap}.charge-mini-strip.mock-controls{grid-template-columns:1fr}}
 
     /* 2.3.9 compact mock implementation and technical-debt burn-down */
 
     .hi-version-block{
-      position:absolute!important;
-      top:26px!important;
-      right:28px!important;
-      text-align:right!important;
-      font-size:10.5px!important;
-      line-height:1.25!important;
-      font-weight:400!important;
-      color:var(--secondary-text-color,#6B7280)!important;
-      opacity:.82!important;
-      background:none!important;
-      border:0!important;
-      box-shadow:none!important;
-      padding:0!important;
-      margin:0!important;
-      z-index:2!important;
-      pointer-events:none!important;
+      position:absolute;
+      top:26px;
+      right:28px;
+      text-align:right;
+      font-size:10.5px;
+      line-height:1.25;
+      font-weight:400;
+      color:var(--secondary-text-color,#6B7280);
+      opacity:.82;
+      background:none;
+      border:0;
+      box-shadow:none;
+      padding:0;
+      margin:0;
+      z-index:2;
+      pointer-events:none;
     }
-    .release-badge{display:none!important;}.hi-version-block{display:none!important;}
+    .release-badge{display:none;}.hi-version-block{display:none;}
 
-    .page{width:min(100%,1640px);padding:24px 28px 38px;gap:16px}.title{margin-bottom:0}.title h1{font-size:38px}.top-grid{gap:16px}.summary{min-height:116px;padding:20px 24px;align-items:center}.summary h3{margin:0 0 8px}.summary-icon{width:58px;height:58px}.section-title{margin-top:0}.vehicles{gap:16px}.vehicle-card{border-radius:20px;overflow:hidden}.status-top-row{padding:10px 12px 6px;gap:7px;grid-template-columns:repeat(5,minmax(0,1fr))}.status-row{min-height:34px;padding:0 10px}.status-row ha-icon{--mdc-icon-size:18px}.pill{min-width:0;width:100%;font-size:10.5px;padding:7px 9px}.hero-split-row{grid-template-columns:minmax(0,2.45fr) minmax(180px,.85fr);padding:6px 12px 6px;gap:10px}.vehicle-hero-panel{min-height:215px;padding:20px;border-radius:16px;grid-template-columns:.54fr 1.46fr}.vehicle-copy h2{font-size:28px;line-height:1.02}.vehicle-copy p{font-size:14px}.vehicle-image{min-height:170px}.vehicle-image img{max-height:270px;transform:scale(1.28);max-width:118%}.charger-hero-panel{min-height:215px;padding:14px;border-radius:16px}.charger-mini-image{height:135px}.charger-mini-image img{max-width:154px;max-height:132px}.vehicle-control-row.mock-row{grid-template-columns:minmax(240px,.92fr) minmax(330px,1.08fr);padding:0 12px 8px;gap:8px;align-items:stretch}.vehicle-metrics-strip.mock-metrics{grid-template-columns:repeat(3,minmax(70px,1fr));height:56px}.vehicle-metrics-strip.mock-metrics .metric-chip{min-height:54px;padding:7px 10px}.metric-chip span{font-size:9.5px}.metric-chip b{font-size:18px}.battery-chip i{right:10px;bottom:12px;width:22px;height:7px}.charge-mini-strip.mock-controls{grid-template-columns:minmax(160px,1.15fr) minmax(190px,1fr);gap:8px;height:56px}.mini-control,.mini-current-stepper{min-height:54px;height:56px;border-radius:14px;padding:0 10px}.charger-select select{font-size:13.5px}.mini-current-stepper strong{font-size:16px}.mini-current-stepper small{font-size:10px}.round-step{width:30px;height:30px;font-size:20px}.vehicle-actions{grid-template-columns:1.05fr 1fr .85fr .82fr .9fr;padding:9px 12px 12px;gap:8px}.action{min-height:40px;border-radius:13px;font-size:13.5px}.inactive-row{min-height:62px;padding:10px 16px;grid-template-columns:82px 1fr auto}.inactive-state{background:#EEF2F7;color:#53627A;border-radius:999px;font-weight:650;font-size:12px;padding:7px 10px;text-align:center}.compact-present-row .action{min-width:118px}.debt-strip{font-size:12px;padding:10px 14px}.bottom-grid{display:none}.domain-tabs-wrap{margin:8px 0 8px!important}.dashboard-status-strip.outcome-header{margin:8px 0 6px!important}.section-title{margin:0 2px -4px!important}.title h1{margin-bottom:3px!important}.title p{margin-bottom:0!important}@media(max-width:1500px){.vehicles{grid-template-columns:1fr}.vehicle-image img{max-height:290px}.hero-split-row{grid-template-columns:minmax(0,2.3fr) minmax(190px,.9fr)}}@media(max-width:760px){.vehicle-control-row.mock-row{grid-template-columns:1fr}.charge-mini-strip.mock-controls{grid-template-columns:1fr 1fr}.vehicle-actions{grid-template-columns:1fr 1fr}.vehicle-image img{transform:scale(1.12)}}
+    .page{width:min(100%,1640px);padding:24px 28px 38px;gap:16px}.title{margin-bottom:0}.title h1{font-size:38px}.top-grid{gap:16px}.summary{min-height:116px;padding:20px 24px;align-items:center}.summary h3{margin:0 0 8px}.summary-icon{width:58px;height:58px}.section-title{margin-top:0}.vehicles{gap:16px}.vehicle-card{border-radius:20px;overflow:hidden}.status-top-row{padding:10px 12px 6px;gap:7px;grid-template-columns:repeat(5,minmax(0,1fr))}.status-row{min-height:34px;padding:0 10px}.status-row ha-icon{--mdc-icon-size:18px}.pill{min-width:0;width:100%;font-size:10.5px;padding:7px 9px}.hero-split-row{grid-template-columns:minmax(0,2.45fr) minmax(180px,.85fr);padding:6px 12px 6px;gap:10px}.vehicle-hero-panel{min-height:215px;padding:20px;border-radius:16px;grid-template-columns:.54fr 1.46fr}.vehicle-copy h2{font-size:28px;line-height:1.02}.vehicle-copy p{font-size:14px}.vehicle-image{min-height:170px}.vehicle-image img{max-height:270px;transform:scale(1.28);max-width:118%}.charger-hero-panel{min-height:215px;padding:14px;border-radius:16px}.charger-mini-image{height:135px}.charger-mini-image img{max-width:154px;max-height:132px}.vehicle-control-row.mock-row{grid-template-columns:minmax(240px,.92fr) minmax(330px,1.08fr);padding:0 12px 8px;gap:8px;align-items:stretch}.vehicle-metrics-strip.mock-metrics{grid-template-columns:repeat(3,minmax(70px,1fr));height:56px}.vehicle-metrics-strip.mock-metrics .metric-chip{min-height:54px;padding:7px 10px}.metric-chip span{font-size:9.5px}.metric-chip b{font-size:18px}.battery-chip i{right:10px;bottom:12px;width:22px;height:7px}.charge-mini-strip.mock-controls{grid-template-columns:minmax(160px,1.15fr) minmax(190px,1fr);gap:8px;height:56px}.mini-control,.mini-current-stepper{min-height:54px;height:56px;border-radius:14px;padding:0 10px}.charger-select select{font-size:13.5px}.mini-current-stepper strong{font-size:16px}.mini-current-stepper small{font-size:10px}.round-step{width:30px;height:30px;font-size:20px}.vehicle-actions{grid-template-columns:1.05fr 1fr .85fr .82fr .9fr;padding:9px 12px 12px;gap:8px}.action{min-height:40px;border-radius:13px;font-size:13.5px}.inactive-row{min-height:62px;padding:10px 16px;grid-template-columns:82px 1fr auto}.inactive-state{background:#EEF2F7;color:#53627A;border-radius:999px;font-weight:650;font-size:12px;padding:7px 10px;text-align:center}.compact-present-row .action{min-width:118px}.debt-strip{font-size:12px;padding:10px 14px}.bottom-grid{display:none}.domain-tabs-wrap{margin:8px 0 8px}.dashboard-status-strip.outcome-header{margin:8px 0 6px}.section-title{margin:0 2px -4px}.title h1{margin-bottom:3px}.title p{margin-bottom:0}@media(max-width:1500px){.vehicles{grid-template-columns:1fr}.vehicle-image img{max-height:290px}.hero-split-row{grid-template-columns:minmax(0,2.3fr) minmax(190px,.9fr)}}@media(max-width:760px){.vehicle-control-row.mock-row{grid-template-columns:1fr}.charge-mini-strip.mock-controls{grid-template-columns:1fr 1fr}.vehicle-actions{grid-template-columns:1fr 1fr}.vehicle-image img{transform:scale(1.12)}}
 
 
     /* 2.3.9 contract-catalog aligned compact dashboard */
@@ -9723,7 +9129,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
 
 
     /* 2.4.0 dashboard stabilization: compact cockpit, restored footer and icon navigation */
-    .page{width:min(100%,1560px);padding:16px 24px 30px;gap:10px}.top-grid{gap:14px}.summary{min-height:96px;padding:16px 20px;align-items:center}.summary h3{margin:0 0 6px}.summary li{padding:5px 0}.vehicles{gap:14px}.vehicle-card{border-radius:20px}.hero-split-row{grid-template-columns:minmax(0,2.55fr) minmax(155px,.75fr);gap:9px;padding:5px 12px 8px}.vehicle-hero-panel{min-height:190px;padding:17px;grid-template-columns:.47fr 1.53fr}.vehicle-copy h2{font-size:27px}.vehicle-copy p{font-size:13px}.vehicle-image img{max-height:278px;transform:scale(1.33);max-width:122%}.charger-hero-panel{min-height:190px;padding:12px}.charger-mini-image{height:112px}.charger-mini-image img{max-width:142px;max-height:112px}.vehicle-control-row.mock-row{grid-template-columns:minmax(210px,.70fr) minmax(430px,1.30fr);padding:0 12px 8px;gap:8px}.vehicle-metrics-strip.mock-metrics{grid-template-columns:.85fr .75fr .70fr;height:44px}.vehicle-metrics-strip.mock-metrics .metric-chip{min-height:44px;padding:5px 9px}.metric-chip span{font-size:8.5px}.metric-chip b{font-size:16px}.battery-chip i{right:9px;bottom:10px;width:20px;height:7px}.charge-mini-strip.mock-controls{grid-template-columns:minmax(150px,1.25fr) minmax(118px,.82fr) minmax(126px,.95fr) minmax(78px,.48fr);height:44px;gap:7px}.charge-mini-strip.no-mode{grid-template-columns:minmax(170px,1.35fr) minmax(126px,.95fr) minmax(78px,.48fr)}.charge-mini-strip.no-speed{grid-template-columns:minmax(180px,1fr) minmax(118px,.75fr) minmax(78px,.40fr)}.charge-mini-strip.no-speed.no-mode{grid-template-columns:minmax(190px,1fr) minmax(78px,.35fr)}.mini-control,.mini-current-stepper,.mini-power-read{height:44px;min-height:44px;border-radius:13px;padding:0 9px}.charger-select select,.mode-select select{font-size:12.5px}.mini-current-stepper strong,.mini-power-read strong{font-size:14px}.round-step{width:27px;height:27px;font-size:18px}.vehicle-actions{grid-template-columns:minmax(138px,1.05fr) minmax(130px,1fr) minmax(110px,.85fr) 1fr minmax(54px,.32fr) 42px;padding:8px 12px 12px;gap:8px}.action{min-height:38px;border-radius:13px;font-size:13px}.action-spacer{display:block}.icon-only{width:42px;min-width:42px;max-width:42px;padding:0!important}.icon-only span{display:none!important}.icon-only ha-icon{margin:0!important}.presence-toggle{background:#fff!important;color:#1467F5!important;border-color:var(--hb-line)!important}.presence-toggle ha-icon{color:#1467F5!important}.details-action{background:#fff!important;color:#1467F5!important}.details-action ha-icon{color:#1467F5!important}.inactive-actions .icon-only{width:42px}.bottom-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.info{background:#fff;border:1px solid var(--hb-line);border-radius:18px;box-shadow:0 14px 34px rgba(15,35,80,.055);padding:14px 16px;min-height:82px}.info h3{display:flex;align-items:center;gap:8px;font-size:15px;margin:0 0 8px}.info h3 ha-icon{color:#1467F5}.info p,.info li{font-size:12px;font-weight:600;color:#34405A}.debt-strip{display:none!important}@media(max-width:1380px){.vehicles{grid-template-columns:1fr}.vehicle-image img{max-height:285px}.hero-split-row{grid-template-columns:minmax(0,2.45fr) minmax(170px,.9fr)}}@media(max-width:860px){.top-grid,.vehicles,.hero-split-row,.vehicle-control-row.mock-row,.bottom-grid{grid-template-columns:1fr}.charge-mini-strip.mock-controls,.charge-mini-strip.no-mode,.charge-mini-strip.no-speed,.charge-mini-strip.no-speed.no-mode{grid-template-columns:1fr 1fr}.vehicle-actions{grid-template-columns:1fr 1fr 1fr minmax(54px,.35fr) 42px}.action-spacer{display:none}.vehicle-image img{transform:scale(1.12)}}
+    .page{width:min(100%,1560px);padding:16px 24px 30px;gap:10px}.top-grid{gap:14px}.summary{min-height:96px;padding:16px 20px;align-items:center}.summary h3{margin:0 0 6px}.summary li{padding:5px 0}.vehicles{gap:14px}.vehicle-card{border-radius:20px}.hero-split-row{grid-template-columns:minmax(0,2.55fr) minmax(155px,.75fr);gap:9px;padding:5px 12px 8px}.vehicle-hero-panel{min-height:190px;padding:17px;grid-template-columns:.47fr 1.53fr}.vehicle-copy h2{font-size:27px}.vehicle-copy p{font-size:13px}.vehicle-image img{max-height:278px;transform:scale(1.33);max-width:122%}.charger-hero-panel{min-height:190px;padding:12px}.charger-mini-image{height:112px}.charger-mini-image img{max-width:142px;max-height:112px}.vehicle-control-row.mock-row{grid-template-columns:minmax(210px,.70fr) minmax(430px,1.30fr);padding:0 12px 8px;gap:8px}.vehicle-metrics-strip.mock-metrics{grid-template-columns:.85fr .75fr .70fr;height:44px}.vehicle-metrics-strip.mock-metrics .metric-chip{min-height:44px;padding:5px 9px}.metric-chip span{font-size:8.5px}.metric-chip b{font-size:16px}.battery-chip i{right:9px;bottom:10px;width:20px;height:7px}.charge-mini-strip.mock-controls{grid-template-columns:minmax(150px,1.25fr) minmax(118px,.82fr) minmax(126px,.95fr) minmax(78px,.48fr);height:44px;gap:7px}.charge-mini-strip.no-mode{grid-template-columns:minmax(170px,1.35fr) minmax(126px,.95fr) minmax(78px,.48fr)}.charge-mini-strip.no-speed{grid-template-columns:minmax(180px,1fr) minmax(118px,.75fr) minmax(78px,.40fr)}.charge-mini-strip.no-speed.no-mode{grid-template-columns:minmax(190px,1fr) minmax(78px,.35fr)}.mini-control,.mini-current-stepper,.mini-power-read{height:44px;min-height:44px;border-radius:13px;padding:0 9px}.charger-select select,.mode-select select{font-size:12.5px}.mini-current-stepper strong,.mini-power-read strong{font-size:14px}.round-step{width:27px;height:27px;font-size:18px}.vehicle-actions{grid-template-columns:minmax(138px,1.05fr) minmax(130px,1fr) minmax(110px,.85fr) 1fr minmax(54px,.32fr) 42px;padding:8px 12px 12px;gap:8px}.action{min-height:38px;border-radius:13px;font-size:13px}.action-spacer{display:block}.icon-only{width:42px;min-width:42px;max-width:42px;padding:0}.icon-only span{display:none}.icon-only ha-icon{margin:0}.presence-toggle{background:#fff;color:#1467F5;border-color:var(--hb-line)}.presence-toggle ha-icon{color:#1467F5}.details-action{background:#fff;color:#1467F5}.details-action ha-icon{color:#1467F5}.inactive-actions .icon-only{width:42px}.bottom-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.info{background:#fff;border:1px solid var(--hb-line);border-radius:18px;box-shadow:0 14px 34px rgba(15,35,80,.055);padding:14px 16px;min-height:82px}.info h3{display:flex;align-items:center;gap:8px;font-size:15px;margin:0 0 8px}.info h3 ha-icon{color:#1467F5}.info p,.info li{font-size:12px;font-weight:600;color:#34405A}.debt-strip{display:none}@media(max-width:1380px){.vehicles{grid-template-columns:1fr}.vehicle-image img{max-height:285px}.hero-split-row{grid-template-columns:minmax(0,2.45fr) minmax(170px,.9fr)}}@media(max-width:860px){.top-grid,.vehicles,.hero-split-row,.vehicle-control-row.mock-row,.bottom-grid{grid-template-columns:1fr}.charge-mini-strip.mock-controls,.charge-mini-strip.no-mode,.charge-mini-strip.no-speed,.charge-mini-strip.no-speed.no-mode{grid-template-columns:1fr 1fr}.vehicle-actions{grid-template-columns:1fr 1fr 1fr minmax(54px,.35fr) 42px}.action-spacer{display:none}.vehicle-image img{transform:scale(1.12)}}
 
 
     /* 2.4.0 dashboard stabilization: density, alignment and unified controls */
@@ -9733,8 +9139,8 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     .top-grid{gap:12px;align-items:stretch}.summary{min-height:86px;padding:14px 18px;grid-template-columns:52px 1fr;gap:14px;align-items:center}.summary-icon{width:50px;height:50px;border-radius:16px}.summary h3{margin:0 0 5px;font-size:15px}.summary li{padding:4px 0;font-size:12px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:baseline}
     .section-title{margin:0 2px -7px}.section-title h2{font-size:19px}.vehicles{gap:12px}.vehicle-card{border-radius:21px}.status-top-row{padding:8px 10px 5px;gap:6px}.status-row{min-height:30px;border-radius:12px;padding:0 7px}.status-row ha-icon{--mdc-icon-size:16px}.pill{font-size:9.8px;padding:5px 8px;min-width:0;width:100%;}
     .hero-split-row{grid-template-columns:minmax(0,2.72fr) minmax(148px,.72fr);gap:8px;padding:4px 10px 6px;align-items:stretch}.vehicle-hero-panel{min-height:178px;padding:14px;border-radius:16px;grid-template-columns:.36fr 1.64fr;gap:8px}.vehicle-copy h2{font-size:25px;line-height:1.02;margin-bottom:4px}.vehicle-copy p{font-size:12px}.vehicle-image{justify-content:flex-start;align-items:center;overflow:visible;min-height:150px}.vehicle-image img{max-height:294px;max-width:126%;transform:translateX(-10px) scale(1.24);object-fit:contain}.charger-hero-panel{min-height:178px;border-radius:16px;padding:11px}.charger-mini-image{height:105px;border-radius:14px}.charger-mini-image img{max-width:132px;max-height:104px}.charger-mini-copy b{font-size:14px}.charger-mini-copy span{font-size:11px}
-    .vehicle-control-row.mock-row{grid-template-columns:minmax(185px,.55fr) minmax(470px,1.45fr);gap:6px;padding:0 10px 7px;align-items:stretch}.vehicle-metrics-strip.mock-metrics{height:40px;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.vehicle-metrics-strip.mock-metrics .metric-chip{min-height:40px;height:40px;padding:4px 8px;border-radius:12px}.metric-chip span{font-size:7.8px;letter-spacing:.01em}.metric-chip b{font-size:14px;line-height:1.1}.battery-chip i{width:18px;height:6px;right:7px;bottom:8px}.charge-mini-strip.mock-controls{height:40px;gap:6px;grid-template-columns:minmax(155px,1.16fr) minmax(112px,.84fr) minmax(112px,.78fr) minmax(70px,.42fr)}.charge-mini-strip.no-mode{grid-template-columns:minmax(175px,1.35fr) minmax(112px,.78fr) minmax(70px,.42fr)}.charge-mini-strip.no-speed{grid-template-columns:minmax(185px,1.28fr) minmax(112px,.82fr) minmax(70px,.42fr)}.charge-mini-strip.no-speed.no-mode{grid-template-columns:minmax(200px,1fr) minmax(70px,.35fr)}.mini-control,.mini-current-stepper,.mini-power-read{height:40px;min-height:40px;border-radius:12px;padding:0 8px;gap:6px}.mini-control ha-icon,.mini-current-stepper ha-icon,.mini-power-read ha-icon{--mdc-icon-size:17px}.charger-select select,.mode-select select{font-size:12px}.mini-current-stepper strong,.mini-power-read strong{font-size:13px}.round-step{width:25px;height:25px;font-size:17px}.mini-current-stepper small{display:none!important}
-    .vehicle-actions{grid-template-columns:minmax(125px,1fr) minmax(122px,.96fr) minmax(105px,.84fr) 1fr 38px 38px;padding:7px 10px 10px;gap:7px}.action{min-height:36px;border-radius:12px;font-size:12.5px}.action ha-icon{--mdc-icon-size:17px}.icon-only{width:38px!important;min-width:38px!important;max-width:38px!important}.inactive-row{min-height:54px;padding:8px 12px;grid-template-columns:74px 1fr auto}.inactive-actions{gap:7px}.inactive-actions .icon-only{width:38px!important}.bottom-grid{gap:12px}.info{min-height:68px;padding:11px 13px;border-radius:16px}.info h3{font-size:14px;margin-bottom:6px}.info p,.info li{font-size:11.5px}.debt-strip{display:none!important}
+    .vehicle-control-row.mock-row{grid-template-columns:minmax(185px,.55fr) minmax(470px,1.45fr);gap:6px;padding:0 10px 7px;align-items:stretch}.vehicle-metrics-strip.mock-metrics{height:40px;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.vehicle-metrics-strip.mock-metrics .metric-chip{min-height:40px;height:40px;padding:4px 8px;border-radius:12px}.metric-chip span{font-size:7.8px;letter-spacing:.01em}.metric-chip b{font-size:14px;line-height:1.1}.battery-chip i{width:18px;height:6px;right:7px;bottom:8px}.charge-mini-strip.mock-controls{height:40px;gap:6px;grid-template-columns:minmax(155px,1.16fr) minmax(112px,.84fr) minmax(112px,.78fr) minmax(70px,.42fr)}.charge-mini-strip.no-mode{grid-template-columns:minmax(175px,1.35fr) minmax(112px,.78fr) minmax(70px,.42fr)}.charge-mini-strip.no-speed{grid-template-columns:minmax(185px,1.28fr) minmax(112px,.82fr) minmax(70px,.42fr)}.charge-mini-strip.no-speed.no-mode{grid-template-columns:minmax(200px,1fr) minmax(70px,.35fr)}.mini-control,.mini-current-stepper,.mini-power-read{height:40px;min-height:40px;border-radius:12px;padding:0 8px;gap:6px}.mini-control ha-icon,.mini-current-stepper ha-icon,.mini-power-read ha-icon{--mdc-icon-size:17px}.charger-select select,.mode-select select{font-size:12px}.mini-current-stepper strong,.mini-power-read strong{font-size:13px}.round-step{width:25px;height:25px;font-size:17px}.mini-current-stepper small{display:none}
+    .vehicle-actions{grid-template-columns:minmax(125px,1fr) minmax(122px,.96fr) minmax(105px,.84fr) 1fr 38px 38px;padding:7px 10px 10px;gap:7px}.action{min-height:36px;border-radius:12px;font-size:12.5px}.action ha-icon{--mdc-icon-size:17px}.icon-only{width:38px;min-width:38px;max-width:38px}.inactive-row{min-height:54px;padding:8px 12px;grid-template-columns:74px 1fr auto}.inactive-actions{gap:7px}.inactive-actions .icon-only{width:38px}.bottom-grid{gap:12px}.info{min-height:68px;padding:11px 13px;border-radius:16px}.info h3{font-size:14px;margin-bottom:6px}.info p,.info li{font-size:11.5px}.debt-strip{display:none}
     @media(max-width:1580px){.page{width:calc(100% - 56px);margin-left:28px}.vehicles{gap:12px}.vehicle-hero-panel{grid-template-columns:.32fr 1.68fr}.vehicle-image img{max-height:284px;transform:translateX(-14px) scale(1.22)}}
     @media(max-width:1380px){.page{width:min(100%,1280px);margin:0 auto}.vehicles{grid-template-columns:1fr}.vehicle-image img{max-height:284px;transform:translateX(-8px) scale(1.18)}}
     @media(max-width:860px){.page{width:100%;margin:0;padding:14px}.top-grid,.vehicles,.hero-split-row,.vehicle-control-row.mock-row,.bottom-grid{grid-template-columns:1fr}.charge-mini-strip.mock-controls,.charge-mini-strip.no-mode,.charge-mini-strip.no-speed,.charge-mini-strip.no-speed.no-mode{grid-template-columns:1fr 1fr}.vehicle-actions{grid-template-columns:1fr 1fr 1fr 38px 38px}.action-spacer{display:none}.vehicle-image img{transform:scale(1.08);max-width:100%}}
@@ -9751,9 +9157,9 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     .section-title{margin:0 2px -5px}.section-title h2{font-size:18px;line-height:1}.section-title .count{font-size:11px;padding:6px 10px}
     .vehicles{grid-template-columns:repeat(2,minmax(610px,1fr));gap:12px}.vehicle-card{border-radius:20px;overflow:hidden}.status-top-row{padding:8px 10px 5px;gap:6px}.status-row{height:30px;min-height:30px;border-radius:999px;padding:0 8px;display:grid;grid-template-columns:18px 1fr;align-items:center}.status-row ha-icon{--mdc-icon-size:16px}.pill{height:22px;display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:650;padding:0 8px;border-radius:999px;line-height:1;white-space:nowrap}
     .hero-split-row{grid-template-columns:minmax(0,2.65fr) minmax(146px,.78fr);gap:8px;padding:4px 10px 6px}.vehicle-hero-panel,.charger-hero-panel{border-radius:16px;border:1px solid var(--hb-line);background:linear-gradient(135deg,#fff,#F8FBFF)}.vehicle-hero-panel{min-height:178px;padding:13px 14px;grid-template-columns:.36fr 1.64fr;gap:6px}.vehicle-copy h2{font-size:25px;line-height:.96;letter-spacing:-.055em;margin:0 0 7px}.vehicle-copy p{font-size:12px;line-height:1.15;font-weight:600}.vehicle-image{justify-content:flex-start;overflow:visible}.vehicle-image img{max-height:286px;max-width:124%;transform:translateX(-18px) scale(1.19);object-fit:contain}.charger-hero-panel{min-height:178px;padding:11px;display:grid;align-content:space-between}.charger-mini-image{height:106px;border-radius:14px}.charger-mini-image img{max-width:132px;max-height:104px}.charger-mini-copy b{font-size:14px;line-height:1.05}.charger-mini-copy span{font-size:11px;font-weight:600}
-    .vehicle-control-row.mock-row{grid-template-columns:minmax(178px,.50fr) minmax(500px,1.50fr);gap:6px;padding:0 10px 7px}.vehicle-metrics-strip.mock-metrics{height:38px;grid-template-columns:.95fr .8fr .72fr;gap:0;border:1px solid var(--hb-line);border-radius:12px;overflow:hidden;background:#fff}.vehicle-metrics-strip.mock-metrics .metric-chip{height:38px;min-height:38px;border:0;border-right:1px solid var(--hb-line);border-radius:0;padding:4px 8px;background:#fff}.vehicle-metrics-strip.mock-metrics .metric-chip:last-child{border-right:0}.metric-chip span{font-size:7.5px;line-height:1;text-transform:uppercase;letter-spacing:.045em;color:#64708A;font-weight:650}.metric-chip b{font-size:14px;line-height:1.05;font-weight:650}.battery-chip i{display:none!important}
-    .charge-mini-strip.mock-controls{height:38px;gap:6px;grid-template-columns:minmax(190px,1.35fr) minmax(120px,.86fr) minmax(126px,.88fr) minmax(74px,.45fr);align-items:stretch}.charge-mini-strip.no-mode{grid-template-columns:minmax(218px,1.55fr) minmax(126px,.88fr) minmax(74px,.45fr)}.charge-mini-strip.no-speed{grid-template-columns:minmax(245px,1.65fr) minmax(128px,.85fr) minmax(74px,.45fr)}.charge-mini-strip.no-speed.no-mode{grid-template-columns:minmax(270px,1fr) minmax(74px,.32fr)}.mini-control,.mini-current-stepper,.mini-power-read{height:38px;min-height:38px;border-radius:12px;padding:var(--hb-control-pad);gap:6px;background:#fff;border:1px solid var(--hb-line);overflow:hidden}.mini-control ha-icon,.mini-current-stepper ha-icon,.mini-power-read ha-icon{--mdc-icon-size:17px;flex:0 0 auto;color:#1467F5}.charger-select select,.mode-select select{appearance:none;-webkit-appearance:none;border:0;background:transparent;outline:0;width:100%;min-width:0;font-size:12px!important;font-weight:650!important;color:#12213A;line-height:1.1;padding:0 16px 0 0}.charger-select,.mode-select{position:relative}.charger-select:after,.mode-select:after{content:"⌄";position:absolute;right:8px;top:50%;transform:translateY(-52%);font-size:12px;color:#64708A;pointer-events:none}.charger-select option,.mode-select option{font-size:13px!important;color:#12213A}.mini-current-stepper{display:grid;grid-template-columns:minmax(54px,1fr) 24px 24px;justify-items:center;align-items:center}.mini-current-stepper .current-copy{justify-self:start;display:grid;gap:0;line-height:1.0}.mini-current-stepper strong{font-size:13px;white-space:nowrap}.round-step{width:24px;height:24px;border-radius:999px;font-size:17px}.mini-current-stepper.readonly{grid-template-columns:minmax(54px,1fr)}.mini-power-read strong{font-size:13px;white-space:nowrap}
-    .vehicle-actions{grid-template-columns:minmax(122px,1fr) minmax(120px,.96fr) minmax(100px,.82fr) 1fr 38px 38px;padding:7px 10px 10px;gap:7px}.action{height:36px;min-height:36px;border-radius:12px;font-size:12.5px;font-weight:650}.action ha-icon{--mdc-icon-size:17px}.icon-only{width:38px!important;min-width:38px!important;max-width:38px!important}.inactive-row{border-radius:18px;min-height:54px;padding:8px 12px;grid-template-columns:74px 1fr auto}.inactive-actions{gap:7px}.inactive-actions .icon-only{width:38px!important}.bottom-grid{gap:12px}.info{min-height:66px;padding:11px 13px;border-radius:16px}.info h3{font-size:14px;line-height:1.1;margin-bottom:5px}.info p,.info li{font-size:11.5px;line-height:1.25}.debt-strip{display:none!important}
+    .vehicle-control-row.mock-row{grid-template-columns:minmax(178px,.50fr) minmax(500px,1.50fr);gap:6px;padding:0 10px 7px}.vehicle-metrics-strip.mock-metrics{height:38px;grid-template-columns:.95fr .8fr .72fr;gap:0;border:1px solid var(--hb-line);border-radius:12px;overflow:hidden;background:#fff}.vehicle-metrics-strip.mock-metrics .metric-chip{height:38px;min-height:38px;border:0;border-right:1px solid var(--hb-line);border-radius:0;padding:4px 8px;background:#fff}.vehicle-metrics-strip.mock-metrics .metric-chip:last-child{border-right:0}.metric-chip span{font-size:7.5px;line-height:1;text-transform:uppercase;letter-spacing:.045em;color:#64708A;font-weight:650}.metric-chip b{font-size:14px;line-height:1.05;font-weight:650}.battery-chip i{display:none}
+    .charge-mini-strip.mock-controls{height:38px;gap:6px;grid-template-columns:minmax(190px,1.35fr) minmax(120px,.86fr) minmax(126px,.88fr) minmax(74px,.45fr);align-items:stretch}.charge-mini-strip.no-mode{grid-template-columns:minmax(218px,1.55fr) minmax(126px,.88fr) minmax(74px,.45fr)}.charge-mini-strip.no-speed{grid-template-columns:minmax(245px,1.65fr) minmax(128px,.85fr) minmax(74px,.45fr)}.charge-mini-strip.no-speed.no-mode{grid-template-columns:minmax(270px,1fr) minmax(74px,.32fr)}.mini-control,.mini-current-stepper,.mini-power-read{height:38px;min-height:38px;border-radius:12px;padding:var(--hb-control-pad);gap:6px;background:#fff;border:1px solid var(--hb-line);overflow:hidden}.mini-control ha-icon,.mini-current-stepper ha-icon,.mini-power-read ha-icon{--mdc-icon-size:17px;flex:0 0 auto;color:#1467F5}.charger-select select,.mode-select select{appearance:none;-webkit-appearance:none;border:0;background:transparent;outline:0;width:100%;min-width:0;font-size:12px;font-weight:650;color:#12213A;line-height:1.1;padding:0 16px 0 0}.charger-select,.mode-select{position:relative}.charger-select:after,.mode-select:after{content:"⌄";position:absolute;right:8px;top:50%;transform:translateY(-52%);font-size:12px;color:#64708A;pointer-events:none}.charger-select option,.mode-select option{font-size:13px;color:#12213A}.mini-current-stepper{display:grid;grid-template-columns:minmax(54px,1fr) 24px 24px;justify-items:center;align-items:center}.mini-current-stepper .current-copy{justify-self:start;display:grid;gap:0;line-height:1.0}.mini-current-stepper strong{font-size:13px;white-space:nowrap}.round-step{width:24px;height:24px;border-radius:999px;font-size:17px}.mini-current-stepper.readonly{grid-template-columns:minmax(54px,1fr)}.mini-power-read strong{font-size:13px;white-space:nowrap}
+    .vehicle-actions{grid-template-columns:minmax(122px,1fr) minmax(120px,.96fr) minmax(100px,.82fr) 1fr 38px 38px;padding:7px 10px 10px;gap:7px}.action{height:36px;min-height:36px;border-radius:12px;font-size:12.5px;font-weight:650}.action ha-icon{--mdc-icon-size:17px}.icon-only{width:38px;min-width:38px;max-width:38px}.inactive-row{border-radius:18px;min-height:54px;padding:8px 12px;grid-template-columns:74px 1fr auto}.inactive-actions{gap:7px}.inactive-actions .icon-only{width:38px}.bottom-grid{gap:12px}.info{min-height:66px;padding:11px 13px;border-radius:16px}.info h3{font-size:14px;line-height:1.1;margin-bottom:5px}.info p,.info li{font-size:11.5px;line-height:1.25}.debt-strip{display:none}
     @media(max-width:1500px){.page{width:calc(100vw - 56px);margin-left:20px}.vehicles{grid-template-columns:1fr}.vehicle-image img{max-height:286px;transform:translateX(-12px) scale(1.13)}}
 
 
@@ -9776,37 +9182,37 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     .vehicles{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}.vehicle-card{border-radius:20px;overflow:hidden;border:1px solid var(--hb-line);box-shadow:0 18px 44px rgba(15,35,80,.065)}
     .status-top-row{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;padding:8px 10px 5px}.status-row{height:30px;min-height:30px;border-radius:999px;padding:0 8px;display:grid;grid-template-columns:18px minmax(0,1fr);gap:5px;align-items:center;border:1px solid var(--hb-line);background:#fff;min-width:0}.status-row ha-icon{--mdc-icon-size:15.5px}.status-row span{display:none}.status-row .pill{height:22px;padding:0 8px;border-radius:999px;font-size:9.5px;line-height:1;font-weight:650;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .hero-split-row{grid-template-columns:minmax(0,2.62fr) minmax(142px,.78fr);gap:8px;padding:4px 10px 6px}.vehicle-hero-panel,.charger-hero-panel{border-radius:16px;border:1px solid var(--hb-line);background:linear-gradient(135deg,#fff 0%,#F9FCFF 58%,#F1F6FF 100%)}.vehicle-hero-panel{min-height:174px;padding:13px 14px;grid-template-columns:.35fr 1.65fr;gap:6px}.vehicle-copy h2{font-size:25px;line-height:.95;letter-spacing:-.055em;margin:0 0 7px;font-weight:650}.vehicle-copy p{font-size:11.5px;line-height:1.15;font-weight:600;color:#1D2B45}.vehicle-image{justify-content:flex-start;overflow:hidden}.vehicle-image img{max-height:278px;max-width:125%;object-fit:contain;transform:translateX(-16px) scale(1.17);filter:drop-shadow(0 20px 28px rgba(15,35,80,.16))}.charger-hero-panel{min-height:174px;padding:11px;display:grid;align-content:space-between}.charger-mini-image{height:102px;border-radius:14px;background:rgba(255,255,255,.75)}.charger-mini-image img{max-width:126px;max-height:100px;object-fit:contain}.charger-mini-copy b{font-size:14px;line-height:1.05;font-weight:650}.charger-mini-copy span{font-size:11px;font-weight:600;color:#66728B}
-    .vehicle-control-row.mock-row{grid-template-columns:minmax(150px,.42fr) minmax(560px,1.58fr);gap:6px;padding:0 10px 7px;align-items:stretch}.vehicle-metrics-strip.mock-metrics{height:36px;grid-template-columns:.9fr .78fr .72fr;border:1px solid var(--hb-line);border-radius:12px;overflow:hidden;background:#fff;min-width:0}.vehicle-metrics-strip.mock-metrics .metric-chip{height:36px;min-height:36px;border:0;border-right:1px solid var(--hb-line);border-radius:0;padding:4px 8px;background:#fff;min-width:0}.vehicle-metrics-strip.mock-metrics .metric-chip:last-child{border-right:0}.metric-chip span{font-size:7.3px;line-height:1;text-transform:uppercase;letter-spacing:.045em;color:#64708A;font-weight:650}.metric-chip b{font-size:13.5px;line-height:1.05;font-weight:650;white-space:nowrap}.battery-chip i{display:none!important}
-    .charge-mini-strip.mock-controls{height:36px;gap:6px;grid-template-columns:minmax(210px,1.35fr) minmax(126px,.78fr) minmax(116px,.72fr) minmax(80px,.42fr);align-items:stretch;min-width:0}.charge-mini-strip.no-mode{grid-template-columns:minmax(250px,1.5fr) minmax(116px,.72fr) minmax(80px,.42fr)}.charge-mini-strip.no-speed{grid-template-columns:minmax(290px,1.7fr) minmax(126px,.78fr) minmax(80px,.42fr)}.charge-mini-strip.no-speed.no-mode{grid-template-columns:minmax(310px,1fr) minmax(80px,.32fr)}.mini-control,.mini-current-stepper,.mini-power-read{height:36px;min-height:36px;border-radius:12px;padding:0 9px;gap:6px;background:#fff;border:1px solid var(--hb-line);overflow:hidden;min-width:0;box-shadow:none}.mini-control ha-icon,.mini-current-stepper ha-icon,.mini-power-read ha-icon{--mdc-icon-size:16px;flex:0 0 auto;color:#1467F5}.charger-select select,.mode-select select{appearance:none;-webkit-appearance:none;border:0;background:transparent;outline:0;width:100%;min-width:0;font-size:12px!important;font-weight:650!important;color:#12213A;line-height:1.1;padding:0 16px 0 0}.charger-select,.mode-select{position:relative}.charger-select:after,.mode-select:after{content:"⌄";position:absolute;right:8px;top:50%;transform:translateY(-52%);font-size:12px;color:#64708A;pointer-events:none}.charger-select option,.mode-select option{font-size:13px!important;font-weight:600!important;color:#12213A;background:#fff}.mini-current-stepper{display:grid;grid-template-columns:22px 16px minmax(34px,1fr) 22px;justify-items:center}.mini-current-stepper strong{font-size:13px;white-space:nowrap}.round-step{width:22px;height:22px;border-radius:999px;font-size:16px;border:1px solid var(--hb-line);background:#F7FAFF;color:#1467F5}.mini-power-read strong{font-size:13px;white-space:nowrap}.mini-power-read{justify-content:center}
-    .vehicle-actions{grid-template-columns:minmax(132px,1.05fr) minmax(126px,.95fr) minmax(104px,.82fr) 1fr 36px 36px;padding:7px 10px 10px;gap:7px;align-items:stretch}.action{height:36px;min-height:36px;border-radius:12px;font-size:12.3px;font-weight:650;padding:0 10px;border:1px solid var(--hb-line);box-shadow:none}.action ha-icon{--mdc-icon-size:16.5px}.action.primary{background:#1467F5;border-color:#1467F5;color:white}.icon-only{width:36px!important;min-width:36px!important;max-width:36px!important;padding:0!important}.icon-only span{display:none!important}.action-spacer{display:block}.presence-toggle{background:#fff;color:#1467F5}.details-action{background:#fff;color:#1467F5}
-    .inactive-row{border-radius:18px;min-height:52px;padding:8px 12px;grid-template-columns:74px 1fr auto;border:1px solid var(--hb-line);box-shadow:0 14px 32px rgba(15,35,80,.05)}.inactive-row .inactive-actions{gap:7px}.inactive-row .inactive-actions .action{width:36px!important;min-width:36px!important}.inactive-row .inactive-actions .action span{display:none!important}.inactive-row h3{font-size:14px;margin:0 0 3px}.inactive-row p{font-size:12px;margin:0;color:#66728B;font-weight:600}
-    .bottom-grid{gap:12px;grid-template-columns:repeat(3,minmax(0,1fr))}.info{min-height:62px;padding:10px 13px;border-radius:16px}.info h3{font-size:13.5px;line-height:1.1;margin:0 0 5px;font-weight:650}.info h3 ha-icon{--mdc-icon-size:17px}.info p,.info li{font-size:11px;line-height:1.25;font-weight:600;color:#1D2B45}.debt-strip{display:none!important}
+    .vehicle-control-row.mock-row{grid-template-columns:minmax(150px,.42fr) minmax(560px,1.58fr);gap:6px;padding:0 10px 7px;align-items:stretch}.vehicle-metrics-strip.mock-metrics{height:36px;grid-template-columns:.9fr .78fr .72fr;border:1px solid var(--hb-line);border-radius:12px;overflow:hidden;background:#fff;min-width:0}.vehicle-metrics-strip.mock-metrics .metric-chip{height:36px;min-height:36px;border:0;border-right:1px solid var(--hb-line);border-radius:0;padding:4px 8px;background:#fff;min-width:0}.vehicle-metrics-strip.mock-metrics .metric-chip:last-child{border-right:0}.metric-chip span{font-size:7.3px;line-height:1;text-transform:uppercase;letter-spacing:.045em;color:#64708A;font-weight:650}.metric-chip b{font-size:13.5px;line-height:1.05;font-weight:650;white-space:nowrap}.battery-chip i{display:none}
+    .charge-mini-strip.mock-controls{height:36px;gap:6px;grid-template-columns:minmax(210px,1.35fr) minmax(126px,.78fr) minmax(116px,.72fr) minmax(80px,.42fr);align-items:stretch;min-width:0}.charge-mini-strip.no-mode{grid-template-columns:minmax(250px,1.5fr) minmax(116px,.72fr) minmax(80px,.42fr)}.charge-mini-strip.no-speed{grid-template-columns:minmax(290px,1.7fr) minmax(126px,.78fr) minmax(80px,.42fr)}.charge-mini-strip.no-speed.no-mode{grid-template-columns:minmax(310px,1fr) minmax(80px,.32fr)}.mini-control,.mini-current-stepper,.mini-power-read{height:36px;min-height:36px;border-radius:12px;padding:0 9px;gap:6px;background:#fff;border:1px solid var(--hb-line);overflow:hidden;min-width:0;box-shadow:none}.mini-control ha-icon,.mini-current-stepper ha-icon,.mini-power-read ha-icon{--mdc-icon-size:16px;flex:0 0 auto;color:#1467F5}.charger-select select,.mode-select select{appearance:none;-webkit-appearance:none;border:0;background:transparent;outline:0;width:100%;min-width:0;font-size:12px;font-weight:650;color:#12213A;line-height:1.1;padding:0 16px 0 0}.charger-select,.mode-select{position:relative}.charger-select:after,.mode-select:after{content:"⌄";position:absolute;right:8px;top:50%;transform:translateY(-52%);font-size:12px;color:#64708A;pointer-events:none}.charger-select option,.mode-select option{font-size:13px;font-weight:600;color:#12213A;background:#fff}.mini-current-stepper{display:grid;grid-template-columns:22px 16px minmax(34px,1fr) 22px;justify-items:center}.mini-current-stepper strong{font-size:13px;white-space:nowrap}.round-step{width:22px;height:22px;border-radius:999px;font-size:16px;border:1px solid var(--hb-line);background:#F7FAFF;color:#1467F5}.mini-power-read strong{font-size:13px;white-space:nowrap}.mini-power-read{justify-content:center}
+    .vehicle-actions{grid-template-columns:minmax(132px,1.05fr) minmax(126px,.95fr) minmax(104px,.82fr) 1fr 36px 36px;padding:7px 10px 10px;gap:7px;align-items:stretch}.action{height:36px;min-height:36px;border-radius:12px;font-size:12.3px;font-weight:650;padding:0 10px;border:1px solid var(--hb-line);box-shadow:none}.action ha-icon{--mdc-icon-size:16.5px}.action.primary{background:#1467F5;border-color:#1467F5;color:white}.icon-only{width:36px;min-width:36px;max-width:36px;padding:0}.icon-only span{display:none}.action-spacer{display:block}.presence-toggle{background:#fff;color:#1467F5}.details-action{background:#fff;color:#1467F5}
+    .inactive-row{border-radius:18px;min-height:52px;padding:8px 12px;grid-template-columns:74px 1fr auto;border:1px solid var(--hb-line);box-shadow:0 14px 32px rgba(15,35,80,.05)}.inactive-row .inactive-actions{gap:7px}.inactive-row .inactive-actions .action{width:36px;min-width:36px}.inactive-row .inactive-actions .action span{display:none}.inactive-row h3{font-size:14px;margin:0 0 3px}.inactive-row p{font-size:12px;margin:0;color:#66728B;font-weight:600}
+    .bottom-grid{gap:12px;grid-template-columns:repeat(3,minmax(0,1fr))}.info{min-height:62px;padding:10px 13px;border-radius:16px}.info h3{font-size:13.5px;line-height:1.1;margin:0 0 5px;font-weight:650}.info h3 ha-icon{--mdc-icon-size:17px}.info p,.info li{font-size:11px;line-height:1.25;font-weight:600;color:#1D2B45}.debt-strip{display:none}
     @media(max-width:1520px){.page{width:calc(100vw - 42px);margin-left:18px}.vehicles{grid-template-columns:1fr}.vehicle-image img{max-height:282px;transform:translateX(-8px) scale(1.12)}}
 
     /* R22.10.3 cross-screen consistency overrides */
-    .vehicle-actions.clean-actions{display:flex!important;align-items:center!important;gap:7px!important;flex-wrap:nowrap!important;padding:7px 10px 10px!important}
-    .vehicle-actions.clean-actions .action:not(.icon-only){flex:0 1 150px!important;min-width:92px!important;max-width:170px!important}
-    .vehicle-actions.clean-actions .action-spacer{display:block!important;flex:1 1 auto!important;min-width:8px!important}
-    .vehicle-actions.clean-actions .icon-only{flex:0 0 36px!important;width:36px!important;min-width:36px!important;max-width:36px!important}
-    .charge-mini-strip.mock-controls{align-items:center!important}
-    .mini-current-stepper.compact-current{justify-content:flex-end!important;min-width:128px!important}
-    .hero-split-row{margin-bottom:0!important}
-    .quick-actions,.quick-action-row{margin-top:-18px!important}
+    .vehicle-actions.clean-actions{display:flex;align-items:center;gap:7px;flex-wrap:nowrap;padding:7px 10px 10px}
+    .vehicle-actions.clean-actions .action:not(.icon-only){flex:0 1 150px;min-width:92px;max-width:170px}
+    .vehicle-actions.clean-actions .action-spacer{display:block;flex:1 1 auto;min-width:8px}
+    .vehicle-actions.clean-actions .icon-only{flex:0 0 36px;width:36px;min-width:36px;max-width:36px}
+    .charge-mini-strip.mock-controls{align-items:center}
+    .mini-current-stepper.compact-current{justify-content:flex-end;min-width:128px}
+    .hero-split-row{margin-bottom:0}
+    .quick-actions,.quick-action-row{margin-top:-18px}
 
     /* R22.10.3 cross-screen state isolation and stable compact actions */
-    .vehicle-actions.clean-actions{display:grid!important;grid-template-columns:minmax(138px,1.1fr) minmax(120px,.95fr) minmax(104px,.85fr) minmax(92px,.75fr) minmax(0,1fr) 38px 38px!important;align-items:center!important;gap:7px!important;flex-wrap:nowrap!important;overflow:hidden!important;}
-    .vehicle-actions.clean-actions .action:not(.icon-only){min-width:0!important;max-width:none!important;width:100%!important;overflow:hidden!important;}
-    .vehicle-actions.clean-actions .action:not(.icon-only) span{overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;}
-    .vehicle-actions.clean-actions .action-spacer{display:block!important;min-width:0!important;visibility:hidden!important;}
-    .vehicle-actions.clean-actions .presence-toggle.icon-only,.vehicle-actions.clean-actions .details-action.icon-only{justify-self:end!important;grid-row:1!important;width:38px!important;min-width:38px!important;max-width:38px!important;height:38px!important;}
-    .vehicle-actions.clean-actions .details-action.icon-only{grid-column:7!important;}
-    .vehicle-actions.clean-actions .presence-toggle.icon-only{grid-column:6!important;}
-    .charger-mini-image img{object-fit:contain!important;}
-    .charger-mini-image img{opacity:1!important;filter:drop-shadow(0 10px 18px rgba(15,35,80,.16)) contrast(1.06)!important}
-    .charger-mini-image{background:#fff!important}
-    .hero-split-row,.vehicle-control-row.mock-row,.vehicle-actions.clean-actions{min-width:0!important;}
-    @media(max-width:900px){.vehicle-actions.clean-actions{grid-template-columns:repeat(2,minmax(0,1fr)) 38px 38px!important;overflow:visible!important}.vehicle-actions.clean-actions .action:not(.icon-only){display:inline-flex!important}.vehicle-actions.clean-actions .presence-toggle.icon-only{grid-column:3!important}.vehicle-actions.clean-actions .details-action.icon-only{grid-column:4!important}}
-    .asset-detail .hero,.asset-hero{margin-bottom:8px!important}
+    .vehicle-actions.clean-actions{display:grid;grid-template-columns:minmax(138px,1.1fr) minmax(120px,.95fr) minmax(104px,.85fr) minmax(92px,.75fr) minmax(0,1fr) 38px 38px;align-items:center;gap:7px;flex-wrap:nowrap;overflow:hidden;}
+    .vehicle-actions.clean-actions .action:not(.icon-only){min-width:0;max-width:none;width:100%;overflow:hidden;}
+    .vehicle-actions.clean-actions .action:not(.icon-only) span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .vehicle-actions.clean-actions .action-spacer{display:block;min-width:0;visibility:hidden;}
+    .vehicle-actions.clean-actions .presence-toggle.icon-only,.vehicle-actions.clean-actions .details-action.icon-only{justify-self:end;grid-row:1;width:38px;min-width:38px;max-width:38px;height:38px;}
+    .vehicle-actions.clean-actions .details-action.icon-only{grid-column:7;}
+    .vehicle-actions.clean-actions .presence-toggle.icon-only{grid-column:6;}
+    .charger-mini-image img{object-fit:contain;}
+    .charger-mini-image img{opacity:1;filter:drop-shadow(0 10px 18px rgba(15,35,80,.16)) contrast(1.06)}
+    .charger-mini-image{background:#fff}
+    .hero-split-row,.vehicle-control-row.mock-row,.vehicle-actions.clean-actions{min-width:0;}
+    @media(max-width:900px){.vehicle-actions.clean-actions{grid-template-columns:repeat(2,minmax(0,1fr)) 38px 38px;overflow:visible}.vehicle-actions.clean-actions .action:not(.icon-only){display:inline-flex}.vehicle-actions.clean-actions .presence-toggle.icon-only{grid-column:3}.vehicle-actions.clean-actions .details-action.icon-only{grid-column:4}}
+    .asset-detail .hero,.asset-hero{margin-bottom:8px}
 
     @media(max-width:850px){.page{width:100%;margin:0;padding:12px}.top-grid,.vehicles,.bottom-grid{grid-template-columns:1fr}.hero-split-row{grid-template-columns:1fr}.vehicle-control-row.mock-row{grid-template-columns:1fr}.charge-mini-strip.mock-controls,.charge-mini-strip.no-mode,.charge-mini-strip.no-speed,.charge-mini-strip.no-speed.no-mode{grid-template-columns:1fr 1fr}.status-top-row{grid-template-columns:1fr 1fr}.vehicle-actions{grid-template-columns:1fr 1fr 1fr 36px 36px}.action-spacer{display:none}}
 
@@ -9829,8 +9235,8 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     .vehicles{grid-template-columns:repeat(2,minmax(640px,1fr));gap:12px;align-items:start}.vehicle-card{border-radius:20px;overflow:hidden;min-width:0}.status-top-row{padding:8px 10px 5px;gap:7px}.status-row{height:29px;min-height:29px;border-radius:999px;grid-template-columns:18px minmax(0,1fr);padding:0 8px;min-width:0}.status-row ha-icon{--mdc-icon-size:16px}.pill{height:21px;min-width:0;font-size:9.3px;padding:0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .hero-split-row{grid-template-columns:minmax(0,2.55fr) minmax(150px,.72fr);gap:8px;padding:4px 10px 6px;min-width:0}.vehicle-hero-panel,.charger-hero-panel{border-radius:16px;border:1px solid var(--hi-line);background:linear-gradient(135deg,#fff,#F8FBFF);min-width:0}.vehicle-hero-panel{min-height:168px;padding:12px;grid-template-columns:.34fr 1.66fr}.vehicle-copy h2{font-size:24px;line-height:.95;margin-bottom:6px}.vehicle-copy p{font-size:11.5px;line-height:1.15}.vehicle-image{overflow:hidden;justify-content:center;align-items:center}.vehicle-image img{max-width:105%;max-height:230px;transform:translateX(-4px) scale(1.03);object-fit:contain;filter:drop-shadow(0 18px 26px rgba(15,35,80,.16))}.charger-hero-panel{min-height:168px;padding:10px}.charger-mini-image{height:98px;border-radius:14px}.charger-mini-image img{max-width:122px;max-height:96px}.charger-mini-copy b{font-size:13px}.charger-mini-copy span{font-size:10.5px}
     .vehicle-control-row.mock-row{grid-template-columns:minmax(170px,.42fr) minmax(600px,1.58fr);gap:6px;padding:0 10px 7px;min-width:0}.vehicle-metrics-strip.mock-metrics{height:38px;min-width:0}.metric-chip{min-width:0}.metric-chip span{font-size:7.2px}.metric-chip b{font-size:13px}.charge-mini-strip.mock-controls{height:38px;gap:6px;grid-template-columns:minmax(220px,1.35fr) minmax(128px,.76fr) minmax(112px,.65fr) minmax(78px,.42fr);min-width:0}.charge-mini-strip.no-speed{grid-template-columns:minmax(300px,1.65fr) minmax(128px,.78fr) minmax(78px,.42fr)}.charge-mini-strip.no-mode{grid-template-columns:minmax(260px,1.48fr) minmax(112px,.65fr) minmax(78px,.42fr)}.charge-mini-strip.no-speed.no-mode{grid-template-columns:minmax(330px,1fr) minmax(78px,.28fr)}
-    .mini-control,.mini-current-stepper,.mini-power-read{height:38px;min-height:38px;border-radius:12px;padding:0 9px;box-shadow:none;min-width:0}.charger-select select,.mode-select select{font-size:12px!important;font-weight:650!important;line-height:1!important;min-width:0;text-overflow:ellipsis}.mini-current-stepper{grid-template-columns:24px 16px minmax(32px,1fr) 24px}.mini-current-stepper strong,.mini-power-read strong{font-size:12.5px;white-space:nowrap}.round-step{width:24px;height:24px}.mini-power-read{justify-content:center;min-width:68px}
-    .vehicle-actions{grid-template-columns:minmax(124px,1fr) minmax(116px,.92fr) minmax(98px,.78fr) minmax(0,1fr) 38px 38px;gap:7px;padding:7px 10px 10px}.action{height:38px;min-height:38px;border-radius:12px;font-size:12.2px}.icon-only{width:38px!important;min-width:38px!important;max-width:38px!important}.action-spacer{min-width:0}.inactive-row{min-height:52px;border-radius:18px;padding:8px 12px}.bottom-grid{gap:12px}.info{min-height:58px;padding:10px 13px}.info h3{font-size:13px}.info p,.info li{font-size:11px}
+    .mini-control,.mini-current-stepper,.mini-power-read{height:38px;min-height:38px;border-radius:12px;padding:0 9px;box-shadow:none;min-width:0}.charger-select select,.mode-select select{font-size:12px;font-weight:650;line-height:1;min-width:0;text-overflow:ellipsis}.mini-current-stepper{grid-template-columns:24px 16px minmax(32px,1fr) 24px}.mini-current-stepper strong,.mini-power-read strong{font-size:12.5px;white-space:nowrap}.round-step{width:24px;height:24px}.mini-power-read{justify-content:center;min-width:68px}
+    .vehicle-actions{grid-template-columns:minmax(124px,1fr) minmax(116px,.92fr) minmax(98px,.78fr) minmax(0,1fr) 38px 38px;gap:7px;padding:7px 10px 10px}.action{height:38px;min-height:38px;border-radius:12px;font-size:12.2px}.icon-only{width:38px;min-width:38px;max-width:38px}.action-spacer{min-width:0}.inactive-row{min-height:52px;border-radius:18px;padding:8px 12px}.bottom-grid{gap:12px}.info{min-height:58px;padding:10px 13px}.info h3{font-size:13px}.info p,.info li{font-size:11px}
     /* R22.1 working beta cockpit alignment: one density system, no clipping. */
     .page{width:min(100%,1460px);max-width:1460px;gap:12px;padding:16px 22px 28px;margin:0 auto;overflow:visible}
     .title{padding-left:0}.title h1{font-size:34px;line-height:.94}.title p{font-size:13px}.eyebrow{font-size:11px}
@@ -9838,22 +9244,22 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     .section-title{margin:1px 0 -2px}.section-title h2{font-size:18px;line-height:1}.section-title span{height:24px;font-size:11px}
     .vehicles{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.vehicle-card{border-radius:20px;min-width:0;overflow:hidden}.status-top-row{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;padding:7px 9px 5px}.status-row{height:27px;min-height:27px;border-radius:999px;display:grid;grid-template-columns:16px 1fr;align-items:center;gap:4px;padding:0 7px;min-width:0}.status-row>span{display:none}.status-row ha-icon{--mdc-icon-size:15px}.pill{height:19px;font-size:9px;padding:0 6px;min-width:0;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .hero-split-row{display:grid;grid-template-columns:minmax(0,2.9fr) minmax(132px,.82fr);gap:8px;padding:4px 9px 6px}.vehicle-hero-panel,.charger-hero-panel{border-radius:16px;min-width:0;box-sizing:border-box}.vehicle-hero-panel{position:relative;display:block;min-height:190px;height:190px;padding:14px 14px 10px;overflow:hidden}.vehicle-copy{position:absolute;z-index:2;left:14px;top:14px;max-width:42%;min-width:150px}.vehicle-copy h2{font-size:23px;line-height:.95;margin:0 0 5px;white-space:nowrap;letter-spacing:-.055em}.vehicle-copy p{font-size:11px;line-height:1.15;white-space:normal}.vehicle-image{position:absolute;inset:8px 10px 8px 118px;display:flex;align-items:center;justify-content:center;overflow:hidden}.vehicle-image img{max-width:100%;max-height:174px;object-fit:contain;transform:translateX(-4%) scale(.96);filter:drop-shadow(0 16px 25px rgba(15,35,80,.15))}.charger-hero-panel{min-height:190px;height:190px;padding:10px;display:grid;grid-template-rows:1fr auto;gap:8px}.charger-mini-image{height:auto;min-height:116px;border-radius:14px}.charger-mini-image img{max-width:112px;max-height:104px;object-fit:contain}.charger-mini-copy b{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.charger-mini-copy span{font-size:10.5px}
-    .vehicle-control-row.mock-row{display:grid;grid-template-columns:minmax(165px,.42fr) minmax(0,1.58fr);gap:6px;padding:0 9px 6px;align-items:stretch;min-width:0}.vehicle-metrics-strip.mock-metrics{height:36px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-radius:12px;overflow:hidden;min-width:0}.metric-chip{height:36px;min-width:0;padding:4px 7px;border-radius:0;box-shadow:none;border-right:1px solid var(--hi-line)}.metric-chip:last-child{border-right:0}.metric-chip span{font-size:7px;line-height:1;text-transform:uppercase;letter-spacing:.04em}.metric-chip b{font-size:12.5px;line-height:1.05;white-space:nowrap}.battery-chip i{display:none!important}
-    .charge-mini-strip.mock-controls{height:36px;display:flex;align-items:stretch;gap:6px;min-width:0;overflow:hidden}.mini-control,.mini-current-stepper,.mini-power-read{height:36px;min-height:36px;border-radius:12px;padding:0 8px;box-sizing:border-box;min-width:0;flex:0 1 auto}.charger-select{flex:1 1 210px;min-width:160px}.mode-select{flex:0 1 126px;min-width:108px}.mini-current-stepper{flex:0 0 112px;display:grid;grid-template-columns:22px 14px minmax(31px,1fr) 22px;gap:4px}.mini-power-read{flex:0 0 72px;justify-content:center}.charge-mini-strip.no-speed .mini-power-read{flex:0 0 82px}.charger-select select,.mode-select select{font-size:12px!important;font-weight:600!important;line-height:1!important;color:var(--hi-ink);height:100%;width:100%;border:0;background:transparent;min-width:0;outline:0}.mini-control ha-icon,.mini-power-read ha-icon{--mdc-icon-size:16px;flex:0 0 16px}.mini-current-stepper strong,.mini-power-read strong{font-size:12px;line-height:1;white-space:nowrap}.round-step{width:22px;height:22px;min-width:22px;border-radius:999px;font-size:15px}
-    .vehicle-actions{display:grid;grid-template-columns:minmax(118px,1.05fr) minmax(112px,.95fr) minmax(92px,.78fr) minmax(0,1fr) 36px 36px;gap:7px;padding:7px 9px 9px;align-items:center}.action{height:36px;min-height:36px;border-radius:12px;font-size:12px;font-weight:600;line-height:1;gap:7px;padding:0 11px;box-sizing:border-box;white-space:nowrap;overflow:hidden}.action ha-icon{--mdc-icon-size:16px}.icon-only{width:36px!important;min-width:36px!important;max-width:36px!important;padding:0!important;display:inline-flex!important;justify-content:center!important}.icon-only span{display:none!important}.action-spacer{min-width:0}
-    .inactive-row{min-height:52px;border-radius:18px;padding:8px 12px}.inactive-state{width:62px;height:42px;font-size:10px}.inactive-copy h3{font-size:13px}.inactive-copy p{font-size:11px}.inactive-actions{gap:7px}.inactive-actions .action:not(.icon-only){width:36px!important;min-width:36px!important;max-width:36px!important;padding:0!important}.inactive-actions .action:not(.icon-only) span{display:none!important}
+    .vehicle-control-row.mock-row{display:grid;grid-template-columns:minmax(165px,.42fr) minmax(0,1.58fr);gap:6px;padding:0 9px 6px;align-items:stretch;min-width:0}.vehicle-metrics-strip.mock-metrics{height:36px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-radius:12px;overflow:hidden;min-width:0}.metric-chip{height:36px;min-width:0;padding:4px 7px;border-radius:0;box-shadow:none;border-right:1px solid var(--hi-line)}.metric-chip:last-child{border-right:0}.metric-chip span{font-size:7px;line-height:1;text-transform:uppercase;letter-spacing:.04em}.metric-chip b{font-size:12.5px;line-height:1.05;white-space:nowrap}.battery-chip i{display:none}
+    .charge-mini-strip.mock-controls{height:36px;display:flex;align-items:stretch;gap:6px;min-width:0;overflow:hidden}.mini-control,.mini-current-stepper,.mini-power-read{height:36px;min-height:36px;border-radius:12px;padding:0 8px;box-sizing:border-box;min-width:0;flex:0 1 auto}.charger-select{flex:1 1 210px;min-width:160px}.mode-select{flex:0 1 126px;min-width:108px}.mini-current-stepper{flex:0 0 112px;display:grid;grid-template-columns:22px 14px minmax(31px,1fr) 22px;gap:4px}.mini-power-read{flex:0 0 72px;justify-content:center}.charge-mini-strip.no-speed .mini-power-read{flex:0 0 82px}.charger-select select,.mode-select select{font-size:12px;font-weight:600;line-height:1;color:var(--hi-ink);height:100%;width:100%;border:0;background:transparent;min-width:0;outline:0}.mini-control ha-icon,.mini-power-read ha-icon{--mdc-icon-size:16px;flex:0 0 16px}.mini-current-stepper strong,.mini-power-read strong{font-size:12px;line-height:1;white-space:nowrap}.round-step{width:22px;height:22px;min-width:22px;border-radius:999px;font-size:15px}
+    .vehicle-actions{display:grid;grid-template-columns:minmax(118px,1.05fr) minmax(112px,.95fr) minmax(92px,.78fr) minmax(0,1fr) 36px 36px;gap:7px;padding:7px 9px 9px;align-items:center}.action{height:36px;min-height:36px;border-radius:12px;font-size:12px;font-weight:600;line-height:1;gap:7px;padding:0 11px;box-sizing:border-box;white-space:nowrap;overflow:hidden}.action ha-icon{--mdc-icon-size:16px}.icon-only{width:36px;min-width:36px;max-width:36px;padding:0;display:inline-flex;justify-content:center}.icon-only span{display:none}.action-spacer{min-width:0}
+    .inactive-row{min-height:52px;border-radius:18px;padding:8px 12px}.inactive-state{width:62px;height:42px;font-size:10px}.inactive-copy h3{font-size:13px}.inactive-copy p{font-size:11px}.inactive-actions{gap:7px}.inactive-actions .action:not(.icon-only){width:36px;min-width:36px;max-width:36px;padding:0}.inactive-actions .action:not(.icon-only) span{display:none}
     .bottom-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.info{min-height:58px;padding:10px 13px;border-radius:16px}.info h3{font-size:13px}.info p,.info li{font-size:11px}
     @media(max-width:1280px){.page{width:100%;padding:14px}.vehicles{grid-template-columns:1fr}.vehicle-image img{max-height:176px}.top-grid{grid-template-columns:1fr 1fr}}
     @media(max-width:880px){.page{width:100%;margin:0;padding:12px}.top-grid,.vehicles,.hero-split-row,.vehicle-control-row.mock-row,.bottom-grid{grid-template-columns:1fr}.charge-mini-strip.mock-controls{flex-wrap:wrap;height:auto;overflow:visible}.mini-control,.mini-current-stepper,.mini-power-read{height:36px}.vehicle-actions{grid-template-columns:1fr 1fr 1fr 36px 36px}.action-spacer{display:none}.status-top-row{grid-template-columns:1fr 1fr}.vehicle-image{position:relative;inset:auto;height:150px}.vehicle-copy{position:relative;left:auto;top:auto;max-width:100%}.vehicle-hero-panel{height:auto;min-height:0}}
 
     /* R22.2 font and interaction polish: sharper, less heavy typography and safer command fallback. */
     :host{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
-    .title h1,h1{font-weight:600!important;letter-spacing:-.025em!important;}
-    .vehicle-copy h2,h2{font-weight:600!important;letter-spacing:-.02em!important;}
-    h3,.summary h3,.section-title h2,.charger-mini-copy b{font-weight:600!important;}
-    .action,.mini-control select,.charger-select select,.mode-select select,.metric-chip b,.mini-current-stepper strong,.mini-power-read strong,.inactive-copy h3{font-weight:500!important;}
-    .status-row .pill{font-weight:500!important;}
-    .metric-chip span,.inactive-copy p,.charger-mini-copy span,.summary li b,.summary li span,.info p,.info li{font-weight:400!important;}
+    .title h1,h1{font-weight:600;letter-spacing:-.025em;}
+    .vehicle-copy h2,h2{font-weight:600;letter-spacing:-.02em;}
+    h3,.summary h3,.section-title h2,.charger-mini-copy b{font-weight:600;}
+    .action,.mini-control select,.charger-select select,.mode-select select,.metric-chip b,.mini-current-stepper strong,.mini-power-read strong,.inactive-copy h3{font-weight:500;}
+    .status-row .pill{font-weight:500;}
+    .metric-chip span,.inactive-copy p,.charger-mini-copy span,.summary li b,.summary li span,.info p,.info li{font-weight:400;}
     .action:disabled{opacity:.45;filter:none;}
 
 
@@ -9872,42 +9278,42 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
       --hi-shadow-soft:none;
       
     }
-    .page{background:transparent!important;}
+    .page{background:transparent;}
     .summary,.vehicle-card,.inactive-row,.info,.vehicle-hero-panel,.charger-hero-panel,.metric-chip,.mini-control,.mini-current-stepper,.mini-power-read,.status-row{
-      background:var(--hi-surface)!important;
-      border-color:var(--hi-line)!important;
-      box-shadow:none!important;
+      background:var(--hi-surface);
+      border-color:var(--hi-line);
+      box-shadow:none;
     }
-    .summary,.vehicle-card,.info{border-radius:var(--hi-radius-card)!important;}
-    .vehicle-hero-panel,.charger-hero-panel,.inactive-row{border-radius:var(--hi-radius-card)!important;}
-    .metric-chip,.mini-control,.mini-current-stepper,.mini-power-read,.status-row{border-radius:var(--hi-radius-control)!important;}
-    .summary.attention,.summary.recommendation,.vehicle-hero-panel,.charger-hero-panel{background:linear-gradient(135deg,var(--hi-surface),var(--hi-surface-soft))!important;}
-    .title h1{font-size:32px!important;font-weight:600!important;letter-spacing:-.025em!important;color:var(--hi-ink)!important;}
-    .title p,.vehicle-copy p,.info p,.info li,.summary li,.inactive-copy p,.charger-mini-copy span,.relationship-lines{color:var(--hi-muted)!important;font-weight:400!important;}
-    .eyebrow,.metric-chip span{color:var(--hi-muted)!important;font-weight:500!important;}
-    .section-title h2,.summary h3,.info h3,.vehicle-copy h2,.charger-mini-copy b,.inactive-copy h3{font-weight:600!important;color:var(--hi-ink)!important;}
-    .metric-chip b,.mini-control strong,.mini-current-stepper strong,.mini-power-read strong{font-weight:600!important;color:var(--hi-ink)!important;}
-    .pill{font-weight:500!important;border:1px solid transparent!important;}
-    .pill.ok{background:rgba(22,163,74,.10)!important;color:#166534!important;border-color:rgba(22,163,74,.12)!important;}
-    .pill.warn{background:rgba(217,119,6,.11)!important;color:#92400E!important;border-color:rgba(217,119,6,.14)!important;}
-    .pill.bad{background:rgba(220,38,38,.10)!important;color:#991B1B!important;border-color:rgba(220,38,38,.14)!important;}
-    .pill.muted{background:var(--hi-surface-chip)!important;color:var(--hi-muted)!important;border-color:var(--hi-line-soft)!important;}
+    .summary,.vehicle-card,.info{border-radius:var(--hi-radius-card);}
+    .vehicle-hero-panel,.charger-hero-panel,.inactive-row{border-radius:var(--hi-radius-card);}
+    .metric-chip,.mini-control,.mini-current-stepper,.mini-power-read,.status-row{border-radius:var(--hi-radius-control);}
+    .summary.attention,.summary.recommendation,.vehicle-hero-panel,.charger-hero-panel{background:linear-gradient(135deg,var(--hi-surface),var(--hi-surface-soft));}
+    .title h1{font-size:32px;font-weight:600;letter-spacing:-.025em;color:var(--hi-ink);}
+    .title p,.vehicle-copy p,.info p,.info li,.summary li,.inactive-copy p,.charger-mini-copy span,.relationship-lines{color:var(--hi-muted);font-weight:400;}
+    .eyebrow,.metric-chip span{color:var(--hi-muted);font-weight:500;}
+    .section-title h2,.summary h3,.info h3,.vehicle-copy h2,.charger-mini-copy b,.inactive-copy h3{font-weight:600;color:var(--hi-ink);}
+    .metric-chip b,.mini-control strong,.mini-current-stepper strong,.mini-power-read strong{font-weight:600;color:var(--hi-ink);}
+    .pill{font-weight:500;border:1px solid transparent;}
+    .pill.ok{background:rgba(22,163,74,.10);color:#166534;border-color:rgba(22,163,74,.12);}
+    .pill.warn{background:rgba(217,119,6,.11);color:#92400E;border-color:rgba(217,119,6,.14);}
+    .pill.bad{background:rgba(220,38,38,.10);color:#991B1B;border-color:rgba(220,38,38,.14);}
+    .pill.muted{background:var(--hi-surface-chip);color:var(--hi-muted);border-color:var(--hi-line-soft);}
     .action{
-      background:var(--hi-surface)!important;
-      border-color:var(--hi-line)!important;
-      border-radius:var(--hi-radius-control)!important;
-      box-shadow:none!important;
-      font-weight:500!important;
-      color:var(--hi-ink)!important;
+      background:var(--hi-surface);
+      border-color:var(--hi-line);
+      border-radius:var(--hi-radius-control);
+      box-shadow:none;
+      font-weight:500;
+      color:var(--hi-ink);
     }
-    .action.primary-charge{background:rgba(20,103,245,.10)!important;border-color:rgba(20,103,245,.18)!important;color:#164AA8!important;}
-    .action.primary-charge ha-icon{color:#1467F5!important;}
-    .action.sent{background:rgba(20,103,245,.08)!important;border-color:rgba(20,103,245,.14)!important;color:#164AA8!important;}
-    .action.busy{background:rgba(217,119,6,.08)!important;border-color:rgba(217,119,6,.14)!important;}
-    .action.failed{background:rgba(220,38,38,.08)!important;border-color:rgba(220,38,38,.14)!important;color:#991B1B!important;}
-    .vehicle-image,.charger-mini-image,.inactive-image{background:radial-gradient(circle at center,rgba(14,35,72,.045),transparent 62%)!important;}
-    .section-title span{background:var(--hi-surface-chip)!important;border-color:var(--hi-line-soft)!important;color:var(--hi-muted)!important;font-weight:500!important;}
-    .empty{background:var(--hi-surface)!important;border-color:var(--hi-line)!important;color:var(--hi-muted)!important;font-weight:400!important;}
+    .action.primary-charge{background:rgba(20,103,245,.10);border-color:rgba(20,103,245,.18);color:#164AA8;}
+    .action.primary-charge ha-icon{color:#1467F5;}
+    .action.sent{background:rgba(20,103,245,.08);border-color:rgba(20,103,245,.14);color:#164AA8;}
+    .action.busy{background:rgba(217,119,6,.08);border-color:rgba(217,119,6,.14);}
+    .action.failed{background:rgba(220,38,38,.08);border-color:rgba(220,38,38,.14);color:#991B1B;}
+    .vehicle-image,.charger-mini-image,.inactive-image{background:radial-gradient(circle at center,rgba(14,35,72,.045),transparent 62%);}
+    .section-title span{background:var(--hi-surface-chip);border-color:var(--hi-line-soft);color:var(--hi-muted);font-weight:500;}
+    .empty{background:var(--hi-surface);border-color:var(--hi-line);color:var(--hi-muted);font-weight:400;}
 
 
 
@@ -9916,82 +9322,82 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
        - image cards stop blinking by preventing layout-driven reload pressure
        - attention cards hide positive/clear rows
        - vehicle hero becomes less boxed on tablet and phone-prep remains controlled */
-    .summary.attention li.clear{display:none!important;}
+    .summary.attention li.clear{display:none;}
     .summary.attention ul:empty:after{content:"No urgent mobility attention.";display:block;color:#34405A;font-size:13px;font-weight:400;}
     .vehicle-image img,.charger-mini-image img,.charger-visual img{will-change:auto;backface-visibility:hidden;}
     .vehicle-card{contain:layout paint style;}
-    .vehicle-image{overflow:visible!important;}
+    .vehicle-image{overflow:visible;}
 
     @media (min-width: 900px) and (max-width: 1320px){
-      .page{width:100%!important;margin:0!important;padding:18px 18px 34px!important;gap:14px!important;}
-      .top-grid{grid-template-columns:1fr 1fr!important;gap:12px!important;}
-      .summary{min-height:92px!important;padding:14px 16px!important;grid-template-columns:46px 1fr!important;gap:12px!important;}
-      .summary-icon{width:42px!important;height:42px!important;border-radius:14px!important;}
-      .summary-icon ha-icon{--mdc-icon-size:24px!important;}
-      .summary h3{font-size:15px!important;margin:0 0 5px!important;}
-      .summary li{font-size:12px!important;padding:5px 0!important;gap:8px!important;}
-      .vehicles{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important;}
-      .vehicle-card{border-radius:20px!important;min-width:0!important;}
-      .status-top-row{grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:5px!important;padding:8px 8px 5px!important;}
-      .status-row{min-height:28px!important;height:28px!important;padding:0 6px!important;border-radius:999px!important;gap:3px!important;}
-      .status-row ha-icon{--mdc-icon-size:14px!important;}
-      .pill{font-size:8.8px!important;min-width:0!important;padding:0 5px!important;height:18px!important;}
-      .hero-split-row{grid-template-columns:minmax(0,2.65fr) minmax(112px,.72fr)!important;gap:7px!important;padding:4px 8px 6px!important;}
-      .vehicle-hero-panel{position:relative!important;display:block!important;height:178px!important;min-height:178px!important;padding:12px!important;overflow:hidden!important;border-radius:16px!important;}
-      .vehicle-copy{position:absolute!important;left:12px!important;top:12px!important;z-index:2!important;max-width:45%!important;min-width:120px!important;}
-      .vehicle-copy h2{font-size:21px!important;line-height:.95!important;white-space:nowrap!important;margin:0 0 4px!important;}
-      .vehicle-copy p{font-size:10.5px!important;line-height:1.1!important;}
-      .vehicle-image{position:absolute!important;inset:12px 10px 8px 110px!important;display:flex!important;align-items:center!important;justify-content:center!important;min-height:0!important;background:radial-gradient(circle at center,rgba(20,103,245,.08),transparent 60%)!important;}
-      .vehicle-image img{max-height:148px!important;max-width:112%!important;transform:translateX(-4%) scale(1.02)!important;object-fit:contain!important;}
-      .charger-hero-panel{height:178px!important;min-height:178px!important;padding:9px!important;border-radius:16px!important;grid-template-rows:auto 1fr!important;}
-      .charger-mini-image{height:108px!important;min-height:108px!important;border-radius:14px!important;}
-      .charger-mini-image img{max-width:96px!important;max-height:94px!important;}
-      .charger-mini-copy b{font-size:12px!important;}
-      .charger-mini-copy span{font-size:10px!important;}
-      .vehicle-control-row.mock-row{grid-template-columns:1fr!important;gap:6px!important;padding:0 8px 7px!important;}
-      .vehicle-metrics-strip.mock-metrics{height:34px!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;}
-      .vehicle-metrics-strip.mock-metrics .metric-chip{min-height:34px!important;padding:4px 8px!important;}
-      .metric-chip span{font-size:7.6px!important;}
-      .metric-chip b{font-size:12px!important;}
-      .charge-mini-strip.mock-controls{height:34px!important;grid-template-columns:minmax(170px,1.4fr) minmax(96px,.62fr) minmax(74px,.42fr)!important;gap:5px!important;}
-      .charge-mini-strip.mock-controls.no-speed{grid-template-columns:minmax(210px,1.5fr) minmax(108px,.8fr) minmax(74px,.42fr)!important;}
-      .mini-control,.mini-current-stepper,.mini-power-read{height:34px!important;min-height:34px!important;border-radius:11px!important;padding:0 7px!important;gap:5px!important;}
-      .charger-select select,.mode-select select{font-size:11px!important;font-weight:500!important;}
-      .mini-current-stepper{grid-template-columns:20px 14px minmax(28px,1fr) 20px!important;}
-      .round-step{width:20px!important;height:20px!important;font-size:14px!important;}
-      .mini-current-stepper strong,.mini-power-read strong{font-size:11.5px!important;}
-      .vehicle-actions{grid-template-columns:minmax(118px,1fr) minmax(108px,.9fr) minmax(82px,.72fr) 1fr 34px 34px!important;gap:6px!important;padding:6px 8px 9px!important;}
-      .action{min-height:34px!important;height:34px!important;font-size:11.5px!important;border-radius:11px!important;}
-      .icon-only{width:34px!important;min-width:34px!important;max-width:34px!important;}
-      .bottom-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:10px!important;}
-      .info{min-height:58px!important;padding:10px 12px!important;}
+      .page{width:100%;margin:0;padding:18px 18px 34px;gap:14px;}
+      .top-grid{grid-template-columns:1fr 1fr;gap:12px;}
+      .summary{min-height:92px;padding:14px 16px;grid-template-columns:46px 1fr;gap:12px;}
+      .summary-icon{width:42px;height:42px;border-radius:14px;}
+      .summary-icon ha-icon{--mdc-icon-size:24px;}
+      .summary h3{font-size:15px;margin:0 0 5px;}
+      .summary li{font-size:12px;padding:5px 0;gap:8px;}
+      .vehicles{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
+      .vehicle-card{border-radius:20px;min-width:0;}
+      .status-top-row{grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;padding:8px 8px 5px;}
+      .status-row{min-height:28px;height:28px;padding:0 6px;border-radius:999px;gap:3px;}
+      .status-row ha-icon{--mdc-icon-size:14px;}
+      .pill{font-size:8.8px;min-width:0;padding:0 5px;height:18px;}
+      .hero-split-row{grid-template-columns:minmax(0,2.65fr) minmax(112px,.72fr);gap:7px;padding:4px 8px 6px;}
+      .vehicle-hero-panel{position:relative;display:block;height:178px;min-height:178px;padding:12px;overflow:hidden;border-radius:16px;}
+      .vehicle-copy{position:absolute;left:12px;top:12px;z-index:2;max-width:45%;min-width:120px;}
+      .vehicle-copy h2{font-size:21px;line-height:.95;white-space:nowrap;margin:0 0 4px;}
+      .vehicle-copy p{font-size:10.5px;line-height:1.1;}
+      .vehicle-image{position:absolute;inset:12px 10px 8px 110px;display:flex;align-items:center;justify-content:center;min-height:0;background:radial-gradient(circle at center,rgba(20,103,245,.08),transparent 60%);}
+      .vehicle-image img{max-height:148px;max-width:112%;transform:translateX(-4%) scale(1.02);object-fit:contain;}
+      .charger-hero-panel{height:178px;min-height:178px;padding:9px;border-radius:16px;grid-template-rows:auto 1fr;}
+      .charger-mini-image{height:108px;min-height:108px;border-radius:14px;}
+      .charger-mini-image img{max-width:96px;max-height:94px;}
+      .charger-mini-copy b{font-size:12px;}
+      .charger-mini-copy span{font-size:10px;}
+      .vehicle-control-row.mock-row{grid-template-columns:1fr;gap:6px;padding:0 8px 7px;}
+      .vehicle-metrics-strip.mock-metrics{height:34px;grid-template-columns:repeat(3,minmax(0,1fr));}
+      .vehicle-metrics-strip.mock-metrics .metric-chip{min-height:34px;padding:4px 8px;}
+      .metric-chip span{font-size:7.6px;}
+      .metric-chip b{font-size:12px;}
+      .charge-mini-strip.mock-controls{height:34px;grid-template-columns:minmax(170px,1.4fr) minmax(96px,.62fr) minmax(74px,.42fr);gap:5px;}
+      .charge-mini-strip.mock-controls.no-speed{grid-template-columns:minmax(210px,1.5fr) minmax(108px,.8fr) minmax(74px,.42fr);}
+      .mini-control,.mini-current-stepper,.mini-power-read{height:34px;min-height:34px;border-radius:11px;padding:0 7px;gap:5px;}
+      .charger-select select,.mode-select select{font-size:11px;font-weight:500;}
+      .mini-current-stepper{grid-template-columns:20px 14px minmax(28px,1fr) 20px;}
+      .round-step{width:20px;height:20px;font-size:14px;}
+      .mini-current-stepper strong,.mini-power-read strong{font-size:11.5px;}
+      .vehicle-actions{grid-template-columns:minmax(118px,1fr) minmax(108px,.9fr) minmax(82px,.72fr) 1fr 34px 34px;gap:6px;padding:6px 8px 9px;}
+      .action{min-height:34px;height:34px;font-size:11.5px;border-radius:11px;}
+      .icon-only{width:34px;min-width:34px;max-width:34px;}
+      .bottom-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;}
+      .info{min-height:58px;padding:10px 12px;}
     }
 
     @media (max-width: 899px){
-      .page{width:100%!important;margin:0!important;padding:12px 12px 28px!important;gap:12px!important;}
-      .top-grid{grid-template-columns:1fr!important;gap:10px!important;}
-      .summary{min-height:auto!important;padding:14px!important;grid-template-columns:44px 1fr!important;gap:12px!important;}
-      .vehicles{grid-template-columns:1fr!important;gap:12px!important;}
-      .hero-split-row{grid-template-columns:1fr!important;gap:9px!important;}
-      .vehicle-hero-panel{height:auto!important;min-height:230px!important;display:block!important;position:relative!important;padding:14px!important;}
-      .vehicle-copy{position:relative!important;left:auto!important;top:auto!important;max-width:100%!important;z-index:2!important;}
-      .vehicle-copy h2{white-space:nowrap!important;font-size:25px!important;}
-      .vehicle-image{position:relative!important;inset:auto!important;height:160px!important;margin-top:8px!important;}
-      .vehicle-image img{max-height:150px!important;transform:none!important;}
-      .charger-hero-panel{height:auto!important;min-height:150px!important;}
-      .vehicle-control-row.mock-row{grid-template-columns:1fr!important;}
-      .vehicle-metrics-strip.mock-metrics{height:42px!important;}
-      .charge-mini-strip.mock-controls,.charge-mini-strip.mock-controls.no-speed{grid-template-columns:1fr 1fr!important;height:auto!important;}
-      .mini-control,.mini-current-stepper,.mini-power-read{height:38px!important;min-height:38px!important;}
-      .vehicle-actions{grid-template-columns:1fr 1fr 1fr 36px 36px!important;}
-      .bottom-grid{grid-template-columns:1fr!important;}
+      .page{width:100%;margin:0;padding:12px 12px 28px;gap:12px;}
+      .top-grid{grid-template-columns:1fr;gap:10px;}
+      .summary{min-height:auto;padding:14px;grid-template-columns:44px 1fr;gap:12px;}
+      .vehicles{grid-template-columns:1fr;gap:12px;}
+      .hero-split-row{grid-template-columns:1fr;gap:9px;}
+      .vehicle-hero-panel{height:auto;min-height:230px;display:block;position:relative;padding:14px;}
+      .vehicle-copy{position:relative;left:auto;top:auto;max-width:100%;z-index:2;}
+      .vehicle-copy h2{white-space:nowrap;font-size:25px;}
+      .vehicle-image{position:relative;inset:auto;height:160px;margin-top:8px;}
+      .vehicle-image img{max-height:150px;transform:none;}
+      .charger-hero-panel{height:auto;min-height:150px;}
+      .vehicle-control-row.mock-row{grid-template-columns:1fr;}
+      .vehicle-metrics-strip.mock-metrics{height:42px;}
+      .charge-mini-strip.mock-controls,.charge-mini-strip.mock-controls.no-speed{grid-template-columns:1fr 1fr;height:auto;}
+      .mini-control,.mini-current-stepper,.mini-power-read{height:38px;min-height:38px;}
+      .vehicle-actions{grid-template-columns:1fr 1fr 1fr 36px 36px;}
+      .bottom-grid{grid-template-columns:1fr;}
     }
 
     @media (max-width: 560px){
-      .status-top-row{grid-template-columns:1fr 1fr!important;}
-      .vehicle-metrics-strip.mock-metrics{grid-template-columns:repeat(3,minmax(0,1fr))!important;}
-      .charge-mini-strip.mock-controls,.charge-mini-strip.mock-controls.no-speed{grid-template-columns:1fr!important;}
-      .vehicle-actions{grid-template-columns:1fr 1fr 36px 36px!important;}
+      .status-top-row{grid-template-columns:1fr 1fr;}
+      .vehicle-metrics-strip.mock-metrics{grid-template-columns:repeat(3,minmax(0,1fr));}
+      .charge-mini-strip.mock-controls,.charge-mini-strip.mock-controls.no-speed{grid-template-columns:1fr;}
+      .vehicle-actions{grid-template-columns:1fr 1fr 36px 36px;}
       .vehicle-actions .action:nth-child(3){grid-column:1 / 3;}
     }
 
@@ -9999,290 +9405,290 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     /* R22.10.3 hard visible charge-speed + bottom alignment gate
        This block is inside the dashboard styles() return, not in the missing-card branch. */
     .vehicle-control-row.mock-row{
-      display:grid!important;
-      grid-template-columns:minmax(176px,.44fr) minmax(220px,1fr) minmax(126px,.48fr) minmax(92px,.34fr)!important;
-      gap:6px!important;
-      align-items:stretch!important;
-      padding:0 12px 8px!important;
-      min-width:0!important;
-      overflow:visible!important;
+      display:grid;
+      grid-template-columns:minmax(176px,.44fr) minmax(220px,1fr) minmax(126px,.48fr) minmax(92px,.34fr);
+      gap:6px;
+      align-items:stretch;
+      padding:0 12px 8px;
+      min-width:0;
+      overflow:visible;
     }
     .vehicle-control-row.mock-row>.vehicle-metrics-strip.mock-metrics{
-      grid-column:1!important;
-      min-width:0!important;
-      height:38px!important;
-      display:grid!important;
-      grid-template-columns:repeat(3,minmax(0,1fr))!important;
+      grid-column:1;
+      min-width:0;
+      height:38px;
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
     }
     .vehicle-control-row.mock-row>.charge-mini-strip.mock-controls{
-      display:contents!important;
+      display:contents;
     }
     .vehicle-control-row.mock-row .charger-select{
-      grid-column:2!important;
-      min-width:0!important;
-      width:100%!important;
-      height:38px!important;
-      min-height:38px!important;
+      grid-column:2;
+      min-width:0;
+      width:100%;
+      height:38px;
+      min-height:38px;
     }
     .vehicle-control-row.mock-row .mini-current-stepper.compact-current{
-      grid-column:3!important;
-      display:grid!important;
-      grid-template-columns:minmax(42px,1fr) 24px 24px!important;
-      gap:5px!important;
-      align-items:center!important;
-      min-width:0!important;
-      width:100%!important;
-      height:38px!important;
-      min-height:38px!important;
-      padding:0 7px!important;
-      overflow:hidden!important;
-      background:#fff!important;
-      border:1px solid var(--hb-line)!important;
-      border-radius:12px!important;
-      box-sizing:border-box!important;
-      opacity:1!important;
-      visibility:visible!important;
+      grid-column:3;
+      display:grid;
+      grid-template-columns:minmax(42px,1fr) 24px 24px;
+      gap:5px;
+      align-items:center;
+      min-width:0;
+      width:100%;
+      height:38px;
+      min-height:38px;
+      padding:0 7px;
+      overflow:hidden;
+      background:#fff;
+      border:1px solid var(--hb-line);
+      border-radius:12px;
+      box-sizing:border-box;
+      opacity:1;
+      visibility:visible;
     }
     .vehicle-control-row.mock-row .mini-current-stepper.compact-current.readonly{
-      grid-template-columns:minmax(56px,1fr)!important;
+      grid-template-columns:minmax(56px,1fr);
     }
     .vehicle-control-row.mock-row .mini-power-read.actual-power-read{
-      grid-column:4!important;
-      display:flex!important;
-      align-items:center!important;
-      min-width:0!important;
-      width:100%!important;
-      height:38px!important;
-      min-height:38px!important;
-      padding:0 8px!important;
-      background:#fff!important;
-      border:1px solid var(--hb-line)!important;
-      border-radius:12px!important;
-      box-sizing:border-box!important;
-      overflow:hidden!important;
+      grid-column:4;
+      display:flex;
+      align-items:center;
+      min-width:0;
+      width:100%;
+      height:38px;
+      min-height:38px;
+      padding:0 8px;
+      background:#fff;
+      border:1px solid var(--hb-line);
+      border-radius:12px;
+      box-sizing:border-box;
+      overflow:hidden;
     }
     .vehicle-control-row.mock-row .mini-power-read.actual-power-read .power-copy{
-      min-width:0!important;
-      display:flex!important;
-      flex-direction:column!important;
-      justify-content:center!important;
-      line-height:1.05!important;
-      overflow:hidden!important;
+      min-width:0;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      line-height:1.05;
+      overflow:hidden;
     }
     .vehicle-control-row.mock-row .mini-power-read.actual-power-read small{
-      display:block!important;
-      font-size:8px!important;
-      color:#64708A!important;
-      white-space:nowrap!important;
-      overflow:hidden!important;
-      text-overflow:ellipsis!important;
-      font-weight:500!important;
+      display:block;
+      font-size:8px;
+      color:#64708A;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      font-weight:500;
     }
     .vehicle-control-row.mock-row .mini-power-read.actual-power-read strong{
-      display:block!important;
-      font-size:13px!important;
-      color:#12213A!important;
-      white-space:nowrap!important;
-      overflow:hidden!important;
-      text-overflow:ellipsis!important;
-      font-weight:500!important;
+      display:block;
+      font-size:13px;
+      color:#12213A;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      font-weight:500;
     }
     .vehicle-control-row.mock-row .mini-current-stepper.compact-current .current-copy{
-      min-width:0!important;
-      display:flex!important;
-      flex-direction:column!important;
-      justify-content:center!important;
-      overflow:hidden!important;
-      line-height:1.05!important;
+      min-width:0;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      overflow:hidden;
+      line-height:1.05;
     }
     .vehicle-control-row.mock-row .mini-current-stepper.compact-current .current-copy small{
-      display:block!important;
-      font-size:8px!important;
-      color:#64708A!important;
-      white-space:nowrap!important;
-      overflow:hidden!important;
-      text-overflow:ellipsis!important;
-      font-weight:500!important;
-      letter-spacing:0!important;
-      text-transform:none!important;
+      display:block;
+      font-size:8px;
+      color:#64708A;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      font-weight:500;
+      letter-spacing:0;
+      text-transform:none;
     }
     .vehicle-control-row.mock-row .mini-current-stepper.compact-current .current-copy strong{
-      display:block!important;
-      font-size:13px!important;
-      color:#12213A!important;
-      white-space:nowrap!important;
-      overflow:hidden!important;
-      text-overflow:ellipsis!important;
-      font-weight:500!important;
+      display:block;
+      font-size:13px;
+      color:#12213A;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      font-weight:500;
     }
     .vehicle-control-row.mock-row .mini-current-stepper.compact-current .round-step{
-      width:24px!important;
-      min-width:24px!important;
-      height:24px!important;
-      border-radius:999px!important;
-      display:flex!important;
-      align-items:center!important;
-      justify-content:center!important;
-      padding:0!important;
-      font-size:16px!important;
-      line-height:1!important;
-      background:#fff!important;
-      color:#1467F5!important;
-      border:1px solid var(--hb-line)!important;
-      box-shadow:none!important;
+      width:24px;
+      min-width:24px;
+      height:24px;
+      border-radius:999px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:0;
+      font-size:16px;
+      line-height:1;
+      background:#fff;
+      color:#1467F5;
+      border:1px solid var(--hb-line);
+      box-shadow:none;
     }
-    .vehicle-control-row.mock-row .current-copy em,.vehicle-control-row.mock-row .power-copy em{display:block!important;margin-top:2px!important;font-size:7.5px!important;line-height:1.05!important;font-style:normal!important;font-weight:500!important;color:#8A5A12!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
-    .lifecycle-control-wrap{min-width:0;display:grid;gap:2px;align-items:center}.lifecycle-control-wrap>.manage-lifecycle{width:100%!important;max-width:none!important}.lifecycle-disabled-reason{display:block;max-width:150px;font-size:8px;line-height:1.1;color:#8A5A12;font-weight:550;white-space:normal}
+    .vehicle-control-row.mock-row .current-copy em,.vehicle-control-row.mock-row .power-copy em{display:block;margin-top:2px;font-size:7.5px;line-height:1.05;font-style:normal;font-weight:500;color:#8A5A12;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .lifecycle-control-wrap{min-width:0;display:grid;gap:2px;align-items:center}.lifecycle-control-wrap>.manage-lifecycle{width:100%;max-width:none}.lifecycle-disabled-reason{display:block;max-width:150px;font-size:8px;line-height:1.1;color:#8A5A12;font-weight:550;white-space:normal}
     .vehicle-actions.clean-actions{
-      display:grid!important;
-      grid-template-columns:minmax(132px,1.05fr) minmax(118px,.95fr) minmax(104px,.82fr) minmax(92px,.75fr) minmax(0,1fr) 42px 42px!important;
-      gap:8px!important;
-      align-items:center!important;
-      padding:8px 12px 12px!important;
+      display:grid;
+      grid-template-columns:minmax(132px,1.05fr) minmax(118px,.95fr) minmax(104px,.82fr) minmax(92px,.75fr) minmax(0,1fr) 42px 42px;
+      gap:8px;
+      align-items:center;
+      padding:8px 12px 12px;
     }
-    .vehicle-actions.clean-actions .action-spacer{display:block!important;min-width:0!important;visibility:hidden!important;}
+    .vehicle-actions.clean-actions .action-spacer{display:block;min-width:0;visibility:hidden;}
     .vehicle-actions.clean-actions .presence-toggle.icon-only,
     .vehicle-actions.clean-actions .details-action.icon-only{
-      justify-self:end!important;
-      width:42px!important;
-      min-width:42px!important;
-      max-width:42px!important;
-      background:#fff!important;
-      color:#1467F5!important;
-      border-color:var(--hb-line)!important;
+      justify-self:end;
+      width:42px;
+      min-width:42px;
+      max-width:42px;
+      background:#fff;
+      color:#1467F5;
+      border-color:var(--hb-line);
     }
     .vehicle-actions.clean-actions .presence-toggle.icon-only ha-icon,
-    .vehicle-actions.clean-actions .details-action.icon-only ha-icon{color:#1467F5!important;}
-    .charger-hero-panel{position:relative!important;}
+    .vehicle-actions.clean-actions .details-action.icon-only ha-icon{color:#1467F5;}
+    .charger-hero-panel{position:relative;}
     .charger-hero-panel .mini-detail-button.charger-detail-link{
-      position:absolute!important;
-      right:10px!important;
-      bottom:10px!important;
-      width:30px!important;
-      height:30px!important;
-      min-width:30px!important;
-      border-radius:999px!important;
-      display:flex!important;
-      align-items:center!important;
-      justify-content:center!important;
-      padding:0!important;
-      background:#fff!important;
-      border:1px solid var(--hb-line)!important;
-      color:#1467F5!important;
-      box-shadow:0 8px 18px rgba(15,35,80,.06)!important;
-      z-index:2!important;
-      cursor:pointer!important;
+      position:absolute;
+      right:10px;
+      bottom:10px;
+      width:30px;
+      height:30px;
+      min-width:30px;
+      border-radius:999px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:0;
+      background:#fff;
+      border:1px solid var(--hb-line);
+      color:#1467F5;
+      box-shadow:0 8px 18px rgba(15,35,80,.06);
+      z-index:2;
+      cursor:pointer;
     }
-    .charger-hero-panel .mini-detail-button.charger-detail-link ha-icon{--mdc-icon-size:18px;color:#1467F5!important;}
-    .vehicle-hero-panel{position:relative!important;}
+    .charger-hero-panel .mini-detail-button.charger-detail-link ha-icon{--mdc-icon-size:18px;color:#1467F5;}
+    .vehicle-hero-panel{position:relative;}
     .vehicle-hero-panel .mini-detail-button.vehicle-detail-link{
-      position:absolute!important;
-      right:10px!important;
-      bottom:10px!important;
-      width:30px!important;
-      height:30px!important;
-      min-width:30px!important;
-      border-radius:999px!important;
-      display:flex!important;
-      align-items:center!important;
-      justify-content:center!important;
-      padding:0!important;
-      background:#fff!important;
-      border:1px solid var(--hb-line)!important;
-      color:#1467F5!important;
-      box-shadow:0 8px 18px rgba(15,35,80,.06)!important;
-      z-index:2!important;
-      cursor:pointer!important;
+      position:absolute;
+      right:10px;
+      bottom:10px;
+      width:30px;
+      height:30px;
+      min-width:30px;
+      border-radius:999px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:0;
+      background:#fff;
+      border:1px solid var(--hb-line);
+      color:#1467F5;
+      box-shadow:0 8px 18px rgba(15,35,80,.06);
+      z-index:2;
+      cursor:pointer;
     }
-    .vehicle-hero-panel .mini-detail-button.vehicle-detail-link ha-icon{--mdc-icon-size:18px;color:#1467F5!important;}
-    .vehicle-activity-inline{margin:6px 0 0!important;color:#34405A!important;font-size:12px!important;font-weight:500!important;line-height:1.2!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;}
+    .vehicle-hero-panel .mini-detail-button.vehicle-detail-link ha-icon{--mdc-icon-size:18px;color:#1467F5;}
+    .vehicle-activity-inline{margin:6px 0 0;color:#34405A;font-size:12px;font-weight:500;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     .vehicle-lifecycle-chip{
-      align-self:center!important;
-      justify-self:start!important;
-      min-width:0!important;
-      color:#17233B!important;
-      font-size:13px!important;
-      font-weight:500!important;
-      white-space:nowrap!important;
-      overflow:hidden!important;
-      text-overflow:ellipsis!important;
-      padding:0 4px!important;
+      align-self:center;
+      justify-self:start;
+      min-width:0;
+      color:#17233B;
+      font-size:13px;
+      font-weight:500;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      padding:0 4px;
     }
-    .vehicle-lifecycle-chip.empty{visibility:hidden!important;}
+    .vehicle-lifecycle-chip.empty{visibility:hidden;}
 
     @media (max-width: 1320px){
-      .vehicle-control-row.mock-row{grid-template-columns:1fr!important;}
-      .vehicle-control-row.mock-row>.vehicle-metrics-strip.mock-metrics{grid-column:1!important;}
-      .vehicle-control-row.mock-row>.charge-mini-strip.mock-controls{display:grid!important;grid-template-columns:minmax(180px,1fr) minmax(108px,.50fr) minmax(124px,.52fr)!important;gap:6px!important;height:38px!important;}
-      .vehicle-control-row.mock-row .charger-select{grid-column:1!important;}
-      .vehicle-control-row.mock-row .mode-select{grid-column:2!important;}
-      .vehicle-control-row.mock-row .mini-current-stepper.compact-current{grid-column:3!important;}
+      .vehicle-control-row.mock-row{grid-template-columns:1fr;}
+      .vehicle-control-row.mock-row>.vehicle-metrics-strip.mock-metrics{grid-column:1;}
+      .vehicle-control-row.mock-row>.charge-mini-strip.mock-controls{display:grid;grid-template-columns:minmax(180px,1fr) minmax(108px,.50fr) minmax(124px,.52fr);gap:6px;height:38px;}
+      .vehicle-control-row.mock-row .charger-select{grid-column:1;}
+      .vehicle-control-row.mock-row .mode-select{grid-column:2;}
+      .vehicle-control-row.mock-row .mini-current-stepper.compact-current{grid-column:3;}
     }
     @media (max-width: 899px){
-      .vehicle-control-row.mock-row>.charge-mini-strip.mock-controls{height:auto!important;grid-template-columns:1fr 1fr!important;}
-      .vehicle-control-row.mock-row .charger-select{grid-column:1 / -1!important;}
-      .vehicle-control-row.mock-row .mode-select{grid-column:1!important;}
-      .vehicle-control-row.mock-row .mini-current-stepper.compact-current{grid-column:2!important;}
-      .vehicle-actions.clean-actions{grid-template-columns:1fr 1fr 1fr minmax(0,1fr) 36px 36px!important;}
+      .vehicle-control-row.mock-row>.charge-mini-strip.mock-controls{height:auto;grid-template-columns:1fr 1fr;}
+      .vehicle-control-row.mock-row .charger-select{grid-column:1 / -1;}
+      .vehicle-control-row.mock-row .mode-select{grid-column:1;}
+      .vehicle-control-row.mock-row .mini-current-stepper.compact-current{grid-column:2;}
+      .vehicle-actions.clean-actions{grid-template-columns:1fr 1fr 1fr minmax(0,1fr) 36px 36px;}
     }
 
 
     /* R22.10.3 stabilization: tighter vehicle charge power alignment */
     .vehicle-control-row.mock-row>.charge-mini-strip.mock-controls{
-      align-items:stretch!important;
+      align-items:stretch;
     }
     .vehicle-control-row.mock-row .charger-select,
     .vehicle-control-row.mock-row .mode-select,
     .vehicle-control-row.mock-row .mini-current-stepper.compact-current{
-      height:40px!important;
-      min-height:40px!important;
-      align-self:stretch!important;
-      box-sizing:border-box!important;
+      height:40px;
+      min-height:40px;
+      align-self:stretch;
+      box-sizing:border-box;
     }
     .vehicle-control-row.mock-row .mini-current-stepper.compact-current{
-      grid-template-columns:minmax(66px,1fr) 26px 26px!important;
-      gap:4px!important;
-      padding:0 6px!important;
+      grid-template-columns:minmax(66px,1fr) 26px 26px;
+      gap:4px;
+      padding:0 6px;
     }
     .vehicle-control-row.mock-row .mini-current-stepper.compact-current.readonly{
-      grid-template-columns:minmax(78px,1fr)!important;
+      grid-template-columns:minmax(78px,1fr);
     }
     .vehicle-control-row.mock-row .mini-current-stepper.compact-current .current-copy{
-      text-align:left!important;
-      padding-top:1px!important;
+      text-align:left;
+      padding-top:1px;
     }
     .vehicle-control-row.mock-row .mini-current-stepper.compact-current .round-step{
-      width:26px!important;min-width:26px!important;height:26px!important;
+      width:26px;min-width:26px;height:26px;
     }
 
     /* R22.12.11.24 Energy typography alignment — no layout or contract changes. */
     :host{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
     *{}
-    .title h1{font-size:34px!important;line-height:1.08!important;font-weight:650!important;letter-spacing:-.025em!important;}
-    .title p{font-size:13px!important;line-height:1.4!important;font-weight:400!important;color:var(--hb-muted,#66728B)!important;}
-    .eyebrow{font-size:11px!important;font-weight:650!important;letter-spacing:.10em!important;}
-    .section-title h2{font-size:18px!important;line-height:1.25!important;font-weight:600!important;letter-spacing:-.01em!important;}
-    .section-title .count{font-size:11px!important;font-weight:500!important;}
-    .summary h3,.info h3{font-size:14px!important;font-weight:600!important;line-height:1.2!important;}
-    .summary li,.summary li span,.info p,.info li{font-size:11.5px!important;line-height:1.35!important;font-weight:400!important;color:var(--hb-muted,#66728B)!important;}
-    .vehicle-copy h2{font-size:23px!important;line-height:1.08!important;font-weight:650!important;letter-spacing:-.025em!important;}
-    .vehicle-copy p,.charger-mini-copy span{font-size:12px!important;font-weight:500!important;color:var(--hb-muted,#66728B)!important;}
-    .charger-mini-copy b{font-size:13px!important;font-weight:600!important;line-height:1.15!important;}
-    .metric-chip span{font-size:7.8px!important;font-weight:600!important;letter-spacing:.035em!important;color:var(--hb-muted,#66728B)!important;}
-    .metric-chip b{font-size:14px!important;font-weight:650!important;line-height:1.1!important;}
-    .pill{font-weight:500!important;}
-    .status-strip .metric span{font-size:11px!important;font-weight:500!important;color:var(--hb-muted,#66728B)!important;}
-    .status-strip .metric b{font-size:15px!important;font-weight:650!important;line-height:1.2!important;}
-    .mini-control small,.mini-current-stepper small,.mini-power-read small{font-size:9.5px!important;font-weight:500!important;color:var(--hb-muted,#66728B)!important;}
-    .mini-current-stepper strong,.mini-power-read strong{font-size:13px!important;font-weight:600!important;}
-    .charger-select select,.mode-select select{font-size:12px!important;font-weight:600!important;}
-    .action{font-size:12.5px!important;font-weight:600!important;}
-    .hi-release-footer{font-size:11px!important;font-weight:400!important;line-height:1.35!important;color:var(--secondary-text-color,#6B7280)!important;}
-    .hi-release-footer .hi-release-health{font-weight:600!important;}
+    .title h1{font-size:34px;line-height:1.08;font-weight:650;letter-spacing:-.025em;}
+    .title p{font-size:13px;line-height:1.4;font-weight:400;color:var(--hb-muted,#66728B);}
+    .eyebrow{font-size:11px;font-weight:650;letter-spacing:.10em;}
+    .section-title h2{font-size:18px;line-height:1.25;font-weight:600;letter-spacing:-.01em;}
+    .section-title .count{font-size:11px;font-weight:500;}
+    .summary h3,.info h3{font-size:14px;font-weight:600;line-height:1.2;}
+    .summary li,.summary li span,.info p,.info li{font-size:11.5px;line-height:1.35;font-weight:400;color:var(--hb-muted,#66728B);}
+    .vehicle-copy h2{font-size:23px;line-height:1.08;font-weight:650;letter-spacing:-.025em;}
+    .vehicle-copy p,.charger-mini-copy span{font-size:12px;font-weight:500;color:var(--hb-muted,#66728B);}
+    .charger-mini-copy b{font-size:13px;font-weight:600;line-height:1.15;}
+    .metric-chip span{font-size:7.8px;font-weight:600;letter-spacing:.035em;color:var(--hb-muted,#66728B);}
+    .metric-chip b{font-size:14px;font-weight:650;line-height:1.1;}
+    .pill{font-weight:500;}
+    .status-strip .metric span{font-size:11px;font-weight:500;color:var(--hb-muted,#66728B);}
+    .status-strip .metric b{font-size:15px;font-weight:650;line-height:1.2;}
+    .mini-control small,.mini-current-stepper small,.mini-power-read small{font-size:9.5px;font-weight:500;color:var(--hb-muted,#66728B);}
+    .mini-current-stepper strong,.mini-power-read strong{font-size:13px;font-weight:600;}
+    .charger-select select,.mode-select select{font-size:12px;font-weight:600;}
+    .action{font-size:12.5px;font-weight:600;}
+    .hi-release-footer{font-size:11px;font-weight:400;line-height:1.35;color:var(--secondary-text-color,#6B7280);}
+    .hi-release-footer .hi-release-health{font-weight:600;}
 
 
     /* rc.7 canonical Overview — approved Mobility mock, contract-owned data/actions only */
-    .page{width:min(100%,1560px)!important;max-width:1560px!important;margin:0 auto!important;padding:18px 26px 30px!important;gap:12px!important}
+    .page{width:min(100%,1560px);max-width:1560px;margin:0 auto;padding:18px 26px 30px;gap:12px}
     .ov-hero{position:relative;overflow:hidden;border:1px solid #DFE8F4;border-radius:20px;background:linear-gradient(110deg,#FFFFFF 0%,#FAFCFF 56%,#EEF5FD 100%);min-height:230px;box-shadow:0 14px 34px rgba(15,35,80,.055);display:grid;grid-template-rows:1fr auto}
     .ov-hero-copy{position:relative;z-index:2;display:flex;align-items:center;gap:18px;padding:24px 28px 12px;max-width:58%}
     .ov-hero-icon{width:58px;height:58px;border:1px solid #DDE8F6;border-radius:16px;background:#fff;display:flex;align-items:center;justify-content:center;color:#0B65EA;box-shadow:0 8px 18px rgba(15,35,80,.04)}
@@ -10294,18 +9700,18 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     .ov-two-col{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}.ov-panel{border:1px solid #E0E8F2;border-radius:18px;background:#fff;box-shadow:0 12px 30px rgba(15,35,80,.045);padding:12px;min-width:0}.ov-panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:2px 2px 9px}.ov-panel-head h2{margin:0;font-size:18px;line-height:1.15;font-weight:650;color:#0E1C33}.ov-panel-head p{margin:2px 0 0;font-size:10.5px;color:#718199}.ov-panel-head button{height:32px;border:1px solid #DDE7F2;background:#fff;border-radius:10px;color:#244B79;font-size:10.5px;font-weight:600;display:flex;align-items:center;gap:3px;padding:0 9px;cursor:pointer}.ov-panel-head button ha-icon{--mdc-icon-size:15px}
     .ov-vehicle-list,.ov-charger-list,.ov-activity-list{display:grid;gap:7px}.ov-vehicle-row{display:grid;grid-template-columns:minmax(170px,1.4fr) minmax(88px,.7fr) minmax(82px,.62fr) minmax(100px,.72fr) minmax(105px,.8fr);grid-template-areas:"main security comfort maintenance charging" "assign assign assign actions actions";gap:7px;align-items:stretch;border:1px solid #E7EDF5;border-radius:13px;padding:7px;background:#FCFDFF}.ov-vehicle-main{grid-area:main;border:0;background:transparent;display:grid;grid-template-columns:64px minmax(0,1fr);gap:9px;align-items:center;text-align:left;padding:0;cursor:pointer;min-width:0}.ov-vehicle-image{height:48px;display:flex;align-items:center;justify-content:center}.ov-vehicle-image img{max-width:72px;max-height:48px;object-fit:contain;filter:drop-shadow(0 6px 8px rgba(15,35,80,.14))}.ov-vehicle-image ha-icon{--mdc-icon-size:34px;color:#8799B4}.ov-vehicle-copy{min-width:0}.ov-vehicle-copy b{display:block;color:#12213A;font-size:12.5px;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ov-vehicle-copy small{display:block;margin-top:2px;color:#60728C;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .ov-signal{border-left:1px solid #E8EEF6;display:grid;grid-template-columns:17px minmax(0,1fr);grid-template-rows:auto auto;column-gap:5px;align-content:center;min-width:0;padding-left:8px}.ov-signal ha-icon{grid-row:1/3;align-self:center;--mdc-icon-size:15px;color:#476383}.ov-signal span{font-size:8.5px;color:#708098}.ov-signal b{font-size:10.5px;color:#203651;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ov-signal.warn b{color:#A85B00}.ov-signal.bad b{color:#B42318}
-    .ov-charging-state{grid-area:charging;border-left:1px solid #E8EEF6;display:flex;align-items:center;gap:5px;padding-left:8px;color:#294767;min-width:0}.ov-charging-state ha-icon{--mdc-icon-size:15px;color:#0B65EA}.ov-charging-state span{font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ov-assignment{grid-area:assign;min-width:0}.ov-assignment .mini-control{height:36px!important;min-height:36px!important;border-radius:10px!important}.ov-row-actions{grid-area:actions;display:flex;gap:6px;justify-content:flex-end;align-items:center}.ov-row-actions .action{height:36px!important;min-height:36px!important;font-size:10.5px!important;padding:0 9px!important;white-space:nowrap}.ov-row-actions .ov-detail{width:36px!important;min-width:36px!important;max-width:36px!important}
-    .ov-charger-row{display:grid;grid-template-columns:48px minmax(0,1fr) auto 34px;gap:9px;align-items:center;border:1px solid #E7EDF5;border-radius:12px;padding:6px 7px}.ov-charger-image{height:44px;display:flex;align-items:center;justify-content:center}.ov-charger-image img{max-height:43px;max-width:38px;object-fit:contain}.ov-charger-image ha-icon{display:none;--mdc-icon-size:26px;color:#8799B4}.ov-charger-copy{min-width:0}.ov-charger-copy b{display:block;font-size:11.5px;color:#172B47;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ov-charger-copy small{display:flex;align-items:center;gap:5px;margin-top:2px;font-size:9.5px;color:#5F728D}.ov-dot{width:7px;height:7px;border-radius:99px;background:#16B86B}.ov-charger-power{text-align:right;display:grid}.ov-charger-power b{font-size:11px;color:#172B47}.ov-charger-power small{font-size:8.5px;color:#78879B}.ov-charger-row .ov-detail{width:32px!important;min-width:32px!important;max-width:32px!important;height:32px!important;min-height:32px!important;padding:0!important}
+    .ov-charging-state{grid-area:charging;border-left:1px solid #E8EEF6;display:flex;align-items:center;gap:5px;padding-left:8px;color:#294767;min-width:0}.ov-charging-state ha-icon{--mdc-icon-size:15px;color:#0B65EA}.ov-charging-state span{font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ov-assignment{grid-area:assign;min-width:0}.ov-assignment .mini-control{height:36px;min-height:36px;border-radius:10px}.ov-row-actions{grid-area:actions;display:flex;gap:6px;justify-content:flex-end;align-items:center}.ov-row-actions .action{height:36px;min-height:36px;font-size:10.5px;padding:0 9px;white-space:nowrap}.ov-row-actions .ov-detail{width:36px;min-width:36px;max-width:36px}
+    .ov-charger-row{display:grid;grid-template-columns:48px minmax(0,1fr) auto 34px;gap:9px;align-items:center;border:1px solid #E7EDF5;border-radius:12px;padding:6px 7px}.ov-charger-image{height:44px;display:flex;align-items:center;justify-content:center}.ov-charger-image img{max-height:43px;max-width:38px;object-fit:contain}.ov-charger-image ha-icon{display:none;--mdc-icon-size:26px;color:#8799B4}.ov-charger-copy{min-width:0}.ov-charger-copy b{display:block;font-size:11.5px;color:#172B47;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ov-charger-copy small{display:flex;align-items:center;gap:5px;margin-top:2px;font-size:9.5px;color:#5F728D}.ov-dot{width:7px;height:7px;border-radius:99px;background:#16B86B}.ov-charger-power{text-align:right;display:grid}.ov-charger-power b{font-size:11px;color:#172B47}.ov-charger-power small{font-size:8.5px;color:#78879B}.ov-charger-row .ov-detail{width:32px;min-width:32px;max-width:32px;height:32px;min-height:32px;padding:0}
     .ov-small-panel{min-height:118px}.ov-activity-row,.ov-next-row{border:1px solid #E7EDF5;border-radius:12px;min-height:52px;display:flex;align-items:center;gap:9px;padding:7px 10px}.ov-activity-row>ha-icon,.ov-next-row>ha-icon{--mdc-icon-size:20px;color:#0B65EA}.ov-activity-row span,.ov-next-row span{display:grid;min-width:0}.ov-activity-row b,.ov-next-row b{font-size:11px;color:#172B47;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ov-activity-row small,.ov-next-row small{font-size:9.5px;color:#708098;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ov-next-row button{margin-left:auto;height:30px;border:1px solid #DDE7F2;background:#EAF3FF;color:#0B65EA;border-radius:9px;padding:0 10px;font-size:10px;font-weight:600;cursor:pointer}.ov-empty{border:1px dashed #DCE5F0;border-radius:11px;padding:14px;color:#718199;font-size:10.5px;text-align:center;background:#FAFCFF}
     @media(max-width:1280px){.ov-hero-copy{max-width:62%}.ov-vehicle-row{grid-template-columns:minmax(180px,1.5fr) repeat(3,minmax(80px,.7fr));grid-template-areas:"main security comfort maintenance" "charging charging charging charging" "assign assign actions actions"}.ov-two-col{grid-template-columns:1fr}.ov-hero-vehicle{width:38%}}
     @media(max-width:760px){.ov-hero{min-height:auto}.ov-hero-copy{max-width:100%;padding:18px}.ov-hero-vehicle,.ov-hero-time{display:none}.ov-kpis{grid-template-columns:1fr 1fr}.ov-quickbar{overflow-x:auto}.ov-quick-title{display:none}.ov-nav-action{flex:0 0 auto}.ov-nav-action.ov-more{margin-left:0}.ov-vehicle-row{grid-template-columns:1fr 1fr;grid-template-areas:"main main" "security comfort" "maintenance charging" "assign assign" "actions actions"}.ov-vehicle-main{grid-template-columns:58px 1fr}.ov-row-actions{justify-content:flex-start;overflow-x:auto}.ov-kpi b{font-size:18px}}
 
     /* Vehicle management workspace */
     .vehicles-hero{position:relative;overflow:hidden;min-height:150px;border:1px solid #dfe7f1;border-radius:18px;background:linear-gradient(135deg,#f8fbff 0%,#fff 58%,#edf5ff 100%);box-shadow:0 12px 30px rgba(15,35,80,.045);padding:18px 22px;display:flex;align-items:center}.vehicles-hero-copy{position:relative;z-index:2;max-width:760px}.vehicles-hero-copy>small{display:block;font-size:9px;letter-spacing:.14em;font-weight:750;color:#64748b}.vehicles-hero-copy h1{margin:4px 0 5px;font-size:30px;line-height:1.05;font-weight:650;letter-spacing:-.03em}.vehicles-hero-copy>p{margin:0 0 12px;max-width:700px;color:#64748b;font-size:11.5px;line-height:1.4}.vehicles-live-line{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}.vehicles-live-line strong{font-size:11px;color:#334155}.vehicles-live-line span{font-size:10px;color:#64748b}.vehicles-hero-art{position:absolute;right:20px;top:3px;width:min(36%,420px);height:145px;display:flex;align-items:center;justify-content:flex-end;pointer-events:none}.vehicles-hero-art:before{content:"";position:absolute;inset:18px 0 0 18%;background:radial-gradient(circle at center,rgba(37,99,235,.12),transparent 66%)}.vehicles-hero-art img{position:relative;z-index:1;max-width:100%;max-height:140px;object-fit:contain;filter:drop-shadow(0 14px 24px rgba(15,35,80,.16))}
-    .vehicles-top-status{margin-top:0!important}.rhi-top-actions{margin-top:0!important}.vehicle-filter-bar{margin-top:0!important;box-shadow:none!important}\n    .vehicle-management-bar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:9px;align-items:center;border:1px solid #e2e8f0;border-radius:14px;background:#fff;padding:7px 8px;box-shadow:0 8px 24px rgba(15,35,80,.035)}.vehicle-filter-group{display:flex;gap:5px;min-width:0;overflow-x:auto}.vehicle-filter-group button{height:34px;border:1px solid #dde7f2;border-radius:9px;background:#fff;color:#334155;padding:0 9px;display:flex;align-items:center;gap:6px;font-size:10.5px;font-weight:600;white-space:nowrap;cursor:pointer}.vehicle-filter-group button b{min-width:20px;border-radius:999px;background:#f1f5f9;padding:2px 6px;font-size:9px;color:#64748b}.vehicle-filter-group button.active{background:#eaf3ff;border-color:#bfd6ff;color:#0b65ea}.vehicle-filter-group button.active b{background:#fff;color:#0b65ea}.vehicle-sort-control{height:34px;border:1px solid #dde7f2;border-radius:9px;display:flex;align-items:center;gap:6px;padding:0 8px;color:#64748b;font-size:9.5px;font-weight:600}.vehicle-sort-control select{border:0;background:transparent;color:#1e293b;font-size:10.5px;font-weight:600;outline:0}.vehicle-manage-button{height:34px;border:1px solid #bfd6ff;border-radius:9px;background:#eaf3ff;color:#0b65ea;padding:0 11px;display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:650;cursor:pointer}.vehicle-manage-button ha-icon{--mdc-icon-size:16px}
+    .vehicles-top-status{margin-top:0}.rhi-top-actions{margin-top:0}.vehicle-filter-bar{margin-top:0;box-shadow:none}\n    .vehicle-management-bar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:9px;align-items:center;border:1px solid #e2e8f0;border-radius:14px;background:#fff;padding:7px 8px;box-shadow:0 8px 24px rgba(15,35,80,.035)}.vehicle-filter-group{display:flex;gap:5px;min-width:0;overflow-x:auto}.vehicle-filter-group button{height:34px;border:1px solid #dde7f2;border-radius:9px;background:#fff;color:#334155;padding:0 9px;display:flex;align-items:center;gap:6px;font-size:10.5px;font-weight:600;white-space:nowrap;cursor:pointer}.vehicle-filter-group button b{min-width:20px;border-radius:999px;background:#f1f5f9;padding:2px 6px;font-size:9px;color:#64748b}.vehicle-filter-group button.active{background:#eaf3ff;border-color:#bfd6ff;color:#0b65ea}.vehicle-filter-group button.active b{background:#fff;color:#0b65ea}.vehicle-sort-control{height:34px;border:1px solid #dde7f2;border-radius:9px;display:flex;align-items:center;gap:6px;padding:0 8px;color:#64748b;font-size:9.5px;font-weight:600}.vehicle-sort-control select{border:0;background:transparent;color:#1e293b;font-size:10.5px;font-weight:600;outline:0}.vehicle-manage-button{height:34px;border:1px solid #bfd6ff;border-radius:9px;background:#eaf3ff;color:#0b65ea;padding:0 11px;display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:650;cursor:pointer}.vehicle-manage-button ha-icon{--mdc-icon-size:16px}
     .vehicle-page-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.vehicle-page-summary-item{min-height:50px;border:1px solid #e2e8f0;border-radius:11px;background:#fff;padding:7px 9px;display:grid;grid-template-columns:28px minmax(0,1fr);gap:7px;align-items:center}.vehicle-page-summary-item>ha-icon{--mdc-icon-size:16px;width:28px;height:28px;border-radius:8px;background:#eff6ff;color:#2563eb;padding:6px;box-sizing:border-box}.vehicle-page-summary-item>span{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:6px;min-width:0}.vehicle-page-summary-item small{font-size:9px;color:#64748b}.vehicle-page-summary-item b{font-size:14px;color:#0f172a}.vehicle-page-summary-item em{grid-column:1/-1;margin-top:1px;font-size:8.5px;font-style:normal;color:#94a3b8}.vehicle-page-summary-item.warn>ha-icon{background:#fff7ed;color:#c2410c}
     .vehicle-workspace-head{display:flex;align-items:end;justify-content:space-between;gap:12px;margin:3px 2px -2px}.vehicle-workspace-head h2{margin:0;font-size:18px;font-weight:650;color:#0f172a}.vehicle-workspace-head p{margin:2px 0 0;font-size:10px;color:#64748b}.vehicle-count-pill{border:1px solid #dbe5f0;border-radius:999px;background:#fff;color:#475569;padding:5px 9px;font-size:9.5px;font-weight:650;white-space:nowrap}.vehicle-count-pill.muted{background:#f8fafc}.vehicle-filter-empty{border:1px dashed #d9e3ef;border-radius:14px;background:#fbfdff;color:#64748b;padding:18px;text-align:center;font-size:11px;font-weight:600}
-    .vehicle-workspace-list.vehicles{grid-template-columns:1fr!important}.vehicle-workspace-list .vehicle-card{box-shadow:0 10px 28px rgba(15,35,80,.05)}.vehicle-workspace-list .hero-split-row{grid-template-columns:minmax(0,2.7fr) minmax(155px,.72fr)}.vehicle-workspace-list .vehicle-hero-panel{min-height:168px}.vehicle-workspace-list .charger-hero-panel{min-height:168px}.vehicle-workspace-list .vehicle-image img{max-height:220px;transform:scale(1.18)}.manage-lifecycle span{display:inline!important}.manage-lifecycle{padding-inline:12px!important}
+    .vehicle-workspace-list.vehicles{grid-template-columns:1fr}.vehicle-workspace-list .vehicle-card{box-shadow:0 10px 28px rgba(15,35,80,.05)}.vehicle-workspace-list .hero-split-row{grid-template-columns:minmax(0,2.7fr) minmax(155px,.72fr)}.vehicle-workspace-list .vehicle-hero-panel{min-height:168px}.vehicle-workspace-list .charger-hero-panel{min-height:168px}.vehicle-workspace-list .vehicle-image img{max-height:220px;transform:scale(1.18)}.manage-lifecycle span{display:inline}.manage-lifecycle{padding-inline:12px}
     .vehicle-appearance-action{min-width:112px}.vehicle-picker-panel{margin:0 12px 10px;border:1px solid #cfe0f6;border-radius:14px;background:linear-gradient(135deg,#fbfdff,#f3f8ff);padding:12px 14px;box-shadow:inset 0 1px 0 rgba(255,255,255,.8)}.vehicle-picker-head{display:flex;justify-content:space-between;gap:14px;align-items:start}.vehicle-picker-head small{font-size:8.5px;letter-spacing:.13em;color:#64748b;font-weight:750}.vehicle-picker-head h3{margin:2px 0 2px;font-size:15px;color:#0f172a}.vehicle-picker-head p{margin:0;font-size:9.5px;color:#64748b}.vehicle-picker-head code{font-size:9px}.vehicle-picker-close{width:30px;height:30px;border:1px solid #dbe5f0;border-radius:8px;background:#fff;color:#64748b;cursor:pointer}.vehicle-picker-close ha-icon{--mdc-icon-size:16px}.vehicle-picker-grid{display:grid;grid-template-columns:repeat(4,minmax(120px,1fr));gap:8px;align-items:end;margin-top:10px}.vehicle-picker-hierarchy .vehicle-picker-key{grid-column:1/4}.vehicle-picker-hierarchy .vehicle-picker-save{grid-column:4}.vehicle-picker-grid label,.vehicle-picker-key{display:flex;flex-direction:column;gap:4px}.vehicle-picker-grid label>span,.vehicle-picker-key>span{font-size:8.5px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.05em}.vehicle-picker-grid select{height:34px;border:1px solid #d7e2ef;border-radius:8px;background:#fff;color:#0f172a;padding:0 8px;font-size:10.5px;font-weight:600}.vehicle-picker-key code{height:34px;display:flex;align-items:center;border:1px solid #d7e2ef;border-radius:8px;background:#fff;padding:0 8px;font-size:8.5px;color:#475569;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.vehicle-picker-save{height:34px;border:1px solid #0b65ea;border-radius:8px;background:#0b65ea;color:#fff;padding:0 11px;display:flex;align-items:center;gap:6px;font-size:10px;font-weight:700;cursor:pointer}.vehicle-picker-save:disabled{background:#e2e8f0;border-color:#d5deea;color:#94a3b8;cursor:not-allowed}.vehicle-picker-save ha-icon{--mdc-icon-size:15px}.vehicle-picker-gap{margin-top:8px;display:flex;align-items:center;gap:6px;color:#9a5a16;font-size:9.5px}.vehicle-picker-gap ha-icon{--mdc-icon-size:14px}
     @media(max-width:900px){.vehicle-picker-grid{grid-template-columns:1fr 1fr}.vehicle-picker-save{justify-content:center}.vehicle-picker-key{grid-column:1/-1}}
 
@@ -10313,62 +9719,62 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     @media(max-width:700px){.vehicles-hero{padding:16px;min-height:auto}.vehicles-hero-art{display:none}.vehicles-hero-copy{padding-right:0}.vehicle-management-bar{grid-template-columns:1fr}.vehicle-sort-control{justify-content:space-between}.vehicle-page-summary{grid-template-columns:1fr 1fr}.vehicle-workspace-head{align-items:start}.vehicle-workspace-list .hero-split-row{grid-template-columns:1fr}}
 
     /* rc.24 mobile hero art + discoverable visual picker */
-    .vehicle-hero-panel{position:relative!important;isolation:isolate!important}
+    .vehicle-hero-panel{position:relative;isolation:isolate}
     .vehicle-hero-panel:after{
       content:"";position:absolute;inset:0;pointer-events:none;z-index:1;
       background:linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.90) 34%,rgba(255,255,255,.18) 68%,rgba(255,255,255,0) 100%)
     }
     .vehicle-copy{position:relative;z-index:3}
-    .vehicle-image{position:absolute!important;z-index:0!important;right:-4%!important;bottom:-14%!important;width:70%!important;height:126%!important;min-height:0!important;background:transparent!important;overflow:visible!important;pointer-events:none}
-    .vehicle-image img{width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;object-fit:contain!important;object-position:right center!important;transform:none!important}
+    .vehicle-image{position:absolute;z-index:0;right:-4%;bottom:-14%;width:70%;height:126%;min-height:0;background:transparent;overflow:visible;pointer-events:none}
+    .vehicle-image img{width:100%;height:100%;max-width:none;max-height:none;object-fit:contain;object-position:right center;transform:none}
     .vehicle-visual-edit{
       position:absolute;z-index:4;left:12px;bottom:10px;height:34px;border:1px solid rgba(14,35,72,.11);
       border-radius:10px;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
       color:var(--hb-ink);display:inline-flex;align-items:center;gap:6px;padding:0 10px;font-size:10px;font-weight:700;cursor:pointer
     }
     .vehicle-visual-edit ha-icon{--mdc-icon-size:15px;color:var(--hb-blue)}
-    .charger-hero-panel{position:relative!important;overflow:hidden!important;isolation:isolate!important}
+    .charger-hero-panel{position:relative;overflow:hidden;isolation:isolate}
     .charger-hero-panel:after{
       content:"";position:absolute;inset:0;pointer-events:none;z-index:1;
       background:linear-gradient(90deg,rgba(255,255,255,.96) 0%,rgba(255,255,255,.82) 45%,rgba(255,255,255,.10) 100%)
     }
     .charger-mini-copy{position:relative;z-index:3}
     .charger-mini-image{
-      position:absolute!important;z-index:0!important;right:-12%!important;bottom:-18%!important;
-      width:58%!important;height:138%!important;background:transparent!important;overflow:hidden!important;pointer-events:none
+      position:absolute;z-index:0;right:-12%;bottom:-18%;
+      width:58%;height:138%;background:transparent;overflow:hidden;pointer-events:none
     }
-    .charger-mini-image img{width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;object-fit:contain!important;object-position:right center!important;transform:scale(1.16)!important}
-    .charger-hero-panel .mini-detail-button{z-index:4!important}
+    .charger-mini-image img{width:100%;height:100%;max-width:none;max-height:none;object-fit:contain;object-position:right center;transform:scale(1.16)}
+    .charger-hero-panel .mini-detail-button{z-index:4}
 
     @media(max-width:700px){
       .vehicle-workspace-list .vehicle-hero-panel,.vehicle-hero-panel{
-        min-height:126px!important;height:126px!important;display:block!important;padding:12px 12px!important
+        min-height:126px;height:126px;display:block;padding:12px 12px
       }
-      .vehicle-copy{max-width:58%!important;padding-bottom:42px!important}
-      .vehicle-copy h2{font-size:19px!important;line-height:1.06!important}
-      .vehicle-copy p{font-size:10px!important}
-      .vehicle-image{right:-8%!important;bottom:-18%!important;width:76%!important;height:140%!important}
-      .vehicle-hero-panel:after{background:linear-gradient(90deg,rgba(255,255,255,.99) 0%,rgba(255,255,255,.93) 38%,rgba(255,255,255,.20) 68%,rgba(255,255,255,0) 100%)!important}
-      .vehicle-visual-edit{left:10px!important;bottom:8px!important;height:38px!important;font-size:10.5px!important;padding:0 11px!important}
-      .vehicle-visual-edit span{display:inline!important}
+      .vehicle-copy{max-width:58%;padding-bottom:42px}
+      .vehicle-copy h2{font-size:19px;line-height:1.06}
+      .vehicle-copy p{font-size:10px}
+      .vehicle-image{right:-8%;bottom:-18%;width:76%;height:140%}
+      .vehicle-hero-panel:after{background:linear-gradient(90deg,rgba(255,255,255,.99) 0%,rgba(255,255,255,.93) 38%,rgba(255,255,255,.20) 68%,rgba(255,255,255,0) 100%)}
+      .vehicle-visual-edit{left:10px;bottom:8px;height:38px;font-size:10.5px;padding:0 11px}
+      .vehicle-visual-edit span{display:inline}
 
       .charger-hero-panel{
-        height:64px!important;min-height:64px!important;display:block!important;padding:8px 10px!important
+        height:64px;min-height:64px;display:block;padding:8px 10px
       }
-      .charger-mini-copy{max-width:62%!important;display:flex!important;justify-content:center!important;height:100%!important}
-      .charger-mini-copy b{font-size:12px!important;align-self:center!important}
-      .charger-mini-image{right:-12%!important;bottom:-34%!important;width:45%!important;height:166%!important}
-      .charger-mini-image img{transform:scale(1.28)!important;object-position:right center!important}
-      .charger-hero-panel:after{background:linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.88) 48%,rgba(255,255,255,.08) 100%)!important}
+      .charger-mini-copy{max-width:62%;display:flex;justify-content:center;height:100%}
+      .charger-mini-copy b{font-size:12px;align-self:center}
+      .charger-mini-image{right:-12%;bottom:-34%;width:45%;height:166%}
+      .charger-mini-image img{transform:scale(1.28);object-position:right center}
+      .charger-hero-panel:after{background:linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.88) 48%,rgba(255,255,255,.08) 100%)}
     }
 
     @media(max-width:390px){
-      .vehicle-hero-panel{height:118px!important;min-height:118px!important}
-      .vehicle-copy{max-width:61%!important}
-      .vehicle-copy h2{font-size:17px!important}
-      .vehicle-image{width:78%!important;right:-12%!important}
-      .vehicle-visual-edit{height:36px!important;padding:0 9px!important}
-      .charger-hero-panel{height:60px!important;min-height:60px!important}
+      .vehicle-hero-panel{height:118px;min-height:118px}
+      .vehicle-copy{max-width:61%}
+      .vehicle-copy h2{font-size:17px}
+      .vehicle-image{width:78%;right:-12%}
+      .vehicle-visual-edit{height:36px;padding:0 9px}
+      .charger-hero-panel{height:60px;min-height:60px}
     }
 
     /* Energy-style Mobility Overview — calm hierarchy, Mobility-owned semantics */
@@ -10384,261 +9790,261 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
 
     /* rc.23 mobile density rewrite — presentation only, no semantic changes */
     @media(max-width:700px){
-      .page{padding:8px 8px 18px!important;gap:8px!important}
-      .vehicles{gap:8px!important}
-      .vehicle-card{border-radius:16px!important}
-      .status-top-row{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:5px!important;padding:8px 8px 4px!important;overflow:visible!important}
-      .vehicle-intelligence-strip .intelligence-status-row{min-height:34px!important;padding:4px 7px!important}
-      .vehicle-intelligence-strip .intelligence-status-row span{font-size:8.5px!important}
-      .vehicle-intelligence-strip .intelligence-status-row .pill{font-size:9.5px!important;padding:3px 6px!important}
+      .page{padding:8px 8px 18px;gap:8px}
+      .vehicles{gap:8px}
+      .vehicle-card{border-radius:16px}
+      .status-top-row{grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;padding:8px 8px 4px;overflow:visible}
+      .vehicle-intelligence-strip .intelligence-status-row{min-height:34px;padding:4px 7px}
+      .vehicle-intelligence-strip .intelligence-status-row span{font-size:8.5px}
+      .vehicle-intelligence-strip .intelligence-status-row .pill{font-size:9.5px;padding:3px 6px}
 
       .vehicle-workspace-list .hero-split-row,.hero-split-row{
-        grid-template-columns:1fr!important;gap:6px!important;padding:4px 8px 6px!important
+        grid-template-columns:1fr;gap:6px;padding:4px 8px 6px
       }
       .vehicle-workspace-list .vehicle-hero-panel,.vehicle-hero-panel{
-        min-height:0!important;height:auto!important;
-        grid-template-columns:minmax(0,1fr) 138px!important;
-        grid-template-rows:auto!important;
-        gap:6px!important;padding:10px 10px 8px!important;border-radius:13px!important;align-items:center!important
+        min-height:0;height:auto;
+        grid-template-columns:minmax(0,1fr) 138px;
+        grid-template-rows:auto;
+        gap:6px;padding:10px 10px 8px;border-radius:13px;align-items:center
       }
-      .vehicle-copy{position:relative!important;left:auto!important;top:auto!important;align-self:center!important;min-width:0!important}
-      .vehicle-copy h2{font-size:20px!important;line-height:1.08!important;margin:0 0 3px!important;letter-spacing:-.025em!important}
-      .vehicle-copy p{font-size:10.5px!important;line-height:1.25!important}
-      .vehicle-activity-inline{margin-top:3px!important}
-      .vehicle-image{position:relative!important;inset:auto!important;height:108px!important;min-height:0!important;background:transparent!important}
+      .vehicle-copy{position:relative;left:auto;top:auto;align-self:center;min-width:0}
+      .vehicle-copy h2{font-size:20px;line-height:1.08;margin:0 0 3px;letter-spacing:-.025em}
+      .vehicle-copy p{font-size:10.5px;line-height:1.25}
+      .vehicle-activity-inline{margin-top:3px}
+      .vehicle-image{position:relative;inset:auto;height:108px;min-height:0;background:transparent}
       .vehicle-workspace-list .vehicle-image img,.vehicle-image img{
-        max-height:108px!important;max-width:138px!important;transform:none!important;object-fit:contain!important
+        max-height:108px;max-width:138px;transform:none;object-fit:contain
       }
-      .vehicle-hero-panel .mini-detail-button{width:36px!important;height:36px!important;right:6px!important;bottom:6px!important}
+      .vehicle-hero-panel .mini-detail-button{width:36px;height:36px;right:6px;bottom:6px}
 
       .charger-hero-panel{
-        min-height:0!important;height:72px!important;
-        grid-template-columns:minmax(0,1fr) 78px!important;grid-template-rows:1fr!important;
-        gap:6px!important;padding:7px 9px!important;border-radius:13px!important
+        min-height:0;height:72px;
+        grid-template-columns:minmax(0,1fr) 78px;grid-template-rows:1fr;
+        gap:6px;padding:7px 9px;border-radius:13px
       }
-      .charger-mini-copy{justify-self:start!important;align-self:center!important}
-      .charger-mini-copy b{font-size:12.5px!important}
-      .charger-mini-image{height:58px!important;width:72px!important;justify-self:end!important;background:transparent!important}
-      .charger-mini-image img{max-width:66px!important;max-height:56px!important}
-      .charger-hero-panel .mini-detail-button{width:34px!important;height:34px!important;right:4px!important;bottom:4px!important}
+      .charger-mini-copy{justify-self:start;align-self:center}
+      .charger-mini-copy b{font-size:12.5px}
+      .charger-mini-image{height:58px;width:72px;justify-self:end;background:transparent}
+      .charger-mini-image img{max-width:66px;max-height:56px}
+      .charger-hero-panel .mini-detail-button{width:34px;height:34px;right:4px;bottom:4px}
 
       .vehicle-control-row.mock-row,.vehicle-control-row{
-        display:grid!important;grid-template-columns:1fr!important;gap:6px!important;padding:0 8px 6px!important
+        display:grid;grid-template-columns:1fr;gap:6px;padding:0 8px 6px
       }
-      .vehicle-metrics-strip.mock-metrics,.vehicle-metrics-strip{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:4px!important}
-      .metric-chip{min-height:44px!important;padding:5px 7px!important;border-radius:10px!important}
-      .metric-chip span{font-size:8px!important}
-      .metric-chip b{font-size:12.5px!important}
+      .vehicle-metrics-strip.mock-metrics,.vehicle-metrics-strip{grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}
+      .metric-chip{min-height:44px;padding:5px 7px;border-radius:10px}
+      .metric-chip span{font-size:8px}
+      .metric-chip b{font-size:12.5px}
 
       .charge-mini-strip.mock-controls,.charge-mini-strip.no-mode,.charge-mini-strip.no-speed,.charge-mini-strip{
-        display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;gap:5px!important;align-items:center!important
+        display:grid;grid-template-columns:minmax(0,1fr) auto;gap:5px;align-items:center
       }
-      .charge-mini-strip .charger-select{grid-column:1/-1!important;min-height:44px!important}
-      .mini-current-stepper.compact-current{min-width:0!important;min-height:44px!important;justify-content:space-between!important}
-      .mini-power-read{min-height:44px!important}
-      .mini-control,.mini-current-stepper,.mini-power-read{border-radius:10px!important}
+      .charge-mini-strip .charger-select{grid-column:1/-1;min-height:44px}
+      .mini-current-stepper.compact-current{min-width:0;min-height:44px;justify-content:space-between}
+      .mini-power-read{min-height:44px}
+      .mini-control,.mini-current-stepper,.mini-power-read{border-radius:10px}
 
       .vehicle-actions.clean-actions{
-        display:flex!important;gap:5px!important;padding:6px 8px 8px!important;overflow-x:auto!important;overflow-y:hidden!important;
+        display:flex;gap:5px;padding:6px 8px 8px;overflow-x:auto;overflow-y:hidden;
         -webkit-overflow-scrolling:touch;scrollbar-width:none
       }
       .vehicle-actions.clean-actions::-webkit-scrollbar{display:none}
-      .vehicle-actions.clean-actions .action-spacer{display:none!important}
+      .vehicle-actions.clean-actions .action-spacer{display:none}
       .vehicle-actions.clean-actions .action:not(.icon-only){
-        flex:0 0 auto!important;width:auto!important;min-width:44px!important;max-width:none!important;height:44px!important;padding:0 11px!important
+        flex:0 0 auto;width:auto;min-width:44px;max-width:none;height:44px;padding:0 11px
       }
       .vehicle-actions.clean-actions .icon-only,.vehicle-actions.clean-actions .presence-toggle.icon-only{
-        flex:0 0 44px!important;width:44px!important;min-width:44px!important;max-width:44px!important;height:44px!important
+        flex:0 0 44px;width:44px;min-width:44px;max-width:44px;height:44px
       }
 
-      .inactive-list{gap:7px!important}
+      .inactive-list{gap:7px}
       .inactive-row{
-        min-height:68px!important;padding:8px 9px!important;border-radius:14px!important;
-        grid-template-columns:auto minmax(0,1fr) auto!important;grid-template-rows:1fr!important;gap:8px!important;align-items:center!important
+        min-height:68px;padding:8px 9px;border-radius:14px;
+        grid-template-columns:auto minmax(0,1fr) auto;grid-template-rows:1fr;gap:8px;align-items:center
       }
-      .inactive-state{align-self:center!important;font-size:10px!important;padding:6px 8px!important;white-space:nowrap!important}
-      .inactive-copy{min-width:0!important}
-      .inactive-copy h3{font-size:14px!important;line-height:1.15!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
-      .inactive-copy p{font-size:10.5px!important}
+      .inactive-state{align-self:center;font-size:10px;padding:6px 8px;white-space:nowrap}
+      .inactive-copy{min-width:0}
+      .inactive-copy h3{font-size:14px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      .inactive-copy p{font-size:10.5px}
       .inactive-actions{
-        grid-column:auto!important;display:flex!important;flex-direction:row!important;gap:4px!important;align-items:center!important
+        grid-column:auto;display:flex;flex-direction:row;gap:4px;align-items:center
       }
-      .inactive-actions .action{width:42px!important;min-width:42px!important;height:42px!important;min-height:42px!important;padding:0!important}
-      .inactive-actions .action span{display:none!important}
+      .inactive-actions .action{width:42px;min-width:42px;height:42px;min-height:42px;padding:0}
+      .inactive-actions .action span{display:none}
 
-      .vehicle-picker-panel{margin:0 8px 7px!important;padding:10px!important;border-radius:12px!important}
-      .vehicle-picker-head h3{font-size:14px!important}
-      .vehicle-picker-head p{font-size:10px!important;line-height:1.25!important}
-      .vehicle-picker-grid{grid-template-columns:1fr!important;gap:7px!important}
-      .vehicle-picker-key{grid-column:auto!important}
-      .vehicle-picker-grid select,.vehicle-picker-key code,.vehicle-picker-save{height:44px!important;min-height:44px!important}
-      .vehicle-picker-grid label>span,.vehicle-picker-key>span{font-size:9px!important}
-      .vehicle-picker-save{width:100%!important;justify-content:center!important}
+      .vehicle-picker-panel{margin:0 8px 7px;padding:10px;border-radius:12px}
+      .vehicle-picker-head h3{font-size:14px}
+      .vehicle-picker-head p{font-size:10px;line-height:1.25}
+      .vehicle-picker-grid{grid-template-columns:1fr;gap:7px}
+      .vehicle-picker-key{grid-column:auto}
+      .vehicle-picker-grid select,.vehicle-picker-key code,.vehicle-picker-save{height:44px;min-height:44px}
+      .vehicle-picker-grid label>span,.vehicle-picker-key>span{font-size:9px}
+      .vehicle-picker-save{width:100%;justify-content:center}
     }
 
     /* rc.27 premium phone composition: artwork becomes the hero background
        instead of a small image floating in a large empty card. */
     @media(max-width:560px){
-      .vehicle-card{border-radius:16px!important;overflow:hidden!important}
-      .status-top-row.vehicle-intelligence-strip{padding:7px 8px 4px!important;gap:4px!important}
-      .status-top-row.vehicle-intelligence-strip .pill{min-height:28px!important;display:flex!important;align-items:center!important}
+      .vehicle-card{border-radius:16px;overflow:hidden}
+      .status-top-row.vehicle-intelligence-strip{padding:7px 8px 4px;gap:4px}
+      .status-top-row.vehicle-intelligence-strip .pill{min-height:28px;display:flex;align-items:center}
       .vehicle-workspace-list .vehicle-hero-panel,.vehicle-hero-panel{
-        position:relative!important;display:block!important;min-height:154px!important;height:154px!important;
-        padding:12px 10px!important;overflow:hidden!important;background:linear-gradient(135deg,#fff 0%,#f8fbff 58%,#eef5ff 100%)!important
+        position:relative;display:block;min-height:154px;height:154px;
+        padding:12px 10px;overflow:hidden;background:linear-gradient(135deg,#fff 0%,#f8fbff 58%,#eef5ff 100%)
       }
-      .vehicle-copy{position:relative!important;z-index:3!important;width:58%!important;max-width:220px!important;padding-right:4px!important}
-      .vehicle-copy h2{font-size:19px!important;line-height:1.05!important;margin-bottom:4px!important}
-      .vehicle-copy p{font-size:10px!important;line-height:1.2!important}
+      .vehicle-copy{position:relative;z-index:3;width:58%;max-width:220px;padding-right:4px}
+      .vehicle-copy h2{font-size:19px;line-height:1.05;margin-bottom:4px}
+      .vehicle-copy p{font-size:10px;line-height:1.2}
       .vehicle-image{
-        position:absolute!important;z-index:1!important;right:-4px!important;left:auto!important;top:8px!important;bottom:2px!important;
-        width:66%!important;height:auto!important;display:flex!important;align-items:flex-end!important;justify-content:flex-end!important;
-        overflow:visible!important;pointer-events:none!important
+        position:absolute;z-index:1;right:-4px;left:auto;top:8px;bottom:2px;
+        width:66%;height:auto;display:flex;align-items:flex-end;justify-content:flex-end;
+        overflow:visible;pointer-events:none
       }
       .vehicle-workspace-list .vehicle-image img,.vehicle-image img{
-        width:100%!important;max-width:250px!important;height:142px!important;max-height:142px!important;
-        object-fit:contain!important;object-position:right bottom!important;transform:none!important;opacity:1!important;
+        width:100%;max-width:250px;height:142px;max-height:142px;
+        object-fit:contain;object-position:right bottom;transform:none;opacity:1;
       }
       .vehicle-appearance-action{
-        position:absolute!important;z-index:4!important;left:10px!important;bottom:10px!important;
-        width:auto!important;height:34px!important;min-height:34px!important;border-radius:10px!important;padding:0 9px!important;
-        background:rgba(255,255,255,.94)!important;backdrop-filter:blur(7px)!important
+        position:absolute;z-index:4;left:10px;bottom:10px;
+        width:auto;height:34px;min-height:34px;border-radius:10px;padding:0 9px;
+        background:rgba(255,255,255,.94);backdrop-filter:blur(7px)
       }
-      .vehicle-appearance-action span{font-size:10.5px!important}
-      .vehicle-hero-panel .mini-detail-button{z-index:4!important;right:8px!important;bottom:8px!important}
+      .vehicle-appearance-action span{font-size:10.5px}
+      .vehicle-hero-panel .mini-detail-button{z-index:4;right:8px;bottom:8px}
       .charger-hero-panel{
-        height:78px!important;min-height:78px!important;grid-template-columns:minmax(0,1fr) 86px!important;
-        padding:8px 9px!important;background:linear-gradient(135deg,#fff,#f7faff)!important
+        height:78px;min-height:78px;grid-template-columns:minmax(0,1fr) 86px;
+        padding:8px 9px;background:linear-gradient(135deg,#fff,#f7faff)
       }
-      .charger-mini-image{width:80px!important;height:62px!important}
-      .charger-mini-image img{max-width:72px!important;max-height:60px!important;filter:drop-shadow(0 8px 12px rgba(15,35,80,.12))!important}
-      .vehicle-picker-panel{margin:0 8px 7px!important}
-      .vehicle-picker-head{align-items:flex-start!important}
-      .vehicle-picker-head p{max-width:270px!important}
+      .charger-mini-image{width:80px;height:62px}
+      .charger-mini-image img{max-width:72px;max-height:60px;filter:drop-shadow(0 8px 12px rgba(15,35,80,.12))}
+      .vehicle-picker-panel{margin:0 8px 7px}
+      .vehicle-picker-head{align-items:flex-start}
+      .vehicle-picker-head p{max-width:270px}
     }
 
     @media(max-width:390px){
-      .vehicle-hero-panel{grid-template-columns:minmax(0,1fr) 116px!important}
-      .vehicle-image{height:92px!important}
-      .vehicle-image img{max-height:92px!important;max-width:116px!important}
-      .vehicle-copy h2{font-size:18px!important}
-      .inactive-state{font-size:9px!important;padding:5px 6px!important}
+      .vehicle-hero-panel{grid-template-columns:minmax(0,1fr) 116px}
+      .vehicle-image{height:92px}
+      .vehicle-image img{max-height:92px;max-width:116px}
+      .vehicle-copy h2{font-size:18px}
+      .inactive-state{font-size:9px;padding:5px 6px}
     }
 
     /* rc.56 compact Vehicles body — same density and rhythm as Overview.
        Final override intentionally retires the accumulated hero/image breakpoint hacks
        without changing card content, controls, commands, lifecycle or relationships. */
-    .vehicle-workspace-list{display:grid!important;grid-template-columns:1fr!important;gap:10px!important}
-    .vehicle-workspace-head{margin:2px 2px 0!important}
+    .vehicle-workspace-list{display:grid;grid-template-columns:1fr;gap:10px}
+    .vehicle-workspace-head{margin:2px 2px 0}
     .vehicle-card.premium-vehicle-card{
-      border-radius:16px!important;border:1px solid #e2e8f0!important;
-      box-shadow:0 8px 24px rgba(15,35,80,.045)!important;background:#fff!important;
-      overflow:hidden!important;
+      border-radius:16px;border:1px solid #e2e8f0;
+      box-shadow:0 8px 24px rgba(15,35,80,.045);background:#fff;
+      overflow:hidden;
     }
     .vehicle-card .status-top-row.vehicle-intelligence-strip{
-      padding:7px 9px 5px!important;gap:5px!important;min-height:0!important;
+      padding:7px 9px 5px;gap:5px;min-height:0;
     }
     .vehicle-card .status-top-row.vehicle-intelligence-strip .intelligence-status-row{
-      min-height:32px!important;border-radius:9px!important;padding:4px 7px!important;
+      min-height:32px;border-radius:9px;padding:4px 7px;
     }
     .vehicle-card .hero-split-row{
-      display:grid!important;grid-template-columns:minmax(0,1fr) minmax(190px,240px)!important;
-      gap:8px!important;padding:5px 9px 7px!important;align-items:stretch!important;
+      display:grid;grid-template-columns:minmax(0,1fr) minmax(190px,240px);
+      gap:8px;padding:5px 9px 7px;align-items:stretch;
     }
     .vehicle-card .vehicle-hero-panel{
-      position:relative!important;display:grid!important;
-      grid-template-columns:minmax(180px,.62fr) minmax(220px,1.38fr)!important;
-      grid-template-rows:1fr!important;align-items:center!important;gap:8px!important;
-      min-height:146px!important;height:146px!important;padding:10px 12px!important;
-      border-radius:13px!important;overflow:hidden!important;
-      background:linear-gradient(135deg,#fff 0%,#f8fbff 62%,#eef5ff 100%)!important;
-      isolation:isolate!important;
+      position:relative;display:grid;
+      grid-template-columns:minmax(180px,.62fr) minmax(220px,1.38fr);
+      grid-template-rows:1fr;align-items:center;gap:8px;
+      min-height:146px;height:146px;padding:10px 12px;
+      border-radius:13px;overflow:hidden;
+      background:linear-gradient(135deg,#fff 0%,#f8fbff 62%,#eef5ff 100%);
+      isolation:isolate;
     }
-    .vehicle-card .vehicle-hero-panel:after{display:none!important;content:none!important}
+    .vehicle-card .vehicle-hero-panel:after{display:none;content:none}
     .vehicle-card .vehicle-copy{
-      position:relative!important;inset:auto!important;z-index:2!important;width:auto!important;
-      max-width:none!important;min-width:0!important;padding:0 0 28px!important;align-self:center!important;
+      position:relative;inset:auto;z-index:2;width:auto;
+      max-width:none;min-width:0;padding:0 0 28px;align-self:center;
     }
-    .vehicle-card .vehicle-copy h2{font-size:20px!important;line-height:1.08!important;margin:0 0 3px!important;letter-spacing:-.025em!important}
-    .vehicle-card .vehicle-copy p{font-size:10.5px!important;line-height:1.25!important;margin:0!important}
-    .vehicle-card .vehicle-activity-inline{margin-top:3px!important}
+    .vehicle-card .vehicle-copy h2{font-size:20px;line-height:1.08;margin:0 0 3px;letter-spacing:-.025em}
+    .vehicle-card .vehicle-copy p{font-size:10.5px;line-height:1.25;margin:0}
+    .vehicle-card .vehicle-activity-inline{margin-top:3px}
     .vehicle-card .vehicle-image{
-      position:relative!important;inset:auto!important;z-index:1!important;width:100%!important;height:126px!important;
-      min-height:0!important;display:grid!important;place-items:center!important;overflow:hidden!important;
-      background:transparent!important;pointer-events:none!important;
+      position:relative;inset:auto;z-index:1;width:100%;height:126px;
+      min-height:0;display:grid;place-items:center;overflow:hidden;
+      background:transparent;pointer-events:none;
     }
     .vehicle-card .vehicle-image img{
-      display:block!important;width:100%!important;height:100%!important;max-width:100%!important;max-height:126px!important;
-      object-fit:contain!important;object-position:center!important;transform:none!important;opacity:1!important;
+      display:block;width:100%;height:100%;max-width:100%;max-height:126px;
+      object-fit:contain;object-position:center;transform:none;opacity:1;
     }
     .vehicle-card .vehicle-appearance-action{
-      position:absolute!important;left:12px!important;bottom:10px!important;z-index:4!important;
-      height:32px!important;min-height:32px!important;padding:0 9px!important;border-radius:9px!important;
-      background:rgba(255,255,255,.96)!important;
+      position:absolute;left:12px;bottom:10px;z-index:4;
+      height:32px;min-height:32px;padding:0 9px;border-radius:9px;
+      background:rgba(255,255,255,.96);
     }
     .vehicle-card .vehicle-hero-panel .mini-detail-button{
-      position:absolute!important;right:8px!important;bottom:8px!important;z-index:4!important;
-      width:34px!important;height:34px!important;
+      position:absolute;right:8px;bottom:8px;z-index:4;
+      width:34px;height:34px;
     }
     .vehicle-card .charger-hero-panel{
-      position:relative!important;display:grid!important;
-      grid-template-columns:minmax(0,1fr)!important;grid-template-rows:auto 1fr!important;
-      min-height:146px!important;height:146px!important;padding:10px!important;gap:5px!important;
-      border-radius:13px!important;overflow:hidden!important;background:linear-gradient(135deg,#fff,#f7faff)!important;
+      position:relative;display:grid;
+      grid-template-columns:minmax(0,1fr);grid-template-rows:auto 1fr;
+      min-height:146px;height:146px;padding:10px;gap:5px;
+      border-radius:13px;overflow:hidden;background:linear-gradient(135deg,#fff,#f7faff);
     }
-    .vehicle-card .charger-mini-copy{align-self:start!important;justify-self:start!important;min-width:0!important}
-    .vehicle-card .charger-mini-copy b{font-size:11.5px!important;line-height:1.2!important}
+    .vehicle-card .charger-mini-copy{align-self:start;justify-self:start;min-width:0}
+    .vehicle-card .charger-mini-copy b{font-size:11.5px;line-height:1.2}
     .vehicle-card .charger-mini-image{
-      position:relative!important;inset:auto!important;width:100%!important;height:96px!important;
-      display:grid!important;place-items:center!important;background:transparent!important;overflow:hidden!important;
+      position:relative;inset:auto;width:100%;height:96px;
+      display:grid;place-items:center;background:transparent;overflow:hidden;
     }
     .vehicle-card .charger-mini-image img{
-      width:100%!important;height:100%!important;max-width:112px!important;max-height:94px!important;
-      object-fit:contain!important;object-position:center!important;transform:none!important;
+      width:100%;height:100%;max-width:112px;max-height:94px;
+      object-fit:contain;object-position:center;transform:none;
     }
-    .vehicle-card .charger-hero-panel .mini-detail-button{right:6px!important;bottom:6px!important;width:32px!important;height:32px!important}
-    .vehicle-card .vehicle-control-row.mock-row{padding:0 9px 6px!important;gap:6px!important}
-    .vehicle-card .vehicle-actions.clean-actions{padding:6px 9px 9px!important;gap:6px!important}
-    .vehicle-card .visual-picker-panel{margin:0 9px 7px!important}
+    .vehicle-card .charger-hero-panel .mini-detail-button{right:6px;bottom:6px;width:32px;height:32px}
+    .vehicle-card .vehicle-control-row.mock-row{padding:0 9px 6px;gap:6px}
+    .vehicle-card .vehicle-actions.clean-actions{padding:6px 9px 9px;gap:6px}
+    .vehicle-card .visual-picker-panel{margin:0 9px 7px}
 
     @media(max-width:1050px){
-      .vehicle-card .hero-split-row{grid-template-columns:minmax(0,1fr) minmax(170px,205px)!important}
-      .vehicle-card .vehicle-hero-panel{grid-template-columns:minmax(160px,.66fr) minmax(190px,1.34fr)!important}
+      .vehicle-card .hero-split-row{grid-template-columns:minmax(0,1fr) minmax(170px,205px)}
+      .vehicle-card .vehicle-hero-panel{grid-template-columns:minmax(160px,.66fr) minmax(190px,1.34fr)}
     }
     @media(max-width:760px){
-      .vehicle-workspace-head{margin-inline:0!important}
-      .vehicle-card .hero-split-row{grid-template-columns:1fr!important;gap:6px!important;padding:5px 7px 6px!important}
+      .vehicle-workspace-head{margin-inline:0}
+      .vehicle-card .hero-split-row{grid-template-columns:1fr;gap:6px;padding:5px 7px 6px}
       .vehicle-card .vehicle-hero-panel{
-        grid-template-columns:minmax(0,.9fr) minmax(150px,1.1fr)!important;height:132px!important;min-height:132px!important;
-        padding:9px 10px!important;
+        grid-template-columns:minmax(0,.9fr) minmax(150px,1.1fr);height:132px;min-height:132px;
+        padding:9px 10px;
       }
-      .vehicle-card .vehicle-image{height:112px!important}
-      .vehicle-card .vehicle-image img{max-height:112px!important}
+      .vehicle-card .vehicle-image{height:112px}
+      .vehicle-card .vehicle-image img{max-height:112px}
       .vehicle-card .charger-hero-panel{
-        grid-template-columns:minmax(0,1fr) 104px!important;grid-template-rows:1fr!important;
-        height:72px!important;min-height:72px!important;padding:7px 9px!important;align-items:center!important;
+        grid-template-columns:minmax(0,1fr) 104px;grid-template-rows:1fr;
+        height:72px;min-height:72px;padding:7px 9px;align-items:center;
       }
-      .vehicle-card .charger-mini-copy{align-self:center!important}
-      .vehicle-card .charger-mini-image{width:96px!important;height:58px!important;justify-self:end!important}
-      .vehicle-card .charger-mini-image img{max-width:82px!important;max-height:56px!important}
-      .vehicle-card .vehicle-control-row.mock-row{padding-inline:7px!important}
-      .vehicle-card .vehicle-actions.clean-actions{padding-inline:7px!important}
-      .vehicle-card .visual-picker-panel{margin-inline:7px!important}
+      .vehicle-card .charger-mini-copy{align-self:center}
+      .vehicle-card .charger-mini-image{width:96px;height:58px;justify-self:end}
+      .vehicle-card .charger-mini-image img{max-width:82px;max-height:56px}
+      .vehicle-card .vehicle-control-row.mock-row{padding-inline:7px}
+      .vehicle-card .vehicle-actions.clean-actions{padding-inline:7px}
+      .vehicle-card .visual-picker-panel{margin-inline:7px}
     }
     @media(max-width:480px){
-      .vehicle-card .status-top-row.vehicle-intelligence-strip{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+      .vehicle-card .status-top-row.vehicle-intelligence-strip{grid-template-columns:repeat(2,minmax(0,1fr))}
       .vehicle-card .vehicle-hero-panel{
-        display:grid!important;grid-template-columns:minmax(0,.88fr) minmax(132px,1.12fr)!important;
-        height:126px!important;min-height:126px!important;
+        display:grid;grid-template-columns:minmax(0,.88fr) minmax(132px,1.12fr);
+        height:126px;min-height:126px;
       }
-      .vehicle-card .vehicle-copy{width:auto!important;max-width:none!important;padding-bottom:30px!important}
-      .vehicle-card .vehicle-copy h2{font-size:17px!important}
-      .vehicle-card .vehicle-image{position:relative!important;inset:auto!important;width:100%!important;height:106px!important}
+      .vehicle-card .vehicle-copy{width:auto;max-width:none;padding-bottom:30px}
+      .vehicle-card .vehicle-copy h2{font-size:17px}
+      .vehicle-card .vehicle-image{position:relative;inset:auto;width:100%;height:106px}
       .vehicle-card .vehicle-image img{
-        width:100%!important;height:100%!important;max-width:100%!important;max-height:106px!important;
-        object-position:center!important;
+        width:100%;height:100%;max-width:100%;max-height:106px;
+        object-position:center;
       }
-      .vehicle-card .vehicle-appearance-action{left:9px!important;bottom:8px!important;height:30px!important}
-      .vehicle-card .vehicle-hero-panel .mini-detail-button{right:6px!important;bottom:6px!important}
+      .vehicle-card .vehicle-appearance-action{left:9px;bottom:8px;height:30px}
+      .vehicle-card .vehicle-hero-panel .mini-detail-button{right:6px;bottom:6px}
     }
 
 
