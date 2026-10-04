@@ -16,7 +16,7 @@
   "rollback_to_previous_release": "pending",
   "runtime_proof": "pending",
   "rollback_proof": "pending",
-  "stable_promotion": "blocked_runtime_qualification",
+  "stable_promotion": "blocked",
   "cross_domain_navigation": "pending",
   "shared_visual_picker_grammar": "pending",
   "vehicle_image_persistence": "pending",
@@ -35,10 +35,10 @@
   "bounded_visual_picker": "pending",
   "vehicle_brand_filter": "pending",
   "charger_brand_filter": "pending",
-  "v1_product_api_decommissioned": "STATIC_PASS",
-  "zero_presentation_debt": "STATIC_PASS",
-  "multilingual_en_nl_fr": "STATIC_PASS",
-  "user_safe_copy": "STATIC_PASS",
-  "core_1_6_0_provenance": "STATIC_PASS",
-  "static_validation": "PASS"
+  "v1_product_api_decommissioned": "pass",
+  "zero_presentation_debt": "pass",
+  "multilingual_en_nl_fr": "pass",
+  "user_safe_copy": "pass",
+  "core_1_6_0_provenance": "pass",
+  "static_validation": "pass"
 }
