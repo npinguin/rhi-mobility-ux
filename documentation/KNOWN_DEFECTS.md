@@ -9,12 +9,12 @@ This file is the authoritative list of unresolved Mobility UX product/runtime is
    - Vehicle and charger profile/appearance edits must be proven on the target Home Assistant through: open → edit hierarchy → save → canonical readback → refresh → reload/restart.
    - A failed service call must keep the editor open and fail visibly; service acceptance is not durable truth.
 
-2. **V2 interface migration is incomplete.**
-   - Target authority is `MOBILITY_PUBLIC_RUNTIME_V2` + `MOBILITY_EXPERIENCE_V2` + `MOBILITY_POLICY_V2` plus canonical per-asset V2 semantic configuration properties.
-   - Frozen V1 is compatibility-only and must not become a new UX authority.
-   - Remaining UX/runtime paths that still depend on V1 property indexes, V1-only metadata or V1-shaped assumptions must be identified, migrated to V2-first consumption and covered by owned regression tests.
-   - No new feature may introduce a V1-only dependency. Any temporary compatibility fallback must be explicit, fail-closed and removable without changing product semantics.
-   - Migration is only closed when target runtime evidence proves the V2 read/write path for the affected feature and documentation/tests no longer describe V1 as the primary interface.
+2. **V2 product API decommission is structurally closed; target proof remains open.**
+   - Mobility UX product runtime now consumes only the explicit V2 authorities and canonical per-asset V2 semantic properties.
+   - Legacy product indexes, command-slot indexes, release fallbacks and compatibility reads are forbidden by the zero-debt CI gate.
+   - Missing V2 truth fails closed and is reported as a backend gap; UX does not reconstruct or recover it from older interfaces.
+   - Closure on the target Home Assistant still requires the immutable candidate to prove the complete V2 read/write journey.
+
 
 3. **Picker semantic-value versus Home Assistant transport-value handling requires target proof.**
    - Backend/domain truth uses stable semantic identifiers such as profile IDs.
@@ -34,7 +34,7 @@ This file is the authoritative list of unresolved Mobility UX product/runtime is
 
 6. **Direct Command V2 is structurally closed in rc.46, target proof remains open.**
    - Start/Stop/Unlock/Restart/Identify come from `MOBILITY_COMMAND_V2` and execute through `rhi_mobility.execute_command`.
-   - Frozen V1 command/slot indexes are compatibility-only.
+   - Legacy command/slot indexes are not consumed by the UX.
    - Target HA must still prove all expected commands are published and executable for the installed assets.
 
 7. **Requested versus actual/readback cross-screen parity still needs runtime proof.**

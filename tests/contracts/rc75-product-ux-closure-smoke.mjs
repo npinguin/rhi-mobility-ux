@@ -33,7 +33,7 @@ for(const token of [
 const copyIndex=chargers.indexOf('<div class="charger-identity-copy">');
 const imageIndex=chargers.indexOf('${this.renderChargerHero(rt, id, name, status)}',copyIndex);
 if(copyIndex<0 || imageIndex<0 || copyIndex>imageIndex) throw new Error('charger management must render identity copy before charger visual');
-if(!chargers.includes('grid-template-columns:minmax(0,1fr) 160px!important')) throw new Error('charger management desktop text-left/image-right geometry missing');
+if(!chargers.includes('grid-template-columns:minmax(0,1fr) 160px')) throw new Error('charger management desktop text-left/image-right geometry missing');
 
 for(const token of [
   '<small>Requested power</small>',
@@ -52,7 +52,7 @@ for(const token of [
   'hbMobilityPreloadHero(asset)',
   'loading="eager"',
   'fetchpriority="high"',
-  'transition:none!important'
+  'transition:none'
 ]) {
   if(!presentation.includes(token) && !assetShell.includes(token)) throw new Error('hero flicker hardening regression: '+token);
 }

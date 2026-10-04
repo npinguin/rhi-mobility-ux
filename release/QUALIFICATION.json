@@ -1,6 +1,6 @@
 {
-  "candidate_version": "1.0.0-rc.78",
-  "candidate_tag": "v1.0.0-rc.78",
+  "candidate_version": "1.0.0-rc.79",
+  "candidate_tag": "v1.0.0-rc.79",
   "candidate_sha": "pending",
   "target_home_assistant": "pending",
   "hacs_install": "pending",
@@ -32,8 +32,12 @@
   "hero_appearance_interaction": "pending",
   "hero_media_stability": "pending",
   "select_transport_write_readback": "pending",
-  "core_1_5_5_provenance": "pending",
   "bounded_visual_picker": "pending",
   "vehicle_brand_filter": "pending",
-  "charger_brand_filter": "pending"
+  "charger_brand_filter": "pending",
+  "v1_product_api_decommissioned": "pending",
+  "zero_presentation_debt": "pending",
+  "multilingual_en_nl_fr": "pending",
+  "user_safe_copy": "pending",
+  "core_1_6_0_provenance": "pending"
 }

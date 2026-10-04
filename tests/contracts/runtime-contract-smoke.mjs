@@ -3,19 +3,33 @@ import { mobilityRuntimeSource } from '../helpers/source-fixtures.mjs';
 const ctx={console,globalThis:{}};ctx.globalThis=ctx;vm.createContext(ctx);
 vm.runInContext(mobilityRuntimeSource()+'\n;globalThis.HomeBrainAssetRuntime=HomeBrainAssetRuntime;',ctx);
 const Runtime=ctx.HomeBrainAssetRuntime;
+
+const v2PropertyState=(entityId,assetId,propertyKey,value,unit='')=>({
+  entity_id:entityId,
+  state:String(value),
+  attributes:{
+    canonical_contract:'MOBILITY_PUBLIC_RUNTIME_V2',
+    asset_id:assetId,
+    asset_type:'charger',
+    property_key:propertyKey,
+    unit
+  }
+});
+
 const aid='charger_test';
 const hass={states:{
-  'sensor.mobility_charger_property_index':{state:'ready',attributes:{properties_by_key:{
-    [`${aid}:charger.operating_state`]:{value:'running'},
-    [`${aid}:charger.connection_state`]:{value:'connected'},
-    [`${aid}:charger.power_kw`]:{value:0,unit:'kW'},
-    [`${aid}:charger.requested_charge_power_kw`]:{value:7.36,unit:'kW'},
-    [`${aid}:charger.actual_current_a`]:{value:0,unit:'A'},
-    [`${aid}:charger.health`]:{value:'OK'},
-    [`${aid}:charger.health_reason`]:{value:null}
-  }}},
-  'sensor.mobility_asset_index':{state:'ready',attributes:{assets_json:[{asset_id:aid,asset_type:'charger',display_name:'Test charger'}]}},
-  'sensor.mobility_relationship_index':{state:'ready',attributes:{relationships:[]}}
+  'sensor.rhi_mobility_runtime_v2':{state:'ready',attributes:{
+    contract_id:'MOBILITY_PUBLIC_RUNTIME_V2',canonical:true,
+    release:{backend_release:'M0.10.25'},
+    assets:[{asset_id:aid,asset_type:'charger',display_name:'Test charger'}],
+    relationships:[],vehicle_charger_relationships:[]
+  }},
+  'sensor.rhi_mobility_charger_test_operating':v2PropertyState('sensor.rhi_mobility_charger_test_operating',aid,'charger.operating_state','running'),
+  'sensor.rhi_mobility_charger_test_connection':v2PropertyState('sensor.rhi_mobility_charger_test_connection',aid,'charger.connection_state','connected'),
+  'sensor.rhi_mobility_charger_test_power':v2PropertyState('sensor.rhi_mobility_charger_test_power',aid,'charger.power_kw',0,'kW'),
+  'sensor.rhi_mobility_charger_test_requested':v2PropertyState('sensor.rhi_mobility_charger_test_requested',aid,'charger.requested_charge_power_kw',7.36,'kW'),
+  'sensor.rhi_mobility_charger_test_current':v2PropertyState('sensor.rhi_mobility_charger_test_current',aid,'charger.actual_current_a',0,'A'),
+  'sensor.rhi_mobility_charger_test_health':v2PropertyState('sensor.rhi_mobility_charger_test_health',aid,'charger.health','OK')
 }};
 const rt=new Runtime(hass,{});
 const snap=rt.chargerProductSnapshot(aid);
@@ -25,27 +39,34 @@ if(snap.power.display!=='0 kW') throw new Error(`zero must remain zero: ${snap.p
 if(String(snap.health.display).toLowerCase()!=='ok') throw new Error(`health drift: ${snap.health.display}`);
 if(snap.power.value!=='0') throw new Error(`canonical actual power must stay 0, got ${snap.power.value}`);
 const requested=rt.propertyByCompoundKey(aid,'charger.requested_charge_power_kw');
-if(String(requested?.value)!=='7.36') throw new Error('requested charging intent missing from its own property');
+if(String(requested?.value)!=='7.36') throw new Error('requested charging intent missing from its own V2 property');
 if(snap.power.value===String(requested?.value)) throw new Error('requested charging intent replaced canonical actual power');
-if(snap.connected_vehicle.resolved!==false) throw new Error('missing relationship must stay unresolved');
+if(snap.connected_vehicle.resolved!==false) throw new Error('missing V2 relationship must stay unresolved');
 
 const missingAid='charger_missing_power';
 const missingHass={states:{
-  'sensor.mobility_charger_property_index':{state:'ready',attributes:{properties_by_key:{
-    [`${missingAid}:charger.operating_state`]:{value:'stopped'},
-    [`${missingAid}:charger.connection_state`]:{value:'disconnected'},
-    [`${missingAid}:charger.health`]:{value:'OK'}
-  }}},
-  'sensor.mobility_asset_index':{state:'ready',attributes:{assets_json:[{asset_id:missingAid,asset_type:'charger'}]}},
-  'sensor.mobility_relationship_index':{state:'ready',attributes:{relationships:[]}}
+  'sensor.rhi_mobility_runtime_v2':{state:'ready',attributes:{
+    contract_id:'MOBILITY_PUBLIC_RUNTIME_V2',canonical:true,
+    release:{backend_release:'M0.10.25'},
+    assets:[{asset_id:missingAid,asset_type:'charger',display_name:'Missing power charger'}],
+    relationships:[],vehicle_charger_relationships:[]
+  }},
+  'sensor.rhi_mobility_missing_operating':v2PropertyState('sensor.rhi_mobility_missing_operating',missingAid,'charger.operating_state','stopped'),
+  'sensor.rhi_mobility_missing_connection':v2PropertyState('sensor.rhi_mobility_missing_connection',missingAid,'charger.connection_state','disconnected'),
+  'sensor.rhi_mobility_missing_health':v2PropertyState('sensor.rhi_mobility_missing_health',missingAid,'charger.health','OK')
 }};
 const missingRt=new Runtime(missingHass,{});
 const missingSnap=missingRt.chargerProductSnapshot(missingAid);
-if(missingSnap.power.resolved!==false || missingSnap.power.display!=='—') throw new Error('missing actual power must stay unresolved, never become zero');
+if(missingSnap.power.resolved!==false || missingSnap.power.display!=='—') throw new Error('missing V2 actual power must stay unresolved, never become zero');
 
-console.log('PASS canonical actual/requested separation and zero/unavailable semantics');
-console.log('PASS canonical charger status/connection/power/health contract smoke');
+const legacyOnly=new Runtime({states:{
+  'sensor.mobility_charger_property_index':{state:'ready',attributes:{properties_by_key:{}}}
+}},{});
+if(legacyOnly.mobilityRegistry().length!==0) throw new Error('V1-only asset publication must be ignored');
+if(legacyOnly.propertyRows('charger_legacy').length!==0) throw new Error('V1-only property publication must be ignored');
 
+console.log('PASS V2 canonical actual/requested separation and zero/unavailable semantics');
+console.log('PASS V1-only product publication is fully ignored');
 
 const v2Hass={states:{
   'sensor.rhi_mobility_runtime_v2':{state:'ready',attributes:{
@@ -97,7 +118,6 @@ const v2Hass={states:{
       vehicle_intelligence:{state:'assigned',summary:'Vehicle vehicle_id4',connected_vehicle_asset_id:'vehicle_id4',connected_vehicle_display_name:'ID4'}
     }]
   }},
-  'sensor.mobility_release_contract':{state:'M0.9.99',attributes:{backend_release:'M0.9.99',contract_health:'ready'}},
   'sensor.rhi_mobility_policy_v2':{state:'7',attributes:{
     contract_id:'MOBILITY_POLICY_V2',
     publisher:'rhi_mobility',
@@ -128,7 +148,10 @@ console.log('PASS Mobility Runtime/Experience/Policy V2 direct contract consumpt
 
 const v2PropertyCalls=[];
 const v2PropertyHass={states:{
-  'sensor.mobility_asset_index':{state:'ready',attributes:{assets_json:[{asset_id:'vehicle_id4',asset_type:'vehicle',display_name:'ID.4'}]}},
+  'sensor.rhi_mobility_runtime_v2':{state:'ready',attributes:{
+    contract_id:'MOBILITY_PUBLIC_RUNTIME_V2',canonical:true,release:{backend_release:'M0.10.25'},
+    assets:[{asset_id:'vehicle_id4',asset_type:'vehicle',display_name:'ID.4'}],relationships:[],vehicle_charger_relationships:[]
+  }},
   'sensor.rhi_mobility_vehicle_id4_image_key':{
     entity_id:'sensor.rhi_mobility_vehicle_id4_image_key',
     state:'volkswagen.id4.2024-2026.ev.scale-silver',

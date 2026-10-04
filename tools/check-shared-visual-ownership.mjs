@@ -28,7 +28,7 @@ for(const legacy of ['.rhi-page-hero{','.rhi-top-status-grid{','.rhi-top-actions
 const dash=fs.readFileSync(path.join(src,'ui','screens','mobility-dashboard.js'),'utf8');
 if(!dash.includes('page rhiUxDomainBody rhi-ux-root')) errors.push('mobility-dashboard.js: page root must consume Core body/typography classes');
 const meta=JSON.parse(fs.readFileSync(path.join(src,'vendor','RHI_UX_CORE.json'),'utf8'));
-if(meta.version!=='1.5.5') errors.push('Core version drift: '+meta.version);
-if(meta.source_commit!=='655cfbd0840a2459e93287cad9a9ad8daa1cf691') errors.push('Core source commit drift');
+if(meta.version!=='1.6.0') errors.push('Core version drift: '+meta.version);
+if(meta.source_commit!=='c27858bf04f8912971f045918cbfff0f0da277f2') errors.push('Core source commit drift');
 if(errors.length) throw new Error(errors.join('\n'));
 console.log('PASS shared visual ownership: Core owns typography, hero, status, quick actions and body grammar');

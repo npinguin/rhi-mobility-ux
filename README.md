@@ -72,7 +72,7 @@ After install/update:
 4. open a vehicle and charger detail and use Back;
 5. refresh a detail and an internal view;
 6. verify vehicle/charger images load from the HACS package;
-7. confirm the footer reports the installed Mobility UX and backend version.
+7. when engineering diagnostics are explicitly enabled, confirm the technical footer reports the installed UX and backend version.
 
 See `documentation/HACS_INSTALLATION.md` for migration, legacy multi-view compatibility and rollback.
 
@@ -102,10 +102,10 @@ Mobility UX has one semantic model behind the current workspaces. Overview, Vehi
 Read:
 - `documentation/PRODUCT_VISION.md` for user focus, tab intent, No charger semantics and route persistence;
 - `documentation/HISTORY_AND_LESSONS.md` for durable engineering history and failed patterns;
-- `documentation/KNOWN_DEFECTS.md` for authoritative open issues, including the incomplete V2 interface migration;
+- `documentation/KNOWN_DEFECTS.md` for authoritative open runtime/qualification issues;
 - `documentation/BACKEND_INTERFACE_BACKLOG.md` for backend interfaces that remain unavailable until explicitly published.
 
-No future backend capability is mocked in the UX. Frozen V1 is compatibility-only; new UX behavior is V2-first.
+No backend capability is mocked or reconstructed in the UX. The active product runtime is V2-only; legacy product APIs are decommissioned and forbidden by CI.
 
 ## Development
 
@@ -130,7 +130,7 @@ The canonical company mark is owned by RHI UX Core. `src/assets/branding/company
 
 TEST CANDIDATE releases are normal GitHub Releases so HACS exposes them without enabling beta/prerelease versions. Qualification state is tracked separately in `release/QUALIFICATION.json`.
 
-The shared footer must render healthy state as `RHI Mobility UX <version> · Backend <version>`. Problems add one short amber/red `issues · details` summary that expands in-page to show the concrete runtime/backend conditions and verification guidance. See `documentation/UX_FOOTER_STANDARD.md`.
+Technical release/footer information is diagnostics-only and hidden from the normal product experience. When diagnostics are explicitly enabled, the shared footer may expose UX/backend identity and concrete runtime verification details. See `documentation/UX_FOOTER_STANDARD.md`.
 
 ## Test ownership
 

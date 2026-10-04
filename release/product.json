@@ -4,7 +4,7 @@
   "minimum_backend": "M0.10.25",
   "tested_backend": "M0.10.25",
   "stage": "test_candidate",
-  "rollback_release": "v1.0.0-rc.77",
+  "rollback_release": "v1.0.0-rc.78",
   "runtime_artifact": "dist/rhi-mobility-ux.js",
   "runtime_checksum_artifact": "dist/rhi-mobility-ux.js.sha256",
   "hacs_repository_type": "dashboard",
@@ -23,11 +23,11 @@
     "MOBILITY_SUPERVISION_V2",
     "MOBILITY_ENERGY_V2"
   ],
-  "version": "1.0.0-rc.78",
+  "version": "1.0.0-rc.79",
   "ux_core": {
     "package": "rhi-ux-core",
-    "version": "1.5.5",
-    "source_commit": "655cfbd0840a2459e93287cad9a9ad8daa1cf691",
+    "version": "1.6.0",
+    "source_commit": "c27858bf04f8912971f045918cbfff0f0da277f2",
     "runtime_dependency": false,
     "branding_owner": "rhi-ux-core"
   }

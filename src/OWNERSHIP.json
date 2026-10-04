@@ -22,7 +22,7 @@
         "MOBILITY_EXPERIENCE_V2 access",
         "MOBILITY_POLICY_V2 access",
         "canonical per-asset V2 semantic configuration read/write boundary",
-        "frozen V1 compatibility fallback only",
+        "V2-only product authority; missing truth fails closed",
         "contract normalization",
         "commands and canonical readback boundary",
         "read-only Energy public planning projection for Mobility Intelligence",

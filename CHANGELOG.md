@@ -1,3 +1,11 @@
+## 1.0.0-rc.79 — V2-only zero-debt UX closure
+
+- remove Mobility V1 product API compatibility and fallback paths;
+- adopt UX Core 1.6.0 compact shared grammar and localization foundation;
+- remove presentation specificity debt and gate against V1 or `!important` regressions;
+- fail closed on missing V2 truth and keep technical evidence in diagnostics;
+- retain zero accepted technical and feature debt.
+
 ## 1.0.0-rc.78 — shared appearance picker parity
 
 - adopt packaged UX Core 1.5.5 fixed/bounded picker geometry;

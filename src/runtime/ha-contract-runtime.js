@@ -6,8 +6,20 @@ class HomeBrainAssetRuntime {
   constructor(hass, config = {}) {
     this.hass = hass;
     this.config = config;
+    if (typeof rhiMobilitySetLocaleFromHass === "function") rhiMobilitySetLocaleFromHass(hass);
     this._cache = HomeBrainAssetRuntime._cache || (HomeBrainAssetRuntime._cache = new Map());
     this._memo = new Map();
+  }
+
+  t(key, params = {}, fallback = "") {
+    return typeof rhiMobilityT === "function" ? rhiMobilityT(this.hass, key, params, fallback) : (fallback || key);
+  }
+
+  productUnavailable(detail = "") {
+    return {
+      value:this.t("common.not_available",{},"Not available"),
+      detail:detail || this.t("common.information_missing",{},"Information is not available yet.")
+    };
   }
 
 
@@ -51,77 +63,17 @@ class HomeBrainAssetRuntime {
       activity_v2: { contract_id: "MOBILITY_ACTIVITY_V2", role: "authority" },
       profile_catalog_v2: { contract_id: "MOBILITY_PROFILE_CATALOG_V2", role: "authority" },
       supervision_v2: { contract_id: "MOBILITY_SUPERVISION_V2", role: "authority" },
-      identity_navigation: { contract_id: "MOBILITY_PUBLIC_RUNTIME_V2", field: "assets", role: "authority" },
-      semantic_properties_v2: { canonical_contract: "MOBILITY_PUBLIC_RUNTIME_V2", role: "authority" },
-      vehicle_properties: { canonical_contract: "MOBILITY_PUBLIC_RUNTIME_V2", role: "authority" },
-      charger_properties: { canonical_contract: "MOBILITY_PUBLIC_RUNTIME_V2", role: "authority" },
-      relationships: { contract_id: "MOBILITY_PUBLIC_RUNTIME_V2", role: "authority" },
-      command_readiness: { contract_id: "MOBILITY_COMMAND_V2", role: "authority" },
-      command_results: { contract_id: "MOBILITY_ACTIVITY_V2", role: "authority" },
-      component_layout: { fields: ["component_id","section_id"], canonical_contract: "MOBILITY_PUBLIC_RUNTIME_V2", role: "authority" },
-      command_placement: { contract_id: "MOBILITY_COMMAND_V2", role: "authority" },
-      energy_boundary: { contract_id: "MOBILITY_ENERGY_V2", role: "external_consumer_only" },
-      asset_runtime_compatibility: { entity_id: "sensor.mobility_asset_runtime_contract_index", role: "diagnostics_only_deprecated" },
-      product_asset_compatibility: { entity_id: "sensor.mobility_product_asset_index", role: "diagnostics_only_deprecated" }
+      energy_v2: { contract_id: "MOBILITY_ENERGY_V2", role: "external_consumer_only" }
     };
   }
 
-  compatibilityAssetRuntimeRow(assetId = "") {
-    const canonical = this.canonicalAssetId(assetId);
-    if (!canonical) return null;
-    const attrs = this.entity("sensor.mobility_asset_runtime_contract_index")?.attributes || {};
-    const byId = this.parseJsonValue(attrs.assets_by_id, attrs.assets_by_id || {});
-    if (byId && typeof byId === "object" && !Array.isArray(byId) && byId[canonical]) return byId[canonical];
-    const rows = this.parseListValue(attrs.assets_json ?? attrs.assets ?? []);
-    return rows.find((row)=>String(row?.asset_id || "") === canonical) || null;
-  }
 
-  compatibilityLifecyclePropertyRow(assetId = "") {
-    const canonical = this.canonicalAssetId(assetId);
-    if (!canonical) return null;
-    const keys = canonical.startsWith("vehicle_")
-      ? ["asset.lifecycle_status", "vehicle.lifecycle_status"]
-      : ["asset.lifecycle_status", "charger.lifecycle_status"];
-    for (const key of keys) {
-      const row = this.v2SemanticProperty(canonical, key);
-      if (row) return row;
-    }
-    return null;
-  }
+
+
 
 
   allowedContractEntityIds() {
     return new Set([
-      "sensor.mobility_vehicle_property_index",
-      "sensor.mobility_vehicle_component_contract_index",
-      "sensor.mobility_charger_component_contract_index",
-      "sensor.mobility_ux_runtime_consumption_map",
-      "sensor.mobility_asset_runtime_contract_index",
-      "sensor.mobility_canonical_asset_contract_registry",
-      "sensor.mobility_vehicle_identity_property_index",
-      "sensor.mobility_vehicle_battery_property_index",
-      "sensor.mobility_vehicle_charging_property_index",
-      "sensor.mobility_vehicle_range_property_index",
-      "sensor.mobility_vehicle_access_property_index",
-      "sensor.mobility_vehicle_comfort_property_index",
-      "sensor.mobility_vehicle_location_property_index",
-      "sensor.mobility_vehicle_maintenance_property_index",
-      "sensor.mobility_vehicle_diagnostics_property_index",
-      "sensor.mobility_charger_property_index",
-      "sensor.mobility_person_property_index",
-      "sensor.mobility_relationship_index",
-      "sensor.mobility_command_index",
-      "sensor.mobility_vehicle_command_slot_index",
-      "sensor.mobility_charger_command_slot_index",
-      "sensor.mobility_intelligence_index",
-      "sensor.mobility_vehicle_intelligence_index",
-      "sensor.mobility_charger_intelligence_index",
-      "sensor.mobility_activity_index",
-      "sensor.mobility_asset_index",
-      "sensor.mobility_vehicle_profile_index",
-      "sensor.mobility_charger_profile_index",
-      "sensor.mobility_energy_asset_publication",
-      "sensor.mobility_release_contract",
       "sensor.rhi_mobility_runtime_v2",
       "sensor.rhi_mobility_experience_v2",
       "sensor.rhi_mobility_policy_v2",
@@ -137,13 +89,7 @@ class HomeBrainAssetRuntime {
 
   isAllowedContractEntity(entityId = "") {
     const id = String(entityId || "").trim();
-    if (!id) return false;
-    if (this.allowedContractEntityIds().has(id)) return true;
-    // R41.90.1 model-driven component contracts may publish component-specific
-    // property index entities. Allow only public property-index shaped entities;
-    // do not allow candidate, binding, source evidence or raw runtime entities.
-    if (/^sensor\.mobility_(vehicle|charger|person)_[a-z0-9_]+_property_index$/.test(id)) return true;
-    return false;
+    return !!id && this.allowedContractEntityIds().has(id);
   }
 
   assertAllowedContractEntity(entityId = "") {
@@ -171,8 +117,7 @@ class HomeBrainAssetRuntime {
 
   mobilityRuntimeV2() {
     const state = this.contractEntity("MOBILITY_PUBLIC_RUNTIME_V2", [
-      "sensor.rhi_mobility_runtime_v2",
-      "sensor.mobility_runtime_v2"
+      "sensor.rhi_mobility_runtime_v2"
     ]);
     const attrs = state?.attributes || {};
     if (String(attrs.contract_id || "") !== "MOBILITY_PUBLIC_RUNTIME_V2") return null;
@@ -198,7 +143,6 @@ class HomeBrainAssetRuntime {
       ...publication,
       expected_property_keys: Array.isArray(publication.expected_property_keys) ? publication.expected_property_keys : [],
       catalog_property_keys: Array.isArray(publication.catalog_property_keys) ? publication.catalog_property_keys : [],
-      v1_fallback_allowed: publication.v1_fallback_allowed === true
     };
   }
 
@@ -220,8 +164,7 @@ class HomeBrainAssetRuntime {
 
   mobilityExperienceV2() {
     const state = this.contractEntity("MOBILITY_EXPERIENCE_V2", [
-      "sensor.rhi_mobility_experience_v2",
-      "sensor.mobility_experience_v2"
+      "sensor.rhi_mobility_experience_v2"
     ]);
     const attrs = state?.attributes || {};
     if (String(attrs.contract_id || "") !== "MOBILITY_EXPERIENCE_V2") return null;
@@ -235,8 +178,7 @@ class HomeBrainAssetRuntime {
 
   mobilityPolicyV2() {
     const state = this.contractEntity("MOBILITY_POLICY_V2", [
-      "sensor.rhi_mobility_policy_v2",
-      "sensor.mobility_policy_v2"
+      "sensor.rhi_mobility_policy_v2"
     ]);
     const attrs = state?.attributes || {};
     if (String(attrs.contract_id || "") !== "MOBILITY_POLICY_V2") return null;
@@ -250,8 +192,7 @@ class HomeBrainAssetRuntime {
 
   mobilityCommandV2() {
     const state = this.contractEntity("MOBILITY_COMMAND_V2", [
-      "sensor.rhi_mobility_command_v2",
-      "sensor.mobility_command_v2"
+      "sensor.rhi_mobility_command_v2"
     ]);
     const attrs = state?.attributes || {};
     if (String(attrs.contract_id || "") !== "MOBILITY_COMMAND_V2") return null;
@@ -298,21 +239,22 @@ class HomeBrainAssetRuntime {
 
   commandV2Label(commandKey = "") {
     const key = String(commandKey || "").split(".").pop() || "";
-    const labels = {
-      start:"Start charging",
-      stop:"Stop charging",
-      start_charging:"Start charging",
-      stop_charging:"Stop charging",
-      unlock_connector:"Unlock connector",
-      restart:"Restart",
-      identify:"Identify",
-      lock:"Lock",
-      unlock:"Unlock",
-      climate_start:"Start climate",
-      climate_stop:"Stop climate",
-      refresh:"Refresh"
+    const translationKeys = {
+      start:"action.start_charging",
+      stop:"action.stop_charging",
+      start_charging:"action.start_charging",
+      stop_charging:"action.stop_charging",
+      unlock_connector:"action.unlock_connector",
+      restart:"action.restart",
+      identify:"action.identify",
+      lock:"action.lock",
+      unlock:"action.unlock",
+      climate_start:"action.climate_start",
+      climate_stop:"action.climate_stop",
+      refresh:"action.refresh"
     };
-    return labels[key] || this.titleize(key.replace(/_/g, " "));
+    const translationKey = translationKeys[key] || "";
+    return translationKey ? this.t(translationKey,{},this.titleize(key.replace(/_/g, " "))) : this.titleize(key.replace(/_/g, " "));
   }
 
   commandV2Rows(assetId = "") {
@@ -485,19 +427,11 @@ class HomeBrainAssetRuntime {
 
 
   indexAttr(attr, fallback = []) {
-    const key = `indexAttr:${attr}`;
-    if (this._memo.has(key)) return this._memo.get(key);
-    const raw = this.attr("sensor.mobility_asset_index", attr, undefined);
-    const parsed = this.parseListValue(raw);
-    const value = parsed.length ? parsed : fallback;
-    this._memo.set(key, value);
-    return value;
+    return Array.isArray(fallback) ? fallback : [];
   }
 
   typeIndexEntity(kind = "all") {
-    // R22.8: asset index is the only asset catalog/navigation source.
-    // Vehicle/charger indexes are compatibility/transitional and must not drive UX asset discovery.
-    return "sensor.mobility_asset_index";
+    return "sensor.rhi_mobility_runtime_v2";
   }
 
   assetIndexRows(kind = "all") {
@@ -703,92 +637,39 @@ class HomeBrainAssetRuntime {
   vehicleChargerRelationship(assetId) {
     const canonical = this.canonicalAssetId(assetId);
     const runtimeV2 = this.mobilityRuntimeV2();
-    if (runtimeV2) {
-      const relation = (runtimeV2.vehicle_charger_relationships || []).find((row)=>String(row?.vehicle_id || row?.asset_id || "") === canonical) || null;
-      const selected = this.cleanValue(relation?.configured_charger_id || "", "none") || "none";
-      const effective = this.cleanValue(relation?.effective_charger_id || "", "none") || "none";
-      const connected = relation?.observed_identity_proven === true
-        ? (this.cleanValue(relation?.physically_connected_charger_id || "", "none") || "none")
-        : "none";
-      return {
-        assigned:selected !== "none" ? selected : effective,
-        effective, selected, connected,
-        assigned_display_name:this.assetDisplayName(selected !== "none" ? selected : effective),
-        effective_display_name:this.assetDisplayName(effective),
-        connected_display_name:this.assetDisplayName(connected),
-        relationship_resolution:relation?.relationship_status || "",
-        reason:relation?.reason || "",
-        observed_identity_proven:relation?.observed_identity_proven === true,
-        row:relation,
-        physical_row:relation,
-        effective_row:relation,
-        selected_row:relation,
-        _authority:"MOBILITY_PUBLIC_RUNTIME_V2"
-      };
-    }
-    // Frozen V1 relationship index is compatibility-only on older backends.
-    const rows = this.relationshipRows(canonical).filter((r) => String(r.source_asset_id || r.asset_id || "") === String(canonical));
-    const selectedRow = rows.find((r) => String(r.relationship_type || "") === "vehicle_selected_charger") || null;
-    const effectiveRow = rows.find((r) => String(r.relationship_type || "") === "vehicle_effective_charger") || null;
-    const physicalRow = rows.find((r) => String(r.relationship_type || "") === "vehicle_physical_charger") || null;
-    const valueOf = (row) => this.cleanValue(row?.effective_target_asset_id || row?.target_asset_id || "", "none") || "none";
-    const selected = valueOf(selectedRow);
-    const effective = valueOf(effectiveRow);
-    const connected = valueOf(physicalRow);
-    const assigned = selected !== "none" ? selected : effective;
+    if (!runtimeV2) return { assigned:"none", effective:"none", selected:"none", connected:"none", row:null, relationship_resolution:"contract_gap" };
+    const relation = (runtimeV2.vehicle_charger_relationships || []).find((row)=>String(row?.vehicle_id || row?.asset_id || "") === canonical) || null;
+    if (!relation) return { assigned:"none", effective:"none", selected:"none", connected:"none", row:null, relationship_resolution:"not_published", _authority:"MOBILITY_PUBLIC_RUNTIME_V2" };
+    const selected = this.cleanValue(relation.configured_charger_id || "", "none") || "none";
+    const effective = this.cleanValue(relation.effective_charger_id || "", "none") || "none";
+    const connected = relation.observed_identity_proven === true ? (this.cleanValue(relation.physically_connected_charger_id || "", "none") || "none") : "none";
     return {
-      assigned, effective, selected, connected,
-      assigned_display_name: this.assetDisplayName(assigned),
-      effective_display_name: this.assetDisplayName(effective),
-      connected_display_name: this.assetDisplayName(connected),
-      relationship_resolution: physicalRow?.resolution_source || effectiveRow?.resolution_source || selectedRow?.resolution_source || "",
-      row: effectiveRow || selectedRow || physicalRow || null,
-      physical_row: physicalRow,
-      effective_row: effectiveRow,
-      selected_row: selectedRow
+      assigned:selected !== "none" ? selected : effective, effective, selected, connected,
+      assigned_display_name:this.assetDisplayName(selected !== "none" ? selected : effective),
+      effective_display_name:this.assetDisplayName(effective),
+      connected_display_name:this.assetDisplayName(connected),
+      relationship_resolution:relation.relationship_status || relation.resolution_status || "V2",
+      reason:relation.reason || "",
+      observed_identity_proven:relation.observed_identity_proven === true,
+      row:relation, physical_row:relation, effective_row:relation, selected_row:relation,
+      _authority:"MOBILITY_PUBLIC_RUNTIME_V2"
     };
   }
 
 
   releaseContract() {
-    // Runtime V2 is the canonical active Mobility product contract and publishes the
-    // backend release alongside the same asset/relationship snapshot consumed by UX.
-    // Legacy release sensors are compatibility evidence only and may be absent.
     const runtime = this.mobilityRuntimeV2();
-    const runtimeRelease = runtime?.release && typeof runtime.release === "object" ? runtime.release : {};
-    const contractEntity = this.entity("sensor.mobility_release_contract");
-    const identityEntity = this.entity("sensor.mobility_release_identity");
-    const attrs = { ...(identityEntity?.attributes || {}), ...(contractEntity?.attributes || {}) };
-    const backend = this.cleanValue(
-      runtimeRelease.backend_release ||
-      attrs.backend_release ||
-      attrs.backend_version ||
-      attrs.backend_release_version ||
-      attrs.release_version ||
-      attrs.release ||
-      attrs.version ||
-      attrs.package_version ||
-      contractEntity?.state ||
-      identityEntity?.state ||
-      "",
-      "Unknown"
-    ) || "Unknown";
-    const canonicalReady = Boolean(runtime && runtime.canonical === true);
+    const release = runtime?.release && typeof runtime.release === "object" ? runtime.release : {};
+    const backend = this.cleanValue(release.backend_release || release.backend_version || release.release || release.version || "", "Unknown") || "Unknown";
     return {
       backend_release: backend,
       backend_version: backend,
-      release_name: this.cleanValue(runtimeRelease.release_name || attrs.release_name || attrs.release_title || "", "") || "",
-      contract_version: this.cleanValue(attrs.contract_version || attrs.contract_release || attrs.contract || "", "Unknown") || "Unknown",
-      schema_version: this.cleanValue(attrs.schema_version || attrs.schema || "", "Unknown") || "Unknown",
-      build_date: this.cleanValue(attrs.build_date || attrs.release_date || attrs.generated_at || "", "Unknown") || "Unknown",
-      contract_health: this.cleanValue(
-        attrs.contract_health || attrs.health || attrs.status || (canonicalReady ? "ready" : "Unknown"),
-        "Unknown"
-      ) || "Unknown",
-      runtime_health: this.cleanValue(attrs.runtime_health || attrs.runtime_status || "", "Unknown") || "Unknown",
-      physical_acceptance: this.cleanValue(attrs.physical_acceptance || attrs.physical_execution_acceptance || "", "Unknown") || "Unknown",
-      release_acceptance: this.cleanValue(attrs.release_acceptance || attrs.acceptance || "", "Unknown") || "Unknown",
-      authority: runtimeRelease.backend_release ? "MOBILITY_PUBLIC_RUNTIME_V2" : (contractEntity ? "sensor.mobility_release_contract" : (identityEntity ? "sensor.mobility_release_identity" : "unavailable"))
+      release_name: release.release_name || "",
+      contract_version: runtime?.contract_id ? "2" : "Unknown",
+      contract_health: runtime?.canonical === true ? "OK" : "BLOCKED",
+      physical_acceptance: release.physical_acceptance || "Unknown",
+      release_acceptance: release.release_acceptance || "Unknown",
+      authority: runtime?.canonical === true ? "MOBILITY_PUBLIC_RUNTIME_V2" : "unavailable"
     };
   }
 
@@ -828,23 +709,7 @@ class HomeBrainAssetRuntime {
   }
 
   publicCommandRows() {
-    const v2 = this.commandV2Rows("");
-    if (v2 !== null) return v2;
-    if (this.mobilityRuntimeV2()) return [];
-    const rows = [];
-    const entity = this.entity("sensor.mobility_command_index");
-    const attrs = entity?.attributes || {};
-    for (const attrName of ["commands", "commands_by_asset", "rows"]) {
-      const value = this.parseJsonValue(attrs[attrName], attrs[attrName]);
-      rows.push(...this.commandsFromIndexValue(value, ""));
-    }
-    const seen = new Set();
-    return rows.map((r)=>this.normalizeCommandEntry(r, r?.asset_id || "")).filter(Boolean).filter((r)=>{
-      const key = `${r.asset_id}:${r.command_key || r.command_id}:${r.command_role || ""}`;
-      if (seen.has(key)) return false;
-      seen.add(key);
-      return true;
-    });
+    return this.commandV2Rows("") || [];
   }
 
   publicRelationshipRows() {
@@ -993,52 +858,13 @@ class HomeBrainAssetRuntime {
    * new registry is missing, actions disappear and the maintenance/contract
    * views expose that as a backend contract issue.
    */
-  commandRegistry(assetId) {
-    const canonical = this.canonicalAssetId(assetId);
-    const cacheKey = `commandRegistry:${canonical}`;
-    if (this._memo.has(cacheKey)) return this._memo.get(cacheKey);
-    const rows = this.uiCommandSurface(canonical)
-      .filter((c) => c && this.contractBool(c.frontend_allowed, true) === true)
-      .sort((a, b) => (Number(a.sort_order ?? 999) - Number(b.sort_order ?? 999)) || String(a.label).localeCompare(String(b.label)));
-    this._memo.set(cacheKey, rows);
-    return rows;
+  commandRegistry(assetId = "") {
+    return this.commandV2Rows(assetId) || [];
   }
 
 
   uiCommandSurface(assetId = "") {
-    const v2 = this.commandV2Rows(assetId);
-    if (v2 !== null) return v2;
-    const entityIds = ["sensor.mobility_command_index"];
-    for (const entityId of entityIds) {
-      const entity = this.entity(entityId);
-      if (!entity) continue;
-      const attrs = entity.attributes || {};
-      // R43.2.54: same authority, multiple transport serializations. Do not stop at
-      // the first partially populated attribute; union exact command-index rows and
-      // deduplicate by command_id so Restart/Identify/Unlock cannot disappear simply
-      // because START/STOP were present in an earlier serialization.
-      const commandAttrs = ["commands", "commands_json", "commands_by_asset", "commands_by_asset_json", "commands_by_id", "commands_by_id_json"];
-      const collected = [];
-      for (const attrName of commandAttrs) {
-        const raw = attrs[attrName];
-        let value = this.parseJsonValue(raw, null);
-        if (!value && raw && typeof raw === "object") value = raw;
-        collected.push(...this.commandsFromIndexValue(value, assetId));
-      }
-      const seen = new Set();
-      const normalized = collected
-        .map((entry) => this.normalizeCommandEntry(entry, entry?.asset_id || assetId))
-        .filter(Boolean)
-        .filter((entry) => {
-          const key = String(entry.command_id || entry.command_key || "");
-          if (!key || seen.has(key)) return false;
-          seen.add(key);
-          return true;
-        })
-        .sort((a, b) => (Number(a.sort_order ?? 999) - Number(b.sort_order ?? 999)) || String(a.label).localeCompare(String(b.label)));
-      if (normalized.length) return normalized;
-    }
-    return [];
+    return this.commandV2Rows(assetId) || [];
   }
 
   commandsFromIndexValue(value, assetId = "") {
@@ -1586,7 +1412,7 @@ class HomeBrainAssetRuntime {
 
   uxEditorControlKind(prop = {}) {
     // Backend-published canonical write metadata is the sole editor authority.
-    // Direct V2 semantic properties are primary; frozen V1 metadata is compatibility-only.
+    // Direct V2 semantic properties are primary; V2 metadata is authoritative.
     // Do not infer editor type from property names, units, integrations or values.
     const binding = String(prop.write_binding_type || prop.editor || "").trim().toLowerCase();
     if (binding === "select") return "select";
@@ -1835,27 +1661,11 @@ class HomeBrainAssetRuntime {
 
 
   clusterIntelligenceRows(assetType = "vehicle", assetId = "") {
-    const entityId = assetType === "charger" ? "sensor.mobility_charger_intelligence_index" : "sensor.mobility_vehicle_intelligence_index";
     const canonical = this.canonicalAssetId(assetId);
-    const attrs = this.entity(entityId)?.attributes || {};
-    const rows = [];
-    const collect = (value, keyHint = "") => {
-      const parsed = this.parseJsonValue(value, value);
-      if (Array.isArray(parsed)) {
-        for (const item of parsed) rows.push({ ...(item || {}), asset_id: item?.asset_id || item?.subject_asset_id || keyHint });
-      } else if (parsed && typeof parsed === "object") {
-        if (Array.isArray(parsed.rows)) collect(parsed.rows, keyHint);
-        if (Array.isArray(parsed.intelligence)) collect(parsed.intelligence, keyHint);
-        if (Array.isArray(parsed.clusters)) collect(parsed.clusters, keyHint);
-        for (const [key, val] of Object.entries(parsed)) {
-          if (["rows","intelligence","clusters","schema_version","contract_version","generated_at"].includes(key)) continue;
-          if (Array.isArray(val)) collect(val.map((r)=>({ asset_id:r?.asset_id || r?.subject_asset_id || key, ...r })), key);
-          else if (val && typeof val === "object") rows.push({ asset_id:val.asset_id || val.subject_asset_id || key, ...val });
-        }
-      }
-    };
-    for (const attrName of ["assets_json", "assets", "rows", "rows_json", "intelligence", "intelligence_json", "clusters", "clusters_json", "vehicles", "chargers", "by_asset", "intelligence_by_asset", "summary_by_asset"]) collect(attrs[attrName], "");
-    return rows.filter((r)=>!canonical || String(r.asset_id || r.subject_asset_id || r.related_asset_id || "") === canonical);
+    const experience = this.mobilityExperienceV2();
+    if (!experience) return [];
+    const source = String(assetType || "").toLowerCase() === "charger" ? (experience.chargers || []) : (experience.vehicles || []);
+    return source.filter((row)=>!canonical || String(row?.asset_id || "") === canonical);
   }
 
   clusterIntelligenceObject(assetId = "", assetType = "vehicle") {
@@ -1865,8 +1675,15 @@ class HomeBrainAssetRuntime {
     return first.summary && typeof first.summary === "object" ? { ...first, ...first.summary } : first;
   }
 
-  contractGapTile(label = "Contract", icon = "mdi:alert-outline", detail = "Required intelligence contract missing") {
-    return { icon, label, value:"Contract gap", subvalue:detail, tone:"attention", subIcon:"mdi:alert-outline" };
+  contractGapTile(label = "", icon = "mdi:alert-outline", detail = "") {
+    return {
+      icon,
+      label:label || this.t("common.status",{},"Status"),
+      value:this.t("common.not_available",{},"Not available"),
+      subvalue:detail || this.t("common.information_missing",{},"Information is not available yet."),
+      tone:"attention",
+      subIcon:"mdi:alert-outline"
+    };
   }
 
   normalizedIntelligenceTile(raw = null, required = {}) {
@@ -1894,11 +1711,11 @@ class HomeBrainAssetRuntime {
     const obj = this.clusterIntelligenceObject(assetId, "vehicle");
     if (!obj) {
       return [
-        this.contractGapTile("Range", "mdi:road-variant", "sensor.mobility_vehicle_intelligence_index missing"),
-        this.contractGapTile("Energy", "mdi:battery-charging", "sensor.mobility_vehicle_intelligence_index missing"),
-        this.contractGapTile("Security", "mdi:lock-outline", "sensor.mobility_vehicle_intelligence_index missing"),
-        this.contractGapTile("Maintenance", "mdi:wrench-outline", "sensor.mobility_vehicle_intelligence_index missing"),
-        this.contractGapTile("Freshness", "mdi:clock-outline", "sensor.mobility_vehicle_intelligence_index missing")
+        this.contractGapTile("Range", "mdi:road-variant", "Information is not available yet"),
+        this.contractGapTile("Energy", "mdi:battery-charging", "Information is not available yet"),
+        this.contractGapTile("Security", "mdi:lock-outline", "Information is not available yet"),
+        this.contractGapTile("Maintenance", "mdi:wrench-outline", "Information is not available yet"),
+        this.contractGapTile("Freshness", "mdi:clock-outline", "Information is not available yet")
       ];
     }
     const range = obj.range_intelligence || obj.range || obj.range_summary || obj.Range || null;
@@ -1923,7 +1740,7 @@ class HomeBrainAssetRuntime {
   }
 
   // Charger product headline semantics intentionally have no intelligence-based
-  // compatibility resolver. Use chargerProductSnapshot() only.
+  // fallback resolver. Use chargerProductSnapshot() only.
 
   lifecyclePropertyRow(assetId = "") {
     const canonical = this.canonicalAssetId(assetId);
@@ -2192,7 +2009,7 @@ class HomeBrainAssetRuntime {
         engineeringPublicPropertyKeys.add(String(p.property_key || ""));
         details.push({ label:this.propertyDisplayLabel(p), value:`${this.propertyDisplayValue(p)} · key=${p.property_key}; quality=${p.quality || ""}; health=${p.health || ""}` });
       }
-      // V1 contract-complete guard: every public property must be visible in normal UX or
+      // Public-contract completeness guard: every public property must be visible in normal UX or
       // traceable from Engineering details. This prevents silent drops when family,
       // group, detail_level or access metadata changes in runtime.
       const familyPublicKeys = props.map((p)=>String(p.property_key || "")).filter(Boolean);
@@ -2231,7 +2048,7 @@ class HomeBrainAssetRuntime {
     // Keep contract consumption evidence out of normal detail UX. It belongs in validation
     // reports and Engineering details, not as a visible product section.
     if (this.config?.show_contract_consumption === true) {
-      sections.push({ key:"contract-consumption", title:"Contract Consumption", icon:"mdi:file-check-outline", header:"UX v1 completeness", rows:reportRows, details:[...warnings.map((w,i)=>({label:`Warning ${i+1}`, value:w})), ...summary.editableGaps.map((p)=>({label:`Editable gap ${p.property_key}`, value:"Missing write_supported/write_service_domain/write_service_action/write_target_entity"})), ...summary.executableCommandGaps.map((c)=>({label:`Command gap ${c.command_key || c.command_id}`, value:"execution_allowed=true but service metadata incomplete"}))] });
+      sections.push({ key:"contract-consumption", title:"Contract Consumption", icon:"mdi:file-check-outline", header:"UX completeness", rows:reportRows, details:[...warnings.map((w,i)=>({label:`Warning ${i+1}`, value:w})), ...summary.editableGaps.map((p)=>({label:`Editable gap ${p.property_key}`, value:"Missing write_supported/write_service_domain/write_service_action/write_target_entity"})), ...summary.executableCommandGaps.map((c)=>({label:`Command gap ${c.command_key || c.command_id}`, value:"execution_allowed=true but service metadata incomplete"}))] });
     }
     return sections.filter((s)=>s.rows?.length || s.details?.length);
   }
@@ -2271,41 +2088,15 @@ class HomeBrainAssetRuntime {
     return "mdi:database";
   }
 
-  vehicleComponentContractRows() {
-    const cacheKey = "vehicleComponentContractRows";
-    if (this._memo.has(cacheKey)) return this._memo.get(cacheKey);
-    // R22.12.11.30: components_json is the deployed serialized form of the
-    // same component contract. Parsing it is transport normalization, not a
-    // semantic fallback: ownership remains the single component-contract entity.
-    const parsedRows = this.canonicalRowsFromAttrs(
-      "sensor.mobility_vehicle_component_contract_index",
-      ["components_json", "components", "component_contract", "component_contract_index", "rows"],
-      "vehicle_component_contract"
-    ).map((row, index) => {
-      const component_id = String(row.component_id || row.id || row.key || "").trim();
-      const property_index_entity = String(row.property_index_entity || row.property_index || "").trim();
-      if (!component_id || !property_index_entity) return null;
-      return {
-        ...row,
-        component_id,
-        display_name: row.display_name || row.label || component_id,
-        tab_id: row.tab_id || component_id,
-        card_order: Number(row.card_order ?? row.order ?? index),
-        property_index_entity,
-        overview_properties: this.parseListValue(row.overview_properties),
-        action_properties: this.parseListValue(row.action_properties),
-        detail_properties: this.parseListValue(row.detail_properties),
-        engineering_properties: this.parseListValue(row.engineering_properties),
-        related_commands: this.parseListValue(row.related_commands)
-      };
-    }).filter(Boolean);
-    // If a backend exposes both object and *_json serializations during a
-    // rollout, consume the component exactly once.
-    const byComponentId = new Map();
-    for (const row of parsedRows) if (!byComponentId.has(row.component_id)) byComponentId.set(row.component_id, row);
-    const rows = [...byComponentId.values()].sort((a,b)=>Number(a.card_order || 999) - Number(b.card_order || 999));
-    this._memo.set(cacheKey, rows);
-    return rows;
+  vehicleComponentContractRows(assetId = "") {
+    const canonical = this.canonicalAssetId(assetId);
+    const grouped = new Map();
+    for (const row of this.v2PropertyRows(canonical)) {
+      const componentId = String(row.component_id || "details");
+      if (!grouped.has(componentId)) grouped.set(componentId,{ component_id:componentId, asset_id:canonical, properties:[] });
+      grouped.get(componentId).properties.push(row);
+    }
+    return [...grouped.values()];
   }
 
   vehicleComponentContractAvailable() {
@@ -2322,11 +2113,7 @@ class HomeBrainAssetRuntime {
     return this.vehicleComponentRows().find((c)=>String(c.component_id || "") === id) || null;
   }
 
-  vehicleComponentPropertyIndexEntities() {
-    const rows = this.vehicleComponentRows();
-    const entities = rows.map((c)=>String(c.property_index_entity || "").trim()).filter(Boolean);
-    return [...new Set(entities)];
-  }
+  vehicleComponentPropertyIndexEntities() { return []; }
 
   componentPropertyRows(assetId = "", componentId = "") {
     const canonical = this.canonicalAssetId(assetId);
@@ -2406,143 +2193,23 @@ class HomeBrainAssetRuntime {
   }
 
   vehicleComponentDetailSections(assetId = "") {
-    const canonical = this.canonicalAssetId(assetId);
-    const v2Sections = this.v2ComponentDetailSections(canonical, "vehicle");
-    if (v2Sections !== null) return v2Sections;
-    const components = this.vehicleComponentRows();
-    if (!components.length) {
-      return [{
-        key:"vehicle-layout-contract-gap",
-        title:"Layout contract gap",
-        icon:"mdi:alert-outline",
-        header:"Component contract unavailable",
-        rows:[{ type:"readonly", icon:"mdi:alert-outline", label:"Vehicle layout", value:"Contract gap" }],
-        details:[{ label:"Required owner", value:"sensor.mobility_vehicle_component_contract_index" }]
-      }];
-    }
-    const sections = [];
-    const groupDefs = [
-      { key:"overview", title:"Overview", list:"overview_properties" },
-      { key:"actions", title:"Controls", list:"action_properties" },
-      { key:"details", title:"Details", list:"detail_properties" },
-      { key:"engineering", title:"Engineering", list:"engineering_properties", detailsOnly:true }
-    ];
-    for (const component of components) {
-      const props = this.vehicleComponentProperties(canonical, component.component_id)
-        .filter((p)=>String(p.access || "").toLowerCase() !== "internal")
-        .sort((a,b)=>(Number(a.display_order ?? a.sort_order ?? 999)-Number(b.display_order ?? b.sort_order ?? 999)) || String(a.property_key || "").localeCompare(String(b.property_key || "")));
-      const byKey = new Map(props.map((p)=>[String(p.property_key || ""), p]).filter(([key])=>!!key));
-      const declared = new Set();
-      for (const def of groupDefs) for (const key of (component[def.list] || [])) declared.add(String(key));
-      const hasDeclaredPlacement = declared.size > 0;
-      const rows = [];
-      const details = [];
-      const rendered = new Set();
-
-      // A property listed in Actions is an editable-property placement, not a command.
-      // Prefer that placement when the same key is also present in Overview.
-      const actionKeys = new Set((component.action_properties || []).map(String));
-      for (const def of groupDefs) {
-        const keys = hasDeclaredPlacement
-          ? (component[def.list] || []).map(String).filter((key)=>!(def.key === "overview" && actionKeys.has(key)))
-          : (def.key === "overview" ? props.map((p)=>String(p.property_key || "")) : []);
-        const placed = keys.map((key)=>byKey.get(key)).filter(Boolean).filter((p)=>!rendered.has(String(p.property_key || "")));
-        if (!placed.length) continue;
-        if (def.detailsOnly) {
-          for (const p of placed) {
-            const key = String(p.property_key || "");
-            rendered.add(key);
-            details.push({ label:this.propertyDisplayLabel(p), value:`${this.propertyDisplayValue(p)} · key=${key}; component=${component.component_id}; engineering=true` });
-          }
-          continue;
-        }
-        rows.push({ type:"subheader", label:def.title, value:"" });
-        for (const p of placed) {
-          const key = String(p.property_key || "");
-          rendered.add(key);
-          rows.push(this.propertyOperationalRow(p));
-        }
-      }
-
-      // If the component declares exact placement lists, unlisted component properties
-      // are a backend layout-contract gap. Do not reconstruct placement from families.
-      if (hasDeclaredPlacement) {
-        for (const p of props) {
-          const key = String(p.property_key || "");
-          if (!key || rendered.has(key)) continue;
-          details.push({ label:`Unplaced: ${key}`, value:`owner=${component.property_index_entity}; component=${component.component_id}; layout_contract_gap=true` });
-        }
-      }
-
-      sections.push({
-        key:`vehicle-component-${component.component_id}`,
-        title:component.display_name || this.titleize(component.component_id),
-        icon:component.icon || (String(component.component_id).includes("charging") ? "mdi:ev-station" : String(component.component_id).includes("battery") ? "mdi:battery-charging" : String(component.component_id).includes("range") ? "mdi:map-marker-distance" : String(component.component_id).includes("access") ? "mdi:shield-car" : String(component.component_id).includes("comfort") ? "mdi:fan" : String(component.component_id).includes("location") ? "mdi:map-marker" : String(component.component_id).includes("maintenance") ? "mdi:wrench" : String(component.component_id).includes("diagnostic") ? "mdi:bug-check" : "mdi:car"),
-        header:`${props.length} properties`,
-        rows,
-        details
-      });
-    }
-    return sections.filter((s)=>s.rows?.length || s.details?.length);
+    return this.v2ComponentDetailSections(assetId, "vehicle") || [];
   }
 
 
-  chargerComponentContractRows() {
-    const cacheKey = "chargerComponentContractRows";
-    if (this._memo.has(cacheKey)) return this._memo.get(cacheKey);
-    const entityId = "sensor.mobility_charger_component_contract_index";
-    const attrs = this.entity(entityId)?.attributes || {};
-    const rows = [];
-    const collect = (value) => {
-      const parsed = this.parseJsonValue(value, value);
-      if (Array.isArray(parsed)) rows.push(...parsed);
-      else if (parsed && typeof parsed === "object") {
-        if (Array.isArray(parsed.cards)) rows.push(...parsed.cards);
-        else if (Array.isArray(parsed.rows)) rows.push(...parsed.rows);
-        else if (Array.isArray(parsed.components)) rows.push(...parsed.components);
-        else rows.push(...Object.values(parsed).filter((r)=>r && typeof r === "object"));
-      }
-    };
-    for (const attrName of ["ux_cards_json", "cards", "cards_json", "components", "component_contract", "component_contract_index", "rows"]) collect(attrs[attrName]);
-    const sectionCommandMap = this.parseJsonValue(attrs.related_commands_by_section_json, attrs.related_commands_by_section_json || {});
-    const fieldMap = this.parseJsonValue(attrs.ux_fields_by_property_json, attrs.ux_fields_by_property_json || {});
-    const layoutRules = this.parseJsonValue(attrs.ux_layout_rules_json, attrs.ux_layout_rules_json || {});
-    const forbiddenRendering = this.parseJsonValue(attrs.ux_forbidden_rendering_json, attrs.ux_forbidden_rendering_json || {});
-    const normalized = rows.map((row, index) => {
-      if (!row || typeof row !== "object") return null;
-      const component_id = String(row.component_id || row.card_id || row.id || row.key || "").trim();
-      const property_index_entity = String(row.property_index_entity || row.property_index || "").trim();
-      if (!component_id || !property_index_entity) return null;
-      const sections = this.parseListValue(row.sections || row.sections_json);
-      const relatedFromRow = this.parseListValue(row.related_commands || row.commands || row.command_keys);
-      return {
-        ...row,
-        component_id,
-        card_id: row.card_id || component_id,
-        display_name: row.display_name || row.title || row.label || component_id,
-        tab_id: row.tab_id || row.tab || (component_id.includes("engineering") ? "engineering" : component_id.includes("metering") ? "details" : "overview"),
-        card_order: Number(row.card_order ?? row.order ?? index),
-        property_index_entity,
-        runtime_contract_index_entity: "",
-        command_index_entity: String(row.command_index_entity || attrs.command_index_entity || "sensor.mobility_command_index").trim(),
-        sections,
-        overview_properties: this.parseListValue(row.overview_properties),
-        action_properties: this.parseListValue(row.action_properties),
-        detail_properties: this.parseListValue(row.detail_properties),
-        engineering_properties: this.parseListValue(row.engineering_properties),
-        related_commands: relatedFromRow,
-        related_commands_by_section: this.parseJsonValue(row.related_commands_by_section_json || row.related_commands_by_section, row.related_commands_by_section || sectionCommandMap || {}),
-        ux_fields_by_property: fieldMap,
-        ux_layout_rules: layoutRules,
-        ux_forbidden_rendering: forbiddenRendering
-      };
-    }).filter(Boolean).sort((a,b)=>Number(a.card_order || 999) - Number(b.card_order || 999));
-    this._memo.set(cacheKey, normalized);
-    return normalized;
+  chargerComponentContractRows(assetId = "") {
+    const canonical = this.canonicalAssetId(assetId);
+    const grouped = new Map();
+    for (const row of this.v2PropertyRows(canonical)) {
+      const componentId = String(row.component_id || "details");
+      if (!grouped.has(componentId)) grouped.set(componentId,{ component_id:componentId, asset_id:canonical, properties:[] });
+      grouped.get(componentId).properties.push(row);
+    }
+    return [...grouped.values()];
   }
 
   chargerComponentContractAvailable() {
-    return this.chargerComponentContractRows().length > 0;
+    return this.v2PropertyRows("").some((row)=>String(row.asset_type || "").toLowerCase()==="charger" && !!row.component_id);
   }
 
   chargerComponentRows() {
@@ -2555,11 +2222,7 @@ class HomeBrainAssetRuntime {
     return this.chargerComponentRows().find((c)=>String(c.component_id || c.card_id || "") === id) || null;
   }
 
-  chargerComponentPropertyIndexEntities() {
-    const rows = this.chargerComponentRows();
-    const entities = rows.map((c)=>String(c.property_index_entity || "").trim()).filter(Boolean);
-    return [...new Set(entities)];
-  }
+  chargerComponentPropertyIndexEntities() { return []; }
 
   chargerComponentPropertyRows(assetId = "", componentId = "") {
     const canonical = this.canonicalAssetId(assetId);
@@ -2577,8 +2240,8 @@ class HomeBrainAssetRuntime {
 
   chargerFieldConfig(propertyKey = "", component = {}) {
     const key = String(propertyKey || "").trim();
-    const map = component?.ux_fields_by_property || this.parseJsonValue(this.attr("sensor.mobility_charger_component_contract_index", "ux_fields_by_property_json", {}), {});
-    return (map && typeof map === "object" ? (map[key] || {}) : {}) || {};
+    const rows = Array.isArray(component?.properties) ? component.properties : [];
+    return rows.find((row)=>String(row?.property_key || "") === key) || {};
   }
 
   chargerPropertyRowForContract(prop = {}, component = {}) {
@@ -2607,121 +2270,11 @@ class HomeBrainAssetRuntime {
   }
 
   chargerComponentDetailSections(assetId = "") {
-    const canonical = this.canonicalAssetId(assetId);
-    const v2Sections = this.v2ComponentDetailSections(canonical, "charger");
-    if (v2Sections !== null) return v2Sections;
-    const components = this.chargerComponentRows();
-    const forbiddenProductStatusKeys = new Set(["charger.status", "source_status", "charger.operational_state"]);
-    const allProps = this.propertyRows(canonical).filter((p)=>String(p.access || "").toLowerCase() !== "internal");
-    const productProps = allProps.filter((p)=>!forbiddenProductStatusKeys.has(String(p.property_key || "")) && String(p.access || "").toLowerCase() !== "diagnostics_only");
-    const diagnosticsProps = allProps.filter((p)=>forbiddenProductStatusKeys.has(String(p.property_key || "")) || String(p.access || "").toLowerCase() === "diagnostics_only");
-    const productByKey = new Map(productProps.map((p)=>[String(p.property_key || ""), p]));
-    const diagnosticsByKey = new Map(diagnosticsProps.map((p)=>[String(p.property_key || ""), p]));
-    const fieldMap = this.parseJsonValue(this.attr("sensor.mobility_charger_component_contract_index", "ux_fields_by_property_json", {}), {});
-    const renderedKeys = new Set();
-    const sections = [];
-
-    const placementsFor = (component, sectionId) => {
-      if (!fieldMap || typeof fieldMap !== "object" || Array.isArray(fieldMap)) return [];
-      const componentId = String(component.component_id || component.card_id || "");
-      return Object.entries(fieldMap).map(([mapKey, cfg]) => {
-        if (!cfg || typeof cfg !== "object") return null;
-        const propertyKey = String(cfg.property_key || mapKey || "").trim();
-        const cardId = String(cfg.card_id || cfg.component_id || "").trim();
-        const cfgSection = String(cfg.section_id || cfg.section || "").trim();
-        if (!propertyKey || (cardId && cardId !== componentId) || (sectionId !== "__component__" && cfgSection !== sectionId)) return null;
-        return { propertyKey, cfg, order:Number(cfg.display_order ?? cfg.order ?? 999) };
-      }).filter(Boolean).sort((a,b)=>a.order-b.order || a.propertyKey.localeCompare(b.propertyKey));
-    };
-
-    const rowForPlacement = (placement, component, diagnostics = false) => {
-      const source = diagnostics ? diagnosticsByKey : productByKey;
-      const prop = source.get(placement.propertyKey);
-      if (!prop) return null;
-      renderedKeys.add(placement.propertyKey);
-      return this.chargerPropertyRowForContract({ ...prop, ...placement.cfg, display_name:placement.cfg.label || placement.cfg.display_name || prop.display_name }, component);
-    };
-
-    let engineeringComponent = null;
-    for (const component of components) {
-      const componentId = String(component.component_id || component.card_id || "");
-      if (componentId === "charger_actions") continue;
-      if (componentId === "charger_engineering") engineeringComponent = component;
-      const componentProps = this.chargerComponentPropertyRows(canonical, component.component_id)
-        .filter((p)=>String(p.access || "").toLowerCase() !== "internal")
-        .sort((a,b)=>(Number(a.display_order ?? a.sort_order ?? 999)-Number(b.display_order ?? b.sort_order ?? 999)) || String(a.property_key || "").localeCompare(String(b.property_key || "")));
-      const rows = [];
-      const details = [];
-      for (const sectionDef of this.chargerSectionDefinitions(component)) {
-        const sectionId = String(sectionDef.section_id || sectionDef.id || sectionDef.key || "details");
-        const isDiagnosticsSection = componentId === "charger_engineering" && this.norm(sectionId) === "diagnostics";
-        const isUnmappedSection = componentId === "charger_engineering" && this.norm(sectionId) === "unmapped";
-        let placedRows = [];
-        if (!isUnmappedSection) {
-          const placements = placementsFor(component, sectionId);
-          placedRows = placements.map((placement)=>rowForPlacement(placement, component, isDiagnosticsSection)).filter(Boolean);
-        }
-        if (isUnmappedSection) {
-          // Explicit backend-owned catch-all section. Showing unplaced properties here
-          // is allowed because the component contract itself declared `unmapped`.
-          const leftovers = productProps.filter((p)=>!renderedKeys.has(String(p.property_key || "")));
-          if (leftovers.length) {
-            rows.push({ type:"subheader", label:sectionDef.display_name || "Unmapped", value:"" });
-            for (const p of leftovers) {
-              renderedKeys.add(String(p.property_key || ""));
-              rows.push(this.chargerPropertyRowForContract(p, component));
-            }
-          }
-          continue;
-        }
-        if (!placedRows.length) continue;
-        if (sectionId !== "__component__") rows.push({ type:"subheader", label:sectionDef.display_name || this.titleize(sectionId.replace(/_/g," ")), value:"" });
-        rows.push(...placedRows);
-      }
-      sections.push({
-        key:`charger-component-${component.component_id}`,
-        title:component.display_name || this.titleize(component.component_id),
-        icon: component.icon || (componentId.includes("control") ? "mdi:tune" : componentId.includes("metering") ? "mdi:counter" : componentId.includes("engineering") ? "mdi:wrench" : "mdi:ev-station"),
-        header:`${rows.filter((r)=>r.type !== "subheader").length} fields`,
-        rows,
-        details
-      });
-    }
-
-    // If the contract has no explicit Engineering/Unmapped section, fail closed and
-    // report the missing placement instead of inventing a product card.
-    const unaccounted = productProps.filter((p)=>!renderedKeys.has(String(p.property_key || "")));
-    if (unaccounted.length && !engineeringComponent) {
-      sections.push({
-        key:"charger-layout-contract-gap",
-        title:"Layout contract gap",
-        icon:"mdi:alert-outline",
-        header:`${unaccounted.length} unplaced properties`,
-        rows:[{ type:"readonly", icon:"mdi:alert-outline", label:"Component placement", value:"Contract gap" }],
-        details:unaccounted.map((p)=>({ label:String(p.property_key || "Property"), value:`owner=${p._source_entity_id || "sensor.mobility_charger_property_index"}; missing component placement` }))
-      });
-    }
-
-    const diagnosticsUnplaced = diagnosticsProps.filter((p)=>!renderedKeys.has(String(p.property_key || "")));
-    if (diagnosticsUnplaced.length) {
-      sections.push({
-        key:"charger-component-source-diagnostics",
-        title:"Engineering / Source diagnostics",
-        icon:"mdi:stethoscope",
-        header:`${diagnosticsUnplaced.length} diagnostics`,
-        rows:[],
-        details:diagnosticsUnplaced.map((p)=>({ label:this.propertyDisplayLabel(p), value:`${this.propertyDisplayValue(p)} · key=${p.property_key}; diagnostics_only=true` }))
-      });
-    }
-    return sections.filter((section)=>section.rows?.length || section.details?.length);
+    return this.v2ComponentDetailSections(assetId, "charger") || [];
   }
 
   propertyIndexEntityForAsset(assetId = "") {
-    const canonical = this.canonicalAssetId(assetId);
-    if (canonical.startsWith("vehicle_")) return "sensor.mobility_vehicle_component_contract_index";
-    if (canonical.startsWith("charger_")) return this.chargerComponentContractAvailable() ? "sensor.mobility_charger_component_contract_index" : "sensor.mobility_charger_property_index";
-    if (canonical.startsWith("person_")) return "sensor.mobility_person_property_index";
-    return "";
+    return "sensor.rhi_mobility_runtime_v2";
   }
 
   v2PropertyRows(assetId = "") {
@@ -2737,7 +2290,7 @@ class HomeBrainAssetRuntime {
         ...attrs,
         asset_id:rowAsset,
         property_key:propertyKey,
-        value:state?.state,
+        value:Object.prototype.hasOwnProperty.call(attrs,"value") ? attrs.value : state?.state,
         display_name:attrs.display_name || attrs.friendly_name || state?.attributes?.friendly_name || "",
         _source_entity_id:state?.entity_id || "",
         canonical_contract:"MOBILITY_PUBLIC_RUNTIME_V2"
@@ -2930,36 +2483,9 @@ class HomeBrainAssetRuntime {
     const canonical = assetId ? this.canonicalAssetId(assetId) : "";
     const cacheKey = `propertyRows:${canonical || "all"}`;
     if (this._memo.has(cacheKey)) return this._memo.get(cacheKey);
-    const v2 = this.v2PropertyRows(canonical);
-    if (v2.length || this.mobilityRuntimeV2()) {
-      this._memo.set(cacheKey, v2);
-      return v2;
-    }
-    let entities = [];
-    if (canonical) {
-      if (canonical.startsWith("vehicle_")) entities = ["sensor.mobility_vehicle_property_index", ...this.vehicleComponentPropertyIndexEntities()];
-      else if (canonical.startsWith("charger_")) entities = ["sensor.mobility_charger_property_index", ...this.chargerComponentPropertyIndexEntities()];
-      else entities = [this.propertyIndexEntityForAsset(canonical)];
-    } else {
-      entities = [
-        "sensor.mobility_vehicle_property_index",
-        ...this.vehicleComponentPropertyIndexEntities(),
-        "sensor.mobility_charger_property_index",
-        ...this.chargerComponentPropertyIndexEntities(),
-        "sensor.mobility_person_property_index"
-      ];
-    }
-    const rows = [];
-    for (const entityId of [...new Set(entities.filter(Boolean))]) rows.push(...this.propertyRowsFromEntity(entityId, canonical));
-    const seen = new Set();
-    const normalized = rows.filter((r) => {
-      const key = `${r.asset_id}:${r.property_key}:${String(r.value)}`;
-      if (seen.has(key)) return false;
-      seen.add(key);
-      return true;
-    });
-    this._memo.set(cacheKey, normalized);
-    return normalized;
+    const rows = this.v2PropertyRows(canonical);
+    this._memo.set(cacheKey, rows);
+    return rows;
   }
 
   propertyControlModel(assetId = "", propertyKey = "") {
@@ -3040,7 +2566,7 @@ class HomeBrainAssetRuntime {
       ...attrs,
       asset_id: canonical,
       property_key: wanted,
-      value: state?.state,
+      value:Object.prototype.hasOwnProperty.call(attrs,"value") ? attrs.value : state?.state,
       _source_entity_id: state?.entity_id || "",
       canonical_contract: "MOBILITY_PUBLIC_RUNTIME_V2"
     });
@@ -3057,9 +2583,7 @@ class HomeBrainAssetRuntime {
     if (!canonical || !wanted) return null;
     const rows = this.propertyRows(canonical).filter((r)=>String(r.property_key || "") === wanted || String(r._compound_key || "") === `${canonical}:${wanted}`);
     if (!rows.length) return null;
-    // Frozen V1 can expose the same canonical V2 property through more than one
-    // index. Prefer the richest canonical row so complete write metadata is not
-    // shadowed by a read-only duplicate.
+    // V2 property publication may contain duplicate transport rows; prefer the richest canonical row so complete write metadata is not shadowed.
     const score = (row) => {
       let value = 0;
       if (String(row.canonical_contract || "").toUpperCase() === "MOBILITY_PUBLIC_RUNTIME_V2") value += 16;
@@ -3104,7 +2628,7 @@ class HomeBrainAssetRuntime {
       secondary_label_field: row.secondary_label_field || "secondary_label",
       allow_none: this.contractBool(row.allow_none, false),
       none_value: row.none_value ?? "",
-      // V1 write metadata is authoritative. Never manufacture writeability from
+      // Backend V2 write metadata is authoritative. Never manufacture writeability from
       // the mere presence of a target/service binding.
       write_supported: this.contractBool(row.write_supported, false),
       write_binding_type: row.write_binding_type || row.editor || "",
@@ -3147,59 +2671,28 @@ class HomeBrainAssetRuntime {
     if (canonical.startsWith("vehicle_")) return this.vehicleChargerRelationship(canonical);
     if (!canonical.startsWith("charger_")) return { assigned:"none", connected:"none", effective:"none", selected:"none", row:null };
     const runtimeV2 = this.mobilityRuntimeV2();
-    if (runtimeV2) {
-      const relations = runtimeV2.vehicle_charger_relationships || [];
-      const configured = relations.filter((row)=>String(row?.configured_charger_id || "") === canonical);
-      const effectiveRows = relations.filter((row)=>String(row?.effective_charger_id || "") === canonical);
-      const physical = relations.filter((row)=>row?.observed_identity_proven === true && String(row?.physically_connected_charger_id || "") === canonical);
-      const one = (rows) => rows.length === 1 ? String(rows[0]?.vehicle_id || rows[0]?.asset_id || "none") : "none";
-      const selected = one(configured);
-      const effective = one(effectiveRows);
-      const connected = one(physical);
-      const assigned = selected !== "none" ? selected : effective;
-      return {
-        assigned, connected, effective, selected,
-        assigned_vehicle:assigned,
-        connected_vehicle:connected,
-        effective_vehicle:effective,
-        selected_vehicle:selected,
-        relationship_resolution:physical.length > 1 || effectiveRows.length > 1 || configured.length > 1 ? "CONFLICT" : "V2",
-        confidence:physical.length === 1 ? "proven" : "",
-        row:physical[0] || effectiveRows[0] || configured[0] || null,
-        connected_row:physical[0] || null,
-        effective_row:effectiveRows[0] || null,
-        selected_row:configured[0] || null,
-        _authority:"MOBILITY_PUBLIC_RUNTIME_V2"
-      };
-    }
-    const rows = this.relationshipRows(canonical).filter((r) => String(r.source_asset_id || r.asset_id || "") === String(canonical));
-    const selectedRow = rows.find((r) => String(r.relationship_type || "") === "charger_selected_vehicle") || null;
-    const effectiveRow = rows.find((r) => String(r.relationship_type || "") === "charger_effective_assigned_vehicle") || null;
-    const connectedRow = rows.find((r) => String(r.relationship_type || "") === "charger_connected_vehicle") || null;
-    const valueOf = (row) => this.cleanValue(row?.effective_target_asset_id || row?.target_asset_id || "", "none") || "none";
-    const selected = valueOf(selectedRow);
-    const effective = valueOf(effectiveRow);
-    const connected = valueOf(connectedRow);
-    const assigned = selected !== "none" ? selected : effective;
+    if (!runtimeV2) return { assigned:"none", connected:"none", effective:"none", selected:"none", row:null, relationship_resolution:"contract_gap" };
+    const relations = runtimeV2.vehicle_charger_relationships || [];
+    const configured = relations.filter((row)=>String(row?.configured_charger_id || "") === canonical);
+    const effectiveRows = relations.filter((row)=>String(row?.effective_charger_id || "") === canonical);
+    const physical = relations.filter((row)=>row?.observed_identity_proven === true && String(row?.physically_connected_charger_id || "") === canonical);
+    const one = (rows) => rows.length === 1 ? String(rows[0]?.vehicle_id || rows[0]?.asset_id || "none") : "none";
+    const selected = one(configured), effective = one(effectiveRows), connected = one(physical);
     return {
-      assigned, connected, effective, selected,
-      assigned_vehicle: assigned,
-      connected_vehicle: connected,
-      effective_vehicle: effective,
-      selected_vehicle: selected,
-      relationship_resolution: connectedRow?.resolution_source || effectiveRow?.resolution_source || selectedRow?.resolution_source || "",
-      confidence: connectedRow?.confidence || effectiveRow?.confidence || selectedRow?.confidence || "",
-      row: effectiveRow || selectedRow || connectedRow || null,
-      connected_row: connectedRow,
-      effective_row: effectiveRow,
-      selected_row: selectedRow
+      assigned:selected !== "none" ? selected : effective, connected, effective, selected,
+      assigned_vehicle:selected !== "none" ? selected : effective,
+      connected_vehicle:connected, effective_vehicle:effective, selected_vehicle:selected,
+      relationship_resolution:physical.length > 1 || effectiveRows.length > 1 || configured.length > 1 ? "CONFLICT" : "V2",
+      confidence:physical.length === 1 ? "proven" : "",
+      row:physical[0] || effectiveRows[0] || configured[0] || null,
+      connected_row:physical[0] || null, effective_row:effectiveRows[0] || null, selected_row:configured[0] || null,
+      _authority:"MOBILITY_PUBLIC_RUNTIME_V2"
     };
   }
 
   commandsFor(assetId) {
     const canonical = this.canonicalAssetId(assetId);
-    // Command V2 is authoritative when present. The frozen V1 command index is
-    // compatibility-only for older backends and never overrides a V2 publication.
+    // MOBILITY_COMMAND_V2 is the sole product command authority.
     return this.commandRegistry(canonical)
       .filter((c) => c && String(c.asset_id || "") === String(canonical))
       .filter((c) => this.contractBool(c.frontend_allowed, true) === true)
@@ -3305,159 +2798,20 @@ class HomeBrainAssetRuntime {
     };
   }
 
-  commandSlotContract(assetId = "") {
-    const canonical = this.canonicalAssetId(assetId);
-    const entityId = canonical.startsWith("charger_")
-      ? "sensor.mobility_charger_command_slot_index"
-      : canonical.startsWith("vehicle_")
-        ? "sensor.mobility_vehicle_command_slot_index"
-        : "";
-    if (!entityId || !this.entity(entityId)) return null;
-    const attrs = this.entity(entityId)?.attributes || {};
-    const actionKey = canonical.startsWith("charger_") ? "charger_actions" : "vehicle_actions";
+  commandSlotContract(assetId = "") { return null; }
 
-    // Same slot owner; accept object/JSON transport forms only.
-    for (const attrName of ["slots_by_asset", "slots_by_asset_json"]) {
-      const byAsset = this.parseJsonValue(attrs[attrName], attrs[attrName] || {});
-      if (byAsset && typeof byAsset === "object" && !Array.isArray(byAsset) && byAsset[canonical]) return byAsset[canonical];
-    }
-
-    for (const attrName of [actionKey, `${actionKey}_json`]) {
-      const directActions = this.parseJsonValue(attrs[attrName], attrs[attrName] || null);
-      if (directActions && typeof directActions === "object") {
-        if (!Array.isArray(directActions) && directActions[canonical]) return { asset_id: canonical, [actionKey]: directActions[canonical] };
-        if (!Array.isArray(directActions) && Array.isArray(directActions.commands)) {
-          const owned = directActions.commands.filter((row)=>!row?.asset_id || this.canonicalAssetId(row.asset_id) === canonical);
-          if (owned.length) return { asset_id: canonical, [actionKey]: { ...directActions, commands: owned } };
-        }
-      }
-    }
-
-    for (const attrName of ["slots_json", "slots", "rows", "rows_json"]) {
-      const rows = this.parseJsonValue(attrs[attrName], attrs[attrName] || []);
-      if (!Array.isArray(rows)) continue;
-      const row = rows.find((entry)=>this.canonicalAssetId(entry?.asset_id || "") === canonical) || null;
-      if (row) return row;
-    }
-    return null;
-  }
-
-  commandSlotRowsForSurface(assetId = "", surface = "quick_actions") {
-    const canonical = this.canonicalAssetId(assetId);
-    const slot = this.commandSlotContract(canonical);
-    if (!slot) return null;
-    const actionKey = canonical.startsWith("charger_") ? "charger_actions" : canonical.startsWith("vehicle_") ? "vehicle_actions" : "";
-    if (!actionKey) return null;
-
-    // R43.2.54: <asset_actions>.commands is one semantic placement container. Merge
-    // only structural serializations of that exact container, then deduplicate. The
-    // former first-array-wins parser could silently reduce four charger actions to
-    // START/STOP when another serialization was only partially materialized.
-    const candidates = [];
-    if (canonical.startsWith("vehicle_") && surface === "quick_actions") candidates.push(slot.quick_actions);
-    const nested = this.parseJsonValue(slot[actionKey], slot[actionKey] || null);
-    if (nested && typeof nested === "object" && !Array.isArray(nested)) candidates.push(nested.commands);
-    candidates.push(slot[`${actionKey}.commands`]);
-    const cardSections = this.parseJsonValue(slot.card_sections, slot.card_sections || null);
-    if (cardSections && typeof cardSections === "object" && !Array.isArray(cardSections)) {
-      candidates.push(cardSections[`${actionKey}.commands`]);
-      const section = this.parseJsonValue(cardSections[actionKey], cardSections[actionKey] || null);
-      if (section && typeof section === "object" && !Array.isArray(section)) candidates.push(section.commands);
-    }
-
-    const commands = [];
-    const seen = new Set();
-    for (const candidate of candidates) {
-      if (candidate === undefined || candidate === null || candidate === "") continue;
-      const parsed = this.parseJsonValue(candidate, null);
-      if (!Array.isArray(parsed)) continue;
-      for (const row of parsed) {
-        const key = typeof row === "string" ? row : String(row?.command_id || row?.command_key || row?.id || "");
-        if (!key || seen.has(key)) continue;
-        seen.add(key);
-        commands.push(row);
-      }
-    }
-
-    if (["quick_actions", "operational", actionKey].includes(surface)) return commands;
-    const wanted = this.norm(surface);
-    return commands.filter((row)=>{
-      const explicit = [row?.surface, row?.surface_id, row?.section_id, row?.placement, row?.component_id && row?.section_id ? `${row.component_id}.${row.section_id}` : ""]
-        .filter(Boolean).map((value)=>this.norm(value));
-      return explicit.includes(wanted);
-    });
-  }
+  commandSlotRowsForSurface(assetId = "", surface = "quick_actions") { return null; }
 
   commandsForSurface(assetId = "", surface = "operational") {
     const canonical = this.canonicalAssetId(assetId);
-    const v2Rows = this.commandV2RowsForSurface(canonical, surface);
-    if (v2Rows !== null) {
-      return v2Rows
-        .map((command)=>this.completeCommandIntent(command, canonical))
-        .filter((command)=>command && this.contractBool(command.frontend_allowed, true) === true);
-    }
-    const slotRows = this.commandSlotRowsForSurface(canonical, surface);
-    if (slotRows === null) return [];
-
-    // Frozen V1 compatibility path: placement comes from the slot index and
-    // readiness/invoke from mobility_command_index. This path is never consulted
-    // when MOBILITY_COMMAND_V2 exists.
-    const commands = this.uiCommandSurface(canonical).map((command)=>this.completeCommandIntent(command, canonical)).filter(Boolean);
-    const byId = new Map(commands.map((cmd)=>[String(cmd.command_id || ""), cmd]));
-    const byKey = new Map(commands.map((cmd)=>[String(cmd.command_key || ""), cmd]));
-    const seen = new Set();
-    return slotRows.map((slot)=>{
-      const rawPlacement = typeof slot === "string" ? { command_id: slot, command_key: slot } : (slot || {});
-      const slotId = String(rawPlacement.command_id || rawPlacement.id || rawPlacement.command || "");
-      const slotKey = String(rawPlacement.command_key || rawPlacement.key || rawPlacement.command || "");
-      // R43.2.54 owner separation: slot rows are placement only. Even when an older
-      // compatibility serialization still carries readiness/invoke fields, UX must
-      // ignore them so they cannot override sensor.mobility_command_index.
-      const placement = {
-        command_id: slotId,
-        command_key: slotKey,
-        surface: rawPlacement.surface || rawPlacement.surface_id || "",
-        section_id: rawPlacement.section_id || "",
-        component_id: rawPlacement.component_id || "",
-        display_order: rawPlacement.display_order ?? rawPlacement.order ?? null,
-        primary_action: this.contractBool(rawPlacement.primary_action, false)
-      };
-      const command = byId.get(slotId) || byKey.get(slotKey) || byId.get(slotKey) || byKey.get(slotId);
-      if (command) return { ...command, ...placement, command_id: command.command_id || slotId, command_key: command.command_key || slotKey };
-      if (!slotId && !slotKey) return null;
-      return {
-        ...placement,
-        asset_id: canonical,
-        command_id: slotId || slotKey,
-        command_key: slotKey || slotId,
-        label: this.titleize(slotId || slotKey),
-        frontend_allowed: true,
-        execution_allowed: false,
-        execution_reason: "Backend contract gap: placed command missing from mobility_command_index"
-      };
-    }).filter((command)=>{
-      if (!command || this.contractBool(command.frontend_allowed, true) === false) return false;
-      const key = String(command.command_id || command.command_key || "");
-      if (!key || seen.has(key)) return false;
-      seen.add(key);
-      return true;
-    }).map((command)=>{
-      const interaction = this.commandInteraction(command);
-      const enumOptions = {};
-      for (const parameter of interaction.required) {
-        if (String(parameter.type || "").toLowerCase() !== "enum") continue;
-        const sourced = this.commandEnumOptions(parameter);
-        enumOptions[parameter.name] = sourced.length ? sourced : (parameter.values || []).map((value)=>({ value, label:this.titleize(value) }));
-      }
-      return { ...command, interaction_mode:interaction.mode, interaction_supported:interaction.supported, interaction_reason:interaction.reason, required_parameters:interaction.required.map((parameter)=>parameter.name), enum_options:enumOptions };
-    });
+    const rows = this.commandV2RowsForSurface(canonical, surface);
+    if (rows === null) return [];
+    return rows
+      .map((command)=>this.completeCommandIntent(command, canonical))
+      .filter((command)=>command && this.contractBool(command.frontend_allowed, true) === true);
   }
 
-  unifiedCommandsFor(assetId, surface = "operational") {
-    // Compatibility method retained for callers, but semantics are now identical to
-    // the R43.2.54 slot-owned command surface. No family/category filtering exists.
-    return this.commandsForSurface(assetId, surface);
-  }
+
 
   controlsFor(assetId = "") {
     // Public typed model: write controls are exposed on property rows as write_command.
@@ -3501,10 +2855,7 @@ class HomeBrainAssetRuntime {
     return null;
   }
 
-  compatibilityFactRow(assetId) {
-    // R22.8: embedded compatibility facts are transitional and forbidden for UX runtime values.
-    return null;
-  }
+
 
   factEntity(assetId, field) {
     const canonicalFact = this.factContractRow(assetId, field);
@@ -3603,8 +2954,7 @@ class HomeBrainAssetRuntime {
   }
 
   commandState(command) {
-    // MOBILITY_COMMAND_V2 is authoritative when present; V1 command-index rows are
-    // accepted only as a compatibility projection on older backends.
+    // MOBILITY_COMMAND_V2 is the sole product command authority.
     const status = command?.execution_status || command?.ui_state || command?.effective_availability || "";
     const reason = command?.blocked_reason || command?.execution_reason || command?.disabled_reason || "";
     const lower = String(status).toLowerCase();
@@ -3658,9 +3008,9 @@ class HomeBrainAssetRuntime {
   canonicalPropertyValue(assetId = "", propertyKey = "") {
     const canonical = this.canonicalAssetId(assetId);
     const row = this.propertyByCompoundKey(canonical, propertyKey);
-    if (!row) return { resolved:false, value:"", row:null, reason:`${propertyKey} contract gap` };
+    if (!row) return { resolved:false, value:"", row:null, reason:"information_not_available" };
     const value = this.cleanValue(row.value, "");
-    if (value === "" || value === null || value === undefined) return { resolved:false, value:"", row, reason:`${propertyKey} missing value` };
+    if (value === "" || value === null || value === undefined) return { resolved:false, value:"", row, reason:"value_not_available" };
     return { resolved:true, value:String(value).trim(), row, reason:"" };
   }
 
@@ -4122,14 +3472,16 @@ class HomeBrainAssetRuntime {
   }
 
   formatAge(value) {
-    if (!value && value !== 0) return "Unknown";
+    if (!value && value !== 0) return this.t("common.unknown",{},"Unknown");
     const raw = String(value).trim();
     const n = Number(raw.replace(",", "."));
     if (Number.isNaN(n)) return raw;
-    if (n < 60) return `${Math.round(n)} sec ago`;
-    if (n < 3600) return `${Math.round(n / 60)} min ago`;
-    if (n < 86400) return `${Math.round(n / 3600)} h ago`;
-    return `${Math.round(n / 86400)} d ago`;
+    const locale=rhiMobilityLocale(this.hass);
+    const relative=new Intl.RelativeTimeFormat(locale,{numeric:"auto"});
+    if (n < 60) return relative.format(-Math.round(n),"second");
+    if (n < 3600) return relative.format(-Math.round(n / 60),"minute");
+    if (n < 86400) return relative.format(-Math.round(n / 3600),"hour");
+    return relative.format(-Math.round(n / 86400),"day");
   }
 
   /** Convert command ids and contract values into calm product labels. */
@@ -4173,7 +3525,7 @@ class HomeBrainAssetRuntime {
   }
 
   /**
-   * Execute the exact invocation published by sensor.mobility_command_index.
+   * Execute the exact invocation published by MOBILITY_COMMAND_V2.
    * The UI never reconstructs vendor/OEM producer bindings.
    */
   callCommand(command, data = {}) {
