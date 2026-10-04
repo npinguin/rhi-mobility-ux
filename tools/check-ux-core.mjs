@@ -17,7 +17,7 @@ if(!header.includes("rhiUxDomainShell(")) throw new Error("Mobility shell must u
 for(const legacy of [".hi-domain-shell{",".hi-module-tabs{",".hi-module-tab{",".domain-tab{",".hi-company-brand{"]){
   if(header.includes(legacy)) throw new Error("legacy duplicated shell CSS remains: "+legacy);
 }
-for(const primitive of ["function rhiUxPageHero(","function rhiUxStatusGrid(","function rhiUxQuickActionBar(","function rhiUxCoreStyles("]){
+for(const primitive of ["function rhiUxPageHero(","function rhiUxStatusGrid(","function rhiUxQuickActionBar(","function rhiUxAssetCardShell(","function rhiUxCoreStyles("]){
   if(!vendor.includes(primitive)) throw new Error("missing shared page primitive: "+primitive);
 }
 if(!vendor.includes("function rhiUxRegisterDomainNavigation(") || !vendor.includes("function rhiUxResolveDomainAssetNavigation(")) throw new Error("cross-domain navigation primitives missing from Core");
@@ -26,4 +26,4 @@ if(!vendor.includes("{asset_id}")) throw new Error("runtime-safe navigation toke
 if(!vendor.includes("function rhiUxCompanyBrand(") || !vendor.includes("Robotix.be") || !vendor.includes("DomotiX · Network · Security")) throw new Error("canonical Core company brand missing");
 if(header.includes("HB_MOBILITY_COMPANY_LOGO") || header.includes("hbMobilityCompanyBrand")) throw new Error("Mobility must not own company branding");
 if(!vendor.includes("function rhiUxVisualPickerShell(")) throw new Error("shared Core visual picker shell missing");
-console.log(`PASS Mobility consumes pinned RHI UX Core ${meta.version} including shared visual picker shell without runtime coupling`);
+console.log(`PASS Mobility consumes pinned RHI UX Core ${meta.version} including shared AssetCardShell and visual picker shell without runtime coupling`);
