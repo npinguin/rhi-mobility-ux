@@ -102,6 +102,10 @@ if(presentation.includes('MOBILITY / VEHICLE MANAGEMENT')) throw new Error('obso
 if(!localization.includes('"hero.vehicles.description":"See which vehicles are ready, connected or need attention, then manage only what matters."')) throw new Error('Vehicles purpose translation drifted');
 if(!presentation.includes('asset_key:"vehicles"')) throw new Error('Vehicles contextual hero key missing');
 
+if(!dashboard.includes('return rhiUxAssetCardShell({')) throw new Error('inactive Vehicle card must use shared Core AssetCardShell');
+if(!dashboard.includes('className:"mobilityInactiveAssetCard compact-present-row lifecycle-collapsed-row"')) throw new Error('inactive Vehicle shared shell class missing');
+if(dashboard.includes('<article class="inactive-row compact-present-row lifecycle-collapsed-row">')) throw new Error('legacy inactive Vehicle outer card shell returned');
+if(!uxCore.includes('function rhiUxAssetCardShell(')) throw new Error('UX Core 1.6.1 AssetCardShell missing');
 if ((dashboard.match(/Manage vehicles & profiles/g) || []).length !== 1) throw new Error('Vehicles duplicated page-level Manage vehicles & profiles action outside Quick Actions');
 for(const needle of [
   'mdi:connection',
