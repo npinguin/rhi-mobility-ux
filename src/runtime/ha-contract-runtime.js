@@ -2290,7 +2290,7 @@ class HomeBrainAssetRuntime {
         ...attrs,
         asset_id:rowAsset,
         property_key:propertyKey,
-        value:state?.state,
+        value:Object.prototype.hasOwnProperty.call(attrs,"value") ? attrs.value : state?.state,
         display_name:attrs.display_name || attrs.friendly_name || state?.attributes?.friendly_name || "",
         _source_entity_id:state?.entity_id || "",
         canonical_contract:"MOBILITY_PUBLIC_RUNTIME_V2"
@@ -2566,7 +2566,7 @@ class HomeBrainAssetRuntime {
       ...attrs,
       asset_id: canonical,
       property_key: wanted,
-      value: state?.state,
+      value:Object.prototype.hasOwnProperty.call(attrs,"value") ? attrs.value : state?.state,
       _source_entity_id: state?.entity_id || "",
       canonical_contract: "MOBILITY_PUBLIC_RUNTIME_V2"
     });
