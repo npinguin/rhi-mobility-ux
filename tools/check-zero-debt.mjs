@@ -15,7 +15,8 @@ const legacy=[
   /sensor\.mobility_(?:vehicle|charger)_intelligence_index/g,
   /sensor\.mobility_(?:asset_runtime_contract|product_asset)_index/g,
   /sensor\.mobility_(?:runtime|experience|policy|command)_v2/g,
-  /sensor\.mobility_release_(?:contract|identity)/g
+  /sensor\.mobility_release_(?:contract|identity)/g,
+  /sensor\.energy_(?:planning|planning_experience|flexible_asset|strategy_profile|strategy_effective|asset_metering|value_accounting)_index/g
 ];
 function files(dir){
   if(!fs.existsSync(dir)) return [];
