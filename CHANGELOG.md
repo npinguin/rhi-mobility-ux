@@ -1,3 +1,10 @@
+## 1.0.0-rc.80 — canonical cross-domain Energy V2 closure
+
+- route Mobility Planning, Insights and Strategy through the single producer-owned `RHI_ENERGY_PUBLIC_CONTRACT_V2` ingress;
+- remove fallback reads from legacy Energy planning, metering/value and strategy indexes;
+- fail closed when canonical Energy V2 evidence is absent instead of reconstructing cross-domain truth;
+- add regression gates preventing old Energy index dependencies from returning.
+
 ## 1.0.0-rc.79 — V2-only zero-debt UX closure
 
 - remove Mobility V1 product API compatibility and fallback paths;
