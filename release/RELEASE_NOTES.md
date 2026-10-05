@@ -1,12 +1,15 @@
-# v1.0.0-rc.81 — target Home Assistant charging and phone UX closure
+# v1.0.0-rc.82 — single Mobility projection authority closure
 
-- surface canonical charger-owned Start/Stop charging actions on assigned vehicle cards without changing command ownership;
-- preserve backend command readiness and physical-identity safety;
-- remove technical relationship/machine-state wording from normal vehicle UX;
-- close mobile Vehicle Management overlap by returning status, hero, controls and actions to normal responsive flow;
-- retain canonical V2-only contract and cross-domain Energy boundaries.
+- make VehicleProjection and ChargerProjection the sole semantic entry points for normal Mobility screens;
+- route Overview, Vehicle Management, Charger Management and detail composition through the same projected Experience, relationship, command and configuration truth;
+- remove screen-side reads of raw Experience, policy, fleet, relationship, property and charger snapshot surfaces;
+- make fleet Overview consume only MOBILITY_PUBLIC_RUNTIME_V2 fleet truth instead of rebuilding missing fleet counts from cards;
+- make range Overview consume the canonical policy projection and fail closed when the policy value is absent;
+- keep physical charger/vehicle identity separate from configured assignment and preserve charger-owned Start/Stop charging commands introduced in rc.81;
+- retain rc.81 mobile layout and user-safe relationship wording;
+- keep cross-domain Energy consumption exclusively on RHI_ENERGY_PUBLIC_CONTRACT_V2.
 
-Rollback: **v1.0.0-rc.80**.
+Rollback: **v1.0.0-rc.81**.
 Known accepted technical debt: **0**.
 Known accepted feature debt: **0**.
-Target-runtime qualification remains required before stable promotion.
+Target Home Assistant runtime and rollback qualification remain separate gates before stable promotion.
