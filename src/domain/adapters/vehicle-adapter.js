@@ -202,19 +202,16 @@ class HomeBrainVehicleAdapter {
     const profile = this.profile();
     const display = this.displayName();
 
-    const relationship = this.rt.vehicleChargerRelationship(assetId);
-    const isReal = (value) => {
-      const v = String(value || "").trim();
-      return !!v && !["none", "unknown", "unavailable", "null", "undefined", "—"].includes(v.toLowerCase());
-    };
-    const physicalChargerId = isReal(relationship.connected) ? this.rt.canonicalAssetId(relationship.connected) : "";
-    const effectiveChargerId = isReal(relationship.effective) ? this.rt.canonicalAssetId(relationship.effective) : "";
+    const productProjection = this.productProjection();
+    const relationship = productProjection.relationships || {};
+    const physicalChargerId = String(relationship.physically_connected_charger_id || "");
+    const effectiveChargerId = String(relationship.effective_charger_id || "");
     // Hero navigation may show the effective charger when no physical charger is
     // connected, but this never changes the physical connection semantics.
     const chargerContextId = physicalChargerId || effectiveChargerId;
     const chargerEntry = chargerContextId ? (this.rt.chargerById(chargerContextId) || this.rt.assetById(chargerContextId)) : null;
     const chargerDisplay = chargerEntry?.display_name
-      || (physicalChargerId ? relationship.connected_display_name : relationship.effective_display_name)
+      || relationship.charger_display_name
       || chargerContextId || "Not available";
     const chargerDetailRoute = chargerContextId ? this.rt.assetDetailRoute(chargerEntry || chargerContextId) : "";
 
@@ -233,7 +230,7 @@ class HomeBrainVehicleAdapter {
     const canonicalProfilePackage = String(profileVisual?.package_file || "");
     const img = visualPackageFile || canonicalProfilePackage || profileImage;
     const imageFilter = visualMatchesProfile ? (visual?.color?.filter || "none") : "none";
-    const projection = this.productProjection();
+    const projection = productProjection;
     const actions = projection.commands.map((cmd, index) => ({
       label: cmd.label || this.rt.titleize(cmd.command_id || cmd.command_key),
       icon: this.rt.commandIcon(cmd), entity: cmd.intent_entity, command: cmd,
