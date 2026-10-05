@@ -23,7 +23,8 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
     const assetId = this.assetId(asset);
     const pending = this._chargerPendingAppearance.get(assetId) || null;
     if (!pending) return null;
-    const canonical = String(rt.semanticProperty(assetId, "charger.image_key")?.value ?? "").trim();
+    const model = new HomeBrainChargerAdapter(rt, this.chargerId(asset), { ...this.config, registry_entry:asset }).build();
+    const canonical = String(model?.projection?.identity?.image_key || "").trim();
     if (canonical && canonical === pending.key) {
       this._chargerPendingAppearance.delete(assetId);
       this._chargerAppearanceError.delete(assetId);
@@ -53,11 +54,8 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
     if (rt) {
       const pending = this.pendingChargerAppearance(rt, asset);
       if (pending?.image) return pending.image;
-      const prop = rt.propertyByCompoundKey(assetId, "charger.image_key");
-      const raw = prop?.value ?? rt.visualImageKey(asset, "image") ?? asset?.image_key ?? "";
-      const visual = typeof rhiMobilityResolveChargerVisual === "function" ? rhiMobilityResolveChargerVisual(asset, raw) : null;
-      if (visual?.appearance?.package_file) return visual.appearance.package_file;
-      return rt.visualImageUrl(asset, "charger", "image", "charger_fallback");
+      const model = new HomeBrainChargerAdapter(rt, this.chargerId(asset), { ...this.config, registry_entry:asset }).build();
+      return model?.image || rt.assetUrl("chargers/charger_fallback.png");
     }
     return rhiMobilityAssetUrl("chargers/charger_fallback.png");
   }
