@@ -18,14 +18,16 @@ const screenSemanticBypasses = {
     [/rt\.mobilityExperienceV2\s*\(/g, 'screen bypasses asset projectors for Experience V2'],
     [/rt\.vehicleChargerRelationship\s*\(/g, 'screen bypasses VehicleProjection for relationships'],
     [/rt\.chargerProductSnapshot\s*\(/g, 'screen bypasses ChargerProjection for canonical charger facts'],
-    [/rt\.commandActionsFor\s*\(/g, 'screen bypasses asset projectors for commands']
+    [/rt\.commandActionsFor\s*\(/g, 'screen bypasses asset projectors for commands'],
+    [/rt\.(?:propertyByCompoundKey|semanticProperty|vehicleOverviewMetricSlots|vehicleChargePowerControlModel|vehicleRelationshipV2)\s*\(/g, 'screen bypasses canonical asset product projection']
   ],
   'src/ui/screens/charger-maintenance.js': [
     [/rt\.mobilityExperienceV2\s*\(/g, 'screen bypasses ChargerProjection for Experience V2'],
     [/rt\.chargerExperienceV2\s*\(/g, 'screen bypasses ChargerProjection for Experience V2'],
     [/rt\.chargerProductSnapshot\s*\(/g, 'screen bypasses ChargerProjection for canonical facts'],
     [/rt\.commandActionsFor\s*\(/g, 'screen bypasses ChargerProjection for commands'],
-    [/rt\.canonicalChargerProperty(?:Display|Value)\s*\(/g, 'screen bypasses ChargerProjection for canonical facts']
+    [/rt\.canonicalChargerProperty(?:Display|Value)\s*\(/g, 'screen bypasses ChargerProjection for canonical facts'],
+    [/rt\.(?:propertyByCompoundKey|semanticProperty|vehicleRelationshipV2)\s*\(/g, 'screen bypasses canonical ChargerProjection']
   ]
 };
 
@@ -66,6 +68,35 @@ for(const full of jsFiles(path.join(root,'src/domain/adapters'))){
   if(/\bhass\.states\b|\bthis\.hass\.states\b/.test(source)) failures.push(`${rel}: direct hass state access belongs to runtime only`);
 }
 
+const rawContractReaders = [
+  'mobilityRuntimeV2','mobilityExperienceV2','mobilityPolicyV2',
+  'vehicleExperienceV2','chargerExperienceV2','vehicleRelationshipV2','mobilityFleetV2'
+];
+for(const relDir of ['src/ui','src/domain/adapters']){
+  for(const full of jsFiles(path.join(root,relDir))){
+    const rel=path.relative(root,full);
+    const source=fs.readFileSync(full,'utf8');
+    for(const method of rawContractReaders){
+      const rx=new RegExp('(?:rt|this\\.rt)\\.'+method+'\\\\s*\\\\(','g');
+      const count=[...source.matchAll(rx)].length;
+      if(count) failures.push(`${rel}: raw contract reader ${method} bypasses canonical projection (${count})`);
+    }
+  }
+}
+
+
+
+const vehicleAdapter=fs.readFileSync(path.join(root,'src/domain/adapters/vehicle-adapter.js'),'utf8');
+for(const token of ['vehicleChargerRelationship(assetId)','experience?.charging_relationship ||']) {
+  if(vehicleAdapter.includes(token)) failures.push(`src/domain/adapters/vehicle-adapter.js: parallel vehicle relationship authority: ${token}`);
+}
+const chargerAdapter=fs.readFileSync(path.join(root,'src/domain/adapters/charger-adapter.js'),'utf8');
+for(const token of ['vehicleIntel.connected_vehicle_asset_id','physicalVehicleForCharger(assetId)','relatedVehicleForCharger(assetId)']) {
+  if(chargerAdapter.includes(token)) failures.push(`src/domain/adapters/charger-adapter.js: parallel charger relationship authority: ${token}`);
+}
+const runtimeSource=fs.readFileSync(path.join(root,'src/runtime/ha-contract-runtime.js'),'utf8');
+if(/mobilityRuntimeV2\(\)\?\.fleet\s*\|\|\s*this\.mobilityExperienceV2/.test(runtimeSource)) failures.push('runtime: Experience fleet fallback is forbidden');
+if(/return\s+this\.v2SemanticProperty[\s\S]{0,120}\|\|\s*this\.propertyByCompoundKey/.test(runtimeSource)) failures.push('runtime: parallel semantic property resolver is forbidden');
 
 const energyCrossDomainFiles = [
   'src/runtime/energy-public-v2-projection.js',
