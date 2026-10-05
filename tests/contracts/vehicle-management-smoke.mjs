@@ -279,7 +279,9 @@ console.log('PASS #116 management cards expose canonical relationships and bound
     },
     vehicleOverviewMetricSlots:()=>[],
     liveChargingContextForVehicle:()=>({}),
-    lifecycleStatus:()=> 'active'
+    lifecycleStatus:()=> 'active',
+    vehicleChargePowerControl:()=>null,
+    vehicleChargePowerControlModel:()=>null
   };
   const instance=new context.HomeBrainVehicleAdapter(rt,'vehicle_test',{registry_entry:{asset_id:'vehicle_test',display_name:'Test vehicle'}});
   const projection=instance.productProjection();
