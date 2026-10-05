@@ -82,6 +82,21 @@ for (const rel of energyCrossDomainFiles) {
   if(legacy.length) failures.push(`${rel}: legacy Energy entity dependency: ${[...new Set(legacy)].join(', ')}`);
 }
 
+
+const rawRuntimeReaders=['mobilityRuntimeV2','mobilityExperienceV2','mobilityPolicyV2','vehicleExperienceV2','chargerExperienceV2','vehicleRelationshipV2','mobilityFleetV2'];
+for(const relDir of ['src/ui','src/domain/adapters']){
+  for(const full of jsFiles(path.join(root,relDir))){
+    const rel=path.relative(root,full);
+    const source=fs.readFileSync(full,'utf8');
+    for(const method of rawRuntimeReaders){
+      const tokenA=`rt.${method}(`;
+      const tokenB=`this.rt.${method}(`;
+      const count=source.split(tokenA).length-1 + source.split(tokenB).length-1;
+      if(count) failures.push(`${rel}: raw runtime reader ${method} bypasses canonical projection (${count})`);
+    }
+  }
+}
+
 if(failures.length){
   console.error(failures.join('\n'));
   process.exit(1);
