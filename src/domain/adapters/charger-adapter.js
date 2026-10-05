@@ -31,13 +31,13 @@ class HomeBrainChargerAdapter {
   profile() { const reg = this.registryEntry(); return reg?.profile_display_name || reg?.profile || this.config.fallback_profile || "Charger"; }
   status() { return this.rt.chargerOperationalStatus(this.assetId()); }
   can(capability) { return this.commandExists(capability); }
-  overviewAvailability() {
+  overviewAvailability(snapshot = null) {
     const assetId = this.assetId();
     const lifecycle = this.rt.lifecycleStatus(this.registryEntry() || assetId);
     if (lifecycle === "disabled") return { bucket:"disabled", resolved:true, label:"Disabled" };
     if (lifecycle !== "active") return { bucket:"unknown", resolved:false, label:"N/A" };
 
-    const snapshot = this.rt.chargerProductSnapshot(assetId);
+    snapshot = snapshot || this.rt.chargerProductSnapshot(assetId);
     const operatingResolved = !!snapshot?.operating?.resolved;
     const operating = operatingResolved ? String(snapshot.operating.value || "").trim().toLowerCase() : "";
     if (operating === "fault") return { bucket:"unavailable", resolved:true, label:"Unavailable" };
@@ -135,7 +135,7 @@ class HomeBrainChargerAdapter {
         vehicle_detail_route: vehicleAssetId ? this.rt.assetDetailRoute(vehicleEntry || vehicleAssetId) : "",
         source: "MOBILITY_PUBLIC_RUNTIME_V2"
       },
-      availability: this.overviewAvailability(),
+      availability: this.overviewAvailability(snapshot),
       commands,
       experience,
       source_contracts: ["MOBILITY_PUBLIC_RUNTIME_V2", "MOBILITY_EXPERIENCE_V2", "MOBILITY_COMMAND_V2"]
@@ -156,8 +156,11 @@ class HomeBrainChargerAdapter {
     const status = projection.facts.operating.display;
     const connectionState = projection.facts.connection.display;
     const assignedVehicle = projection.facts.connected_vehicle.display;
-    const physicalVehicle = this.rt.physicalVehicleForCharger(assetId);
-    const relatedVehicle = this.rt.relatedVehicleForCharger(assetId);
+    const relatedVehicle = {
+      assetId:String(projection.relationships.connected_vehicle_id || ""),
+      displayName:String(projection.relationships.connected_vehicle_display_name || ""),
+      detailRoute:String(projection.relationships.vehicle_detail_route || "")
+    };
     const power = projection.facts.power.display;
     const sessionEnergy = projection.facts.session_energy.display;
     const currentLimit = projection.facts.current_limit.display;
