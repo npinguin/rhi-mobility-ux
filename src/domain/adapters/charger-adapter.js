@@ -96,7 +96,7 @@ class HomeBrainChargerAdapter {
     const healthIntel = experience.health_intelligence || {};
     const vehicleIntel = experience.vehicle_intelligence || {};
     const fault = experience.fault || {};
-    const vehicleAssetId = String(vehicleIntel.connected_vehicle_asset_id || "");
+    const vehicleAssetId = snapshot.connected_vehicle?.resolved ? String(snapshot.connected_vehicle.asset_id || "") : "";
     const vehicleEntry = vehicleAssetId ? (this.rt.vehicleById(vehicleAssetId) || this.rt.assetById(vehicleAssetId)) : null;
     return {
       identity: {
@@ -131,7 +131,7 @@ class HomeBrainChargerAdapter {
       },
       relationships: {
         connected_vehicle_id: vehicleAssetId,
-        connected_vehicle_display_name: String(vehicleIntel.connected_vehicle_display_name || vehicleEntry?.display_name || snapshot.connected_vehicle?.display || ""),
+        connected_vehicle_display_name: String(snapshot.connected_vehicle?.display || vehicleEntry?.display_name || ""),
         vehicle_detail_route: vehicleAssetId ? this.rt.assetDetailRoute(vehicleEntry || vehicleAssetId) : "",
         source: "MOBILITY_PUBLIC_RUNTIME_V2"
       },
@@ -156,8 +156,6 @@ class HomeBrainChargerAdapter {
     const status = projection.facts.operating.display;
     const connectionState = projection.facts.connection.display;
     const assignedVehicle = projection.facts.connected_vehicle.display;
-    const physicalVehicle = this.rt.physicalVehicleForCharger(assetId);
-    const relatedVehicle = this.rt.relatedVehicleForCharger(assetId);
     const power = projection.facts.power.display;
     const sessionEnergy = projection.facts.session_energy.display;
     const currentLimit = projection.facts.current_limit.display;
@@ -191,10 +189,9 @@ class HomeBrainChargerAdapter {
       tone:faultActive ? "attention" : "neutral"
     };
 
-    const vehicleAssetId = String(vehicleIntel.connected_vehicle_asset_id || "");
-    const vehicleEntry = vehicleAssetId ? (this.rt.vehicleById(vehicleAssetId) || this.rt.assetById(vehicleAssetId)) : null;
-    const vehicleDisplay = String(vehicleIntel.connected_vehicle_display_name || vehicleEntry?.display_name || vehicleIntel.summary || "No vehicle identified");
-    const vehicleRoute = vehicleAssetId ? this.rt.assetDetailRoute(vehicleEntry || vehicleAssetId) : "";
+    const vehicleAssetId = String(projection.relationships?.connected_vehicle_id || "");
+    const vehicleDisplay = String(projection.relationships?.connected_vehicle_display_name || "No vehicle connected");
+    const vehicleRoute = String(projection.relationships?.vehicle_detail_route || "");
     const vehicleTile = {
       label:"Vehicle",
       value:vehicleDisplay,
@@ -228,7 +225,7 @@ class HomeBrainChargerAdapter {
       // R22.12.11.24: charger detail sections come from the charger component contract.
       // UX must not infer charger layout from flat property family/group names.
       sections:[this.rt.lifecycleContractGapSection(assetId)].filter(Boolean).concat(
-        this.rt.addRelatedAssetDetailLinks(this.rt.chargerComponentDetailSections(assetId), { vehicleDetailRoute: relatedVehicle.detailRoute, vehicleDisplay: relatedVehicle.displayName })
+        this.rt.addRelatedAssetDetailLinks(this.rt.chargerComponentDetailSections(assetId), { vehicleDetailRoute: vehicleRoute, vehicleDisplay })
       ).concat([
         { key:"activity", title:"Recent Activity", icon:"mdi:history", header:"Activity contract", rows:this.latestActivityRows(assetId), details:[] }
       ])
