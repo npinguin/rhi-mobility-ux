@@ -29,7 +29,12 @@ const forbiddenDashboard=[
   'rt.mobilityExperienceV2(',
   'rt.vehicleChargerRelationship(',
   'rt.chargerProductSnapshot(',
-  'rt.commandActionsFor('
+  'rt.commandActionsFor(',
+  'rt.propertyByCompoundKey(',
+  'rt.semanticProperty(',
+  'rt.vehicleOverviewMetricSlots(',
+  'rt.vehicleChargePowerControlModel(',
+  'rt.vehicleRelationshipV2('
 ];
 for(const token of forbiddenDashboard) if(dashboard.includes(token)) throw new Error(`dashboard bypasses canonical projection: ${token}`);
 
@@ -42,6 +47,13 @@ const forbiddenCharger=[
   'rt.canonicalChargerPropertyValue('
 ];
 for(const token of forbiddenCharger) if(chargerScreen.includes(token)) throw new Error(`charger management bypasses canonical projection: ${token}`);
+
+
+for(const token of ['vehicleChargerRelationship(assetId)','experience?.charging_relationship ||','physicalVehicleForCharger(assetId)','relatedVehicleForCharger(assetId)']) {
+  if(vehicle.includes(token)) throw new Error(`VehicleProjection/build retains parallel relationship path: ${token}`);
+}
+if(charger.includes('vehicleIntel.connected_vehicle_asset_id')) throw new Error('ChargerProjection may not take physical relationship identity from Experience');
+if(charger.includes('physicalVehicleForCharger(assetId)') || charger.includes('relatedVehicleForCharger(assetId)')) throw new Error('Charger build retains parallel relationship projection');
 
 if(!dashboard.includes('model?.projection?.signals')) throw new Error('dashboard does not consume projected signals');
 if(!dashboard.includes('model?.projection?.commands')) throw new Error('dashboard does not consume projected commands');
