@@ -5057,7 +5057,8 @@ class HomeBrainVehicleAdapter {
     const signal = (intel = {}, label, icon, attentionStates = []) => {
       const state = String(intel?.state || "").toLowerCase();
       const summary = String(intel?.summary || "Unavailable");
-      const reason = String(intel?.reason || "");
+      const rawReason = String(intel?.reason || "").trim();
+      const reason = /^[a-z0-9]+(?:[_.:-][a-z0-9]+)+$/i.test(rawReason) ? "" : rawReason;
       return {
         resolved: !!intel && Object.keys(intel).length > 0 && !["unknown","unavailable"].includes(state),
         value: summary,
@@ -5083,8 +5084,8 @@ class HomeBrainVehicleAdapter {
       ? (chargerDisplay || "Connected")
       : (configuredId ? (chargerDisplay || "Assigned charger") : String(chargingIntel.summary || "No charger"));
     charging.reason = physicalId
-      ? String(chargingIntel.summary || chargingIntel.reason || "Physical charger confirmed")
-      : (configuredId ? "Configured · physical identity not proven" : String(chargingIntel.reason || chargingIntel.summary || "No charger assigned"));
+      ? String(chargingIntel.summary || "Connected charger")
+      : (configuredId ? "Assigned charger" : String(charging.reason || chargingIntel.summary || "No charger assigned"));
     charging.detailRoute = relationshipId ? this.rt.assetDetailRoute(chargerEntry || relationshipId) : "";
     charging.detailTitle = chargerDisplay ? `Open ${chargerDisplay} details` : "Open charger details";
 
