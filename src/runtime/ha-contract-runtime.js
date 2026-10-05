@@ -323,7 +323,9 @@ class HomeBrainAssetRuntime {
   }
 
   mobilityFleetV2() {
-    return this.mobilityRuntimeV2()?.fleet || this.mobilityExperienceV2()?.fleet || {};
+    // Fleet totals have one semantic owner: MOBILITY_PUBLIC_RUNTIME_V2.fleet.
+    // Experience may explain the result but may never replace missing runtime truth.
+    return this.mobilityRuntimeV2()?.fleet || {};
   }
 
   vehicleExperienceV2(assetId = "") {
@@ -339,9 +341,7 @@ class HomeBrainAssetRuntime {
   vehicleRelationshipV2(assetId = "") {
     const canonical = this.canonicalAssetId(assetId);
     const runtime = this.mobilityRuntimeV2();
-    const fromRuntime = runtime?.vehicle_charger_relationships?.find((row) => String(row?.vehicle_id || row?.asset_id || "") === canonical);
-    if (fromRuntime) return fromRuntime;
-    return this.vehicleExperienceV2(canonical)?.charging_relationship || null;
+    return runtime?.vehicle_charger_relationships?.find((row) => String(row?.vehicle_id || row?.asset_id || "") === canonical) || null;
   }
 
   parseListValue(value) {
@@ -2573,8 +2573,9 @@ class HomeBrainAssetRuntime {
   }
 
   semanticProperty(assetId = "", propertyKey = "") {
-    return this.v2SemanticProperty(assetId, propertyKey)
-      || this.propertyByCompoundKey(assetId, propertyKey);
+    // One canonical property resolver. propertyRows() is already V2-only and
+    // deterministically resolves duplicate transport rows.
+    return this.propertyByCompoundKey(assetId, propertyKey);
   }
 
   propertyByCompoundKey(assetId = "", propertyKey = "") {
