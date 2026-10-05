@@ -1,5 +1,5 @@
 /**
- * Robotix Home Intelligence Mobility UX v1.0.0-rc.81
+ * Robotix Home Intelligence Mobility UX v1.0.0-rc.82
  * GENERATED FILE - DO NOT EDIT.
  * License: GPL-3.0-only
  */
@@ -880,6 +880,26 @@ function hbMobilityPresentationStyles() {
     .rhi-fact small{font-size:var(--rhi-font-label);color:var(--rhi-color-muted-soft);font-weight:var(--rhi-weight-medium)}
     .rhi-fact b{display:block;margin-top:2px;color:var(--rhi-color-text);font-size:14px;font-weight:var(--rhi-weight-strong);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .rhi-fact span{margin-top:2px;font-size:var(--rhi-font-small);color:var(--rhi-color-muted)}
+    @media(max-width:1200px) and (min-width:761px){
+      .vehicle-intelligence-strip.status-top-row{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+        grid-auto-rows:minmax(48px,auto);
+        overflow:hidden;
+      }
+      .vehicle-intelligence-strip .intelligence-status-row{
+        min-width:0;
+        min-height:48px;
+        overflow:hidden;
+      }
+      .vehicle-intelligence-strip .intelligence-status-row span,
+      .vehicle-intelligence-strip .intelligence-status-row .pill{
+        min-width:0;
+        max-width:100%;
+        overflow:hidden;
+        text-overflow:ellipsis;
+        white-space:nowrap;
+      }
+    }
     @media(max-width:760px){
       .vehicle-management-bar{grid-template-columns:1fr}
       .vehicle-sort-control,.vehicle-manage-button{grid-column:auto}
@@ -900,7 +920,7 @@ function hbMobilityPresentationStyles() {
 // ---- src/app/header-and-navigation.js ----
 // Mobility presentation adapter onto the shared RHI UX Core.
 // Domain semantics remain owned by Mobility runtime/projections.
-const UX_VERSION = "1.0.0-rc.81";
+const UX_VERSION = "1.0.0-rc.82";
 const HB_MOBILITY_ROUTE_SEGMENTS = new Set([
   "overview","dashboard","vehicles","charger-maintenance","chargers",
   "planning","strategies","history","log","asset-detail","detail","charging"
@@ -5117,12 +5137,29 @@ class HomeBrainVehicleAdapter {
       ? this.rt.commandActionsFor(relationshipId, "quick_actions")
           .filter((command) => chargingCommandKeys.has(String(command?.command_key || "")))
       : [];
-    const commands = [...chargerCommands, ...vehicleCommands].filter((command, index, rows) => {
-      const key = `${String(command?.asset_id || "")}::${String(command?.command_key || command?.command_id || "")}`;
-      return rows.findIndex((candidate) =>
-        `${String(candidate?.asset_id || "")}::${String(candidate?.command_key || candidate?.command_id || "")}` === key
-      ) === index;
-    });
+    const semanticCommandRole = (command) => {
+      const key = String(command?.command_key || command?.command_id || "").toLowerCase();
+      if (key === "charger.command.start" || key === "charger.command.start_charging") return "charging:start";
+      if (key === "charger.command.stop" || key === "charger.command.stop_charging") return "charging:stop";
+      return key;
+    };
+    const commandPreference = (command) => {
+      const key = String(command?.command_key || command?.command_id || "").toLowerCase();
+      if (key === "charger.command.start" || key === "charger.command.stop") return 0;
+      if (key === "charger.command.start_charging" || key === "charger.command.stop_charging") return 1;
+      return 0;
+    };
+    const commands = [...chargerCommands, ...vehicleCommands]
+      .sort((a,b) => commandPreference(a) - commandPreference(b))
+      .filter((command, index, rows) => {
+        const executor = String(command?.physical_executor_asset_id || command?.asset_id || "");
+        const role = semanticCommandRole(command);
+        const key = `${executor}::${role}`;
+        return rows.findIndex((candidate) => {
+          const candidateExecutor = String(candidate?.physical_executor_asset_id || candidate?.asset_id || "");
+          return `${candidateExecutor}::${semanticCommandRole(candidate)}` === key;
+        }) === index;
+      });
     return {
       identity: {
         asset_id: assetId,
