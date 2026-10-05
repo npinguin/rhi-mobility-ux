@@ -72,7 +72,7 @@ class HomeBrainChargerAdapter {
     const assetId = this.assetId();
     const reg = this.registryEntry() || { asset_id: assetId };
     const snapshot = this.rt.chargerProductSnapshot(assetId);
-    const experience = this.rt.chargerExperienceV2(assetId) || {};
+    const experience = this.rt.chargerExperienceProjection(assetId);
     const commands = this.rt.commandActionsFor(assetId, "quick_actions");
     const profileProperty = this.rt.semanticProperty(assetId, "asset.profile_id");
     const imageProperty = this.rt.semanticProperty(assetId, "charger.image_key");
