@@ -1,12 +1,13 @@
-# v1.0.0-rc.81 — target Home Assistant charging and phone UX closure
+# v1.0.0-rc.82 — unified Mobility semantic projection candidate
 
-- surface canonical charger-owned Start/Stop charging actions on assigned vehicle cards without changing command ownership;
-- preserve backend command readiness and physical-identity safety;
-- remove technical relationship/machine-state wording from normal vehicle UX;
-- close mobile Vehicle Management overlap by returning status, hero, controls and actions to normal responsive flow;
-- retain canonical V2-only contract and cross-domain Energy boundaries.
+- make VehicleProjection the sole owner of vehicle relationship, overview metrics, charging configuration, ready-by and climate facts;
+- make ChargerProjection the sole owner of charger snapshot, availability and connected-vehicle relationship truth;
+- remove duplicate relationship/snapshot reads from adapter presentation build paths;
+- make Overview consume the same projected facts and configuration used by detail views;
+- retain the single Energy Public V2 cross-domain ingress introduced in rc.80;
+- strengthen architecture gates so screens cannot reopen direct semantic runtime paths.
 
-Rollback: **v1.0.0-rc.80**.
+Rollback: **v1.0.0-rc.81**.
 Known accepted technical debt: **0**.
 Known accepted feature debt: **0**.
 Target-runtime qualification remains required before stable promotion.
