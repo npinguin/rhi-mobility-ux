@@ -267,10 +267,14 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     return `<div class="mini-control charger-select writable" title="Change assigned charger"><ha-icon icon="mdi:ev-station"></ha-icon><span class="relationship-copy"><small>Assigned charger · Change</small><select data-property-asset="${rt.escape(assetId)}" data-property-key="vehicle.selected_charger" aria-label="Change assigned charger">${current && !currentKnown ? `<option value="${rt.escape(current)}" selected disabled>${rt.escape(model.display || current)}</option>` : ""}${model.choices.map((choice)=>`<option value="${rt.escape(choice.value)}" ${choice.value === current ? "selected" : ""}>${rt.escape(choice.label)}</option>`).join("")}</select></span></div>`;
   }
 
-  renderVehicleControlRow(rt, vehicleAsset, chargers) {
-    const ctx = this.chargingContext(rt, vehicleAsset, chargers);
-    const metricSlots = rt.vehicleOverviewMetricSlots(this.assetId(vehicleAsset));
-    const chargePowerModel = rt.vehicleChargePowerControlModel(this.assetId(vehicleAsset));
+  renderVehicleControlRow(rt, vehicleAsset, chargers, vehicleModel = null) {
+    const model=vehicleModel || new HomeBrainVehicleAdapter(rt,this.vehicleId(vehicleAsset),{...this.config,registry_entry:vehicleAsset}).build();
+    const projection=model?.projection||{};
+    const assignedId=String(projection.relationships?.effective_charger_id||projection.relationships?.configured_charger_id||"");
+    const assigned=assignedId?(rt.chargerById(assignedId)||chargers.find(c=>String(c.asset_id||"")===assignedId)||null):null;
+    const ctx={assetId:this.assetId(vehicleAsset),assigned,info:projection.facts?.live_charging||{},projection};
+    const metricSlots=projection.facts?.overview_metrics||[];
+    const chargePowerModel=projection.configuration?.charge_power_control_model||{};
     const limitValue = chargePowerModel?.resolved && Number.isFinite(Number(chargePowerModel.value)) ? Number(chargePowerModel.value) : null;
     const currentValue = limitValue === null ? "—" : (Number.isInteger(limitValue) ? String(limitValue) : Number(limitValue).toFixed(2).replace(/\.00$/, ""));
     const meta = {
@@ -303,7 +307,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
         ${metricSlots.map((slot, index)=>`<div class="metric-chip ${index === 2 ? "battery-chip" : ""}" title="${rt.escape(slot.label || rt.t("common.not_available",{},"Not available"))}"><span>${rt.escape(slot.label)}</span><b>${rt.escape(slot.resolved ? slot.display : "—")}</b></div>`).join("")}
       </div>
       <div class="charge-mini-strip mock-controls has-speed no-mode">
-        ${this.renderChargerAssignmentSelect(rt, vehicleAsset)}
+        ${this.renderChargerAssignmentSelect(rt, vehicleAsset, model)}
         ${currentControl}
         ${actualPowerControl}
       </div>
@@ -350,18 +354,18 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     const subtitle = this.displaySubtitle(asset, model);
     const image = model?.image || "";
     const route = rt.assetDetailRoute(asset);
-    const ctx = this.chargingContext(rt, asset, chargers);
-    const relLabels = model?.projection?.relationships || {};
-    const assignedName = relLabels.charger_display_name || ctx.assigned?.display_name || "No charger selected";
+    const relLabels=model?.projection?.relationships||{};
+    const assignedName=relLabels.charger_display_name||"No charger selected";
     const hasEffectiveCharger = !!String(relLabels.effective_charger_id || "").trim();
     const hasConnectedCharger = !!String(relLabels.physically_connected_charger_id || "").trim();
-    const activeChargerId = String(relLabels.physically_connected_charger_id || relLabels.effective_charger_id || relLabels.configured_charger_id || ctx.assigned?.asset_id || "");
+    const activeChargerId = String(relLabels.physically_connected_charger_id || relLabels.effective_charger_id || relLabels.configured_charger_id || "");
     const activeChargerAsset = activeChargerId ? (rt.chargerById(activeChargerId) || rt.assetById(activeChargerId) || { asset_id: activeChargerId, asset_type: "charger" }) : null;
     const activeChargerRoute = activeChargerAsset ? rt.assetDetailRoute(activeChargerAsset) : "";
     const chargerImage = activeChargerId ? this.chargerImage(activeChargerId) : rhiMobilityAssetUrl("chargers/charger_fallback.png");
     const notPresentButton = this.lifecycleToggleButton(rt, asset, "presence-toggle manage-lifecycle");
     const vehicleCommands = model?.projection?.commands || [];
-    const chargingActivity = this.chargingActivityDisplay(rt, asset);
+    const chargingSignal=model?.projection?.signals?.charging||{};
+    const chargingActivity=String(chargingSignal.display||chargingSignal.value||"Unavailable")+(chargingSignal.reason&&chargingSignal.reason!==chargingSignal.display?` · ${chargingSignal.reason}`:"");
     const pickerOpen = this._vehiclePickerAsset === assetId;
     const pickerDraft = pickerOpen ? (this._vehiclePickerDraft.get(assetId) || {}) : {};
     const visual = this.vehicleVisualSelection(rt, asset, pickerDraft);
@@ -388,7 +392,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
       </div>
       ${pickerOpen ? this.renderVehiclePicker(rt, asset) : ""}
       ${appearanceError ? `<div class="appearance-write-error" role="status"><ha-icon icon="mdi:alert-circle-outline"></ha-icon><span>${rt.escape(appearanceError)}</span></div>` : ""}
-      ${this.renderVehicleControlRow(rt, asset, chargers)}
+      ${this.renderVehicleControlRow(rt, asset, chargers, model)}
       <div class="vehicle-actions clean-actions">
         ${vehicleCommands.map((cmd, index)=>this.renderCommand(rt, cmd, cmd?.label || "Action", this.commandIcon(cmd), index === 0 ? "primary-charge" : "")).join("")}
         ${Array.from({length: Math.max(0, 3 - vehicleCommands.length)}).map(()=>`<span class="action-spacer"></span>`).join("")}
@@ -413,7 +417,8 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     const visualFilter = visual?.color?.filter || "none";
     const route = rt.assetDetailRoute(asset);
     const signals = model?.projection?.signals || {};
-    const charging = this.chargingActivityDisplay(rt, asset);
+    const chargingSignal=model?.projection?.signals?.charging||{};
+    const charging=String(chargingSignal.display||chargingSignal.value||"Unavailable")+(chargingSignal.reason&&chargingSignal.reason!==chargingSignal.display?` · ${chargingSignal.reason}`:"");
     const commands = (model?.projection?.commands || []).slice(0, 2);
     const signalValue = (tile, fallback = "—") => tile?.value && !String(tile.value).toLowerCase().includes("contract gap") ? tile.value : fallback;
     const signalTone = (tile) => {
@@ -431,7 +436,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
       <div class="ov-signal" title="Published climate/comfort property"><ha-icon icon="mdi:fan"></ha-icon><span>Comfort</span><b>${rt.escape(signals.climate)}</b></div>
       <div class="ov-signal ${signalTone(signals.maintenance)}" title="${rt.escape(signals.maintenance?.subvalue || "")}"><ha-icon icon="mdi:wrench-outline"></ha-icon><span>Maintenance</span><b>${rt.escape(signalValue(signals.maintenance, "Unknown"))}</b></div>
       <div class="ov-charging-state"><ha-icon icon="mdi:lightning-bolt"></ha-icon><span>${rt.escape(charging)}</span></div>
-      <div class="ov-assignment">${this.renderChargerAssignmentSelect(rt, asset)}</div>
+      <div class="ov-assignment">${this.renderChargerAssignmentSelect(rt, asset, model)}</div>
       <div class="ov-row-actions">
         ${commands.map((cmd, index)=>this.renderCommand(rt, cmd, cmd?.label || "Action", this.commandIcon(cmd), index === 0 ? "primary-charge" : "")).join("")}
         <button class="action icon-only ov-detail" data-nav="${rt.escape(route)}" title="Open all vehicle details"><ha-icon icon="mdi:chevron-right"></ha-icon></button>
@@ -562,22 +567,22 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
   }
 
   overviewNextDeparture(rt, vehicles = []) {
-    const candidates = [];
-    for (const vehicle of vehicles) {
-      const assetId = this.assetId(vehicle);
-      const departure = rt.propertyByCompoundKey(assetId, "vehicle.ready_by");
-      if (!departure || departure.value === undefined || departure.value === null || String(departure.value).trim() === "") continue;
-      const instant = this.overviewDepartureInstant(departure.value);
-      if (instant === null || instant < Date.now() - 5 * 60 * 1000) continue;
-      const climate = rt.propertyByCompoundKey(assetId, "vehicle.climate_state");
-      candidates.push({ vehicle, assetId, instant, climate });
+    const candidates=[];
+    const factory=new HomeBrainAssetFactory(rt);
+    for(const vehicle of vehicles){
+      const model=factory.adapterFor(vehicle,this.config)?.build?.()||null;
+      const departure=model?.projection?.facts?.ready_by||null;
+      if(!departure||departure.value===undefined||departure.value===null||String(departure.value).trim()==="") continue;
+      const instant=this.overviewDepartureInstant(departure.value);
+      if(instant===null||instant<Date.now()-5*60*1000) continue;
+      candidates.push({vehicle,model,instant,climate:model?.projection?.facts?.climate_state||null});
     }
     candidates.sort((a,b)=>a.instant-b.instant);
-    const next = candidates[0] || null;
-    if (!next) return { resolved:false, vehicle:null, vehicleName:"N/A", climate:"N/A", departure:"" };
-    const climate = next.climate ? String(rt.propertyDisplayValue(next.climate) || "N/A") : "N/A";
-    const vehicleName = String(next.vehicle?.display_name || rt.vehicleLabel(next.assetId) || next.assetId);
-    return { resolved:true, vehicle:next.vehicle, vehicleName, climate, departure:new Date(next.instant).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"}) };
+    const next=candidates[0]||null;
+    if(!next)return {resolved:false,vehicle:null,vehicleName:"N/A",climate:"N/A",departure:""};
+    const climate=next.climate?String(rt.propertyDisplayValue(next.climate)||"N/A"):"N/A";
+    const vehicleName=String(next.model?.display||next.vehicle?.display_name||this.assetId(next.vehicle));
+    return {resolved:true,vehicle:next.vehicle,vehicleName,climate,departure:new Date(next.instant).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})};
   }
 
   overviewShortLabel(asset = {}, fallback = "") {
