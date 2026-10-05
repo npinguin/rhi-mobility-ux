@@ -66,6 +66,22 @@ for(const full of jsFiles(path.join(root,'src/domain/adapters'))){
   if(/\bhass\.states\b|\bthis\.hass\.states\b/.test(source)) failures.push(`${rel}: direct hass state access belongs to runtime only`);
 }
 
+
+const energyCrossDomainFiles = [
+  'src/runtime/energy-public-v2-projection.js',
+  'src/runtime/energy-planning-projection.js',
+  'src/runtime/energy-mobility-insights-projection.js',
+  'src/runtime/energy-mobility-strategy-projection.js'
+];
+for (const rel of energyCrossDomainFiles) {
+  const full=path.join(root,rel);
+  if(!fs.existsSync(full)) { failures.push(`${rel}: missing Energy Public V2 boundary file`); continue; }
+  const source=fs.readFileSync(full,'utf8');
+  if(!source.includes('RHI_ENERGY_PUBLIC_CONTRACT_V2')) failures.push(`${rel}: cross-domain Energy projection is not anchored to Public V2`);
+  const legacy=source.match(/sensor\.energy_[a-z0-9_]+/g)||[];
+  if(legacy.length) failures.push(`${rel}: legacy Energy entity dependency: ${[...new Set(legacy)].join(', ')}`);
+}
+
 if(failures.length){
   console.error(failures.join('\n'));
   process.exit(1);
