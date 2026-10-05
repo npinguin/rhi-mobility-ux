@@ -149,12 +149,29 @@ class HomeBrainVehicleAdapter {
       ? this.rt.commandActionsFor(relationshipId, "quick_actions")
           .filter((command) => chargingCommandKeys.has(String(command?.command_key || "")))
       : [];
-    const commands = [...chargerCommands, ...vehicleCommands].filter((command, index, rows) => {
-      const key = `${String(command?.asset_id || "")}::${String(command?.command_key || command?.command_id || "")}`;
-      return rows.findIndex((candidate) =>
-        `${String(candidate?.asset_id || "")}::${String(candidate?.command_key || candidate?.command_id || "")}` === key
-      ) === index;
-    });
+    const semanticCommandRole = (command) => {
+      const key = String(command?.command_key || command?.command_id || "").toLowerCase();
+      if (key === "charger.command.start" || key === "charger.command.start_charging") return "charging:start";
+      if (key === "charger.command.stop" || key === "charger.command.stop_charging") return "charging:stop";
+      return key;
+    };
+    const commandPreference = (command) => {
+      const key = String(command?.command_key || command?.command_id || "").toLowerCase();
+      if (key === "charger.command.start" || key === "charger.command.stop") return 0;
+      if (key === "charger.command.start_charging" || key === "charger.command.stop_charging") return 1;
+      return 0;
+    };
+    const commands = [...chargerCommands, ...vehicleCommands]
+      .sort((a,b) => commandPreference(a) - commandPreference(b))
+      .filter((command, index, rows) => {
+        const executor = String(command?.physical_executor_asset_id || command?.asset_id || "");
+        const role = semanticCommandRole(command);
+        const key = `${executor}::${role}`;
+        return rows.findIndex((candidate) => {
+          const candidateExecutor = String(candidate?.physical_executor_asset_id || candidate?.asset_id || "");
+          return `${candidateExecutor}::${semanticCommandRole(candidate)}` === key;
+        }) === index;
+      });
     return {
       identity: {
         asset_id: assetId,
