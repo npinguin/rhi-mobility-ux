@@ -102,6 +102,26 @@ function hbMobilityPresentationStyles() {
     .rhi-fact small{font-size:var(--rhi-font-label);color:var(--rhi-color-muted-soft);font-weight:var(--rhi-weight-medium)}
     .rhi-fact b{display:block;margin-top:2px;color:var(--rhi-color-text);font-size:14px;font-weight:var(--rhi-weight-strong);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .rhi-fact span{margin-top:2px;font-size:var(--rhi-font-small);color:var(--rhi-color-muted)}
+    @media(max-width:1200px) and (min-width:761px){
+      .vehicle-intelligence-strip.status-top-row{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+        grid-auto-rows:minmax(48px,auto);
+        overflow:hidden;
+      }
+      .vehicle-intelligence-strip .intelligence-status-row{
+        min-width:0;
+        min-height:48px;
+        overflow:hidden;
+      }
+      .vehicle-intelligence-strip .intelligence-status-row span,
+      .vehicle-intelligence-strip .intelligence-status-row .pill{
+        min-width:0;
+        max-width:100%;
+        overflow:hidden;
+        text-overflow:ellipsis;
+        white-space:nowrap;
+      }
+    }
     @media(max-width:760px){
       .vehicle-management-bar{grid-template-columns:1fr}
       .vehicle-sort-control,.vehicle-manage-button{grid-column:auto}
