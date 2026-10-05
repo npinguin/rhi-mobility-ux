@@ -143,6 +143,25 @@ if(v2rt.chargerExperienceV2('charger_peb')?.fault?.state!=='none') throw new Err
 if(v2rt.mobilityPolicyV2()?.policy?.maintenance?.due_soon_days!==90) throw new Error('Policy V2 contract not consumed');
 if(v2rt.vehicleRelationshipV2('vehicle_id4')?.observed_identity_proven!==false) throw new Error('Runtime V2 relationship identity proof not preserved');
 if(v2Hass.lastCall) throw new Error('Policy V2 read contract must not imply an optimistic write path');
+
+const divergentAuthorityHass={states:{
+  'sensor.rhi_mobility_runtime_v2':{state:'ready',attributes:{
+    contract_id:'MOBILITY_PUBLIC_RUNTIME_V2',canonical:true,release:{backend_release:'M0.10.25'},
+    assets:[{asset_id:'vehicle_id4',asset_type:'vehicle'}],
+    vehicle_charger_relationships:[{vehicle_id:'vehicle_id4',configured_charger_id:'charger_runtime',effective_charger_id:'charger_runtime',physically_connected_charger_id:null,observed_identity_proven:false}]
+  }},
+  'sensor.rhi_mobility_experience_v2':{state:'ready',attributes:{
+    contract_id:'MOBILITY_EXPERIENCE_V2',
+    fleet:{active_vehicle_count:99,connected_charger_count:99},
+    vehicles:[{asset_id:'vehicle_id4',charging_relationship:{configured_charger_id:'charger_experience',effective_charger_id:'charger_experience',physically_connected_charger_id:'charger_experience',observed_identity_proven:true}}]
+  }}
+}};
+const divergentRt=new Runtime(divergentAuthorityHass,{});
+if(Object.keys(divergentRt.mobilityFleetV2()).length!==0) throw new Error('Experience fleet must never replace missing Runtime V2 fleet truth');
+const divergentRelationship=divergentRt.vehicleRelationshipV2('vehicle_id4');
+if(divergentRelationship?.effective_charger_id!=='charger_runtime' || divergentRelationship?.observed_identity_proven!==false) throw new Error('Experience relationship must never override Runtime V2 relationship truth');
+console.log('PASS Runtime V2 is sole fleet and physical relationship authority');
+
 console.log('PASS Mobility Runtime/Experience/Policy V2 direct contract consumption with no optimistic policy write API');
 
 
