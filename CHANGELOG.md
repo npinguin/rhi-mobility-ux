@@ -1,9 +1,3 @@
-## 1.0.0-rc.81 — Target HA charging and phone UX closure
-
-- expose assigned charger Start/Stop actions on vehicle cards while keeping charger ownership and backend readiness;
-- hide technical physical-identity and machine-code wording from normal product UX;
-- fix phone Vehicle Management cards so variable status content cannot overlap the vehicle hero or controls.
-
 ## 1.0.0-rc.80 — canonical cross-domain Energy V2 closure
 
 - route Mobility Planning, Insights and Strategy through the single producer-owned `RHI_ENERGY_PUBLIC_CONTRACT_V2` ingress;
