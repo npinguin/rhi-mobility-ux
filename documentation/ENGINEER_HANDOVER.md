@@ -1,5 +1,79 @@
 # Engineer handover — RHI Mobility UX
 
+## Zero-debt closure baseline
+
+Mobility UX is part of the coordinated RHI frontend closure program. The target is **zero accepted technical debt, zero accepted feature debt and zero V1 product/runtime dependency**.
+
+Current candidate context for this handover:
+
+- candidate: `1.0.0-rc.80`;
+- closure PR: `#146`;
+- canonical product authority: `MOBILITY_PUBLIC_RUNTIME_V2` plus the explicitly required V2 companion contracts;
+- minimum/tested backend baseline: `M0.10.25`;
+- vendored UX Core in this candidate: `1.6.1`;
+- current Core main is newer; Core adoption must be explicit and provenance-pinned, never silently drifted;
+- stable promotion remains blocked until exact-candidate target Home Assistant qualification passes.
+
+Machine-readable release authority remains `package.json`, `release/RELEASE_STATUS.json` and `release/QUALIFICATION.json`.
+
+### Non-negotiable architecture
+
+```text
+Mobility public V2 contracts
+        ↓
+single runtime gateway
+        ↓
+thin vehicle / charger projections
+        ↓
+RHI UX Core grammar + Mobility content
+        ↓
+user
+```
+
+Rules:
+
+1. **V1 is fully decommissioned.** V1 product/runtime readers, indexes, fallbacks, compatibility authorities and V1-shaped reconstruction are forbidden in `src/` and generated `dist/`.
+2. Historical V1 names may exist only in archive/history or negative tests proving they are rejected. They are never runtime compatibility.
+3. **One projection boundary.** Screens consume vehicle/charger projections. A backend semantic change is mapped once, not fixed across multiple screens.
+4. **No frontend domain inference.** Relationships, readiness, command capability, actual/requested values, policy and supervision come from the owning V2 contract.
+5. **Unmapped truth is reported, not guessed.** Missing required semantics become an owning-backend gap.
+6. **Normal UX is product language.** Contract names, entity IDs, property keys, raw backend codes and implementation details do not appear on normal screens.
+7. **Diagnostics is explicit.** Engineering evidence is available only through a deliberate technical disclosure.
+8. **EN/NL/FR is release scope.** Product copy uses localization resources and locale-aware formatting; machine identifiers remain untranslated.
+9. **Writes require canonical readback.** Requested intent is transient. Actual/readback remains the operational truth.
+10. **Core owns shared grammar.** Mobility retains dedicated domain content and detail UX but must not fork shared shell/Hero/status/asset/editor/responsive primitives.
+
+### Product UX grammar
+
+```text
+Is my mobility ready?
+        ↓
+What needs attention?
+        ↓
+What can I do?
+        ↓
+Details
+        ↓
+Diagnostics
+```
+
+A normal user should never need to understand Home Assistant entities, Mobility contract identifiers or transport/write mechanics.
+
+### Definition of done
+
+A transferable Mobility candidate requires:
+
+- static/package/HACS validation green;
+- V1 product API decommission proven;
+- zero accepted presentation/technical/feature debt;
+- EN/NL/FR and user-safe copy proven;
+- vehicle/charger relationships and actual/readback truth proven on target HA;
+- lifecycle, appearance, requested-power and select writes proven with readback + refresh/restart persistence;
+- responsive runtime proven;
+- cross-domain navigation/visual identity proven;
+- upgrade and rollback proven;
+- qualification bound to the exact immutable candidate SHA.
+
 ## Start here
 
 Do not copy current release identity from this document. The authoritative sources are `package.json` for package version and `release/product.json` for contract/backend/release context. Published versions are authoritative in GitHub Releases.
@@ -69,9 +143,7 @@ MOBILITY_EXPERIENCE_V2     = user-facing conclusions
 UX                         = select / aggregate / format / present
 ```
 
-The supported runtime path is V2-only on Mobility M0.9.44+: Runtime V2, Experience V2, Policy V2, Command V2, Activity V2, Profile Catalog V2, Supervision V2 and canonical per-asset V2 semantic configuration. Frozen V1 code may exist only for unsupported older-backend compatibility and must never execute as fallback once Runtime V2 is present. Current release/backend identity must always be read from `package.json` and `release/product.json`, never from this handover.
-
-Configuration controls consume backend-published canonical V2 write metadata, options and write targets. `asset.profile_id`, `vehicle.image_key` and `charger.image_key` are the picker persistence surfaces. Frozen V1 may remain as old-backend compatibility code, but the current M0.9.44+ release path never uses it as fallback authority. Runtime controls remain fail-closed without published write capability.
+The supported runtime path is V2-only: Runtime V2, Experience V2, Policy V2, Command V2, Activity V2, Profile Catalog V2, Supervision V2 and canonical per-asset V2 semantic configuration. V1 product/runtime compatibility is not supported in the current package. Runtime controls remain fail-closed without published V2 write capability.
 
 Actual/readback is the normal operational truth. Requested intent is transient during editing/pending write and must not replace canonical actual state.
 
@@ -107,7 +179,7 @@ Global supervisor status, trust and attention are Mobility Supervision V2-owned.
 `documentation/KNOWN_DEFECTS.md` is authoritative for unresolved product defects. These are unresolved defects, not accepted feature debt. Do not silently close them through frontend inference or fallback logic.
 
 In particular:
-- V2 interface migration remains an explicit open issue until remaining V1 property-index/V1-shaped assumptions are removed or isolated as compatibility-only and target runtime proof exists;
+- V1 product/runtime migration is closed only when source, generated package and target-runtime evidence all prove there is no V1 authority, fallback or compatibility execution path;
 - frontend-derived supervisory meaning and requested-versus-actual cleanup may only be closed when backend public contracts supply the required authority and owned regression tests prove the UX consumes it correctly;
 - picker persistence is not closed by a green service call; canonical readback plus refresh/reload/restart proof is required.
 
