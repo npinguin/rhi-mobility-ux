@@ -278,7 +278,8 @@ console.log('PASS #116 management cards expose canonical relationships and bound
       return [{asset_id:id,command_key:'vehicle.command.lock',command_id:'lock',execution_allowed:true,label:'Lock'}];
     },
     vehicleOverviewMetricSlots:()=>[],
-    liveChargingContextForVehicle:()=>({})
+    liveChargingContextForVehicle:()=>({}),
+    lifecycleStatus:()=> 'active'
   };
   const instance=new context.HomeBrainVehicleAdapter(rt,'vehicle_test',{registry_entry:{asset_id:'vehicle_test',display_name:'Test vehicle'}});
   const projection=instance.productProjection();
