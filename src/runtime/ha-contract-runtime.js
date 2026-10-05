@@ -1824,7 +1824,7 @@ class HomeBrainAssetRuntime {
     const attempts = Math.max(1, Number(options.attempts || 20));
     const delayMs = Math.max(25, Number(options.delay_ms || 150));
     for (let attempt = 0; attempt < attempts; attempt += 1) {
-      const row = this.v2SemanticProperty(canonical, propertyKey) || this.semanticProperty(canonical, propertyKey);
+      const row = this.semanticProperty(canonical, propertyKey);
       if (row && this.canonicalWriteValueEqual(row.value, expected)) return true;
       if (attempt < attempts - 1) await new Promise((resolve)=>setTimeout(resolve, delayMs));
     }
@@ -2572,8 +2572,8 @@ class HomeBrainAssetRuntime {
   }
 
   semanticProperty(assetId = "", propertyKey = "") {
-    return this.v2SemanticProperty(assetId, propertyKey)
-      || this.propertyByCompoundKey(assetId, propertyKey);
+    // One canonical property resolver. propertyRows() is already V2-only.
+    return this.propertyByCompoundKey(assetId, propertyKey);
   }
 
   propertyByCompoundKey(assetId = "", propertyKey = "") {
