@@ -68,8 +68,7 @@ class HomeBrainVehicleAdapter {
     const assetId = this.assetId();
     const reg = this.registryEntry() || { asset_id: assetId };
     const experience = this.rt.vehicleExperienceV2(assetId) || {};
-    const legacyRelationship = this.rt.vehicleChargerRelationship(assetId) || {};
-    const v2Relationship = experience?.charging_relationship || this.rt.vehicleRelationshipV2(assetId) || {};
+    const v2Relationship = this.rt.vehicleRelationshipV2(assetId) || {};
 
     const realId = (value) => {
       const raw = String(value || "").trim();
@@ -77,10 +76,10 @@ class HomeBrainVehicleAdapter {
         ? this.rt.canonicalAssetId(raw)
         : "";
     };
-    const configuredId = realId(v2Relationship.configured_charger_id || legacyRelationship.assigned || legacyRelationship.effective);
-    const effectiveId = realId(v2Relationship.effective_charger_id || legacyRelationship.effective || configuredId);
+    const configuredId = realId(v2Relationship.configured_charger_id);
+    const effectiveId = realId(v2Relationship.effective_charger_id || configuredId);
     const physicalId = v2Relationship.observed_identity_proven === true
-      ? realId(v2Relationship.physically_connected_charger_id || legacyRelationship.connected)
+      ? realId(v2Relationship.physically_connected_charger_id)
       : "";
     const relationshipId = physicalId || effectiveId || configuredId;
     const chargerEntry = relationshipId ? (this.rt.chargerById(relationshipId) || this.rt.assetById(relationshipId)) : null;
@@ -168,11 +167,14 @@ class HomeBrainVehicleAdapter {
       },
       facts: {
         overview_metrics: this.rt.vehicleOverviewMetricSlots(assetId),
-        live_charging: this.rt.liveChargingContextForVehicle(assetId)
+        live_charging: this.rt.liveChargingContextForVehicle(assetId),
+        ready_by: this.rt.semanticProperty(assetId, "vehicle.ready_by") || null,
+        climate_state: this.rt.semanticProperty(assetId, "vehicle.climate_state") || null
       },
       configuration: {
         profile_id: profileId,
         profile_resolved: !!profileProperty,
+        selected_charger: this.chargerAssignmentModel(),
         charge_power_control: this.rt.vehicleChargePowerControl(assetId),
         charge_power_control_model: this.rt.vehicleChargePowerControlModel(assetId)
       },
@@ -203,20 +205,12 @@ class HomeBrainVehicleAdapter {
     const profile = this.profile();
     const display = this.displayName();
 
-    const relationship = this.rt.vehicleChargerRelationship(assetId);
-    const isReal = (value) => {
-      const v = String(value || "").trim();
-      return !!v && !["none", "unknown", "unavailable", "null", "undefined", "—"].includes(v.toLowerCase());
-    };
-    const physicalChargerId = isReal(relationship.connected) ? this.rt.canonicalAssetId(relationship.connected) : "";
-    const effectiveChargerId = isReal(relationship.effective) ? this.rt.canonicalAssetId(relationship.effective) : "";
-    // Hero navigation may show the effective charger when no physical charger is
-    // connected, but this never changes the physical connection semantics.
-    const chargerContextId = physicalChargerId || effectiveChargerId;
+    const projection = this.productProjection();
+    const physicalChargerId = String(projection.relationships.physically_connected_charger_id || "");
+    const effectiveChargerId = String(projection.relationships.effective_charger_id || "");
+    const chargerContextId = physicalChargerId || effectiveChargerId || String(projection.relationships.configured_charger_id || "");
     const chargerEntry = chargerContextId ? (this.rt.chargerById(chargerContextId) || this.rt.assetById(chargerContextId)) : null;
-    const chargerDisplay = chargerEntry?.display_name
-      || (physicalChargerId ? relationship.connected_display_name : relationship.effective_display_name)
-      || chargerContextId || "Not available";
+    const chargerDisplay = String(projection.relationships.charger_display_name || chargerEntry?.display_name || chargerContextId || "Not available");
     const chargerDetailRoute = chargerContextId ? this.rt.assetDetailRoute(chargerEntry || chargerContextId) : "";
 
     const profileImage = this.imageFromProfile();
@@ -234,7 +228,6 @@ class HomeBrainVehicleAdapter {
     const canonicalProfilePackage = String(profileVisual?.package_file || "");
     const img = visualPackageFile || canonicalProfilePackage || profileImage;
     const imageFilter = visualMatchesProfile ? (visual?.color?.filter || "none") : "none";
-    const projection = this.productProjection();
     const actions = projection.commands.map((cmd, index) => ({
       label: cmd.label || this.rt.titleize(cmd.command_id || cmd.command_key),
       icon: this.rt.commandIcon(cmd), entity: cmd.intent_entity, command: cmd,
