@@ -262,7 +262,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
   renderChargerAssignmentSelect(rt, vehicleAsset) {
     const assetId = this.assetId(vehicleAsset);
     const adapter = new HomeBrainVehicleAdapter(rt, this.vehicleId(vehicleAsset), { ...this.config, registry_entry: vehicleAsset });
-    const model = adapter.chargerAssignmentModel();
+    const model = adapter.productProjection()?.configuration?.selected_charger || { resolved:false, writable:false, display:"Unavailable", choices:[] };
     if (!model.resolved) {
       return `<div class="mini-control charger-select readonly" title="Assignment unavailable because vehicle.selected_charger is not published"><ha-icon icon="mdi:ev-station"></ha-icon><span class="relationship-copy"><small>Assigned charger</small><strong>Unavailable</strong></span></div>`;
     }
@@ -276,8 +276,8 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
 
   renderVehicleControlRow(rt, vehicleAsset, chargers) {
     const ctx = this.chargingContext(rt, vehicleAsset, chargers);
-    const metricSlots = rt.vehicleOverviewMetricSlots(this.assetId(vehicleAsset));
-    const chargePowerModel = rt.vehicleChargePowerControlModel(this.assetId(vehicleAsset));
+    const metricSlots = ctx.projection?.facts?.overview_metrics || [];
+    const chargePowerModel = ctx.projection?.configuration?.charge_power_control_model || null;
     const limitValue = chargePowerModel?.resolved && Number.isFinite(Number(chargePowerModel.value)) ? Number(chargePowerModel.value) : null;
     const currentValue = limitValue === null ? "—" : (Number.isInteger(limitValue) ? String(limitValue) : Number(limitValue).toFixed(2).replace(/\.00$/, ""));
     const meta = {
@@ -569,21 +569,23 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
   }
 
   overviewNextDeparture(rt, vehicles = []) {
+    const factory = new HomeBrainAssetFactory(rt);
     const candidates = [];
     for (const vehicle of vehicles) {
-      const assetId = this.assetId(vehicle);
-      const departure = rt.propertyByCompoundKey(assetId, "vehicle.ready_by");
+      const model = factory.adapterFor(vehicle, this.config)?.build?.() || null;
+      const assetId = String(model?.projection?.identity?.asset_id || this.assetId(vehicle));
+      const departure = model?.projection?.facts?.ready_by || null;
       if (!departure || departure.value === undefined || departure.value === null || String(departure.value).trim() === "") continue;
       const instant = this.overviewDepartureInstant(departure.value);
       if (instant === null || instant < Date.now() - 5 * 60 * 1000) continue;
-      const climate = rt.propertyByCompoundKey(assetId, "vehicle.climate_state");
-      candidates.push({ vehicle, assetId, instant, climate });
+      const climate = model?.projection?.facts?.climate_state || null;
+      candidates.push({ vehicle, model, assetId, instant, climate });
     }
     candidates.sort((a,b)=>a.instant-b.instant);
     const next = candidates[0] || null;
     if (!next) return { resolved:false, vehicle:null, vehicleName:"N/A", climate:"N/A", departure:"" };
     const climate = next.climate ? String(rt.propertyDisplayValue(next.climate) || "N/A") : "N/A";
-    const vehicleName = String(next.vehicle?.display_name || rt.vehicleLabel(next.assetId) || next.assetId);
+    const vehicleName = String(next.model?.projection?.identity?.display_name || next.model?.display || next.vehicle?.display_name || next.assetId);
     return { resolved:true, vehicle:next.vehicle, vehicleName, climate, departure:new Date(next.instant).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"}) };
   }
 
