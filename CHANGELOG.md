@@ -1,3 +1,11 @@
+## 1.0.0-rc.82 — iPad vehicle-card and command closure
+
+- deduplicate charger-owned Start/Stop aliases by physical executor and semantic command role while preserving backend readiness;
+- prefer canonical charger.command.start / charger.command.stop when alias rows coexist;
+- contain vehicle intelligence status tiles at tablet widths so status text cannot overlap hero, controls or the next vehicle card;
+- preserve exact configured/effective/physical charger semantics and fail closed on unavailable command sources;
+- qualify against Mobility M0.10.35.
+
 ## 1.0.0-rc.81 — Target HA charging and phone UX closure
 
 - expose assigned charger Start/Stop actions on vehicle cards while keeping charger ownership and backend readiness;
