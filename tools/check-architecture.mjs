@@ -18,14 +18,20 @@ const screenSemanticBypasses = {
     [/rt\.mobilityExperienceV2\s*\(/g, 'screen bypasses asset projectors for Experience V2'],
     [/rt\.vehicleChargerRelationship\s*\(/g, 'screen bypasses VehicleProjection for relationships'],
     [/rt\.chargerProductSnapshot\s*\(/g, 'screen bypasses ChargerProjection for canonical charger facts'],
-    [/rt\.commandActionsFor\s*\(/g, 'screen bypasses asset projectors for commands']
+    [/rt\.commandActionsFor\s*\(/g, 'screen bypasses asset projectors for commands'],
+    [/rt\.propertyByCompoundKey\s*\(/g, 'screen bypasses Vehicle/Charger projection for semantic property reads'],
+    [/rt\.semanticProperty\s*\(/g, 'screen bypasses Vehicle/Charger projection for semantic property reads'],
+    [/rt\.vehicleOverviewMetricSlots\s*\(/g, 'screen bypasses VehicleProjection for overview metrics'],
+    [/rt\.vehicleChargePowerControlModel\s*\(/g, 'screen bypasses VehicleProjection for requested power control']
   ],
   'src/ui/screens/charger-maintenance.js': [
     [/rt\.mobilityExperienceV2\s*\(/g, 'screen bypasses ChargerProjection for Experience V2'],
     [/rt\.chargerExperienceV2\s*\(/g, 'screen bypasses ChargerProjection for Experience V2'],
     [/rt\.chargerProductSnapshot\s*\(/g, 'screen bypasses ChargerProjection for canonical facts'],
     [/rt\.commandActionsFor\s*\(/g, 'screen bypasses ChargerProjection for commands'],
-    [/rt\.canonicalChargerProperty(?:Display|Value)\s*\(/g, 'screen bypasses ChargerProjection for canonical facts']
+    [/rt\.canonicalChargerProperty(?:Display|Value)\s*\(/g, 'screen bypasses ChargerProjection for canonical facts'],
+    [/rt\.propertyByCompoundKey\s*\(/g, 'screen bypasses ChargerProjection for semantic property reads'],
+    [/rt\.semanticProperty\s*\(/g, 'screen bypasses ChargerProjection for semantic property reads']
   ]
 };
 
