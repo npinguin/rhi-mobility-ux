@@ -160,6 +160,17 @@ const divergentRt=new Runtime(divergentAuthorityHass,{});
 if(Object.keys(divergentRt.mobilityFleetV2()).length!==0) throw new Error('Experience fleet must never replace missing Runtime V2 fleet truth');
 const divergentRelationship=divergentRt.vehicleRelationshipV2('vehicle_id4');
 if(divergentRelationship?.effective_charger_id!=='charger_runtime' || divergentRelationship?.observed_identity_proven!==false) throw new Error('Experience relationship must never override Runtime V2 relationship truth');
+
+const experienceOnlyRelationship=new Runtime({states:{
+  'sensor.rhi_mobility_experience_v2':{state:'ready',attributes:{
+    contract_id:'MOBILITY_EXPERIENCE_V2',
+    fleet:{connected_charger_count:9},
+    vehicles:[{asset_id:'vehicle_only',charging_relationship:{effective_charger_id:'charger_wrong',physically_connected_charger_id:'charger_wrong',observed_identity_proven:true}}]
+  }}
+}},{});
+if(Object.keys(experienceOnlyRelationship.mobilityFleetProjection()).length!==1 || experienceOnlyRelationship.mobilityFleetProjection().source!=='MOBILITY_PUBLIC_RUNTIME_V2') throw new Error('fleet projection shape drift');
+if(experienceOnlyRelationship.vehicleRelationshipProjection('vehicle_only').effective_charger_id!=='') throw new Error('Experience relationship may not become Runtime V2 physical truth');
+
 console.log('PASS Runtime V2 is sole fleet and physical relationship authority');
 
 console.log('PASS Mobility Runtime/Experience/Policy V2 direct contract consumption with no optimistic policy write API');
