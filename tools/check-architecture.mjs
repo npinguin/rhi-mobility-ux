@@ -68,6 +68,22 @@ for(const full of jsFiles(path.join(root,'src/domain/adapters'))){
   if(/\bhass\.states\b|\bthis\.hass\.states\b/.test(source)) failures.push(`${rel}: direct hass state access belongs to runtime only`);
 }
 
+const rawContractReaders = [
+  'mobilityRuntimeV2','mobilityExperienceV2','mobilityPolicyV2',
+  'vehicleExperienceV2','chargerExperienceV2','vehicleRelationshipV2','mobilityFleetV2'
+];
+for(const relDir of ['src/ui','src/domain/adapters']){
+  for(const full of jsFiles(path.join(root,relDir))){
+    const rel=path.relative(root,full);
+    const source=fs.readFileSync(full,'utf8');
+    for(const method of rawContractReaders){
+      const rx=new RegExp('(?:rt|this\\.rt)\\.'+method+'\\\\s*\\\\(','g');
+      const count=[...source.matchAll(rx)].length;
+      if(count) failures.push(`${rel}: raw contract reader ${method} bypasses canonical projection (${count})`);
+    }
+  }
+}
+
 
 
 const vehicleAdapter=fs.readFileSync(path.join(root,'src/domain/adapters/vehicle-adapter.js'),'utf8');
