@@ -72,7 +72,7 @@ class HomeBrainChargerAdapter {
     const assetId = this.assetId();
     const reg = this.registryEntry() || { asset_id: assetId };
     const snapshot = this.rt.chargerProductSnapshot(assetId);
-    const experience = this.rt.chargerExperienceV2(assetId) || {};
+    const experience = this.rt.chargerExperienceProjection(assetId);
     const commands = this.rt.commandActionsFor(assetId, "quick_actions");
     const field = (row, source = "MOBILITY_PUBLIC_RUNTIME_V2") => ({
       resolved: !!row?.resolved,
@@ -96,7 +96,7 @@ class HomeBrainChargerAdapter {
     const healthIntel = experience.health_intelligence || {};
     const vehicleIntel = experience.vehicle_intelligence || {};
     const fault = experience.fault || {};
-    const vehicleAssetId = String(vehicleIntel.connected_vehicle_asset_id || "");
+    const vehicleAssetId = snapshot.connected_vehicle?.resolved ? String(snapshot.connected_vehicle.asset_id || "") : "";
     const vehicleEntry = vehicleAssetId ? (this.rt.vehicleById(vehicleAssetId) || this.rt.assetById(vehicleAssetId)) : null;
     return {
       identity: {
@@ -131,7 +131,7 @@ class HomeBrainChargerAdapter {
       },
       relationships: {
         connected_vehicle_id: vehicleAssetId,
-        connected_vehicle_display_name: String(vehicleIntel.connected_vehicle_display_name || vehicleEntry?.display_name || snapshot.connected_vehicle?.display || ""),
+        connected_vehicle_display_name: String(vehicleEntry?.display_name || snapshot.connected_vehicle?.display || ""),
         vehicle_detail_route: vehicleAssetId ? this.rt.assetDetailRoute(vehicleEntry || vehicleAssetId) : "",
         source: "MOBILITY_PUBLIC_RUNTIME_V2"
       },
@@ -156,8 +156,6 @@ class HomeBrainChargerAdapter {
     const status = projection.facts.operating.display;
     const connectionState = projection.facts.connection.display;
     const assignedVehicle = projection.facts.connected_vehicle.display;
-    const physicalVehicle = this.rt.physicalVehicleForCharger(assetId);
-    const relatedVehicle = this.rt.relatedVehicleForCharger(assetId);
     const power = projection.facts.power.display;
     const sessionEnergy = projection.facts.session_energy.display;
     const currentLimit = projection.facts.current_limit.display;
@@ -191,9 +189,9 @@ class HomeBrainChargerAdapter {
       tone:faultActive ? "attention" : "neutral"
     };
 
-    const vehicleAssetId = String(vehicleIntel.connected_vehicle_asset_id || "");
+    const vehicleAssetId = String(projection.relationships.connected_vehicle_id || "");
     const vehicleEntry = vehicleAssetId ? (this.rt.vehicleById(vehicleAssetId) || this.rt.assetById(vehicleAssetId)) : null;
-    const vehicleDisplay = String(vehicleIntel.connected_vehicle_display_name || vehicleEntry?.display_name || vehicleIntel.summary || "No vehicle identified");
+    const vehicleDisplay = String(projection.relationships.connected_vehicle_display_name || vehicleEntry?.display_name || "No vehicle identified");
     const vehicleRoute = vehicleAssetId ? this.rt.assetDetailRoute(vehicleEntry || vehicleAssetId) : "";
     const vehicleTile = {
       label:"Vehicle",
