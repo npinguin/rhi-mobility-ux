@@ -106,13 +106,13 @@ class HomeBrainAssetRuntime {
   contractEntity(contractId = "", preferredEntityIds = []) {
     const wanted = String(contractId || "").trim();
     if (!wanted) return undefined;
+    // One explicit producer-owned V2 ingress per contract. Never discover a
+    // substitute entity by scanning the HA state registry.
     for (const entityId of preferredEntityIds) {
       const state = this.hass?.states?.[entityId];
       if (String(state?.attributes?.contract_id || "") === wanted) return state;
     }
-    return Object.values(this.hass?.states || {}).find((state) =>
-      String(state?.attributes?.contract_id || "") === wanted
-    );
+    return undefined;
   }
 
   mobilityRuntimeV2() {
