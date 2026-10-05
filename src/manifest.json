@@ -9,6 +9,7 @@
     "app/header-and-navigation.js",
     "domain/adapters/intelligence-model-alignment.js",
     "runtime/ha-contract-runtime.js",
+    "runtime/energy-public-v2-projection.js",
     "runtime/energy-planning-projection.js",
     "runtime/energy-mobility-insights-projection.js",
     "runtime/energy-mobility-strategy-projection.js",
