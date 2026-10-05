@@ -59,4 +59,25 @@ if(!dashboard.includes('model?.projection?.signals')) throw new Error('dashboard
 if(!dashboard.includes('model?.projection?.commands')) throw new Error('dashboard does not consume projected commands');
 if(!chargerScreen.includes('const projection = model?.projection || {}')) throw new Error('charger management does not consume ChargerProjection');
 
+
+const rawProjectionBypasses=[
+  'rt.mobilityRuntimeV2(',
+  'rt.mobilityExperienceV2(',
+  'rt.mobilityPolicyV2(',
+  'rt.vehicleExperienceV2(',
+  'rt.chargerExperienceV2(',
+  'rt.vehicleRelationshipV2(',
+  'rt.mobilityFleetV2('
+];
+for(const [name,source] of [['dashboard',dashboard],['charger management',chargerScreen],['vehicle adapter',vehicle],['charger adapter',charger]]) {
+  for(const token of rawProjectionBypasses) if(source.includes(token)) throw new Error(`${name} bypasses canonical runtime projection: ${token}`);
+}
+for(const token of ['vehicleExperienceProjection(assetId)','vehicleRelationshipProjection(assetId)']) {
+  if(!vehicle.includes(token)) throw new Error('VehicleProjection missing canonical runtime projection '+token);
+}
+if(!charger.includes('chargerExperienceProjection(assetId)')) throw new Error('ChargerProjection missing canonical Experience projection');
+if(!dashboard.includes('mobilityFleetProjection()')) throw new Error('Overview must consume canonical fleet projection');
+if(!dashboard.includes('rangePolicyProjection()')) throw new Error('Overview must consume canonical policy projection');
+if(!chargerScreen.includes('mobilityFleetProjection()')) throw new Error('Charger management must consume canonical fleet projection');
+
 console.log('PASS canonical asset projectors are the sole Mobility semantic entry for Overview/Management');
