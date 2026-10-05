@@ -611,8 +611,8 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
         this._forceRender=true; this._lastSignature="";
         if(this._hass)this.hass=this._hass;
         btn.disabled = true;
-        const profileProp = rt.semanticProperty(assetId, "asset.profile_id");
-        const currentProfile = String(profileProp?.value || "");
+        const currentModel = new HomeBrainChargerAdapter(rt, this.chargerId(asset), { ...this.config, registry_entry:asset }).build();
+        const currentProfile = String(currentModel?.projection?.identity?.profile_id || "");
         const profileOk = !profileId || profileId === currentProfile || await rt.writePublishedPropertyAsync(assetId, "asset.profile_id", profileId);
         if (!profileOk) { this.failChargerAppearance(assetId,"Profile update was rejected. Appearance was not changed."); return; }
         const imageOk = await rt.writePublishedPropertyAsync(assetId, "charger.image_key", key);
