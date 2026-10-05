@@ -313,7 +313,7 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
     const chargers = factory.chargers().filter((a) => rt.lifecycleStatus(a) !== "retired").sort((a,b)=>(Number(a.sort_order ?? 999)-Number(b.sort_order ?? 999)) || String(a.display_name).localeCompare(String(b.display_name)));
     const activeChargers = chargers.filter((c) => rt.lifecycleStatus(c) === "active");
     const inactiveChargers = chargers.filter((c) => rt.lifecycleStatus(c) !== "active" && rt.lifecycleStatus(c) !== "retired");
-    const fleet = rt.mobilityFleetV2();
+    const fleet = rt.mobilityFleetProjection();
     const activeModels = activeChargers.map((charger)=>({
       charger,
       model: factory.adapterFor(charger, this.config)?.build?.() || null
