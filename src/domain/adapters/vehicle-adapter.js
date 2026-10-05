@@ -159,6 +159,8 @@ class HomeBrainVehicleAdapter {
         asset_id: assetId,
         display_name: this.displayName(),
         profile: this.profile(),
+        profile_id: profileId,
+        image_key: String(this.rt.semanticProperty(assetId, "vehicle.image_key")?.value ?? this.rt.visualImageKey(reg, "image") ?? reg?.image_key ?? ""),
         source: "MOBILITY_PUBLIC_RUNTIME_V2"
       },
       lifecycle: {
@@ -167,7 +169,15 @@ class HomeBrainVehicleAdapter {
       },
       facts: {
         overview_metrics: this.rt.vehicleOverviewMetricSlots(assetId),
-        live_charging: this.rt.liveChargingContextForVehicle(assetId)
+        live_charging: this.rt.liveChargingContextForVehicle(assetId),
+        ready_by: (() => {
+          const row=this.rt.semanticProperty(assetId, "vehicle.ready_by");
+          return row ? { resolved:true, value:row.value, display:this.rt.propertyDisplayValue(row), source:"MOBILITY_PUBLIC_RUNTIME_V2" } : { resolved:false, value:null, display:"—", source:"MOBILITY_PUBLIC_RUNTIME_V2" };
+        })(),
+        climate_state: (() => {
+          const row=this.rt.semanticProperty(assetId, "vehicle.climate_state");
+          return row ? { resolved:true, value:row.value, display:this.rt.propertyDisplayValue(row), source:"MOBILITY_PUBLIC_RUNTIME_V2" } : { resolved:false, value:null, display:"—", source:"MOBILITY_PUBLIC_RUNTIME_V2" };
+        })()
       },
       configuration: {
         profile_id: profileId,
@@ -216,10 +226,9 @@ class HomeBrainVehicleAdapter {
     const chargerDetailRoute = chargerContextId ? this.rt.assetDetailRoute(chargerEntry || chargerContextId) : "";
 
     const profileImage = this.imageFromProfile();
-    const imageKeyProp = this.rt.propertyByCompoundKey(assetId, "vehicle.image_key");
-    const imageKey = imageKeyProp?.value ?? this.rt.visualImageKey(reg, "image") ?? reg?.image_key ?? "";
+    const imageKey = String(productProjection.identity?.image_key || "");
     const visual = typeof rhiMobilityParseVehicleVisualKey === "function" ? rhiMobilityParseVehicleVisualKey(imageKey) : null;
-    const profileId = String(this.rt.semanticProperty(assetId, "asset.profile_id")?.value ?? reg?.profile_id ?? reg?.raw?.profile_id ?? "").trim();
+    const profileId = String(productProjection.identity?.profile_id || reg?.profile_id || reg?.raw?.profile_id || "").trim();
     const profileVisual = typeof rhiMobilityVehicleVisualForProfile === "function" ? rhiMobilityVehicleVisualForProfile(profileId) : null;
     // Persisted appearance may refine colour only inside the backend profile-owned
     // vehicle family. A stale cross-model key must never outrank canonical identity.
