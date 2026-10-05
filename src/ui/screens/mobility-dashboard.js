@@ -1162,8 +1162,8 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
       this._forceRender=true; this._lastSignature="";
       if(this._hass)this.hass=this._hass;
       btn.disabled=true;
-      const profileProp=rt.semanticProperty(assetId,"asset.profile_id");
-      const currentProfile=String(profileProp?.value || "");
+      const currentModel=new HomeBrainVehicleAdapter(rt,this.vehicleId(asset),{...this.config,registry_entry:asset}).build();
+      const currentProfile=String(currentModel?.projection?.identity?.profile_id || "");
       const profileOk=!profileId || profileId===currentProfile || await rt.writePublishedPropertyAsync(assetId,"asset.profile_id",profileId);
       if(!profileOk){this.failVehicleAppearance(assetId,"Profile update was rejected. Appearance was not changed.");return;}
       const imageOk=await rt.writePublishedPropertyAsync(assetId,"vehicle.image_key",key);
@@ -1209,8 +1209,9 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
       const cur = Number.isFinite(attrValue) ? attrValue : null;
       const next = Math.max(min, Math.min(max, (cur ?? min) + delta));
       if (!propertyKey || !vehicleAsset) return;
+      const projectedVehicle = new HomeBrainVehicleAdapter(rt,this.vehicleId(vehicleAsset),{...this.config,registry_entry:(rt.vehicleById(vehicleAsset)||rt.assetById(vehicleAsset)||{asset_id:vehicleAsset})}).build();
       const model = propertyKey === "vehicle.requested_charge_power_kw"
-        ? rt.vehicleChargePowerControlModel(vehicleAsset)
+        ? (projectedVehicle?.projection?.configuration?.charge_power_control_model || {})
         : rt.propertyControlModel(vehicleAsset, propertyKey);
       const wrap = btn.closest(".mini-current-stepper");
       const buttons = [...(wrap?.querySelectorAll("button[data-property-step],button[data-charge-power-step],button[data-current-step]") || [])];
