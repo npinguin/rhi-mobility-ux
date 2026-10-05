@@ -150,7 +150,9 @@ class HomeBrainVehicleAdapter {
       },
       facts: {
         overview_metrics: this.rt.vehicleOverviewMetricSlots(assetId),
-        live_charging: this.rt.liveChargingContextForVehicle(assetId)
+        live_charging: this.rt.liveChargingContextForVehicle(assetId),
+        ready_by: this.rt.semanticProperty(assetId, "vehicle.ready_by"),
+        climate_state: this.rt.semanticProperty(assetId, "vehicle.climate_state")
       },
       configuration: {
         profile_id: profileId,
