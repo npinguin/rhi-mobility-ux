@@ -29,7 +29,9 @@ const forbiddenDashboard=[
   'rt.mobilityExperienceV2(',
   'rt.vehicleChargerRelationship(',
   'rt.chargerProductSnapshot(',
-  'rt.commandActionsFor('
+  'rt.commandActionsFor(',
+  'rt.vehicleOverviewMetricSlots(',
+  'rt.vehicleChargePowerControlModel('
 ];
 for(const token of forbiddenDashboard) if(dashboard.includes(token)) throw new Error(`dashboard bypasses canonical projection: ${token}`);
 
@@ -45,6 +47,11 @@ for(const token of forbiddenCharger) if(chargerScreen.includes(token)) throw new
 
 if(!dashboard.includes('model?.projection?.signals')) throw new Error('dashboard does not consume projected signals');
 if(!dashboard.includes('model?.projection?.commands')) throw new Error('dashboard does not consume projected commands');
+if(!dashboard.includes('ctx.projection?.facts?.overview_metrics')) throw new Error('dashboard overview metrics bypass VehicleProjection');
+if(!dashboard.includes('ctx.projection?.configuration?.charge_power_control_model')) throw new Error('dashboard charge-power configuration bypasses VehicleProjection');
+if(!vehicle.includes('ready_by: this.rt.semanticProperty(assetId, "vehicle.ready_by")')) throw new Error('VehicleProjection must own ready-by');
+if(!vehicle.includes('climate_state: this.rt.semanticProperty(assetId, "vehicle.climate_state")')) throw new Error('VehicleProjection must own climate state');
+if(vehicle.includes('const legacyRelationship =')) throw new Error('parallel legacy vehicle relationship route remains');
 if(!chargerScreen.includes('const projection = model?.projection || {}')) throw new Error('charger management does not consume ChargerProjection');
 
 console.log('PASS canonical asset projectors are the sole Mobility semantic entry for Overview/Management');
