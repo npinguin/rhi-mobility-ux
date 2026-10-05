@@ -4735,463 +4735,216 @@ class HomeBrainAssetRuntime {
   }
 }
 
-// ---- src/runtime/energy-planning-projection.js ----
-// Read-only cross-domain Energy Planning projection for Mobility UX.
-// Energy remains the semantic owner. This adapter only reads explicitly public
-// Energy UX entities and joins planning rows to canonical Mobility asset ids.
+// ---- src/runtime/energy-public-v2-projection.js ----
+// Sole cross-domain Energy contract reader for Mobility UX.
+// Mobility may consume Energy semantics only through RHI_ENERGY_PUBLIC_CONTRACT_V2.
+class HomeBrainEnergyPublicV2Projection {
+  constructor(hass = {}) { this.hass = hass || {}; }
 
-class HomeBrainEnergyPlanningProjection {
-  constructor(hass, mobilityRuntime = null) {
-    this.hass = hass || {};
-    this.mobilityRuntime = mobilityRuntime || null;
-  }
-
-  static get entities() {
-    return Object.freeze({
-      planning: "sensor.energy_planning_index",
-      planningExperience: "sensor.energy_planning_experience_index",
-      flexibleAssets: "sensor.energy_flexible_asset_index",
-      strategyProfiles: "sensor.energy_strategy_profile_index",
-      strategyEffective: "sensor.energy_strategy_effective_index"
-    });
-  }
-
-  _state(key) {
-    const id = HomeBrainEnergyPlanningProjection.entities[key];
-    return id ? (this.hass?.states?.[id] || null) : null;
-  }
+  static get entityId() { return "sensor.rhi_energy_public_contract_v2"; }
+  static get contractId() { return "RHI_ENERGY_PUBLIC_CONTRACT_V2"; }
 
   _parse(value, fallback = null) {
     if (value === undefined || value === null || value === "") return fallback;
-    if (typeof value === "object") return value;
-    try { return JSON.parse(value); } catch (_) { return fallback ?? value; }
+    if (typeof value !== "string") return value;
+    try { return JSON.parse(value); } catch (_) { return fallback; }
   }
-
-  _object(value) {
-    const parsed = this._parse(value, value);
+  object(value) {
+    const parsed=this._parse(value,value);
     return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
   }
-
-  _rows(value) {
-    const parsed = this._parse(value, value);
-    if (Array.isArray(parsed)) return parsed.filter(Boolean);
-    if (parsed && typeof parsed === "object") return Object.values(parsed).filter(Boolean);
+  rows(value) {
+    const parsed=this._parse(value,value);
+    if (Array.isArray(parsed)) return parsed.filter(row=>row && typeof row === "object");
+    if (parsed && typeof parsed === "object") return Object.values(parsed).filter(row=>row && typeof row === "object");
     return [];
   }
-
-  _first(...values) {
-    for (const value of values) if (value !== undefined && value !== null && value !== "") return value;
-    return null;
-  }
-
-  _number(...values) {
-    const value = this._first(...values);
-    if (value === null) return null;
-    const number = Number(String(value).replace(",", "."));
-    return Number.isFinite(number) ? number : null;
-  }
-
-  _mobilityAssetIds() {
-    try {
-      const rows = this.mobilityRuntime?.mobilityRegistry?.() || [];
-      return new Set(rows.map((row) => String(row?.asset_id || "")).filter(Boolean));
-    } catch (_) {
-      return new Set();
-    }
-  }
-
-  _assetId(row = {}) {
-    return String(this._first(row.asset_id, row.target_asset_id, row.flexible_asset_id, row.consumer_asset_id, row.participant_id, "") || "");
-  }
-
-  _mobilityRows(rows = []) {
-    const ids = this._mobilityAssetIds();
-    if (!ids.size) return [];
-    return rows.filter((row) => ids.has(this._assetId(row)));
-  }
-
-  _totals(attrs, key) {
-    const named = key === "today"
-      ? this._first(attrs.planning_today_totals_json, attrs.planning_today_totals)
-      : key === "tomorrow"
-        ? this._first(attrs.planning_tomorrow_totals_json, attrs.planning_tomorrow_totals)
-        : this._first(attrs.planning_combined_totals_json, attrs.planning_combined_totals);
-    return this._object(named);
-  }
-
-  _totalsView(totals = {}) {
-    const consumers = this._object(totals.consumers);
+  snapshot() {
+    const state=this.hass?.states?.[HomeBrainEnergyPublicV2Projection.entityId] || null;
+    const attributes=state?.attributes || {};
+    const valid=!!state && String(attributes.contract_id || "") === HomeBrainEnergyPublicV2Projection.contractId;
     return Object.freeze({
-      plannedKwh: this._number(
-        totals.planned_flexible_kwh,
-        totals.flexible_planned_kwh,
-        totals.managed_energy_kwh,
-        totals.planned_energy_kwh,
-        consumers.flexible_loads_kwh,
-        consumers.flexible_assets_kwh
-      ),
-      stillToPlanKwh: this._number(
-        totals.still_to_plan_kwh,
-        totals.unplanned_kwh,
-        totals.remaining_to_plan_kwh,
-        totals.flexible_remaining_kwh,
-        consumers.still_to_plan_kwh
-      ),
-      gridImportKwh: this._number(totals.grid_import_kwh, totals.grid_in_kwh),
-      solarKwh: this._number(totals.solar_kwh, totals.solar_production_kwh, totals.solar_total_kwh),
-      state: String(this._first(totals.state, totals.status, totals.planning_state, "") || ""),
-      raw: totals
+      available:valid,
+      entityId:HomeBrainEnergyPublicV2Projection.entityId,
+      state:String(state?.state || "UNAVAILABLE"),
+      contractId:String(attributes.contract_id || ""),
+      contractVersion:String(attributes.contract_version || ""),
+      release:String(attributes.release || ""),
+      attributes:valid ? attributes : {}
     });
   }
+  section(name) {
+    const snapshot=this.snapshot();
+    return snapshot.available ? this.object(snapshot.attributes?.[name]) : {};
+  }
+}
 
-  viewModel() {
-    const planningState = this._state("planning");
-    const attrs = planningState?.attributes || {};
-    const planningRows = this._rows(this._first(attrs.planning_assets_json, attrs.planning_assets, []));
-    const experienceState = this._state("planningExperience");
-    const experienceAttrs = experienceState?.attributes || {};
-    const experienceRows = this._rows(this._first(
-      experienceAttrs.rows_json,
-      experienceAttrs.experiences_json,
-      experienceAttrs.asset_experiences_json,
-      experienceAttrs.rows,
-      experienceAttrs.experiences,
-      []
-    ));
-    const mobilityPlanningRows = this._mobilityRows(planningRows);
-    const mobilityExperienceRows = this._mobilityRows(experienceRows);
-    const currentIntent = this._object(this._first(attrs.current_action_intent_json, attrs.current_action_intent));
-    const today = this._totalsView(this._totals(attrs, "today"));
-    const tomorrow = this._totalsView(this._totals(attrs, "tomorrow"));
-    const combined = this._totalsView(this._totals(attrs, "combined"));
+// ---- src/runtime/energy-planning-projection.js ----
+// Read-only cross-domain Energy Planning projection for Mobility UX.
+// Energy remains semantic owner. No legacy Energy index/entity fallback is permitted.
+class HomeBrainEnergyPlanningProjection {
+  constructor(hass, mobilityRuntime = null) {
+    this.energy = new HomeBrainEnergyPublicV2Projection(hass);
+    this.mobilityRuntime = mobilityRuntime || null;
+  }
+  _first(...values) { for (const value of values) if (value !== undefined && value !== null && value !== "") return value; return null; }
+  _number(...values) { const value=this._first(...values); if(value===null) return null; const n=Number(value); return Number.isFinite(n)?n:null; }
+  _mobilityAssetIds() {
+    try { return new Set((this.mobilityRuntime?.mobilityRegistry?.() || []).map(row=>String(row?.asset_id || "")).filter(Boolean)); }
+    catch (_) { return new Set(); }
+  }
+  _assetId(row={}) { return String(this._first(row.asset_id,row.target_asset_id,row.flexible_asset_id,row.consumer_asset_id,row.participant_id,"") || ""); }
+  _mobilityRows(rows=[]) { const ids=this._mobilityAssetIds(); return ids.size ? rows.filter(row=>ids.has(this._assetId(row))) : []; }
+  _totalsView(row={}) {
     return Object.freeze({
-      available: !!planningState,
-      entityId: HomeBrainEnergyPlanningProjection.entities.planning,
-      contractVersion: String(this._first(attrs.contract_version, attrs.release, "") || ""),
-      state: String(planningState?.state || this._first(attrs.planning_state, attrs.status, "unavailable") || "unavailable"),
-      today,
-      tomorrow,
-      combined,
-      currentIntent,
+      plannedKwh:this._number(row.flexible_planned_kwh,row.planned_kwh),
+      stillToPlanKwh:this._number(row.flexible_still_to_plan_kwh,row.still_to_plan_kwh),
+      gridImportKwh:this._number(row.grid_import_kwh,row.grid_in_kwh),
+      solarKwh:this._number(row.solar_kwh,row.solar_production_kwh),
+      state:String(this._first(row.state,row.status,row.planning_state,"") || ""),
+      raw:row
+    });
+  }
+  viewModel() {
+    const snapshot=this.energy.snapshot();
+    const planning=this.energy.section("planning");
+    const horizons=this.energy.object(planning.horizons);
+    const d0=this.energy.object(horizons.D0 || horizons.d0);
+    const d1=this.energy.object(horizons.D1 || horizons.d1);
+    const planningRows=this.energy.rows(planning.assets || planning.planning_objects);
+    const experienceRows=this.energy.rows(planning.experiences || planning.asset_experiences);
+    return Object.freeze({
+      available:snapshot.available && (Object.keys(d0).length>0 || Object.keys(d1).length>0),
+      entityId:snapshot.entityId,
+      contractVersion:snapshot.contractVersion,
+      state:String(this._first(planning.status,planning.state,snapshot.state,"UNAVAILABLE") || "UNAVAILABLE"),
+      today:this._totalsView(d0),
+      tomorrow:this._totalsView(d1),
+      combined:Object.freeze({plannedKwh:null,stillToPlanKwh:null,gridImportKwh:null,solarKwh:null,state:"",raw:{}}),
+      currentIntent:this.energy.object(planning.current_action_intent),
       planningRows,
       experienceRows,
-      mobilityPlanningRows,
-      mobilityExperienceRows,
-      exactIdentityJoin: this._mobilityAssetIds().size > 0,
-      source: "Energy public UX contract"
+      mobilityPlanningRows:this._mobilityRows(planningRows),
+      mobilityExperienceRows:this._mobilityRows(experienceRows),
+      exactIdentityJoin:this._mobilityAssetIds().size>0,
+      source:"RHI_ENERGY_PUBLIC_CONTRACT_V2.planning"
     });
   }
 }
 
 // ---- src/runtime/energy-mobility-insights-projection.js ----
 // Read-only Energy metering/value projection for Mobility Insights.
-// Energy owns measurement and financial semantics. Mobility UX only filters
-// Energy's public per-asset records by exact canonical Mobility asset ids.
-
+// Only RHI_ENERGY_PUBLIC_CONTRACT_V2 is authoritative; missing V2 evidence fails closed.
 class HomeBrainEnergyMobilityInsightsProjection {
   constructor(hass, mobilityRuntime = null) {
-    this.hass = hass || {};
+    this.energy = new HomeBrainEnergyPublicV2Projection(hass);
     this.mobilityRuntime = mobilityRuntime || null;
   }
-
-  static get entities() {
-    return Object.freeze({
-      metering: "sensor.energy_asset_metering_index",
-      value: "sensor.energy_value_accounting_index"
-    });
-  }
-
-  _state(key) {
-    const id = HomeBrainEnergyMobilityInsightsProjection.entities[key];
-    return id ? (this.hass?.states?.[id] || null) : null;
-  }
-
-  _parse(value, fallback = null) {
-    if (value === undefined || value === null || value === "") return fallback;
-    if (typeof value === "object") return value;
-    try { return JSON.parse(value); } catch (_) { return fallback ?? value; }
-  }
-
-  _object(value) {
-    const parsed = this._parse(value, value);
-    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
-  }
-
-  _rows(value) {
-    const parsed = this._parse(value, value);
-    if (Array.isArray(parsed)) return parsed.filter(Boolean);
-    if (parsed && typeof parsed === "object") return Object.values(parsed).filter(Boolean);
-    return [];
-  }
-
-  _first(...values) {
-    for (const value of values) if (value !== undefined && value !== null && value !== "") return value;
-    return null;
-  }
-
-  _number(...values) {
-    const value = this._first(...values);
-    if (value === null) return null;
-    const number = Number(String(value).replace(",", "."));
-    return Number.isFinite(number) ? number : null;
-  }
-
+  _first(...values) { for (const value of values) if (value !== undefined && value !== null && value !== "") return value; return null; }
+  _number(...values) { const value=this._first(...values); if(value===null) return null; const n=Number(value); return Number.isFinite(n)?n:null; }
   _mobilityAssets() {
-    try {
-      const rows = this.mobilityRuntime?.mobilityRegistry?.() || [];
-      return new Map(rows.map((row) => [String(row?.asset_id || ""), row]).filter(([id]) => id));
-    } catch (_) {
-      return new Map();
-    }
+    try { return new Map((this.mobilityRuntime?.mobilityRegistry?.() || []).map(row=>[String(row?.asset_id || ""),row]).filter(([id])=>id)); }
+    catch (_) { return new Map(); }
   }
-
-  _assetId(row = {}) {
-    return String(this._first(
-      row.asset_id,
-      row.consumer_asset_id,
-      row.child_asset_id,
-      row.target_asset_id,
-      row.flexible_asset_id,
-      row.participant_id,
-      ""
-    ) || "");
+  _assetId(row={}) { return String(this._first(row.asset_id,row.consumer_asset_id,row.child_asset_id,row.target_asset_id,row.flexible_asset_id,row.participant_id,"") || ""); }
+  _assetName(assetId,row={}) {
+    const mobility=this._mobilityAssets().get(assetId) || {};
+    return String(this._first(row.display_name,row.asset_label,row.label,mobility.display_name,mobility.name,this.mobilityRuntime?.assetDisplayName?.(assetId),assetId) || assetId);
   }
-
-  _assetName(assetId, row = {}) {
-    const mobility = this._mobilityAssets().get(assetId) || {};
-    return String(this._first(
-      row.display_name,
-      row.asset_label,
-      row.label,
-      mobility.display_name,
-      mobility.name,
-      this.mobilityRuntime?.assetDisplayName?.(assetId),
-      assetId
-    ) || assetId);
-  }
-
-  _meteringRows(periodId = "today") {
-    const state = this._state("metering");
-    const attrs = state?.attributes || {};
-    const wanted = String(periodId || "today").toLowerCase() === "day" ? "today" : String(periodId || "today").toLowerCase();
-    const mobility = this._mobilityAssets();
-    const records = this._rows(attrs.records_json).map((row) => ({...row}));
-    return records.filter((row) => {
-      const period = String(this._first(row.period_id, row.period, row.context?.value, "") || "").toLowerCase();
-      const role = String(this._first(row.record_role, "") || "").toLowerCase();
-      const id = this._assetId(row);
-      return period === wanted
-        && row.ux_visible === true
-        && role === "flexible_load_detail"
-        && mobility.has(id);
-    }).map((row) => {
-      const assetId = this._assetId(row);
-      return Object.freeze({
-        assetId,
-        name: this._assetName(assetId, row),
-        periodId: wanted,
-        energyKwh: this._number(row.energy_kwh, row.value),
-        unit: String(this._first(row.unit, "kWh") || "kWh"),
-        measurementState: String(this._first(row.measurement_state, row.status, row.health, "UNAVAILABLE") || "UNAVAILABLE"),
-        attributionState: String(this._first(row.attribution_state, "") || ""),
-        trustState: String(this._first(row.trust_state, "") || ""),
-        sourceLabel: String(this._first(row.source_label, "") || ""),
-        raw: row
-      });
+  _meteringRows(periodId="today") {
+    const metering=this.energy.section("metering");
+    const wanted=String(periodId || "today").toLowerCase()==="day"?"today":String(periodId || "today").toLowerCase();
+    const mobility=this._mobilityAssets();
+    return this.energy.rows(metering.records).filter(row=>{
+      const period=String(this._first(row.period_id,row.period,"") || "").toLowerCase();
+      const id=this._assetId(row);
+      return period===wanted && row.ux_visible===true && String(row.record_role || "").toLowerCase()==="flexible_load_detail" && mobility.has(id);
+    }).map(row=>{
+      const assetId=this._assetId(row);
+      return Object.freeze({assetId,name:this._assetName(assetId,row),periodId:wanted,energyKwh:this._number(row.energy_kwh,row.value),unit:String(row.unit || "kWh"),measurementState:String(this._first(row.measurement_state,row.status,row.health,"UNAVAILABLE") || "UNAVAILABLE"),trustState:String(row.trust_state || ""),raw:row});
     });
   }
-
-  _valueRows(periodId = "today") {
-    const state = this._state("value");
-    const attrs = state?.attributes || {};
-    const summary = this._object(this._first(attrs.summary_json, attrs.summary, {}));
-    const selected = this._object(this._first(attrs.selected_context_json, attrs.selected_context, {}));
-    const selectedPeriod = String(this._first(selected.value, selected.period_id, periodId, "today") || "today").toLowerCase();
-    const mobility = this._mobilityAssets();
-    const consumers = this._rows(this._first(summary.consumer_allocation, attrs.consumer_allocation_json, attrs.flexible_asset_value_json, []));
-    return consumers.filter((row) => mobility.has(this._assetId(row))).map((row) => {
-      const assetId = this._assetId(row);
-      return Object.freeze({
-        assetId,
-        name: this._assetName(assetId, row),
-        periodId: selectedPeriod,
-        attributedEur: this._number(row.attributed_eur, row.attributed_value, row.net_value_eur, row.actual_energy_cost_eur),
-        energyKwh: this._number(row.energy_kwh, row.actual_energy_kwh, row.measured_energy_kwh),
-        state: String(this._first(row.state, row.status, row.attribution_state, "") || ""),
-        raw: row
-      });
+  _valueRows(periodId="today") {
+    const accounting=this.energy.section("value_accounting");
+    const wanted=String(periodId || accounting.selected_period_id || "today").toLowerCase();
+    const periods=this.energy.object(accounting.periods);
+    const period=this.energy.object(periods[wanted]);
+    const mobility=this._mobilityAssets();
+    return this.energy.rows(period.consumer_allocation).filter(row=>mobility.has(this._assetId(row))).map(row=>{
+      const assetId=this._assetId(row);
+      return Object.freeze({assetId,name:this._assetName(assetId,row),periodId:wanted,attributedEur:this._number(row.attributed_eur,row.attributed_value,row.net_value_eur,row.actual_energy_cost_eur),energyKwh:this._number(row.energy_kwh,row.actual_energy_kwh,row.measured_energy_kwh),state:String(this._first(row.state,row.status,row.attribution_state,"") || ""),raw:row});
     });
   }
-
-  viewModel(periodId = "today") {
-    const meteringState = this._state("metering");
-    const valueState = this._state("value");
-    const meteringAttrs = meteringState?.attributes || {};
-    const valueAttrs = valueState?.attributes || {};
-    const valueSummary = this._object(this._first(valueAttrs.summary_json, valueAttrs.summary, {}));
-    const valueProductStatus = this._object(this._first(valueAttrs.product_status_json, {}));
-    const meteringRows = this._meteringRows(periodId);
-    const valueRows = this._valueRows(periodId);
-    const ids = new Set([...meteringRows.map((row)=>row.assetId), ...valueRows.map((row)=>row.assetId)]);
-    const byAsset = [...ids].map((assetId) => {
-      const metering = meteringRows.find((row)=>row.assetId===assetId) || null;
-      const value = valueRows.find((row)=>row.assetId===assetId) || null;
-      return Object.freeze({
-        assetId,
-        name: metering?.name || value?.name || this._assetName(assetId),
-        energyKwh: metering?.energyKwh ?? value?.energyKwh ?? null,
-        measurementState: metering?.measurementState || "UNAVAILABLE",
-        trustState: metering?.trustState || "",
-        attributedEur: value?.attributedEur ?? null,
-        valueState: value?.state || "",
-        metering,
-        value
-      });
+  viewModel(periodId="today") {
+    const snapshot=this.energy.snapshot();
+    const metering=this.energy.section("metering");
+    const accounting=this.energy.section("value_accounting");
+    const meteringRows=this._meteringRows(periodId);
+    const valueRows=this._valueRows(periodId);
+    const ids=new Set([...meteringRows.map(row=>row.assetId),...valueRows.map(row=>row.assetId)]);
+    const rows=[...ids].map(assetId=>{
+      const m=meteringRows.find(row=>row.assetId===assetId)||null;
+      const v=valueRows.find(row=>row.assetId===assetId)||null;
+      return Object.freeze({assetId,name:m?.name||v?.name||this._assetName(assetId),energyKwh:m?.energyKwh??v?.energyKwh??null,measurementState:m?.measurementState||"UNAVAILABLE",trustState:m?.trustState||"",attributedEur:v?.attributedEur??null,valueState:v?.state||"",metering:m,value:v});
     });
     return Object.freeze({
-      periodId: String(periodId || "today").toLowerCase(),
-      meteringAvailable: !!meteringState,
-      valueAvailable: !!valueState,
-      meteringContractVersion: String(this._first(meteringAttrs.contract_version, meteringAttrs.release, "") || ""),
-      valueContractVersion: String(this._first(valueAttrs.contract_version, valueAttrs.release, "") || ""),
-      valueCurrency: String(this._first(valueSummary.currency, valueAttrs.currency, "EUR") || "EUR"),
-      valueState: String(this._first(valueProductStatus.state, valueAttrs.status, "UNAVAILABLE") || "UNAVAILABLE"),
-      rows: byAsset,
-      totalVehicleEnergyKwh: byAsset.some((row)=>row.energyKwh!==null)
-        ? byAsset.reduce((sum,row)=>sum+(row.energyKwh ?? 0),0)
-        : null,
-      totalAttributedEur: byAsset.some((row)=>row.attributedEur!==null)
-        ? byAsset.reduce((sum,row)=>sum+(row.attributedEur ?? 0),0)
-        : null,
-      source: "Energy public UX metering/value contracts"
+      periodId:String(periodId || "today").toLowerCase(),
+      meteringAvailable:snapshot.available && this.energy.rows(metering.records).length>0,
+      valueAvailable:snapshot.available && Object.keys(this.energy.object(accounting.periods)).length>0,
+      meteringContractVersion:snapshot.contractVersion,
+      valueContractVersion:snapshot.contractVersion,
+      valueCurrency:String(accounting.currency || "EUR"),
+      valueState:String(this._first(accounting.status,accounting.state,"UNAVAILABLE") || "UNAVAILABLE"),
+      rows,
+      totalVehicleEnergyKwh:null,
+      totalAttributedEur:null,
+      source:"RHI_ENERGY_PUBLIC_CONTRACT_V2.metering/value_accounting"
     });
   }
 }
 
 // ---- src/runtime/energy-mobility-strategy-projection.js ----
 // Read-only Energy strategy projection for Mobility Intelligence.
-// Strategy semantics stay Energy-owned. Mobility only projects profiles relevant
-// to flexible/vehicle energy plus effective policies for exact Mobility asset ids.
-
+// Strategy semantics stay Energy-owned and are consumed only from Public V2 configuration.strategy.
 class HomeBrainEnergyMobilityStrategyProjection {
   constructor(hass, mobilityRuntime = null) {
-    this.hass = hass || {};
+    this.energy = new HomeBrainEnergyPublicV2Projection(hass);
     this.mobilityRuntime = mobilityRuntime || null;
   }
-
-  static get entities() {
-    return Object.freeze({
-      profiles: "sensor.energy_strategy_profile_index",
-      effective: "sensor.energy_strategy_effective_index"
-    });
-  }
-
-  _state(key) {
-    const id = HomeBrainEnergyMobilityStrategyProjection.entities[key];
-    return id ? (this.hass?.states?.[id] || null) : null;
-  }
-
-  _parse(value, fallback = null) {
-    if (value === undefined || value === null || value === "") return fallback;
-    if (typeof value === "object") return value;
-    try { return JSON.parse(value); } catch (_) { return fallback ?? value; }
-  }
-
-  _object(value) {
-    const parsed = this._parse(value, value);
-    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
-  }
-
-  _rows(value) {
-    const parsed = this._parse(value, value);
-    if (Array.isArray(parsed)) return parsed.filter(Boolean);
-    if (parsed && typeof parsed === "object") return Object.values(parsed).filter(Boolean);
-    return [];
-  }
-
-  _first(...values) {
-    for (const value of values) if (value !== undefined && value !== null && value !== "") return value;
-    return null;
-  }
-
   _mobilityAssets() {
-    try {
-      const rows = this.mobilityRuntime?.mobilityRegistry?.() || [];
-      return new Map(rows.map((row) => [String(row?.asset_id || ""), row]).filter(([id]) => id));
-    } catch (_) {
-      return new Map();
-    }
+    try { return new Map((this.mobilityRuntime?.mobilityRegistry?.() || []).map(row=>[String(row?.asset_id || ""),row]).filter(([id])=>id)); }
+    catch (_) { return new Map(); }
   }
-
-  _profileRows() {
-    const state = this._state("profiles");
-    const attrs = state?.attributes || {};
-    let rows = this._rows(this._first(
-      attrs.strategy_profiles_json,
-      attrs.strategy_profiles,
-      attrs.profiles_json,
-      attrs.profiles,
-      attrs.profile_rows_json,
-      attrs.profile_rows,
-      attrs.rows_json,
-      attrs.rows,
-      []
-    ));
-    const byId = this._object(this._first(attrs.profiles_by_id, attrs.strategy_profiles_by_id, {}));
-    if (!rows.length && Object.keys(byId).length) rows = Object.entries(byId).map(([profile_id,row])=>({profile_id,...this._object(row)}));
-    return rows.map((row,index)=>{
-      const nested=this._object(this._first(row.strategy_profile,row.profile,row.energy_strategy_profile,{}));
-      const id=String(this._first(row.profile_id,row.strategy_profile_id,row.id,row.type_id,row.profile_type,row.asset_type,nested.profile_id,nested.profile_type,`strategy_profile_${index+1}`)||"");
-      const label=String(this._first(row.profile_label,row.display_name,row.name,row.label,nested.profile_label,nested.display_name,nested.name,id)||id);
-      return {...row,...nested,profile_id:id,profile_label:label};
-    }).filter((row)=>{
-      const text=[row.profile_id,row.profile_label,row.profile_type,row.asset_type,row.domain_id,row.subdomain_id].filter(Boolean).join(" ").toLowerCase();
-      return /vehicle|charger|consumer|flexible|mobility/.test(text);
-    });
+  _assetId(row={}) { return String(row.asset_id || row.target_asset_id || row.flexible_asset_id || ""); }
+  _strategy() { return this.energy.object(this.energy.section("configuration").strategy); }
+  _configuredRows() {
+    const strategy=this._strategy();
+    const configured=this.energy.object(strategy.configured);
+    const mobility=this._mobilityAssets();
+    return this.energy.rows(configured.properties).filter(row=>{ const id=this._assetId(row); return !id || mobility.has(id); });
   }
-
   _effectiveRows() {
-    const state = this._state("effective");
-    const attrs = state?.attributes || {};
-    const mobility = this._mobilityAssets();
-    let rows = this._rows(this._first(
-      attrs.current_policies_json,
-      attrs.current_policies,
-      attrs.policies_json,
-      attrs.policies,
-      attrs.effective_strategies_json,
-      attrs.effective_strategies,
-      attrs.asset_strategies_json,
-      attrs.asset_strategies,
-      attrs.strategy_rows_json,
-      attrs.strategy_rows,
-      attrs.rows_json,
-      attrs.rows,
-      attrs.assets_json,
-      attrs.assets,
-      []
-    ));
-    return rows.map((row,index)=>{
-      const nested=this._object(this._first(row.effective_strategy,row.energy_strategy,row.strategy,{}));
-      const assetId=String(this._first(row.asset_id,row.target_asset_id,row.flexible_asset_id,nested.asset_id,"")||"");
-      const policyId=String(this._first(row.policy_id,nested.policy_id,row.strategy_id,row.id,`effective_strategy_${index+1}`)||"");
-      return {...row,...nested,asset_id:assetId,policy_id:policyId};
-    }).filter((row)=>row.asset_id && mobility.has(row.asset_id));
+    const strategy=this._strategy();
+    const effective=this.energy.object(strategy.effective);
+    const mobility=this._mobilityAssets();
+    return this.energy.rows(effective.properties).filter(row=>{ const id=this._assetId(row); return !id || mobility.has(id); });
   }
-
   viewModel() {
-    const profileState=this._state("profiles");
-    const effectiveState=this._state("effective");
-    const profiles=this._profileRows();
-    const effective=this._effectiveRows();
+    const snapshot=this.energy.snapshot();
+    const strategy=this._strategy();
+    const configured=this.energy.object(strategy.configured);
+    const effective=this.energy.object(strategy.effective);
     return Object.freeze({
-      profilesAvailable:!!profileState,
-      effectiveAvailable:!!effectiveState,
-      profileContractVersion:String(this._first(profileState?.attributes?.contract_version,profileState?.attributes?.release,"")||""),
-      effectiveContractVersion:String(this._first(effectiveState?.attributes?.contract_version,effectiveState?.attributes?.release,"")||""),
-      profiles,
-      effective,
-      source:"Energy public UX strategy contracts"
+      profilesAvailable:false,
+      effectiveAvailable:snapshot.available && Object.keys(effective).length>0,
+      profileContractVersion:snapshot.contractVersion,
+      effectiveContractVersion:snapshot.contractVersion,
+      profiles:[],
+      configured:this._configuredRows(),
+      effective:this._effectiveRows(),
+      configuredState:String(configured.status || "UNAVAILABLE"),
+      effectiveState:String(effective.status || "UNAVAILABLE"),
+      source:"RHI_ENERGY_PUBLIC_CONTRACT_V2.configuration.strategy"
     });
   }
 }
