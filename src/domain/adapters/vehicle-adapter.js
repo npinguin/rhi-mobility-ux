@@ -67,8 +67,8 @@ class HomeBrainVehicleAdapter {
   productProjection() {
     const assetId = this.assetId();
     const reg = this.registryEntry() || { asset_id: assetId };
-    const experience = this.rt.vehicleExperienceV2(assetId) || {};
-    const v2Relationship = this.rt.vehicleRelationshipV2(assetId) || {};
+    const experience = this.rt.vehicleExperienceProjection(assetId);
+    const v2Relationship = this.rt.vehicleRelationshipProjection(assetId);
 
     const realId = (value) => {
       const raw = String(value || "").trim();
