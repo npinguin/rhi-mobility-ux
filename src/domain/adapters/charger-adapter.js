@@ -74,6 +74,7 @@ class HomeBrainChargerAdapter {
     const snapshot = this.rt.chargerProductSnapshot(assetId);
     const experience = this.rt.chargerExperienceProjection(assetId);
     const commands = this.rt.commandActionsFor(assetId, "quick_actions");
+    const relationship = this.rt.chargerRelationshipProjection(assetId);
     const profileProperty = this.rt.semanticProperty(assetId, "asset.profile_id");
     const imageProperty = this.rt.semanticProperty(assetId, "charger.image_key");
     const profileId = String(profileProperty?.value ?? "").trim();
@@ -136,9 +137,12 @@ class HomeBrainChargerAdapter {
         fault
       },
       relationships: {
+        assigned_vehicle_id:String(relationship.vehicle_id || ""),
+        assigned_vehicle_display_name:String(relationship.vehicle_display_name || ""),
         connected_vehicle_id: vehicleAssetId,
         connected_vehicle_display_name: String(snapshot.connected_vehicle?.display || vehicleEntry?.display_name || ""),
         vehicle_detail_route: vehicleAssetId ? this.rt.assetDetailRoute(vehicleEntry || vehicleAssetId) : "",
+        identity_proven:relationship.observed_identity_proven === true,
         source: "MOBILITY_PUBLIC_RUNTIME_V2"
       },
       availability: this.overviewAvailability(),
