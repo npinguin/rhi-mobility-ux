@@ -38,7 +38,8 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     const assetId = this.assetId(asset);
     const pending = this._vehiclePendingAppearance.get(assetId) || null;
     if (!pending) return null;
-    const canonical = String(rt.semanticProperty(assetId, "vehicle.image_key")?.value ?? "").trim();
+    const vehicle = rt.vehicleById(assetId) || rt.assetById(assetId) || {asset_id:assetId,asset_type:"vehicle"};
+    const canonical = String(new HomeBrainVehicleAdapter(rt,this.vehicleId(vehicle),{...this.config,registry_entry:vehicle}).productProjection().identity?.image_key || "").trim();
     if (canonical && canonical === pending.key) {
       this._vehiclePendingAppearance.delete(assetId);
       this._vehicleAppearanceError.delete(assetId);
@@ -61,19 +62,11 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
    * so Dashboard, Vehicle cards and Charger Maintenance remain visually aligned.
    */
   chargerImage(assetOrId) {
-    const rt = this.rt || null;
-    const asset = typeof assetOrId === "object"
-      ? assetOrId
-      : (rt && typeof rt.chargerById === "function" ? (rt.chargerById(assetOrId) || rt.assetById(assetOrId) || { asset_id: assetOrId }) : { asset_id: assetOrId });
-    if (rt) {
-      const assetId = String(asset?.asset_id || assetOrId || "");
-      const prop = assetId ? rt.propertyByCompoundKey(assetId, "charger.image_key") : null;
-      const raw = prop?.value ?? rt.visualImageKey(asset || {}, "image") ?? asset?.image_key ?? "";
-      const visual = typeof rhiMobilityResolveChargerVisual === "function" ? rhiMobilityResolveChargerVisual(asset, raw) : null;
-      if (visual?.appearance?.package_file) return visual.appearance.package_file;
-      if (typeof rt.visualImageUrl === "function") return rt.visualImageUrl(asset, "charger", "image", "charger_fallback");
-    }
-    return rhiMobilityAssetUrl("chargers/charger_fallback.png");
+    const rt=this.rt || null;
+    if(!rt) return rhiMobilityAssetUrl("chargers/charger_fallback.png");
+    const asset=typeof assetOrId==="object" ? assetOrId : (rt.chargerById(assetOrId)||rt.assetById(assetOrId)||{asset_id:assetOrId,asset_type:"charger"});
+    const adapter=new HomeBrainChargerAdapter(rt,this.chargerId(asset),{...this.config,registry_entry:asset});
+    return adapter.chargerImageFromId() || rhiMobilityAssetUrl("chargers/charger_fallback.png");
   }
 
   chargerImageFromId(id) { return this.chargerImage(id); }
@@ -786,7 +779,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     const visibleInactive = filter === "active" ? [] : filter === "attention" ? allInactive.filter(attentionRequired) : allInactive;
 
     const fleet = rt.mobilityFleetV2();
-    const activeCount = Number.isFinite(Number(fleet.active_vehicle_count)) ? Number(fleet.active_vehicle_count) : allActive.length;
+    const activeCount = Number.isFinite(Number(fleet.active_vehicle_count)) ? Number(fleet.active_vehicle_count) : null;
     const inactiveCount = allInactive.length;
     const attentionCount = [...allActive, ...allInactive].filter(attentionRequired).length;
     const assignedRows = allActive.filter((vehicle)=>{
@@ -806,9 +799,9 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     return `
       ${hbMobilityPageHero(rt, "vehicles")}
       ${hbMobilityStatusGrid(rt, [
-        { icon:"mdi:car-multiple", label:"Fleet", value:`${activeCount} active`, sub:inactiveCount ? `${inactiveCount} disabled` : "No disabled vehicles", tone:"neutral" },
-        { icon:"mdi:card-account-details-outline", label:"Profiles", value:`${profiledRows.length}/${activeCount} configured`, sub:unprofiledRows.length ? `${names(unprofiledRows)} without profile` : "All active vehicles profiled", tone:"neutral" },
-        { icon:"mdi:ev-station", label:"Charging setup", value:`${configuredCount}/${activeCount} assigned`, sub:unassignedRows.length ? `${names(unassignedRows)} no charger` : "All active vehicles assigned", tone:"neutral" }
+        { icon:"mdi:car-multiple", label:"Fleet", value:activeCount===null?"N/A":`${activeCount} active`, sub:inactiveCount ? `${inactiveCount} disabled` : "No disabled vehicles", tone:"neutral" },
+        { icon:"mdi:card-account-details-outline", label:"Profiles", value:activeCount===null?"N/A":`${profiledRows.length}/${activeCount} configured`, sub:unprofiledRows.length ? `${names(unprofiledRows)} without profile` : "All active vehicles profiled", tone:"neutral" },
+        { icon:"mdi:ev-station", label:"Charging setup", value:activeCount===null?"N/A":`${configuredCount}/${activeCount} assigned`, sub:unassignedRows.length ? `${names(unassignedRows)} no charger` : "All active vehicles assigned", tone:"neutral" }
       ], "vehicles-top-status")}
       ${hbMobilityQuickActions(rt, [
         { icon:"mdi:cog-outline", label:"Manage vehicles & profiles", path:managementPath, primary:true },
@@ -1141,8 +1134,8 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
       this._forceRender=true; this._lastSignature="";
       if(this._hass)this.hass=this._hass;
       btn.disabled=true;
-      const profileProp=rt.semanticProperty(assetId,"asset.profile_id");
-      const currentProfile=String(profileProp?.value || "");
+      const projection=new HomeBrainVehicleAdapter(rt,this.vehicleId(asset),{...this.config,registry_entry:asset}).productProjection();
+      const currentProfile=String(projection.identity?.profile_id || "");
       const profileOk=!profileId || profileId===currentProfile || await rt.writePublishedPropertyAsync(assetId,"asset.profile_id",profileId);
       if(!profileOk){this.failVehicleAppearance(assetId,"Profile update was rejected. Appearance was not changed.");return;}
       const imageOk=await rt.writePublishedPropertyAsync(assetId,"vehicle.image_key",key);
@@ -1189,7 +1182,11 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
       const next = Math.max(min, Math.min(max, (cur ?? min) + delta));
       if (!propertyKey || !vehicleAsset) return;
       const model = propertyKey === "vehicle.requested_charge_power_kw"
-        ? rt.vehicleChargePowerControlModel(vehicleAsset)
+        ? new HomeBrainVehicleAdapter(
+            rt,
+            this.vehicleId(rt.vehicleById(vehicleAsset) || {asset_id:vehicleAsset}),
+            {...this.config,registry_entry:rt.vehicleById(vehicleAsset) || rt.assetById(vehicleAsset) || {asset_id:vehicleAsset,asset_type:"vehicle"}}
+          ).productProjection().configuration.charge_power_control_model
         : rt.propertyControlModel(vehicleAsset, propertyKey);
       const wrap = btn.closest(".mini-current-stepper");
       const buttons = [...(wrap?.querySelectorAll("button[data-property-step],button[data-charge-power-step],button[data-current-step]") || [])];
