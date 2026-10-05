@@ -74,6 +74,10 @@ class HomeBrainChargerAdapter {
     const snapshot = this.rt.chargerProductSnapshot(assetId);
     const experience = this.rt.chargerExperienceV2(assetId) || {};
     const commands = this.rt.commandActionsFor(assetId, "quick_actions");
+    const profileProperty = this.rt.semanticProperty(assetId, "asset.profile_id");
+    const imageProperty = this.rt.semanticProperty(assetId, "charger.image_key");
+    const profileId = String(profileProperty?.value ?? "").trim();
+    const imageKey = String(imageProperty?.value ?? "").trim();
     const field = (row, source = "MOBILITY_PUBLIC_RUNTIME_V2") => ({
       resolved: !!row?.resolved,
       value: row?.value ?? null,
@@ -103,6 +107,8 @@ class HomeBrainChargerAdapter {
         asset_id: assetId,
         display_name: this.displayName(),
         profile: this.profile(),
+        profile_id:profileId,
+        image_key:imageKey,
         source: "MOBILITY_PUBLIC_RUNTIME_V2"
       },
       lifecycle: {
