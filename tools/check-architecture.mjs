@@ -18,7 +18,9 @@ const screenSemanticBypasses = {
     [/rt\.mobilityExperienceV2\s*\(/g, 'screen bypasses asset projectors for Experience V2'],
     [/rt\.vehicleChargerRelationship\s*\(/g, 'screen bypasses VehicleProjection for relationships'],
     [/rt\.chargerProductSnapshot\s*\(/g, 'screen bypasses ChargerProjection for canonical charger facts'],
-    [/rt\.commandActionsFor\s*\(/g, 'screen bypasses asset projectors for commands']
+    [/rt\.commandActionsFor\s*\(/g, 'screen bypasses asset projectors for commands'],
+    [/rt\.vehicleOverviewMetricSlots\s*\(/g, 'screen bypasses VehicleProjection for overview facts'],
+    [/rt\.vehicleChargePowerControlModel\s*\(/g, 'screen bypasses VehicleProjection for charging configuration']
   ],
   'src/ui/screens/charger-maintenance.js': [
     [/rt\.mobilityExperienceV2\s*\(/g, 'screen bypasses ChargerProjection for Experience V2'],
@@ -59,6 +61,14 @@ for (const [rel, rules] of Object.entries(screenSemanticBypasses)) {
     if(count) failures.push(`${rel}: ${label} (${count})`);
   }
 }
+
+const vehicleAdapter=fs.readFileSync(path.join(root,'src/domain/adapters/vehicle-adapter.js'),'utf8');
+if(/const\s+legacyRelationship\s*=/.test(vehicleAdapter)) failures.push('vehicle-adapter: parallel relationship projection is forbidden');
+const vehicleBuild=vehicleAdapter.slice(vehicleAdapter.indexOf('  build() {'));
+if(/this\.rt\.vehicleChargerRelationship\s*\(/.test(vehicleBuild)) failures.push('vehicle-adapter build(): relationship truth must come from productProjection()');
+const chargerAdapter=fs.readFileSync(path.join(root,'src/domain/adapters/charger-adapter.js'),'utf8');
+const chargerBuild=chargerAdapter.slice(chargerAdapter.indexOf('  build() {'));
+if(/this\.rt\.(?:chargerProductSnapshot|physicalVehicleForCharger|relatedVehicleForCharger)\s*\(/.test(chargerBuild)) failures.push('charger-adapter build(): charger truth must come from productProjection()');
 
 for(const full of jsFiles(path.join(root,'src/domain/adapters'))){
   const rel=path.relative(root,full);
