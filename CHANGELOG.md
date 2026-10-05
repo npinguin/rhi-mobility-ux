@@ -1,3 +1,11 @@
+## 1.0.0-rc.82 — Single projection authority closure
+
+- make VehicleProjection and ChargerProjection the sole semantic entry points for normal Mobility screens;
+- route Overview and management/detail surfaces through canonical fleet, policy, relationship, Experience and configuration projections;
+- remove screen-side raw contract/property/relationship fallbacks and fail closed instead of rebuilding missing fleet truth;
+- preserve rc.81 charger-owned charging actions, mobile layout fixes and user-safe wording;
+- retain Energy cross-domain consumption exclusively through RHI_ENERGY_PUBLIC_CONTRACT_V2.
+
 ## 1.0.0-rc.81 — Target HA charging and phone UX closure
 
 - expose assigned charger Start/Stop actions on vehicle cards while keeping charger ownership and backend readiness;
