@@ -350,6 +350,31 @@ class HomeBrainAssetRuntime {
     return this.vehicleRelationshipV2(assetId) || {};
   }
 
+  chargerRelationshipProjection(assetId = "") {
+    const chargerId = this.canonicalAssetId(assetId);
+    const rows = this.mobilityRuntimeV2()?.vehicle_charger_relationships || [];
+    const row = rows.find((candidate) => {
+      const configured = this.canonicalAssetId(candidate?.configured_charger_id || "");
+      const effective = this.canonicalAssetId(candidate?.effective_charger_id || "");
+      const physical = candidate?.observed_identity_proven === true
+        ? this.canonicalAssetId(candidate?.physically_connected_charger_id || "")
+        : "";
+      return chargerId && [configured,effective,physical].includes(chargerId);
+    }) || null;
+    if (!row) return {};
+    const vehicleId = this.canonicalAssetId(row.vehicle_id || row.asset_id || "");
+    const vehicle = vehicleId ? (this.vehicleById(vehicleId) || this.assetById(vehicleId)) : null;
+    return Object.freeze({
+      vehicle_id:vehicleId,
+      vehicle_display_name:String(vehicle?.display_name || (vehicleId ? this.vehicleLabel(vehicleId) : "")),
+      configured_charger_id:this.canonicalAssetId(row.configured_charger_id || ""),
+      effective_charger_id:this.canonicalAssetId(row.effective_charger_id || ""),
+      physically_connected_charger_id:row.observed_identity_proven === true ? this.canonicalAssetId(row.physically_connected_charger_id || "") : "",
+      observed_identity_proven:row.observed_identity_proven === true,
+      source:"MOBILITY_PUBLIC_RUNTIME_V2"
+    });
+  }
+
   vehicleExperienceV2(assetId = "") {
     const canonical = this.canonicalAssetId(assetId);
     return this.mobilityExperienceV2()?.vehicles?.find((row) => String(row?.asset_id || "") === canonical) || null;
