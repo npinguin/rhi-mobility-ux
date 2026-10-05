@@ -2547,53 +2547,43 @@ class HomeBrainAssetRuntime {
     });
   }
 
+  canonicalProperty(assetId = "", propertyKey = "") {
+    const canonical=this.canonicalAssetId(assetId);
+    const wanted=String(propertyKey||"").trim();
+    if(!canonical||!wanted)return null;
+    // Exact semantic reads are intentionally live. Lists may be memoized, but
+    // authoritative reads/write-readback must observe the current HA state.
+    const rows=this.v2PropertyRows(canonical).filter((r)=>
+      String(r.property_key||"")===wanted ||
+      String(r._compound_key||"")===`${canonical}:${wanted}`
+    );
+    if(!rows.length)return null;
+    const score=(row)=>{
+      let value=0;
+      if(String(row.canonical_contract||"").toUpperCase()==="MOBILITY_PUBLIC_RUNTIME_V2")value+=16;
+      if(this.contractBool(row.write_supported,false))value+=8;
+      if(this.contractBool(row.editable,false))value+=4;
+      if(row.write_service_domain&&row.write_service_action&&row.write_target_entity)value+=4;
+      if(row.value!==undefined&&row.value!==null&&String(row.value).trim()!=="")value+=2;
+      if(this.contractBool(row.available,false))value+=1;
+      if(String(row._source_entity_id||"").startsWith("sensor.rhi_mobility_"))value+=1;
+      return value;
+    };
+    return rows.slice().sort((a,b)=>score(b)-score(a))[0]||null;
+  }
+
+  // Compatibility method names delegate to one implementation; they are not
+  // separate semantic authorities.
   v2SemanticProperty(assetId = "", propertyKey = "") {
-    const canonical = this.canonicalAssetId(assetId);
-    const wanted = String(propertyKey || "").trim();
-    if (!canonical || !wanted) return null;
-    const states = Object.values(this.hass?.states || {});
-    const matches = states.filter((state) => {
-      const attrs = state?.attributes || {};
-      return String(attrs.canonical_contract || "").toUpperCase() === "MOBILITY_PUBLIC_RUNTIME_V2"
-        && String(attrs.asset_id || "") === canonical
-        && String(attrs.property_key || "") === wanted;
-    });
-    if (!matches.length) return null;
-    const state = matches.find((row)=>String(row.entity_id || "").startsWith("sensor.rhi_mobility_")) || matches[0];
-    const attrs = state?.attributes || {};
-    return this.normalizePropertyRow({
-      ...attrs,
-      asset_id: canonical,
-      property_key: wanted,
-      value:Object.prototype.hasOwnProperty.call(attrs,"value") ? attrs.value : state?.state,
-      _source_entity_id: state?.entity_id || "",
-      canonical_contract: "MOBILITY_PUBLIC_RUNTIME_V2"
-    });
+    return this.canonicalProperty(assetId,propertyKey);
   }
 
   semanticProperty(assetId = "", propertyKey = "") {
-    // One canonical property resolver. propertyRows() is already V2-only.
-    return this.propertyByCompoundKey(assetId, propertyKey);
+    return this.canonicalProperty(assetId,propertyKey);
   }
 
   propertyByCompoundKey(assetId = "", propertyKey = "") {
-    const canonical = this.canonicalAssetId(assetId);
-    const wanted = String(propertyKey || "").trim();
-    if (!canonical || !wanted) return null;
-    const rows = this.propertyRows(canonical).filter((r)=>String(r.property_key || "") === wanted || String(r._compound_key || "") === `${canonical}:${wanted}`);
-    if (!rows.length) return null;
-    // V2 property publication may contain duplicate transport rows; prefer the richest canonical row so complete write metadata is not shadowed.
-    const score = (row) => {
-      let value = 0;
-      if (String(row.canonical_contract || "").toUpperCase() === "MOBILITY_PUBLIC_RUNTIME_V2") value += 16;
-      if (this.contractBool(row.write_supported, false)) value += 8;
-      if (this.contractBool(row.editable, false)) value += 4;
-      if (row.write_service_domain && row.write_service_action && row.write_target_entity) value += 4;
-      if (row.value !== undefined && row.value !== null && String(row.value).trim() !== "") value += 2;
-      if (this.contractBool(row.available, false)) value += 1;
-      return value;
-    };
-    return rows.slice().sort((a,b)=>score(b)-score(a))[0] || null;
+    return this.canonicalProperty(assetId,propertyKey);
   }
 
   normalizePropertyRow(row = {}) {
