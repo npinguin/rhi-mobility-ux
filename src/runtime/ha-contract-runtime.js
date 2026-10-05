@@ -106,13 +106,13 @@ class HomeBrainAssetRuntime {
   contractEntity(contractId = "", preferredEntityIds = []) {
     const wanted = String(contractId || "").trim();
     if (!wanted) return undefined;
+    // One explicit producer-owned V2 ingress per contract. Never discover a
+    // substitute entity by scanning the HA state registry.
     for (const entityId of preferredEntityIds) {
       const state = this.hass?.states?.[entityId];
       if (String(state?.attributes?.contract_id || "") === wanted) return state;
     }
-    return Object.values(this.hass?.states || {}).find((state) =>
-      String(state?.attributes?.contract_id || "") === wanted
-    );
+    return undefined;
   }
 
   mobilityRuntimeV2() {
@@ -323,7 +323,9 @@ class HomeBrainAssetRuntime {
   }
 
   mobilityFleetV2() {
-    return this.mobilityRuntimeV2()?.fleet || this.mobilityExperienceV2()?.fleet || {};
+    // Fleet totals have one semantic owner: MOBILITY_PUBLIC_RUNTIME_V2.fleet.
+    // Experience may explain the result but may never replace missing runtime truth.
+    return this.mobilityRuntimeV2()?.fleet || {};
   }
 
   vehicleExperienceV2(assetId = "") {
@@ -339,9 +341,7 @@ class HomeBrainAssetRuntime {
   vehicleRelationshipV2(assetId = "") {
     const canonical = this.canonicalAssetId(assetId);
     const runtime = this.mobilityRuntimeV2();
-    const fromRuntime = runtime?.vehicle_charger_relationships?.find((row) => String(row?.vehicle_id || row?.asset_id || "") === canonical);
-    if (fromRuntime) return fromRuntime;
-    return this.vehicleExperienceV2(canonical)?.charging_relationship || null;
+    return runtime?.vehicle_charger_relationships?.find((row) => String(row?.vehicle_id || row?.asset_id || "") === canonical) || null;
   }
 
   parseListValue(value) {
@@ -2152,43 +2152,40 @@ class HomeBrainAssetRuntime {
 
   vehicleOverviewMetricSlots(assetId = "") {
     const canonical = this.canonicalAssetId(assetId);
-    const experience = this.vehicleExperienceV2(canonical) || {};
-    const clean = (value) => {
-      const text = String(value ?? "").trim();
-      return text && !["unknown","unavailable","none","null","—","no range data","no battery data"].includes(text.toLowerCase()) ? text : "";
-    };
-    const propDisplay = (key) => {
-      const prop = this.semanticProperty(canonical, key);
-      if (!prop) return { display:"", prop:null };
-      const raw = this.cleanValue(prop.value, "");
-      if (raw === "" || raw === null || raw === undefined) return { display:"", prop };
-      return { display:this.formatValue(raw, prop.unit || "", key), prop };
-    };
-
-    const total = propDisplay("vehicle.range_total_km");
-    const ev = propDisplay("vehicle.ev_range_km");
-    const soc = propDisplay("vehicle.soc_pct");
-    const currentEnergy = propDisplay("vehicle.current_energy_kwh");
-    const batteryEnergy = currentEnergy.display ? currentEnergy : propDisplay("vehicle.battery_energy_kwh");
-
-    const rangeIntel = experience.range_intelligence || {};
-    const energyIntel = experience.energy_intelligence || {};
-    const rangeSummary = clean(rangeIntel.summary);
-    const rangeReason = clean(rangeIntel.reason);
-    const energySummary = clean(energyIntel.summary);
-
     const slots = [];
-    const totalDisplay = total.display || (/km\s+total/i.test(rangeSummary) ? rangeSummary : "");
-    const evFromSummary = /km\s+electric/i.test(rangeSummary) ? rangeSummary : "";
-    const evFromReason = /km\s+electric/i.test(rangeReason) ? rangeReason : "";
-    const evDisplay = ev.display || evFromSummary || evFromReason;
-    const batteryPct = soc.display || (/%/.test(energySummary) ? energySummary : "");
-    const batteryDisplay = [batteryPct, batteryEnergy.display].filter(Boolean).join(" · ");
-
-    if (totalDisplay) slots.push({ label:"Range", display:totalDisplay, value:totalDisplay, resolved:true, available:true, property_key:total.prop ? "vehicle.range_total_km" : "experience.range_intelligence", prop:total.prop || null, source:total.prop ? "MOBILITY_PUBLIC_RUNTIME_V2" : "MOBILITY_EXPERIENCE_V2" });
-    if (evDisplay && evDisplay !== totalDisplay) slots.push({ label:"Electric", display:evDisplay, value:evDisplay, resolved:true, available:true, property_key:ev.prop ? "vehicle.ev_range_km" : "experience.range_intelligence", prop:ev.prop || null, source:ev.prop ? "MOBILITY_PUBLIC_RUNTIME_V2" : "MOBILITY_EXPERIENCE_V2" });
-    if (batteryDisplay) slots.push({ label:"Battery", display:batteryDisplay, value:batteryDisplay, resolved:true, available:true, property_key:soc.prop ? "vehicle.soc_pct" : "experience.energy_intelligence", prop:soc.prop || batteryEnergy.prop || null, source:(soc.prop || batteryEnergy.prop) ? "MOBILITY_PUBLIC_RUNTIME_V2" : "MOBILITY_EXPERIENCE_V2" });
-
+    const add = (key, label) => {
+      const prop=this.semanticProperty(canonical,key);
+      if(!prop) return;
+      const raw=this.cleanValue(prop.value,"");
+      if(raw === "" || raw === null || raw === undefined) return;
+      slots.push({
+        label,
+        display:this.formatValue(raw,prop.unit || "",key),
+        value:raw,
+        resolved:true,
+        available:true,
+        property_key:key,
+        prop,
+        source:"MOBILITY_PUBLIC_RUNTIME_V2"
+      });
+    };
+    add("vehicle.range_total_km","Range");
+    add("vehicle.ev_range_km","Electric");
+    const soc=this.semanticProperty(canonical,"vehicle.soc_pct");
+    const energy=this.semanticProperty(canonical,"vehicle.current_energy_kwh") || this.semanticProperty(canonical,"vehicle.battery_energy_kwh");
+    const batteryParts=[];
+    if(soc && this.cleanValue(soc.value,"") !== "") batteryParts.push(this.formatValue(soc.value,soc.unit || "%","vehicle.soc_pct"));
+    if(energy && this.cleanValue(energy.value,"") !== "") batteryParts.push(this.formatValue(energy.value,energy.unit || "kWh",energy.property_key || "vehicle.current_energy_kwh"));
+    if(batteryParts.length) slots.push({
+      label:"Battery",
+      display:batteryParts.join(" · "),
+      value:batteryParts.join(" · "),
+      resolved:true,
+      available:true,
+      property_key:soc?.property_key || energy?.property_key || "",
+      prop:soc || energy || null,
+      source:"MOBILITY_PUBLIC_RUNTIME_V2"
+    });
     return slots;
   }
 
@@ -2573,8 +2570,9 @@ class HomeBrainAssetRuntime {
   }
 
   semanticProperty(assetId = "", propertyKey = "") {
-    return this.v2SemanticProperty(assetId, propertyKey)
-      || this.propertyByCompoundKey(assetId, propertyKey);
+    // One canonical property resolver. propertyRows() is already V2-only and
+    // deterministically resolves duplicate transport rows.
+    return this.propertyByCompoundKey(assetId, propertyKey);
   }
 
   propertyByCompoundKey(assetId = "", propertyKey = "") {
