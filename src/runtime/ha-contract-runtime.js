@@ -328,6 +328,28 @@ class HomeBrainAssetRuntime {
     return this.mobilityRuntimeV2()?.fleet || {};
   }
 
+  mobilityFleetProjection() {
+    const fleet = this.mobilityRuntimeV2()?.fleet;
+    return fleet && typeof fleet === "object" ? fleet : {};
+  }
+
+  rangePolicyProjection() {
+    const range = this.mobilityPolicyV2()?.policy?.range;
+    return range && typeof range === "object" ? range : {};
+  }
+
+  vehicleExperienceProjection(assetId = "") {
+    return this.vehicleExperienceV2(assetId) || {};
+  }
+
+  chargerExperienceProjection(assetId = "") {
+    return this.chargerExperienceV2(assetId) || {};
+  }
+
+  vehicleRelationshipProjection(assetId = "") {
+    return this.vehicleRelationshipV2(assetId) || {};
+  }
+
   vehicleExperienceV2(assetId = "") {
     const canonical = this.canonicalAssetId(assetId);
     return this.mobilityExperienceV2()?.vehicles?.find((row) => String(row?.asset_id || "") === canonical) || null;
