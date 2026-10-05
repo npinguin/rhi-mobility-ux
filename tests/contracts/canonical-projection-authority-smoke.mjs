@@ -29,7 +29,11 @@ const forbiddenDashboard=[
   'rt.mobilityExperienceV2(',
   'rt.vehicleChargerRelationship(',
   'rt.chargerProductSnapshot(',
-  'rt.commandActionsFor('
+  'rt.commandActionsFor(',
+  'rt.propertyByCompoundKey(',
+  'rt.semanticProperty(',
+  'rt.vehicleOverviewMetricSlots(',
+  'rt.vehicleChargePowerControlModel('
 ];
 for(const token of forbiddenDashboard) if(dashboard.includes(token)) throw new Error(`dashboard bypasses canonical projection: ${token}`);
 
@@ -39,11 +43,17 @@ const forbiddenCharger=[
   'rt.chargerProductSnapshot(',
   'rt.commandActionsFor(',
   'rt.canonicalChargerPropertyDisplay(',
-  'rt.canonicalChargerPropertyValue('
+  'rt.canonicalChargerPropertyValue(',
+  'rt.propertyByCompoundKey(',
+  'rt.semanticProperty('
 ];
 for(const token of forbiddenCharger) if(chargerScreen.includes(token)) throw new Error(`charger management bypasses canonical projection: ${token}`);
 
 if(!dashboard.includes('model?.projection?.signals')) throw new Error('dashboard does not consume projected signals');
+if(!dashboard.includes('projection.facts?.overview_metrics')) throw new Error('dashboard does not consume projected overview metrics');
+if(!dashboard.includes('projection.configuration?.charge_power_control_model')) throw new Error('dashboard does not consume projected requested-power control');
+if(!vehicle.includes('ready_by: (() =>')) throw new Error('VehicleProjection does not own ready_by');
+if(!vehicle.includes('climate_state: (() =>')) throw new Error('VehicleProjection does not own climate state');
 if(!dashboard.includes('model?.projection?.commands')) throw new Error('dashboard does not consume projected commands');
 if(!chargerScreen.includes('const projection = model?.projection || {}')) throw new Error('charger management does not consume ChargerProjection');
 
