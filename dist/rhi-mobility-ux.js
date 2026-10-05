@@ -1,5 +1,5 @@
 /**
- * Robotix Home Intelligence Mobility UX v1.0.0-rc.82
+ * Robotix Home Intelligence Mobility UX v1.0.0-rc.83
  * GENERATED FILE - DO NOT EDIT.
  * License: GPL-3.0-only
  */
@@ -920,7 +920,7 @@ function hbMobilityPresentationStyles() {
 // ---- src/app/header-and-navigation.js ----
 // Mobility presentation adapter onto the shared RHI UX Core.
 // Domain semantics remain owned by Mobility runtime/projections.
-const UX_VERSION = "1.0.0-rc.82";
+const UX_VERSION = "1.0.0-rc.83";
 const HB_MOBILITY_ROUTE_SEGMENTS = new Set([
   "overview","dashboard","vehicles","charger-maintenance","chargers",
   "planning","strategies","history","log","asset-detail","detail","charging"
@@ -5056,8 +5056,7 @@ class HomeBrainVehicleAdapter {
     const assetId = this.assetId();
     const reg = this.registryEntry() || { asset_id: assetId };
     const experience = this.rt.vehicleExperienceV2(assetId) || {};
-    const legacyRelationship = this.rt.vehicleChargerRelationship(assetId) || {};
-    const v2Relationship = experience?.charging_relationship || this.rt.vehicleRelationshipV2(assetId) || {};
+    const v2Relationship = this.rt.vehicleRelationshipV2(assetId) || {};
 
     const realId = (value) => {
       const raw = String(value || "").trim();
@@ -5065,10 +5064,10 @@ class HomeBrainVehicleAdapter {
         ? this.rt.canonicalAssetId(raw)
         : "";
     };
-    const configuredId = realId(v2Relationship.configured_charger_id || legacyRelationship.assigned || legacyRelationship.effective);
-    const effectiveId = realId(v2Relationship.effective_charger_id || legacyRelationship.effective || configuredId);
+    const configuredId = realId(v2Relationship.configured_charger_id);
+    const effectiveId = realId(v2Relationship.effective_charger_id || configuredId);
     const physicalId = v2Relationship.observed_identity_proven === true
-      ? realId(v2Relationship.physically_connected_charger_id || legacyRelationship.connected)
+      ? realId(v2Relationship.physically_connected_charger_id)
       : "";
     const relationshipId = physicalId || effectiveId || configuredId;
     const chargerEntry = relationshipId ? (this.rt.chargerById(relationshipId) || this.rt.assetById(relationshipId)) : null;
@@ -5173,11 +5172,14 @@ class HomeBrainVehicleAdapter {
       },
       facts: {
         overview_metrics: this.rt.vehicleOverviewMetricSlots(assetId),
-        live_charging: this.rt.liveChargingContextForVehicle(assetId)
+        live_charging: this.rt.liveChargingContextForVehicle(assetId),
+        ready_by: this.rt.semanticProperty(assetId, "vehicle.ready_by") || null,
+        climate_state: this.rt.semanticProperty(assetId, "vehicle.climate_state") || null
       },
       configuration: {
         profile_id: profileId,
         profile_resolved: !!profileProperty,
+        selected_charger: this.chargerAssignmentModel(),
         charge_power_control: this.rt.vehicleChargePowerControl(assetId),
         charge_power_control_model: this.rt.vehicleChargePowerControlModel(assetId)
       },
@@ -5208,20 +5210,12 @@ class HomeBrainVehicleAdapter {
     const profile = this.profile();
     const display = this.displayName();
 
-    const relationship = this.rt.vehicleChargerRelationship(assetId);
-    const isReal = (value) => {
-      const v = String(value || "").trim();
-      return !!v && !["none", "unknown", "unavailable", "null", "undefined", "—"].includes(v.toLowerCase());
-    };
-    const physicalChargerId = isReal(relationship.connected) ? this.rt.canonicalAssetId(relationship.connected) : "";
-    const effectiveChargerId = isReal(relationship.effective) ? this.rt.canonicalAssetId(relationship.effective) : "";
-    // Hero navigation may show the effective charger when no physical charger is
-    // connected, but this never changes the physical connection semantics.
-    const chargerContextId = physicalChargerId || effectiveChargerId;
+    const projection = this.productProjection();
+    const physicalChargerId = String(projection.relationships.physically_connected_charger_id || "");
+    const effectiveChargerId = String(projection.relationships.effective_charger_id || "");
+    const chargerContextId = physicalChargerId || effectiveChargerId || String(projection.relationships.configured_charger_id || "");
     const chargerEntry = chargerContextId ? (this.rt.chargerById(chargerContextId) || this.rt.assetById(chargerContextId)) : null;
-    const chargerDisplay = chargerEntry?.display_name
-      || (physicalChargerId ? relationship.connected_display_name : relationship.effective_display_name)
-      || chargerContextId || "Not available";
+    const chargerDisplay = String(projection.relationships.charger_display_name || chargerEntry?.display_name || chargerContextId || "Not available");
     const chargerDetailRoute = chargerContextId ? this.rt.assetDetailRoute(chargerEntry || chargerContextId) : "";
 
     const profileImage = this.imageFromProfile();
@@ -5239,7 +5233,6 @@ class HomeBrainVehicleAdapter {
     const canonicalProfilePackage = String(profileVisual?.package_file || "");
     const img = visualPackageFile || canonicalProfilePackage || profileImage;
     const imageFilter = visualMatchesProfile ? (visual?.color?.filter || "none") : "none";
-    const projection = this.productProjection();
     const actions = projection.commands.map((cmd, index) => ({
       label: cmd.label || this.rt.titleize(cmd.command_id || cmd.command_key),
       icon: this.rt.commandIcon(cmd), entity: cmd.intent_entity, command: cmd,
@@ -5308,13 +5301,13 @@ class HomeBrainChargerAdapter {
   profile() { const reg = this.registryEntry(); return reg?.profile_display_name || reg?.profile || this.config.fallback_profile || "Charger"; }
   status() { return this.rt.chargerOperationalStatus(this.assetId()); }
   can(capability) { return this.commandExists(capability); }
-  overviewAvailability() {
+  overviewAvailability(snapshot = null) {
     const assetId = this.assetId();
     const lifecycle = this.rt.lifecycleStatus(this.registryEntry() || assetId);
     if (lifecycle === "disabled") return { bucket:"disabled", resolved:true, label:"Disabled" };
     if (lifecycle !== "active") return { bucket:"unknown", resolved:false, label:"N/A" };
 
-    const snapshot = this.rt.chargerProductSnapshot(assetId);
+    snapshot = snapshot || this.rt.chargerProductSnapshot(assetId);
     const operatingResolved = !!snapshot?.operating?.resolved;
     const operating = operatingResolved ? String(snapshot.operating.value || "").trim().toLowerCase() : "";
     if (operating === "fault") return { bucket:"unavailable", resolved:true, label:"Unavailable" };
@@ -5412,7 +5405,7 @@ class HomeBrainChargerAdapter {
         vehicle_detail_route: vehicleAssetId ? this.rt.assetDetailRoute(vehicleEntry || vehicleAssetId) : "",
         source: "MOBILITY_PUBLIC_RUNTIME_V2"
       },
-      availability: this.overviewAvailability(),
+      availability: this.overviewAvailability(snapshot),
       commands,
       experience,
       source_contracts: ["MOBILITY_PUBLIC_RUNTIME_V2", "MOBILITY_EXPERIENCE_V2", "MOBILITY_COMMAND_V2"]
@@ -5433,8 +5426,11 @@ class HomeBrainChargerAdapter {
     const status = projection.facts.operating.display;
     const connectionState = projection.facts.connection.display;
     const assignedVehicle = projection.facts.connected_vehicle.display;
-    const physicalVehicle = this.rt.physicalVehicleForCharger(assetId);
-    const relatedVehicle = this.rt.relatedVehicleForCharger(assetId);
+    const relatedVehicle = {
+      assetId:String(projection.relationships.connected_vehicle_id || ""),
+      displayName:String(projection.relationships.connected_vehicle_display_name || ""),
+      detailRoute:String(projection.relationships.vehicle_detail_route || "")
+    };
     const power = projection.facts.power.display;
     const sessionEnergy = projection.facts.session_energy.display;
     const currentLimit = projection.facts.current_limit.display;
@@ -7974,7 +7970,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
   renderChargerAssignmentSelect(rt, vehicleAsset) {
     const assetId = this.assetId(vehicleAsset);
     const adapter = new HomeBrainVehicleAdapter(rt, this.vehicleId(vehicleAsset), { ...this.config, registry_entry: vehicleAsset });
-    const model = adapter.chargerAssignmentModel();
+    const model = adapter.productProjection()?.configuration?.selected_charger || { resolved:false, writable:false, display:"Unavailable", choices:[] };
     if (!model.resolved) {
       return `<div class="mini-control charger-select readonly" title="Assignment unavailable because vehicle.selected_charger is not published"><ha-icon icon="mdi:ev-station"></ha-icon><span class="relationship-copy"><small>Assigned charger</small><strong>Unavailable</strong></span></div>`;
     }
@@ -7988,8 +7984,8 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
 
   renderVehicleControlRow(rt, vehicleAsset, chargers) {
     const ctx = this.chargingContext(rt, vehicleAsset, chargers);
-    const metricSlots = rt.vehicleOverviewMetricSlots(this.assetId(vehicleAsset));
-    const chargePowerModel = rt.vehicleChargePowerControlModel(this.assetId(vehicleAsset));
+    const metricSlots = ctx.projection?.facts?.overview_metrics || [];
+    const chargePowerModel = ctx.projection?.configuration?.charge_power_control_model || null;
     const limitValue = chargePowerModel?.resolved && Number.isFinite(Number(chargePowerModel.value)) ? Number(chargePowerModel.value) : null;
     const currentValue = limitValue === null ? "—" : (Number.isInteger(limitValue) ? String(limitValue) : Number(limitValue).toFixed(2).replace(/\.00$/, ""));
     const meta = {
@@ -8281,21 +8277,23 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
   }
 
   overviewNextDeparture(rt, vehicles = []) {
+    const factory = new HomeBrainAssetFactory(rt);
     const candidates = [];
     for (const vehicle of vehicles) {
-      const assetId = this.assetId(vehicle);
-      const departure = rt.propertyByCompoundKey(assetId, "vehicle.ready_by");
+      const model = factory.adapterFor(vehicle, this.config)?.build?.() || null;
+      const assetId = String(model?.projection?.identity?.asset_id || this.assetId(vehicle));
+      const departure = model?.projection?.facts?.ready_by || null;
       if (!departure || departure.value === undefined || departure.value === null || String(departure.value).trim() === "") continue;
       const instant = this.overviewDepartureInstant(departure.value);
       if (instant === null || instant < Date.now() - 5 * 60 * 1000) continue;
-      const climate = rt.propertyByCompoundKey(assetId, "vehicle.climate_state");
-      candidates.push({ vehicle, assetId, instant, climate });
+      const climate = model?.projection?.facts?.climate_state || null;
+      candidates.push({ vehicle, model, assetId, instant, climate });
     }
     candidates.sort((a,b)=>a.instant-b.instant);
     const next = candidates[0] || null;
     if (!next) return { resolved:false, vehicle:null, vehicleName:"N/A", climate:"N/A", departure:"" };
     const climate = next.climate ? String(rt.propertyDisplayValue(next.climate) || "N/A") : "N/A";
-    const vehicleName = String(next.vehicle?.display_name || rt.vehicleLabel(next.assetId) || next.assetId);
+    const vehicleName = String(next.model?.projection?.identity?.display_name || next.model?.display || next.vehicle?.display_name || next.assetId);
     return { resolved:true, vehicle:next.vehicle, vehicleName, climate, departure:new Date(next.instant).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"}) };
   }
 

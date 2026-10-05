@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "product": "rhi-mobility-ux",
-  "version": "1.0.0-rc.82",
+  "version": "1.0.0-rc.83",
   "source_manifest_schema": 1,
   "hacs_package_root": "dist",
   "hacs_filename": "rhi-mobility-ux.js",
@@ -12,7 +12,7 @@
     "metadata",
     "vehicles"
   ],
-  "runtime_sha256": "f1d91582373c8745268f38d9ddd78bb960f05efd30a469a91dcbd23f1adffa14",
+  "runtime_sha256": "32d292560047ce6c6a8f025b583322e9f38fea67557f0526cd26b8dcc40363cd",
   "files": [
     {
       "path": "assets/chargers/charger_fallback.png",
@@ -104,7 +104,7 @@
     },
     {
       "path": "rhi-mobility-ux.js",
-      "bytes": 778992
+      "bytes": 778984
     },
     {
       "path": "rhi-mobility-ux.js.sha256",
