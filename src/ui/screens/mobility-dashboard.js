@@ -604,7 +604,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
   }
 
   overviewChargingStatus(rt, vehicles = [], chargers = []) {
-    const fleet = rt.mobilityFleetV2();
+    const fleet = rt.mobilityFleetProjection();
     const factory = new HomeBrainAssetFactory(rt);
     const chargerModels = chargers.map((charger)=>factory.adapterFor(charger, this.config)?.build?.()).filter(Boolean);
     const vehicleModels = vehicles.map((vehicle)=>factory.adapterFor(vehicle, this.config)?.build?.()).filter(Boolean);
@@ -653,8 +653,8 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
   overviewRangeStatus(rt, vehicles = []) {
     const factory = new HomeBrainAssetFactory(rt);
     const models = vehicles.map((vehicle)=>factory.adapterFor(vehicle, this.config)?.build?.()).filter(Boolean);
-    const policy = rt.mobilityPolicyV2();
-    const threshold = Number(policy?.policy?.range?.low_range_km);
+    const policy = rt.rangePolicyProjection();
+    const threshold = Number(policy.low_range_km);
     const rows = models.map((model)=>({ model, signal:model?.projection?.signals?.range || {} }));
     const ok = rows.filter(({signal})=>String(signal.state || "").toLowerCase() === "ok");
     const low = rows.filter(({signal})=>String(signal.state || "").toLowerCase() === "low")
@@ -805,7 +805,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     const visibleActive = filter === "disabled" ? [] : filter === "attention" ? allActive.filter(attentionRequired) : allActive;
     const visibleInactive = filter === "active" ? [] : filter === "attention" ? allInactive.filter(attentionRequired) : allInactive;
 
-    const fleet = rt.mobilityFleetV2();
+    const fleet = rt.mobilityFleetProjection();
     const activeCount = Number.isFinite(Number(fleet.active_vehicle_count)) ? Number(fleet.active_vehicle_count) : allActive.length;
     const inactiveCount = allInactive.length;
     const attentionCount = [...allActive, ...allInactive].filter(attentionRequired).length;
