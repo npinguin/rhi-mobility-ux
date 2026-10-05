@@ -113,7 +113,8 @@ for(const key of ['asset.profile_id','vehicle.selected_charger']) {
   if(!row.choices.length) throw new Error(`vehicle configuration choices missing for ${key}`);
 }
 if(!vehicleAdapter.includes('label:"No charger"') || !vehicleAdapter.includes('allow_none:allowNone')) throw new Error('shared vehicle adapter must model backend-owned No charger semantics once');
-if(!dashboard.includes('adapter.chargerAssignmentModel()')) throw new Error('Overview/vehicle surfaces must consume the shared charger-assignment model');
+if(!vehicleAdapter.includes('selected_charger: this.chargerAssignmentModel()')) throw new Error('VehicleProjection must own the shared charger-assignment model');
+if(!dashboard.includes('adapter.productProjection()?.configuration?.selected_charger')) throw new Error('Overview/vehicle surfaces must consume projected charger assignment');
 
 const vehicleRuntimeControl=vrt.propertyByCompoundKey(vehicle,'vehicle.requested_charge_power_kw');
 if(vrt.isWritableProperty(vehicleRuntimeControl)) throw new Error('vehicle requested power must fail closed without V2 write capability');
