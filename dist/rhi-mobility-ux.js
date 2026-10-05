@@ -5100,7 +5100,28 @@ class HomeBrainVehicleAdapter {
 
     const profileProperty = this.rt.semanticProperty(assetId, "asset.profile_id");
     const profileId = String(profileProperty?.value ?? "").trim();
-    const commands = this.rt.commandActionsFor(assetId, "quick_actions");
+    // Charging execution belongs to the charger, not the vehicle. A vehicle card may
+    // present the configured/effective/physical charger's charging commands as a
+    // convenience, but the command keeps its charger asset_id and backend readiness.
+    // This must never be used as evidence that the charger is physically connected
+    // to this specific vehicle; power attribution still requires observed identity.
+    const vehicleCommands = this.rt.commandActionsFor(assetId, "quick_actions");
+    const chargingCommandKeys = new Set([
+      "charger.command.start",
+      "charger.command.start_charging",
+      "charger.command.stop",
+      "charger.command.stop_charging"
+    ]);
+    const chargerCommands = relationshipId
+      ? this.rt.commandActionsFor(relationshipId, "quick_actions")
+          .filter((command) => chargingCommandKeys.has(String(command?.command_key || "")))
+      : [];
+    const commands = [...chargerCommands, ...vehicleCommands].filter((command, index, rows) => {
+      const key = `${String(command?.asset_id || "")}::${String(command?.command_key || command?.command_id || "")}`;
+      return rows.findIndex((candidate) =>
+        `${String(candidate?.asset_id || "")}::${String(candidate?.command_key || candidate?.command_id || "")}` === key
+      ) === index;
+    });
     return {
       identity: {
         asset_id: assetId,
@@ -9928,6 +9949,52 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
       }
       .vehicle-card .vehicle-appearance-action{left:9px;bottom:8px;height:30px}
       .vehicle-card .vehicle-hero-panel .mini-detail-button{right:6px;bottom:6px}
+    }
+
+    /* rc.81 target-HA phone closure.
+       This is the final responsive authority for Vehicle Management. Variable
+       status copy must participate in normal flow and may never overlap the hero. */
+    @media(max-width:560px){
+      .vehicle-card.premium-vehicle-card{display:block;overflow:hidden}
+      .vehicle-card .status-top-row.vehicle-intelligence-strip{
+        position:relative;display:grid;grid-template-columns:1fr 1fr;
+        grid-auto-rows:minmax(44px,auto);height:auto;min-height:0;
+        overflow:visible;padding:7px 7px 5px;gap:5px
+      }
+      .vehicle-card .status-top-row.vehicle-intelligence-strip .intelligence-status-row{
+        position:relative;display:grid;grid-template-columns:18px minmax(0,1fr);
+        grid-template-rows:auto auto;height:auto;min-height:44px;max-height:none;
+        align-content:center;overflow:hidden;padding:5px 6px
+      }
+      .vehicle-card .status-top-row.vehicle-intelligence-strip .intelligence-status-row span,
+      .vehicle-card .status-top-row.vehicle-intelligence-strip .intelligence-status-row .pill{
+        position:static;min-width:0;max-width:100%;width:auto;
+        white-space:normal;overflow-wrap:anywhere;text-overflow:clip
+      }
+      .vehicle-card .hero-split-row{position:relative;clear:both}
+      .vehicle-card .vehicle-hero-panel{
+        display:grid;grid-template-columns:minmax(0,.9fr) minmax(128px,1.1fr);
+        height:132px;min-height:132px;max-height:none
+      }
+      .vehicle-card .vehicle-copy{position:relative;inset:auto;min-width:0;max-width:none}
+      .vehicle-card .vehicle-copy h2{white-space:normal;overflow-wrap:anywhere}
+      .vehicle-card .vehicle-image{position:relative;inset:auto}
+      .vehicle-card .vehicle-control-row.mock-row{
+        height:auto;min-height:0;grid-template-columns:1fr;overflow:visible
+      }
+      .vehicle-card .vehicle-metrics-strip.mock-metrics{
+        height:auto;min-height:48px;grid-template-columns:repeat(3,minmax(0,1fr))
+      }
+      .vehicle-card .charge-mini-strip.mock-controls,
+      .vehicle-card .charge-mini-strip.mock-controls.no-speed{
+        height:auto;grid-template-columns:1fr
+      }
+      .vehicle-card .vehicle-actions.clean-actions{
+        display:flex;flex-wrap:wrap;overflow:visible
+      }
+      .vehicle-card .vehicle-actions.clean-actions .action:not(.icon-only){
+        flex:1 1 calc(50% - 6px);min-width:128px
+      }
     }
 
 
