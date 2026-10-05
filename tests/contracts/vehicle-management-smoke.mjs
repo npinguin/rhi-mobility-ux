@@ -245,3 +245,58 @@ for(const needle of [
 ]) if(!uxCore.includes(needle)) throw new Error('shared visual picker bounds regression: missing '+needle);
 
 console.log('PASS #116 management cards expose canonical relationships and bounded visual proportions');
+
+
+//
+// rc.81 target-HA closure: vehicle presentation may surface charger-owned
+// Start/Stop commands through the canonical relationship, while execution and
+// readiness remain owned by the charger command row.
+//
+{
+  const context={};
+  vm.createContext(context);
+  vm.runInContext(adapter+'\nthis.HomeBrainVehicleAdapter=HomeBrainVehicleAdapter;',context);
+  const calls=[];
+  const rt={
+    vehicleById:()=>null,
+    assetById:(id)=>({asset_id:id,display_name:id==='charger_driveway'?'Driveway charger':'Vehicle'}),
+    vehicleExperienceV2:()=>({}),
+    vehicleChargerRelationship:()=>({assigned:'charger_driveway',effective:'charger_driveway',connected:''}),
+    vehicleRelationshipV2:()=>({configured_charger_id:'charger_driveway',effective_charger_id:'charger_driveway',observed_identity_proven:false}),
+    canonicalAssetId:(id)=>String(id||''),
+    chargerById:(id)=>({asset_id:id,display_name:'Driveway charger'}),
+    chargerLabel:()=> 'Driveway charger',
+    assetDetailRoute:()=>'/charger',
+    semanticProperty:()=>null,
+    commandActionsFor:(id)=>{
+      calls.push(id);
+      if(id==='charger_driveway') return [
+        {asset_id:id,command_key:'charger.command.start',command_id:'start',execution_allowed:true,label:'Start charging'},
+        {asset_id:id,command_key:'charger.command.stop',command_id:'stop',execution_allowed:false,blocked_reason:'charger_not_active',label:'Stop charging'},
+        {asset_id:id,command_key:'charger.command.restart',command_id:'restart',execution_allowed:true,label:'Restart'}
+      ];
+      return [{asset_id:id,command_key:'vehicle.command.lock',command_id:'lock',execution_allowed:true,label:'Lock'}];
+    },
+    vehicleOverviewMetricSlots:()=>[],
+    liveChargingContextForVehicle:()=>({}),
+    lifecycleStatus:()=> 'active',
+    vehicleChargePowerControl:()=>null,
+    vehicleChargePowerControlModel:()=>null
+  };
+  const instance=new context.HomeBrainVehicleAdapter(rt,'vehicle_test',{registry_entry:{asset_id:'vehicle_test',display_name:'Test vehicle'}});
+  const projection=instance.productProjection();
+  if(!calls.includes('charger_driveway')) throw new Error('rc.81 vehicle projection did not request commands from effective charger');
+  if(projection.relationships.physically_connected_charger_id!=='') throw new Error('rc.81 command presentation must not invent physical vehicle identity');
+  if(projection.commands[0]?.command_key!=='charger.command.start'||projection.commands[0]?.asset_id!=='charger_driveway') throw new Error('rc.81 Start charging must remain charger-targeted and lead vehicle quick actions');
+  if(projection.commands[1]?.command_key!=='charger.command.stop'||projection.commands[1]?.execution_allowed!==false) throw new Error('rc.81 backend blocked readiness must survive vehicle projection');
+  if(projection.commands.some(cmd=>cmd.command_key==='charger.command.restart')) throw new Error('rc.81 vehicle card must not import unrelated charger engineering commands');
+}
+
+for(const needle of [
+  'rc.81 target-HA phone closure',
+  'grid-auto-rows:minmax(44px,auto)',
+  'white-space:normal;overflow-wrap:anywhere',
+  'height:auto;min-height:0;grid-template-columns:1fr;overflow:visible'
+]) if(!dashboard.includes(needle)) throw new Error('rc.81 mobile no-overlap regression: missing '+needle);
+
+console.log('PASS rc.81 assigned charger charging commands and phone card flow closure');
