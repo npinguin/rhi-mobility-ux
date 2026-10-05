@@ -132,7 +132,28 @@ class HomeBrainVehicleAdapter {
 
     const profileProperty = this.rt.semanticProperty(assetId, "asset.profile_id");
     const profileId = String(profileProperty?.value ?? "").trim();
-    const commands = this.rt.commandActionsFor(assetId, "quick_actions");
+    // Charging execution belongs to the charger, not the vehicle. A vehicle card may
+    // present the configured/effective/physical charger's charging commands as a
+    // convenience, but the command keeps its charger asset_id and backend readiness.
+    // This must never be used as evidence that the charger is physically connected
+    // to this specific vehicle; power attribution still requires observed identity.
+    const vehicleCommands = this.rt.commandActionsFor(assetId, "quick_actions");
+    const chargingCommandKeys = new Set([
+      "charger.command.start",
+      "charger.command.start_charging",
+      "charger.command.stop",
+      "charger.command.stop_charging"
+    ]);
+    const chargerCommands = relationshipId
+      ? this.rt.commandActionsFor(relationshipId, "quick_actions")
+          .filter((command) => chargingCommandKeys.has(String(command?.command_key || "")))
+      : [];
+    const commands = [...chargerCommands, ...vehicleCommands].filter((command, index, rows) => {
+      const key = `${String(command?.asset_id || "")}::${String(command?.command_key || command?.command_id || "")}`;
+      return rows.findIndex((candidate) =>
+        `${String(candidate?.asset_id || "")}::${String(candidate?.command_key || candidate?.command_id || "")}` === key
+      ) === index;
+    });
     return {
       identity: {
         asset_id: assetId,
