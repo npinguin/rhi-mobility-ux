@@ -323,7 +323,8 @@ class HomeBrainAssetRuntime {
   }
 
   mobilityFleetV2() {
-    return this.mobilityRuntimeV2()?.fleet || this.mobilityExperienceV2()?.fleet || {};
+    // Fleet aggregates have one semantic owner: MOBILITY_PUBLIC_RUNTIME_V2.
+    return this.mobilityRuntimeV2()?.fleet || {};
   }
 
   vehicleExperienceV2(assetId = "") {
@@ -339,9 +340,7 @@ class HomeBrainAssetRuntime {
   vehicleRelationshipV2(assetId = "") {
     const canonical = this.canonicalAssetId(assetId);
     const runtime = this.mobilityRuntimeV2();
-    const fromRuntime = runtime?.vehicle_charger_relationships?.find((row) => String(row?.vehicle_id || row?.asset_id || "") === canonical);
-    if (fromRuntime) return fromRuntime;
-    return this.vehicleExperienceV2(canonical)?.charging_relationship || null;
+    return runtime?.vehicle_charger_relationships?.find((row) => String(row?.vehicle_id || row?.asset_id || "") === canonical) || null;
   }
 
   parseListValue(value) {
