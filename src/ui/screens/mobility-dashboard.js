@@ -1210,8 +1210,11 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
       const cur = Number.isFinite(attrValue) ? attrValue : null;
       const next = Math.max(min, Math.min(max, (cur ?? min) + delta));
       if (!propertyKey || !vehicleAsset) return;
+      const projectedVehicle = propertyKey === "vehicle.requested_charge_power_kw"
+        ? new HomeBrainVehicleAdapter(rt, vehicleAsset, { ...this.config, registry_entry:rt.vehicleById(vehicleAsset) || rt.assetById(vehicleAsset) || null }).productProjection()
+        : null;
       const model = propertyKey === "vehicle.requested_charge_power_kw"
-        ? rt.vehicleChargePowerControlModel(vehicleAsset)
+        ? projectedVehicle?.configuration?.charge_power_control_model
         : rt.propertyControlModel(vehicleAsset, propertyKey);
       const wrap = btn.closest(".mini-current-stepper");
       const buttons = [...(wrap?.querySelectorAll("button[data-property-step],button[data-charge-power-step],button[data-current-step]") || [])];
