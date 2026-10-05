@@ -6,7 +6,8 @@
 - remove duplicate relationship/snapshot reads from adapter presentation build paths;
 - make Overview consume the same projected facts and configuration used by detail views;
 - retain the single Energy Public V2 cross-domain ingress;
-- strengthen architecture gates so screens cannot reopen direct semantic runtime paths.
+- strengthen architecture gates so screens cannot reopen direct semantic runtime paths;
+- qualify the candidate package against the current M0.10.35 backend baseline.
 
 Rollback: **v1.0.0-rc.82**.
 Known accepted technical debt: **0**.
