@@ -1,12 +1,14 @@
-# v1.0.0-rc.82 — iPad vehicle-card and command closure
+# v1.0.0-rc.83 — unified Mobility semantic projection candidate
 
-- deduplicate semantically equivalent charger Start/Start Charging and Stop/Stop Charging aliases without synthesizing commands;
-- preserve the original backend command row, physical executor, execution_allowed and blocked_reason;
-- keep source_temporarily_unavailable fail-closed instead of enabling an unsafe action;
-- make the five vehicle intelligence fields responsive at iPad/tablet widths and contain long product copy within its tile;
-- preserve M0.10.35 canonical configured/effective/observed vehicle↔charger truth.
+- preserve the rc.82 iPad containment and charger command-alias closure;
+- make VehicleProjection the sole owner of vehicle relationship, overview metrics, charging configuration, ready-by and climate facts;
+- make ChargerProjection the sole owner of charger snapshot, availability and connected-vehicle relationship truth;
+- remove duplicate relationship/snapshot reads from adapter presentation build paths;
+- make Overview consume the same projected facts and configuration used by detail views;
+- retain the single Energy Public V2 cross-domain ingress;
+- strengthen architecture gates so screens cannot reopen direct semantic runtime paths.
 
-Rollback: **v1.0.0-rc.81**.
+Rollback: **v1.0.0-rc.82**.
 Known accepted technical debt: **0**.
 Known accepted feature debt: **0**.
 Target-runtime qualification remains required before stable promotion.
