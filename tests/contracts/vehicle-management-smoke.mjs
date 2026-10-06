@@ -190,7 +190,7 @@ console.log('PASS rc.64 cross-screen vehicle range/battery summary and charger a
     renderInactiveVehicle:(_rt,vehicle)=>'<inactive>'+vehicle.asset_id+'</inactive>'
   };
   const rt={
-    mobilityFleetV2:()=>({active_vehicle_count:2}),
+    mobilityFleetProjection:()=>({active_vehicle_count:2}),
     vehicleLabel:(id)=>id,
     escape:(value)=>String(value??''),
     lifecycleStatus:()=> 'active'
@@ -225,7 +225,7 @@ if(dashboard.includes('title="vehicle.selected_charger is not published"><ha-ico
 }
 
 for(const needle of [
-  'const relatedVehicle = rt.relatedVehicleForCharger(assetId)',
+  'const relatedVehicleId = String(projection?.relationships?.connected_vehicle_id || "")',
   'rt.t("common.assigned_vehicle"',
   'rt.t("common.connected_vehicle"',
   'charger-assignment',
@@ -260,9 +260,8 @@ console.log('PASS #116 management cards expose canonical relationships and bound
   const rt={
     vehicleById:()=>null,
     assetById:(id)=>({asset_id:id,display_name:id==='charger_driveway'?'Driveway charger':'Vehicle'}),
-    vehicleExperienceV2:()=>({}),
-    vehicleChargerRelationship:()=>({assigned:'charger_driveway',effective:'charger_driveway',connected:''}),
-    vehicleRelationshipV2:()=>({configured_charger_id:'charger_driveway',effective_charger_id:'charger_driveway',observed_identity_proven:false}),
+    vehicleExperienceProjection:()=>({}),
+    vehicleRelationshipProjection:()=>({configured_charger_id:'charger_driveway',effective_charger_id:'charger_driveway',observed_identity_proven:false}),
     canonicalAssetId:(id)=>String(id||''),
     chargerById:(id)=>({asset_id:id,display_name:'Driveway charger'}),
     chargerLabel:()=> 'Driveway charger',
