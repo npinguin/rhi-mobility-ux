@@ -322,27 +322,45 @@ class HomeBrainAssetRuntime {
     });
   }
 
-  mobilityFleetV2() {
-    return this.mobilityRuntimeV2()?.fleet || this.mobilityExperienceV2()?.fleet || {};
+  // Canonical product projections. Raw V2 readers above remain transport-only;
+  // adapters/screens consume these projection owners so one semantic family has
+  // one authority and missing truth fails closed.
+  mobilityFleetProjection() {
+    const fleet=this.mobilityRuntimeV2()?.fleet;
+    return fleet && typeof fleet === "object" ? { ...fleet, source:"MOBILITY_PUBLIC_RUNTIME_V2" } : {};
   }
 
-  vehicleExperienceV2(assetId = "") {
-    const canonical = this.canonicalAssetId(assetId);
-    return this.mobilityExperienceV2()?.vehicles?.find((row) => String(row?.asset_id || "") === canonical) || null;
+  rangePolicyProjection() {
+    const policy=this.mobilityPolicyV2()?.policy;
+    return policy && typeof policy === "object" ? { ...policy, source:"MOBILITY_POLICY_V2" } : {};
   }
 
-  chargerExperienceV2(assetId = "") {
-    const canonical = this.canonicalAssetId(assetId);
-    return this.mobilityExperienceV2()?.chargers?.find((row) => String(row?.asset_id || "") === canonical) || null;
+  vehicleExperienceProjection(assetId = "") {
+    const canonical=this.canonicalAssetId(assetId);
+    const row=this.mobilityExperienceV2()?.vehicles?.find((item)=>String(item?.asset_id || "") === canonical) || null;
+    return row ? { ...row, source:"MOBILITY_EXPERIENCE_V2" } : {};
   }
 
-  vehicleRelationshipV2(assetId = "") {
-    const canonical = this.canonicalAssetId(assetId);
-    const runtime = this.mobilityRuntimeV2();
-    const fromRuntime = runtime?.vehicle_charger_relationships?.find((row) => String(row?.vehicle_id || row?.asset_id || "") === canonical);
-    if (fromRuntime) return fromRuntime;
-    return this.vehicleExperienceV2(canonical)?.charging_relationship || null;
+  chargerExperienceProjection(assetId = "") {
+    const canonical=this.canonicalAssetId(assetId);
+    const row=this.mobilityExperienceV2()?.chargers?.find((item)=>String(item?.asset_id || "") === canonical) || null;
+    return row ? { ...row, source:"MOBILITY_EXPERIENCE_V2" } : {};
   }
+
+  vehicleRelationshipProjection(assetId = "") {
+    const canonical=this.canonicalAssetId(assetId);
+    const row=this.mobilityRuntimeV2()?.vehicle_charger_relationships?.find(
+      (item)=>String(item?.vehicle_id || item?.asset_id || "") === canonical
+    ) || null;
+    return row ? { ...row, source:"MOBILITY_PUBLIC_RUNTIME_V2" } : {};
+  }
+
+  // Compatibility names are runtime-internal aliases only. They must never be
+  // consumed by UI/adapters as independent semantic paths.
+  mobilityFleetV2() { return this.mobilityFleetProjection(); }
+  vehicleExperienceV2(assetId = "") { return this.vehicleExperienceProjection(assetId); }
+  chargerExperienceV2(assetId = "") { return this.chargerExperienceProjection(assetId); }
+  vehicleRelationshipV2(assetId = "") { return this.vehicleRelationshipProjection(assetId); }
 
   parseListValue(value) {
     if (value === undefined || value === null || value === "") return [];
