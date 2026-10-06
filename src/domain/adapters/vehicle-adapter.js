@@ -131,7 +131,9 @@ class HomeBrainVehicleAdapter {
       || demand === "needed";
 
     const profileProperty = this.rt.semanticProperty(assetId, "asset.profile_id");
+    const imageProperty = this.rt.semanticProperty(assetId, "vehicle.image_key");
     const profileId = String(profileProperty?.value ?? "").trim();
+    const imageKey = String(imageProperty?.value ?? "").trim();
     // Charging execution belongs to the charger, not the vehicle. A vehicle card may
     // present the configured/effective/physical charger's charging commands as a
     // convenience, but the command keeps its charger asset_id and backend readiness.
@@ -176,6 +178,8 @@ class HomeBrainVehicleAdapter {
         asset_id: assetId,
         display_name: this.displayName(),
         profile: this.profile(),
+        profile_id: profileId,
+        image_key: imageKey,
         source: "MOBILITY_PUBLIC_RUNTIME_V2"
       },
       lifecycle: {
@@ -184,7 +188,9 @@ class HomeBrainVehicleAdapter {
       },
       facts: {
         overview_metrics: this.rt.vehicleOverviewMetricSlots(assetId),
-        live_charging: this.rt.liveChargingContextForVehicle(assetId)
+        live_charging: this.rt.liveChargingContextForVehicle(assetId),
+        ready_by: this.rt.semanticProperty(assetId, "vehicle.ready_by"),
+        climate_state: this.rt.semanticProperty(assetId, "vehicle.climate_state")
       },
       configuration: {
         profile_id: profileId,
@@ -219,27 +225,22 @@ class HomeBrainVehicleAdapter {
     const profile = this.profile();
     const display = this.displayName();
 
-    const relationship = this.rt.vehicleChargerRelationship(assetId);
-    const isReal = (value) => {
-      const v = String(value || "").trim();
-      return !!v && !["none", "unknown", "unavailable", "null", "undefined", "—"].includes(v.toLowerCase());
-    };
-    const physicalChargerId = isReal(relationship.connected) ? this.rt.canonicalAssetId(relationship.connected) : "";
-    const effectiveChargerId = isReal(relationship.effective) ? this.rt.canonicalAssetId(relationship.effective) : "";
-    // Hero navigation may show the effective charger when no physical charger is
-    // connected, but this never changes the physical connection semantics.
-    const chargerContextId = physicalChargerId || effectiveChargerId;
+    const projection = this.productProjection();
+    const relationship = projection.relationships || {};
+    const chargerContextId = String(
+      relationship.physically_connected_charger_id
+      || relationship.effective_charger_id
+      || relationship.configured_charger_id
+      || ""
+    );
     const chargerEntry = chargerContextId ? (this.rt.chargerById(chargerContextId) || this.rt.assetById(chargerContextId)) : null;
-    const chargerDisplay = chargerEntry?.display_name
-      || (physicalChargerId ? relationship.connected_display_name : relationship.effective_display_name)
-      || chargerContextId || "Not available";
+    const chargerDisplay = String(relationship.charger_display_name || chargerEntry?.display_name || "Not available");
     const chargerDetailRoute = chargerContextId ? this.rt.assetDetailRoute(chargerEntry || chargerContextId) : "";
 
     const profileImage = this.imageFromProfile();
-    const imageKeyProp = this.rt.propertyByCompoundKey(assetId, "vehicle.image_key");
-    const imageKey = imageKeyProp?.value ?? this.rt.visualImageKey(reg, "image") ?? reg?.image_key ?? "";
+    const imageKey = String(projection.identity?.image_key || this.rt.visualImageKey(reg, "image") || reg?.image_key || "");
     const visual = typeof rhiMobilityParseVehicleVisualKey === "function" ? rhiMobilityParseVehicleVisualKey(imageKey) : null;
-    const profileId = String(this.rt.semanticProperty(assetId, "asset.profile_id")?.value ?? reg?.profile_id ?? reg?.raw?.profile_id ?? "").trim();
+    const profileId = String(projection.identity?.profile_id || reg?.profile_id || reg?.raw?.profile_id || "").trim();
     const profileVisual = typeof rhiMobilityVehicleVisualForProfile === "function" ? rhiMobilityVehicleVisualForProfile(profileId) : null;
     // Persisted appearance may refine colour only inside the backend profile-owned
     // vehicle family. A stale cross-model key must never outrank canonical identity.
@@ -250,7 +251,6 @@ class HomeBrainVehicleAdapter {
     const canonicalProfilePackage = String(profileVisual?.package_file || "");
     const img = visualPackageFile || canonicalProfilePackage || profileImage;
     const imageFilter = visualMatchesProfile ? (visual?.color?.filter || "none") : "none";
-    const projection = this.productProjection();
     const actions = projection.commands.map((cmd, index) => ({
       label: cmd.label || this.rt.titleize(cmd.command_id || cmd.command_key),
       icon: this.rt.commandIcon(cmd), entity: cmd.intent_entity, command: cmd,
