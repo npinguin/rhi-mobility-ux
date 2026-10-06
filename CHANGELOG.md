@@ -1,3 +1,11 @@
+## 1.0.0-rc.83 — Canonical Cross-Surface Projection Closure
+
+- make VehicleProjection and ChargerProjection the only product-semantic path for overview and management screens;
+- centralize fleet, policy, Experience and vehicle↔charger relationship authority in runtime projections;
+- remove screen-level raw property/metric/relationship reads and Experience relationship fallback;
+- preserve rc.82 responsive and charging-command closure;
+- strengthen release gates against parallel Mobility semantic authorities.
+
 ## 1.0.0-rc.82 — iPad vehicle-card and command closure
 
 - deduplicate charger-owned Start/Stop aliases by physical executor and semantic command role while preserving backend readiness;
