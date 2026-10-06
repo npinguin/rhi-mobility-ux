@@ -29,7 +29,14 @@ const forbiddenDashboard=[
   'rt.mobilityExperienceV2(',
   'rt.vehicleChargerRelationship(',
   'rt.chargerProductSnapshot(',
-  'rt.commandActionsFor('
+  'rt.commandActionsFor(',
+  'rt.propertyByCompoundKey(',
+  'rt.semanticProperty(',
+  'rt.vehicleOverviewMetricSlots(',
+  'rt.vehicleChargePowerControlModel(',
+  'rt.vehicleRelationshipV2(',
+  'rt.mobilityFleetV2(',
+  'rt.mobilityPolicyV2('
 ];
 for(const token of forbiddenDashboard) if(dashboard.includes(token)) throw new Error(`dashboard bypasses canonical projection: ${token}`);
 
@@ -39,7 +46,12 @@ const forbiddenCharger=[
   'rt.chargerProductSnapshot(',
   'rt.commandActionsFor(',
   'rt.canonicalChargerPropertyDisplay(',
-  'rt.canonicalChargerPropertyValue('
+  'rt.canonicalChargerPropertyValue(',
+  'rt.propertyByCompoundKey(',
+  'rt.semanticProperty(',
+  'rt.relatedVehicleForCharger(',
+  'rt.physicalVehicleForCharger(',
+  'rt.mobilityFleetV2('
 ];
 for(const token of forbiddenCharger) if(chargerScreen.includes(token)) throw new Error(`charger management bypasses canonical projection: ${token}`);
 
@@ -47,4 +59,17 @@ if(!dashboard.includes('model?.projection?.signals')) throw new Error('dashboard
 if(!dashboard.includes('model?.projection?.commands')) throw new Error('dashboard does not consume projected commands');
 if(!chargerScreen.includes('const projection = model?.projection || {}')) throw new Error('charger management does not consume ChargerProjection');
 
-console.log('PASS canonical asset projectors are the sole Mobility semantic entry for Overview/Management');
+for(const token of ['vehicleExperienceProjection(assetId)','vehicleRelationshipProjection(assetId)']) {
+  if(!vehicle.includes(token)) throw new Error('VehicleProjection missing canonical runtime projection '+token);
+}
+if(!charger.includes('chargerExperienceProjection(assetId)')) throw new Error('ChargerProjection missing canonical Experience projection');
+for(const token of ['vehicleChargerRelationship(assetId)','experience?.charging_relationship ||','physicalVehicleForCharger(assetId)','relatedVehicleForCharger(assetId)']) {
+  if(vehicle.includes(token)) throw new Error('VehicleProjection/build retains parallel semantic path: '+token);
+}
+if(charger.includes('vehicleIntel.connected_vehicle_asset_id')) throw new Error('ChargerProjection may not take physical identity from Experience');
+if(charger.includes('physicalVehicleForCharger(assetId)') || charger.includes('relatedVehicleForCharger(assetId)')) throw new Error('Charger build retains parallel relationship projection');
+if(!dashboard.includes('mobilityFleetProjection()')) throw new Error('Overview must consume canonical fleet projection');
+if(!dashboard.includes('rangePolicyProjection()')) throw new Error('Overview must consume canonical policy projection');
+if(!chargerScreen.includes('mobilityFleetProjection()')) throw new Error('Charger management must consume canonical fleet projection');
+
+console.log('PASS canonical asset projectors are the sole Mobility semantic entry for all product surfaces');
