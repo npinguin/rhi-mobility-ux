@@ -67,9 +67,8 @@ class HomeBrainVehicleAdapter {
   productProjection() {
     const assetId = this.assetId();
     const reg = this.registryEntry() || { asset_id: assetId };
-    const experience = this.rt.vehicleExperienceV2(assetId) || {};
-    const legacyRelationship = this.rt.vehicleChargerRelationship(assetId) || {};
-    const v2Relationship = experience?.charging_relationship || this.rt.vehicleRelationshipV2(assetId) || {};
+    const experience = this.rt.vehicleExperienceProjection(assetId);
+    const v2Relationship = this.rt.vehicleRelationshipProjection(assetId);
 
     const realId = (value) => {
       const raw = String(value || "").trim();
@@ -77,10 +76,10 @@ class HomeBrainVehicleAdapter {
         ? this.rt.canonicalAssetId(raw)
         : "";
     };
-    const configuredId = realId(v2Relationship.configured_charger_id || legacyRelationship.assigned || legacyRelationship.effective);
-    const effectiveId = realId(v2Relationship.effective_charger_id || legacyRelationship.effective || configuredId);
+    const configuredId = realId(v2Relationship.configured_charger_id);
+    const effectiveId = realId(v2Relationship.effective_charger_id || configuredId);
     const physicalId = v2Relationship.observed_identity_proven === true
-      ? realId(v2Relationship.physically_connected_charger_id || legacyRelationship.connected)
+      ? realId(v2Relationship.physically_connected_charger_id)
       : "";
     const relationshipId = physicalId || effectiveId || configuredId;
     const chargerEntry = relationshipId ? (this.rt.chargerById(relationshipId) || this.rt.assetById(relationshipId)) : null;
