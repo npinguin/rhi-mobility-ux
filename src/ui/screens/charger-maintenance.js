@@ -23,7 +23,8 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
     const assetId = this.assetId(asset);
     const pending = this._chargerPendingAppearance.get(assetId) || null;
     if (!pending) return null;
-    const canonical = String(rt.semanticProperty(assetId, "charger.image_key")?.value ?? "").trim();
+    const projection = new HomeBrainChargerAdapter(rt, this.chargerId(asset), { ...this.config, registry_entry:asset }).productProjection();
+    const canonical = String(projection?.identity?.image_key || "").trim();
     if (canonical && canonical === pending.key) {
       this._chargerPendingAppearance.delete(assetId);
       this._chargerAppearanceError.delete(assetId);
@@ -53,11 +54,7 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
     if (rt) {
       const pending = this.pendingChargerAppearance(rt, asset);
       if (pending?.image) return pending.image;
-      const prop = rt.propertyByCompoundKey(assetId, "charger.image_key");
-      const raw = prop?.value ?? rt.visualImageKey(asset, "image") ?? asset?.image_key ?? "";
-      const visual = typeof rhiMobilityResolveChargerVisual === "function" ? rhiMobilityResolveChargerVisual(asset, raw) : null;
-      if (visual?.appearance?.package_file) return visual.appearance.package_file;
-      return rt.visualImageUrl(asset, "charger", "image", "charger_fallback");
+      return new HomeBrainChargerAdapter(rt, this.chargerId(asset), { ...this.config, registry_entry:asset }).chargerImageFromId();
     }
     return rhiMobilityAssetUrl("chargers/charger_fallback.png");
   }
@@ -211,9 +208,9 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
     const status = facts.operating?.display || "—";
     const connectionState = facts.connection?.display || "—";
     const connectedVehicle = facts.connected_vehicle?.display || "—";
-    const relatedVehicle = rt.relatedVehicleForCharger(assetId);
-    const assignedVehicle = relatedVehicle.assetId
-      ? (relatedVehicle.displayName || relatedVehicle.assetId)
+    const relatedVehicleId = String(projection?.relationships?.connected_vehicle_id || "");
+    const assignedVehicle = relatedVehicleId
+      ? String(projection?.relationships?.connected_vehicle_display_name || relatedVehicleId)
       : rt.t("common.no_vehicle_assigned",{},"No vehicle assigned");
     const power = facts.power?.display || "—";
     const actualCurrent = facts.actual_current?.display || "—";
@@ -313,7 +310,7 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
     const chargers = factory.chargers().filter((a) => rt.lifecycleStatus(a) !== "retired").sort((a,b)=>(Number(a.sort_order ?? 999)-Number(b.sort_order ?? 999)) || String(a.display_name).localeCompare(String(b.display_name)));
     const activeChargers = chargers.filter((c) => rt.lifecycleStatus(c) === "active");
     const inactiveChargers = chargers.filter((c) => rt.lifecycleStatus(c) !== "active" && rt.lifecycleStatus(c) !== "retired");
-    const fleet = rt.mobilityFleetV2();
+    const fleet = rt.mobilityFleetProjection();
     const activeModels = activeChargers.map((charger)=>({
       charger,
       model: factory.adapterFor(charger, this.config)?.build?.() || null
@@ -613,8 +610,8 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
         this._forceRender=true; this._lastSignature="";
         if(this._hass)this.hass=this._hass;
         btn.disabled = true;
-        const profileProp = rt.semanticProperty(assetId, "asset.profile_id");
-        const currentProfile = String(profileProp?.value || "");
+        const currentProjection = new HomeBrainChargerAdapter(rt, this.chargerId(asset), { ...this.config, registry_entry:asset }).productProjection();
+        const currentProfile = String(currentProjection?.identity?.profile_id || "");
         const profileOk = !profileId || profileId === currentProfile || await rt.writePublishedPropertyAsync(assetId, "asset.profile_id", profileId);
         if (!profileOk) { this.failChargerAppearance(assetId,"Profile update was rejected. Appearance was not changed."); return; }
         const imageOk = await rt.writePublishedPropertyAsync(assetId, "charger.image_key", key);

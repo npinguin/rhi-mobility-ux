@@ -38,7 +38,8 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     const assetId = this.assetId(asset);
     const pending = this._vehiclePendingAppearance.get(assetId) || null;
     if (!pending) return null;
-    const canonical = String(rt.semanticProperty(assetId, "vehicle.image_key")?.value ?? "").trim();
+    const projection = new HomeBrainVehicleAdapter(rt, this.vehicleId(asset), { ...this.config, registry_entry:asset }).productProjection();
+    const canonical = String(projection?.identity?.image_key || "").trim();
     if (canonical && canonical === pending.key) {
       this._vehiclePendingAppearance.delete(assetId);
       this._vehicleAppearanceError.delete(assetId);
@@ -66,12 +67,9 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
       ? assetOrId
       : (rt && typeof rt.chargerById === "function" ? (rt.chargerById(assetOrId) || rt.assetById(assetOrId) || { asset_id: assetOrId }) : { asset_id: assetOrId });
     if (rt) {
-      const assetId = String(asset?.asset_id || assetOrId || "");
-      const prop = assetId ? rt.propertyByCompoundKey(assetId, "charger.image_key") : null;
-      const raw = prop?.value ?? rt.visualImageKey(asset || {}, "image") ?? asset?.image_key ?? "";
-      const visual = typeof rhiMobilityResolveChargerVisual === "function" ? rhiMobilityResolveChargerVisual(asset, raw) : null;
-      if (visual?.appearance?.package_file) return visual.appearance.package_file;
-      if (typeof rt.visualImageUrl === "function") return rt.visualImageUrl(asset, "charger", "image", "charger_fallback");
+      const adapter = new HomeBrainChargerAdapter(rt, this.chargerId(asset), { ...this.config, registry_entry:asset });
+      const packageFile = adapter.chargerImageFromId();
+      if (packageFile) return packageFile;
     }
     return rhiMobilityAssetUrl("chargers/charger_fallback.png");
   }
@@ -276,8 +274,8 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
 
   renderVehicleControlRow(rt, vehicleAsset, chargers) {
     const ctx = this.chargingContext(rt, vehicleAsset, chargers);
-    const metricSlots = rt.vehicleOverviewMetricSlots(this.assetId(vehicleAsset));
-    const chargePowerModel = rt.vehicleChargePowerControlModel(this.assetId(vehicleAsset));
+    const metricSlots = ctx.projection?.facts?.overview_metrics || [];
+    const chargePowerModel = ctx.projection?.configuration?.charge_power_control_model || null;
     const limitValue = chargePowerModel?.resolved && Number.isFinite(Number(chargePowerModel.value)) ? Number(chargePowerModel.value) : null;
     const currentValue = limitValue === null ? "—" : (Number.isInteger(limitValue) ? String(limitValue) : Number(limitValue).toFixed(2).replace(/\.00$/, ""));
     const meta = {
@@ -572,11 +570,12 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     const candidates = [];
     for (const vehicle of vehicles) {
       const assetId = this.assetId(vehicle);
-      const departure = rt.propertyByCompoundKey(assetId, "vehicle.ready_by");
+      const projection = new HomeBrainVehicleAdapter(rt, this.vehicleId(vehicle), { ...this.config, registry_entry:vehicle }).productProjection();
+      const departure = projection?.facts?.ready_by || null;
       if (!departure || departure.value === undefined || departure.value === null || String(departure.value).trim() === "") continue;
       const instant = this.overviewDepartureInstant(departure.value);
       if (instant === null || instant < Date.now() - 5 * 60 * 1000) continue;
-      const climate = rt.propertyByCompoundKey(assetId, "vehicle.climate_state");
+      const climate = projection?.facts?.climate_state || null;
       candidates.push({ vehicle, assetId, instant, climate });
     }
     candidates.sort((a,b)=>a.instant-b.instant);
@@ -604,7 +603,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
   }
 
   overviewChargingStatus(rt, vehicles = [], chargers = []) {
-    const fleet = rt.mobilityFleetV2();
+    const fleet = rt.mobilityFleetProjection();
     const factory = new HomeBrainAssetFactory(rt);
     const chargerModels = chargers.map((charger)=>factory.adapterFor(charger, this.config)?.build?.()).filter(Boolean);
     const vehicleModels = vehicles.map((vehicle)=>factory.adapterFor(vehicle, this.config)?.build?.()).filter(Boolean);
@@ -653,8 +652,8 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
   overviewRangeStatus(rt, vehicles = []) {
     const factory = new HomeBrainAssetFactory(rt);
     const models = vehicles.map((vehicle)=>factory.adapterFor(vehicle, this.config)?.build?.()).filter(Boolean);
-    const policy = rt.mobilityPolicyV2();
-    const threshold = Number(policy?.policy?.range?.low_range_km);
+    const policy = rt.rangePolicyProjection();
+    const threshold = Number(policy?.range?.low_range_km);
     const rows = models.map((model)=>({ model, signal:model?.projection?.signals?.range || {} }));
     const ok = rows.filter(({signal})=>String(signal.state || "").toLowerCase() === "ok");
     const low = rows.filter(({signal})=>String(signal.state || "").toLowerCase() === "low")
@@ -805,7 +804,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     const visibleActive = filter === "disabled" ? [] : filter === "attention" ? allActive.filter(attentionRequired) : allActive;
     const visibleInactive = filter === "active" ? [] : filter === "attention" ? allInactive.filter(attentionRequired) : allInactive;
 
-    const fleet = rt.mobilityFleetV2();
+    const fleet = rt.mobilityFleetProjection();
     const activeCount = Number.isFinite(Number(fleet.active_vehicle_count)) ? Number(fleet.active_vehicle_count) : allActive.length;
     const inactiveCount = allInactive.length;
     const attentionCount = [...allActive, ...allInactive].filter(attentionRequired).length;
@@ -1161,8 +1160,8 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
       this._forceRender=true; this._lastSignature="";
       if(this._hass)this.hass=this._hass;
       btn.disabled=true;
-      const profileProp=rt.semanticProperty(assetId,"asset.profile_id");
-      const currentProfile=String(profileProp?.value || "");
+      const currentProjection=new HomeBrainVehicleAdapter(rt,this.vehicleId(asset),{...this.config,registry_entry:asset}).productProjection();
+      const currentProfile=String(currentProjection?.identity?.profile_id || "");
       const profileOk=!profileId || profileId===currentProfile || await rt.writePublishedPropertyAsync(assetId,"asset.profile_id",profileId);
       if(!profileOk){this.failVehicleAppearance(assetId,"Profile update was rejected. Appearance was not changed.");return;}
       const imageOk=await rt.writePublishedPropertyAsync(assetId,"vehicle.image_key",key);
@@ -1208,8 +1207,10 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
       const cur = Number.isFinite(attrValue) ? attrValue : null;
       const next = Math.max(min, Math.min(max, (cur ?? min) + delta));
       if (!propertyKey || !vehicleAsset) return;
+      const vehicleEntry = rt.vehicleById(vehicleAsset) || rt.assetById(vehicleAsset) || {asset_id:vehicleAsset,asset_type:"vehicle"};
+      const projection = new HomeBrainVehicleAdapter(rt, this.vehicleId(vehicleEntry), { ...this.config, registry_entry:vehicleEntry }).productProjection();
       const model = propertyKey === "vehicle.requested_charge_power_kw"
-        ? rt.vehicleChargePowerControlModel(vehicleAsset)
+        ? projection?.configuration?.charge_power_control_model
         : rt.propertyControlModel(vehicleAsset, propertyKey);
       const wrap = btn.closest(".mini-current-stepper");
       const buttons = [...(wrap?.querySelectorAll("button[data-property-step],button[data-charge-power-step],button[data-current-step]") || [])];
