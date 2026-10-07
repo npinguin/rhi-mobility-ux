@@ -34,13 +34,13 @@ class HomeBrainChargerAdapter {
   overviewAvailability() {
     const assetId = this.assetId();
     const lifecycle = this.rt.lifecycleStatus(this.registryEntry() || assetId);
-    if (lifecycle === "disabled") return { bucket:"disabled", resolved:true, label:"Disabled" };
+    if (lifecycle === "disabled") return { bucket:"disabled", resolved:true, label:rhiMobilityT(this.rt?.hass,"charger.state_disabled",{},"Disabled") };
     if (lifecycle !== "active") return { bucket:"unknown", resolved:false, label:"N/A" };
 
     const snapshot = this.rt.chargerProductSnapshot(assetId);
     const operatingResolved = !!snapshot?.operating?.resolved;
     const operating = operatingResolved ? String(snapshot.operating.value || "").trim().toLowerCase() : "";
-    if (operating === "fault") return { bucket:"unavailable", resolved:true, label:"Unavailable" };
+    if (operating === "fault") return { bucket:"unavailable", resolved:true, label:rhiMobilityT(this.rt?.hass,"charger.state_unavailable",{},"Unavailable") };
 
     // "Free" is an occupancy statement, not a charging-power statement.
     // An idle/stopped charger may still have a vehicle physically connected.
@@ -50,10 +50,10 @@ class HomeBrainChargerAdapter {
       || ["connected", "asset_connected"].includes(connection);
     const physicallyDisconnected = ["disconnected", "no_asset_connected"].includes(connection);
 
-    if (physicallyConnected) return { bucket:"in_use", resolved:true, label:"In use" };
-    if (["running", "preparing", "suspended"].includes(operating)) return { bucket:"in_use", resolved:true, label:"In use" };
+    if (physicallyConnected) return { bucket:"in_use", resolved:true, label:rhiMobilityT(this.rt?.hass,"charger.state_in_use",{},"In use") };
+    if (["running", "preparing", "suspended"].includes(operating)) return { bucket:"in_use", resolved:true, label:rhiMobilityT(this.rt?.hass,"charger.state_in_use",{},"In use") };
     if (physicallyDisconnected && ["idle", "stopped"].includes(operating)) {
-      return { bucket:"free", resolved:true, label:"Free" };
+      return { bucket:"free", resolved:true, label:rhiMobilityT(this.rt?.hass,"charger.state_free",{},"Free") };
     }
 
     // Fail closed: without connection/relationship evidence we cannot call a
@@ -183,14 +183,14 @@ class HomeBrainChargerAdapter {
     const faultActive = String(fault.state || "").toLowerCase() === "active";
 
     const stateTile = {
-      label:"State",
+      label:rhiMobilityT(this.rt?.hass,"charger.fact_state",{},"State"),
       value:String(chargingIntel.summary || connectionIntel.summary || "Unavailable"),
       subvalue:String(connectionIntel.summary || chargingIntel.reason || "State conclusion unavailable"),
       icon:"mdi:ev-station",
       tone:faultActive ? "attention" : "neutral"
     };
     const powerTile = {
-      label:"Power",
+      label:rhiMobilityT(this.rt?.hass,"charger.fact_power",{},"Power"),
       value:String(powerIntel.summary || "Unavailable"),
       subvalue:String(powerIntel.reason || "Power conclusion unavailable"),
       icon:"mdi:flash",
@@ -201,7 +201,7 @@ class HomeBrainChargerAdapter {
     const vehicleDisplay = String(projection.relationships?.connected_vehicle_display_name || "No vehicle identified");
     const vehicleRoute = String(projection.relationships?.vehicle_detail_route || "");
     const vehicleTile = {
-      label:"Vehicle",
+      label:rhiMobilityT(this.rt?.hass,"charger.fact_vehicle",{},"Vehicle"),
       value:vehicleDisplay,
       subvalue:String(vehicleIntel.reason || "Vehicle relationship unavailable"),
       icon:"mdi:car-electric",
@@ -213,7 +213,7 @@ class HomeBrainChargerAdapter {
     const headerStatus = [stateTile, powerTile, vehicleTile];
     if (faultActive) {
       headerStatus.push({
-        label:"Issue",
+        label:rhiMobilityT(this.rt?.hass,"charger.fact_issue",{},"Issue"),
         value:String(fault.code || "Fault"),
         subvalue:String(fault.reason || "Charger fault active"),
         icon:"mdi:alert-circle-outline",
