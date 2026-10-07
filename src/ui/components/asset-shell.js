@@ -81,7 +81,7 @@ class HomeBrainAssetShell {
       const labelField = row.label_field || prop.label_field || "label";
       const secondaryField = row.secondary_label_field || prop.secondary_label_field || "secondary_label";
       const opts = [];
-      if (row.allow_none || prop.allow_none) opts.push({ value: row.none_value ?? prop.none_value ?? "", label: "None" });
+      if (row.allow_none || prop.allow_none) opts.push({ value: row.none_value ?? prop.none_value ?? "", label: this.rt.t("common.none",{},"None") });
       for (const o of options) {
         const v = typeof o === "object" ? (o[valueField] ?? o.value ?? o.asset_id ?? o.id ?? o.key ?? "") : o;
         let l = typeof o === "object" ? (o[labelField] ?? o.label ?? o.display_name ?? o.name ?? v) : o;
@@ -92,7 +92,7 @@ class HomeBrainAssetShell {
       }
       const display = String(value).startsWith("charger_") ? this.rt.chargerLabel(value) : String(value).startsWith("vehicle_") ? this.rt.vehicleLabel(value) : value;
       control = `<select data-write-asset="${this.rt.escape(assetId)}" data-write-key="${this.rt.escape(prop.property_key || "")}" ${disabled}>
-        ${opts.length ? "" : `<option value="">${this.rt.escape(display || "No choices published")}</option>`}
+        ${opts.length ? "" : `<option value="">${this.rt.escape(display || this.rt.t("common.no_choices_published",{},"No choices published"))}</option>`}
         ${opts.map((o)=>`<option value="${this.rt.escape(o.value)}" ${String(o.value) === String(value) ? "selected" : ""}>${this.rt.escape(o.label)}</option>`).join("")}
       </select>`;
     }
@@ -256,7 +256,7 @@ class HomeBrainAssetShell {
 
           ${appearancePicker ? `<section class="detail-appearance-panel" data-detail-appearance-panel hidden><div class="detail-appearance-panel-head"><div><small>Appearance</small><b>${this.rt.escape(model.display)}</b></div><button type="button" data-detail-appearance-close title="Close appearance selector"><ha-icon icon="mdi:close"></ha-icon></button></div>${appearancePicker}</section>` : ""}
           <section class="detail-status-grid status-count-${Math.min(4,statusItems.length)}" aria-label="Asset status">${status}</section>
-          <section class="actions"><div class="actions-title">Quick actions</div>${actions || `<div class="no-actions">No actions available for this asset.</div>`}</section>
+          <section class="actions"><div class="actions-title">${this.rt.escape(this.rt.t("common.quick_actions",{},"Quick actions"))}</div>${actions || `<div class="no-actions">No actions available for this asset.</div>`}</section>
           <section class="grid">${mainSections.map((s) => this.renderSection(s)).join("")}</section>
           ${this.renderFooter(model)}
         </div>

@@ -193,7 +193,8 @@ console.log('PASS rc.64 cross-screen vehicle range/battery summary and charger a
     mobilityFleetProjection:()=>({active_vehicle_count:2}),
     vehicleLabel:(id)=>id,
     escape:(value)=>String(value??''),
-    lifecycleStatus:()=> 'active'
+    lifecycleStatus:()=> 'active',
+    t:(_key,_params={},fallback='')=>fallback
   };
   const active=[
     {asset_id:'vehicle_profiled',display_name:'Profiled'},

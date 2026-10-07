@@ -91,7 +91,7 @@ class HomeBrainChargerVisualPicker {
     const visibleCatalog=current.brand ? catalog.filter((row)=>row.brand===current.brand) : catalog;
     const tiles=visibleCatalog.flatMap((row)=>(row.appearances || []).map((appearance)=>{
       const active=row.id===current.charger?.id && appearance.id===current.appearance?.id;
-      return rhiUxVisualChoice({id:`${row.id}:${appearance.id}`,image:appearance.package_file ? (typeof this.rt.cache==='function' ? this.rt.cache(appearance.package_file) : appearance.package_file) : "",imageAlt:[row.label,appearance.label].filter(Boolean).join(" "),label:row.label || row.model || "Charger",detail:appearance.label || row.variant || "Standard",selected:active,attributes:{"data-charger-visual-choice":row.id,"data-choice-brand":row.brand || "","data-choice-model":row.model || "","data-choice-appearance":appearance.id || ""}});
+      return rhiUxVisualChoice({id:`${row.id}:${appearance.id}`,image:appearance.package_file ? (typeof this.rt.cache==='function' ? this.rt.cache(appearance.package_file) : appearance.package_file) : "",imageAlt:[row.label,appearance.label].filter(Boolean).join(" "),label:row.label || row.model || "Charger",detail:appearance.label || row.variant || this.rt.t("common.standard",{},"Standard"),selected:active,attributes:{"data-charger-visual-choice":row.id,"data-choice-brand":row.brand || "","data-choice-model":row.model || "","data-choice-appearance":appearance.id || ""}});
     })).join("");
 
     const blocked=!current.profile_writable || !current.image_writable;
@@ -107,20 +107,20 @@ class HomeBrainChargerVisualPicker {
           ${placeholder("Choose model…",!current.model)}
           ${models.map((model)=>`<option value="${this.rt.escape(model)}" ${model===current.model?"selected":""}>${this.rt.escape(model)}</option>`).join("")}
         </select></label>
-        <label><span>Variant</span><select data-charger-picker-variant="${this.rt.escape(assetId)}" ${!current.model?"disabled":""}>
-          ${placeholder("Choose variant…",!current.charger)}
+        <label><span>${this.rt.escape(this.rt.t("common.variant",{},"Variant"))}</span><select data-charger-picker-variant="${this.rt.escape(assetId)}" ${!current.model?"disabled":""}>
+          ${placeholder(this.rt.t("common.choose_variant",{},"Choose variant…"),!current.charger)}
           ${variants.map((row)=>`<option value="${this.rt.escape(row.id)}" ${row.id===current.charger?.id?"selected":""}>${this.rt.escape(row.variant || "Standard")} · ${this.rt.escape(row.years)}</option>`).join("")}
         </select></label>
-        <label><span>Finish</span><select data-charger-picker-appearance="${this.rt.escape(assetId)}" ${!current.charger?"disabled":""}>
-          ${placeholder("Choose finish…",!current.appearance)}
+        <label><span>${this.rt.escape(this.rt.t("common.finish",{},"Finish"))}</span><select data-charger-picker-appearance="${this.rt.escape(assetId)}" ${!current.charger?"disabled":""}>
+          ${placeholder(this.rt.t("common.choose_finish",{},"Choose finish…"),!current.appearance)}
           ${appearances.map((row)=>`<option value="${this.rt.escape(row.id)}" ${row.id===current.appearance?.id?"selected":""}>${this.rt.escape(row.label)}</option>`).join("")}
         </select></label>`;
-    const selectedHtml=`<div class="visual-picker-selection"><small>Selected</small><b>${this.rt.escape(current.charger?.label || current.charger?.model || "Choose a charger")}</b><span>${this.rt.escape(current.appearance?.label || "")}</span></div>${notice}`;
-    const saveHtml=`<button class="primary vehicle-picker-save" data-charger-picker-save="${this.rt.escape(assetId)}" data-charger-profile-id="${this.rt.escape(current.profile_id)}" data-charger-key="${this.rt.escape(current.key)}" ${!current.writable?"disabled":""}><ha-icon icon="mdi:check"></ha-icon><span>Save appearance</span></button>`;
+    const selectedHtml=`<div class="visual-picker-selection"><small>${this.rt.escape(this.rt.t("common.selected",{},"Selected"))}</small><b>${this.rt.escape(current.charger?.label || current.charger?.model || this.rt.t("appearance.choose_charger",{},"Choose a charger"))}</b><span>${this.rt.escape(current.appearance?.label || "")}</span></div>${notice}`;
+    const saveHtml=`<button class="primary vehicle-picker-save" data-charger-picker-save="${this.rt.escape(assetId)}" data-charger-profile-id="${this.rt.escape(current.profile_id)}" data-charger-key="${this.rt.escape(current.key)}" ${!current.writable?"disabled":""}><ha-icon icon="mdi:check"></ha-icon><span>${this.rt.escape(this.rt.t("common.save_appearance",{},"Save appearance"))}</span></button>`;
     const shell=rhiUxVisualPickerShell({
-      eyebrow:"Appearance · Charger",
-      title:"Choose appearance",
-      description:"Select the real charger, then refine brand, model, variant and finish.",
+      eyebrow:this.rt.t("appearance.charger.eyebrow",{},"Appearance · Charger"),
+      title:this.rt.t("common.choose_appearance",{},"Choose appearance"),
+      description:this.rt.t("appearance.charger.description",{},"Select the real charger, then refine brand, model, variant and finish."),
       choicesHtml:tiles,
       refineHtml,
       selectedHtml,

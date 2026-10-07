@@ -1,3 +1,11 @@
+## 1.0.0-rc.84 — Pilot Localization and Core Convergence
+
+- adopt RHI UX Core 1.6.3 as the exact build-time presentation baseline;
+- localize primary Mobility pilot surfaces for English, Dutch and French;
+- enforce that pilot-visible shell/dashboard/management copy cannot bypass localization;
+- reset runtime qualification after Core and presentation changes;
+- preserve canonical V2 semantic projection ownership from rc.83.
+
 ## 1.0.0-rc.83 — Canonical Cross-Surface Projection Closure
 
 - make VehicleProjection and ChargerProjection the only product-semantic path for overview and management screens;
