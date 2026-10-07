@@ -5069,7 +5069,7 @@ class HomeBrainVehicleAdapter {
     const currentUnset = rawCurrent === undefined || rawCurrent === null || String(rawCurrent).trim() === "" || (allowNone && String(rawCurrent).trim() === String(noneValue ?? ""));
     const currentValue = currentUnset && allowNone ? String(noneValue ?? "") : String(rawCurrent ?? "").trim();
     const choices = [];
-    if (allowNone) choices.push({ value:String(noneValue ?? ""), label:rhiMobilityT(this.rt?.hass,"vehicle.no_charger",{},"No charger"), is_none:true });
+    if (allowNone) choices.push({ value:String(noneValue ?? ""), label:(this.rt?.t?.("vehicle.no_charger",{},"No charger") || "No charger"), is_none:true });
     for (const choice of (editor.choices || [])) {
       const value = String(choice?.value ?? choice?.id ?? choice?.asset_id ?? choice ?? "").trim();
       const label = String(choice?.label ?? choice?.display_name ?? choice?.name ?? (value ? this.rt.chargerLabel(value) : "")).trim();
@@ -5360,13 +5360,13 @@ class HomeBrainChargerAdapter {
   overviewAvailability() {
     const assetId = this.assetId();
     const lifecycle = this.rt.lifecycleStatus(this.registryEntry() || assetId);
-    if (lifecycle === "disabled") return { bucket:"disabled", resolved:true, label:rhiMobilityT(this.rt?.hass,"charger.state_disabled",{},"Disabled") };
+    if (lifecycle === "disabled") return { bucket:"disabled", resolved:true, label:(this.rt?.t?.("charger.state_disabled",{},"Disabled") || "Disabled") };
     if (lifecycle !== "active") return { bucket:"unknown", resolved:false, label:"N/A" };
 
     const snapshot = this.rt.chargerProductSnapshot(assetId);
     const operatingResolved = !!snapshot?.operating?.resolved;
     const operating = operatingResolved ? String(snapshot.operating.value || "").trim().toLowerCase() : "";
-    if (operating === "fault") return { bucket:"unavailable", resolved:true, label:rhiMobilityT(this.rt?.hass,"charger.state_unavailable",{},"Unavailable") };
+    if (operating === "fault") return { bucket:"unavailable", resolved:true, label:(this.rt?.t?.("charger.state_unavailable",{},"Unavailable") || "Unavailable") };
 
     // "Free" is an occupancy statement, not a charging-power statement.
     // An idle/stopped charger may still have a vehicle physically connected.
@@ -5376,10 +5376,10 @@ class HomeBrainChargerAdapter {
       || ["connected", "asset_connected"].includes(connection);
     const physicallyDisconnected = ["disconnected", "no_asset_connected"].includes(connection);
 
-    if (physicallyConnected) return { bucket:"in_use", resolved:true, label:rhiMobilityT(this.rt?.hass,"charger.state_in_use",{},"In use") };
-    if (["running", "preparing", "suspended"].includes(operating)) return { bucket:"in_use", resolved:true, label:rhiMobilityT(this.rt?.hass,"charger.state_in_use",{},"In use") };
+    if (physicallyConnected) return { bucket:"in_use", resolved:true, label:(this.rt?.t?.("charger.state_in_use",{},"In use") || "In use") };
+    if (["running", "preparing", "suspended"].includes(operating)) return { bucket:"in_use", resolved:true, label:(this.rt?.t?.("charger.state_in_use",{},"In use") || "In use") };
     if (physicallyDisconnected && ["idle", "stopped"].includes(operating)) {
-      return { bucket:"free", resolved:true, label:rhiMobilityT(this.rt?.hass,"charger.state_free",{},"Free") };
+      return { bucket:"free", resolved:true, label:(this.rt?.t?.("charger.state_free",{},"Free") || "Free") };
     }
 
     // Fail closed: without connection/relationship evidence we cannot call a
@@ -5509,14 +5509,14 @@ class HomeBrainChargerAdapter {
     const faultActive = String(fault.state || "").toLowerCase() === "active";
 
     const stateTile = {
-      label:rhiMobilityT(this.rt?.hass,"charger.fact_state",{},"State"),
+      label:(this.rt?.t?.("charger.fact_state",{},"State") || "State"),
       value:String(chargingIntel.summary || connectionIntel.summary || "Unavailable"),
       subvalue:String(connectionIntel.summary || chargingIntel.reason || "State conclusion unavailable"),
       icon:"mdi:ev-station",
       tone:faultActive ? "attention" : "neutral"
     };
     const powerTile = {
-      label:rhiMobilityT(this.rt?.hass,"charger.fact_power",{},"Power"),
+      label:(this.rt?.t?.("charger.fact_power",{},"Power") || "Power"),
       value:String(powerIntel.summary || "Unavailable"),
       subvalue:String(powerIntel.reason || "Power conclusion unavailable"),
       icon:"mdi:flash",
@@ -5527,7 +5527,7 @@ class HomeBrainChargerAdapter {
     const vehicleDisplay = String(projection.relationships?.connected_vehicle_display_name || "No vehicle identified");
     const vehicleRoute = String(projection.relationships?.vehicle_detail_route || "");
     const vehicleTile = {
-      label:rhiMobilityT(this.rt?.hass,"charger.fact_vehicle",{},"Vehicle"),
+      label:(this.rt?.t?.("charger.fact_vehicle",{},"Vehicle") || "Vehicle"),
       value:vehicleDisplay,
       subvalue:String(vehicleIntel.reason || "Vehicle relationship unavailable"),
       icon:"mdi:car-electric",
@@ -5539,7 +5539,7 @@ class HomeBrainChargerAdapter {
     const headerStatus = [stateTile, powerTile, vehicleTile];
     if (faultActive) {
       headerStatus.push({
-        label:rhiMobilityT(this.rt?.hass,"charger.fact_issue",{},"Issue"),
+        label:(this.rt?.t?.("charger.fact_issue",{},"Issue") || "Issue"),
         value:String(fault.code || "Fault"),
         subvalue:String(fault.reason || "Charger fault active"),
         icon:"mdi:alert-circle-outline",
@@ -5686,20 +5686,20 @@ class HomeBrainVehicleVisualPicker {
           ${placeholder("Choose model…",!current.model)}
           ${models.map((model)=>`<option value="${this.rt.escape(model)}" ${model===current.model?"selected":""}>${this.rt.escape(model)}</option>`).join("")}
         </select></label>
-        <label><span>${this.rt.escape(rhiMobilityT(this.rt?.hass,"common.variant",{},"Variant"))}</span><select data-vehicle-picker-variant="${this.rt.escape(assetId)}" ${!current.model?"disabled":""}>
-          ${placeholder(rhiMobilityT(this.rt?.hass,"common.choose_variant",{},"Choose variant…"),!current.vehicle)}
+        <label><span>${this.rt.escape(this.rt.t("common.variant",{},"Variant"))}</span><select data-vehicle-picker-variant="${this.rt.escape(assetId)}" ${!current.model?"disabled":""}>
+          ${placeholder(this.rt.t("common.choose_variant",{},"Choose variant…"),!current.vehicle)}
           ${variants.map((row)=>`<option value="${this.rt.escape(row.id)}" ${row.id===current.vehicle?.id?"selected":""}>${this.rt.escape(row.variant)} · ${this.rt.escape(row.years)}</option>`).join("")}
         </select></label>
-        <label><span>${this.rt.escape(rhiMobilityT(this.rt?.hass,"common.colour",{},"Colour"))}</span><select data-vehicle-picker-color="${this.rt.escape(assetId)}" ${!current.vehicle?"disabled":""}>
-          ${placeholder(rhiMobilityT(this.rt?.hass,"common.choose_colour",{},"Choose colour…"),!current.color)}
+        <label><span>${this.rt.escape(this.rt.t("common.colour",{},"Colour"))}</span><select data-vehicle-picker-color="${this.rt.escape(assetId)}" ${!current.vehicle?"disabled":""}>
+          ${placeholder(this.rt.t("common.choose_colour",{},"Choose colour…"),!current.color)}
           ${colors.map((row)=>`<option value="${this.rt.escape(row.id)}" ${row.id===current.color?.id?"selected":""}>${this.rt.escape(row.label)}</option>`).join("")}
         </select></label>`;
-    const selectedHtml=`<div class="visual-picker-selection"><small>${this.rt.escape(rhiMobilityT(this.rt?.hass,"common.selected",{},"Selected"))}</small><b>${this.rt.escape(current.vehicle?.label || current.vehicle?.model || rhiMobilityT(this.rt?.hass,"appearance.choose_vehicle",{},"Choose a vehicle"))}</b><span>${this.rt.escape(current.color?.label || "")}</span></div>${notice}`;
-    const saveHtml=`<button class="primary vehicle-picker-save" data-vehicle-picker-save="${this.rt.escape(assetId)}" data-vehicle-profile-id="${this.rt.escape(current.profile_id)}" data-vehicle-key="${this.rt.escape(current.key)}" ${!current.writable?"disabled":""}><ha-icon icon="mdi:check"></ha-icon><span>${this.rt.escape(rhiMobilityT(this.rt?.hass,"common.save_appearance",{},"Save appearance"))}</span></button>`;
+    const selectedHtml=`<div class="visual-picker-selection"><small>${this.rt.escape(this.rt.t("common.selected",{},"Selected"))}</small><b>${this.rt.escape(current.vehicle?.label || current.vehicle?.model || this.rt.t("appearance.choose_vehicle",{},"Choose a vehicle"))}</b><span>${this.rt.escape(current.color?.label || "")}</span></div>${notice}`;
+    const saveHtml=`<button class="primary vehicle-picker-save" data-vehicle-picker-save="${this.rt.escape(assetId)}" data-vehicle-profile-id="${this.rt.escape(current.profile_id)}" data-vehicle-key="${this.rt.escape(current.key)}" ${!current.writable?"disabled":""}><ha-icon icon="mdi:check"></ha-icon><span>${this.rt.escape(this.rt.t("common.save_appearance",{},"Save appearance"))}</span></button>`;
     const shell=rhiUxVisualPickerShell({
-      eyebrow:rhiMobilityT(this.rt?.hass,"appearance.vehicle.eyebrow",{},"Appearance · Vehicle"),
-      title:rhiMobilityT(this.rt?.hass,"common.choose_appearance",{},"Choose appearance"),
-      description:rhiMobilityT(this.rt?.hass,"appearance.vehicle.description",{},"Select the real vehicle, then refine brand, model, variant and colour."),
+      eyebrow:this.rt.t("appearance.vehicle.eyebrow",{},"Appearance · Vehicle"),
+      title:this.rt.t("common.choose_appearance",{},"Choose appearance"),
+      description:this.rt.t("appearance.vehicle.description",{},"Select the real vehicle, then refine brand, model, variant and colour."),
       choicesHtml:tiles,
       refineHtml,
       selectedHtml,
@@ -5804,7 +5804,7 @@ class HomeBrainChargerVisualPicker {
     const visibleCatalog=current.brand ? catalog.filter((row)=>row.brand===current.brand) : catalog;
     const tiles=visibleCatalog.flatMap((row)=>(row.appearances || []).map((appearance)=>{
       const active=row.id===current.charger?.id && appearance.id===current.appearance?.id;
-      return rhiUxVisualChoice({id:`${row.id}:${appearance.id}`,image:appearance.package_file ? (typeof this.rt.cache==='function' ? this.rt.cache(appearance.package_file) : appearance.package_file) : "",imageAlt:[row.label,appearance.label].filter(Boolean).join(" "),label:row.label || row.model || "Charger",detail:appearance.label || row.variant || rhiMobilityT(this.rt?.hass,"common.standard",{},"Standard"),selected:active,attributes:{"data-charger-visual-choice":row.id,"data-choice-brand":row.brand || "","data-choice-model":row.model || "","data-choice-appearance":appearance.id || ""}});
+      return rhiUxVisualChoice({id:`${row.id}:${appearance.id}`,image:appearance.package_file ? (typeof this.rt.cache==='function' ? this.rt.cache(appearance.package_file) : appearance.package_file) : "",imageAlt:[row.label,appearance.label].filter(Boolean).join(" "),label:row.label || row.model || "Charger",detail:appearance.label || row.variant || this.rt.t("common.standard",{},"Standard"),selected:active,attributes:{"data-charger-visual-choice":row.id,"data-choice-brand":row.brand || "","data-choice-model":row.model || "","data-choice-appearance":appearance.id || ""}});
     })).join("");
 
     const blocked=!current.profile_writable || !current.image_writable;
@@ -5820,20 +5820,20 @@ class HomeBrainChargerVisualPicker {
           ${placeholder("Choose model…",!current.model)}
           ${models.map((model)=>`<option value="${this.rt.escape(model)}" ${model===current.model?"selected":""}>${this.rt.escape(model)}</option>`).join("")}
         </select></label>
-        <label><span>${this.rt.escape(rhiMobilityT(this.rt?.hass,"common.variant",{},"Variant"))}</span><select data-charger-picker-variant="${this.rt.escape(assetId)}" ${!current.model?"disabled":""}>
-          ${placeholder(rhiMobilityT(this.rt?.hass,"common.choose_variant",{},"Choose variant…"),!current.charger)}
+        <label><span>${this.rt.escape(this.rt.t("common.variant",{},"Variant"))}</span><select data-charger-picker-variant="${this.rt.escape(assetId)}" ${!current.model?"disabled":""}>
+          ${placeholder(this.rt.t("common.choose_variant",{},"Choose variant…"),!current.charger)}
           ${variants.map((row)=>`<option value="${this.rt.escape(row.id)}" ${row.id===current.charger?.id?"selected":""}>${this.rt.escape(row.variant || "Standard")} · ${this.rt.escape(row.years)}</option>`).join("")}
         </select></label>
-        <label><span>${this.rt.escape(rhiMobilityT(this.rt?.hass,"common.finish",{},"Finish"))}</span><select data-charger-picker-appearance="${this.rt.escape(assetId)}" ${!current.charger?"disabled":""}>
-          ${placeholder(rhiMobilityT(this.rt?.hass,"common.choose_finish",{},"Choose finish…"),!current.appearance)}
+        <label><span>${this.rt.escape(this.rt.t("common.finish",{},"Finish"))}</span><select data-charger-picker-appearance="${this.rt.escape(assetId)}" ${!current.charger?"disabled":""}>
+          ${placeholder(this.rt.t("common.choose_finish",{},"Choose finish…"),!current.appearance)}
           ${appearances.map((row)=>`<option value="${this.rt.escape(row.id)}" ${row.id===current.appearance?.id?"selected":""}>${this.rt.escape(row.label)}</option>`).join("")}
         </select></label>`;
-    const selectedHtml=`<div class="visual-picker-selection"><small>${this.rt.escape(rhiMobilityT(this.rt?.hass,"common.selected",{},"Selected"))}</small><b>${this.rt.escape(current.charger?.label || current.charger?.model || rhiMobilityT(this.rt?.hass,"appearance.choose_charger",{},"Choose a charger"))}</b><span>${this.rt.escape(current.appearance?.label || "")}</span></div>${notice}`;
-    const saveHtml=`<button class="primary vehicle-picker-save" data-charger-picker-save="${this.rt.escape(assetId)}" data-charger-profile-id="${this.rt.escape(current.profile_id)}" data-charger-key="${this.rt.escape(current.key)}" ${!current.writable?"disabled":""}><ha-icon icon="mdi:check"></ha-icon><span>${this.rt.escape(rhiMobilityT(this.rt?.hass,"common.save_appearance",{},"Save appearance"))}</span></button>`;
+    const selectedHtml=`<div class="visual-picker-selection"><small>${this.rt.escape(this.rt.t("common.selected",{},"Selected"))}</small><b>${this.rt.escape(current.charger?.label || current.charger?.model || this.rt.t("appearance.choose_charger",{},"Choose a charger"))}</b><span>${this.rt.escape(current.appearance?.label || "")}</span></div>${notice}`;
+    const saveHtml=`<button class="primary vehicle-picker-save" data-charger-picker-save="${this.rt.escape(assetId)}" data-charger-profile-id="${this.rt.escape(current.profile_id)}" data-charger-key="${this.rt.escape(current.key)}" ${!current.writable?"disabled":""}><ha-icon icon="mdi:check"></ha-icon><span>${this.rt.escape(this.rt.t("common.save_appearance",{},"Save appearance"))}</span></button>`;
     const shell=rhiUxVisualPickerShell({
-      eyebrow:rhiMobilityT(this.rt?.hass,"appearance.charger.eyebrow",{},"Appearance · Charger"),
-      title:rhiMobilityT(this.rt?.hass,"common.choose_appearance",{},"Choose appearance"),
-      description:rhiMobilityT(this.rt?.hass,"appearance.charger.description",{},"Select the real charger, then refine brand, model, variant and finish."),
+      eyebrow:this.rt.t("appearance.charger.eyebrow",{},"Appearance · Charger"),
+      title:this.rt.t("common.choose_appearance",{},"Choose appearance"),
+      description:this.rt.t("appearance.charger.description",{},"Select the real charger, then refine brand, model, variant and finish."),
       choicesHtml:tiles,
       refineHtml,
       selectedHtml,
@@ -5928,7 +5928,7 @@ class HomeBrainAssetShell {
       const labelField = row.label_field || prop.label_field || "label";
       const secondaryField = row.secondary_label_field || prop.secondary_label_field || "secondary_label";
       const opts = [];
-      if (row.allow_none || prop.allow_none) opts.push({ value: row.none_value ?? prop.none_value ?? "", label: rhiMobilityT(this.rt?.hass,"common.none",{},"None") });
+      if (row.allow_none || prop.allow_none) opts.push({ value: row.none_value ?? prop.none_value ?? "", label: this.rt.t("common.none",{},"None") });
       for (const o of options) {
         const v = typeof o === "object" ? (o[valueField] ?? o.value ?? o.asset_id ?? o.id ?? o.key ?? "") : o;
         let l = typeof o === "object" ? (o[labelField] ?? o.label ?? o.display_name ?? o.name ?? v) : o;
@@ -5939,7 +5939,7 @@ class HomeBrainAssetShell {
       }
       const display = String(value).startsWith("charger_") ? this.rt.chargerLabel(value) : String(value).startsWith("vehicle_") ? this.rt.vehicleLabel(value) : value;
       control = `<select data-write-asset="${this.rt.escape(assetId)}" data-write-key="${this.rt.escape(prop.property_key || "")}" ${disabled}>
-        ${opts.length ? "" : `<option value="">${this.rt.escape(display || rhiMobilityT(this.rt?.hass,"common.no_choices_published",{},"No choices published"))}</option>`}
+        ${opts.length ? "" : `<option value="">${this.rt.escape(display || this.rt.t("common.no_choices_published",{},"No choices published"))}</option>`}
         ${opts.map((o)=>`<option value="${this.rt.escape(o.value)}" ${String(o.value) === String(value) ? "selected" : ""}>${this.rt.escape(o.label)}</option>`).join("")}
       </select>`;
     }
@@ -6103,7 +6103,7 @@ class HomeBrainAssetShell {
 
           ${appearancePicker ? `<section class="detail-appearance-panel" data-detail-appearance-panel hidden><div class="detail-appearance-panel-head"><div><small>Appearance</small><b>${this.rt.escape(model.display)}</b></div><button type="button" data-detail-appearance-close title="Close appearance selector"><ha-icon icon="mdi:close"></ha-icon></button></div>${appearancePicker}</section>` : ""}
           <section class="detail-status-grid status-count-${Math.min(4,statusItems.length)}" aria-label="Asset status">${status}</section>
-          <section class="actions"><div class="actions-title">Quick actions</div>${actions || `<div class="no-actions">No actions available for this asset.</div>`}</section>
+          <section class="actions"><div class="actions-title">${this.rt.escape(this.rt.t("common.quick_actions",{},"Quick actions"))}</div>${actions || `<div class="no-actions">No actions available for this asset.</div>`}</section>
           <section class="grid">${mainSections.map((s) => this.renderSection(s)).join("")}</section>
           ${this.renderFooter(model)}
         </div>
@@ -7184,13 +7184,13 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
     const names = (rows)=>rows.slice(0,3).map(labelFor).join(" · ");
 
     const chargerHeaderCards = [
-      { icon:"mdi:card-account-details-outline", label:rhiMobilityT(this.hass,"charger.profiles",{},"Profiles"), value:`${profiledRows.length}/${activeChargers.length} configured`, sub:unprofiledRows.length ? `${names(unprofiledRows)} without profile` : rhiMobilityT(this.hass,"charger.no_profile_summary",{},"All active chargers profiled"), tone:"neutral" },
-      { icon:"mdi:ev-station", label:rhiMobilityT(this.hass,"charger.availability",{},"Availability"), value:`${availableCount}/${activeChargers.length} available`, sub:availableRows.length ? names(availableRows) : rhiMobilityT(this.hass,"common.no_charger_available",{},"No charger currently available"), tone:"neutral" },
-      { icon:"mdi:lightning-bolt", label:rhiMobilityT(this.hass,"charger.runtime",{},"Runtime"), value:totalPowerDisplay, sub:`${connectedCount} connected · ${chargingCount} charging`, tone:"neutral" }
+      { icon:"mdi:card-account-details-outline", label:rt.t("charger.profiles",{},"Profiles"), value:`${profiledRows.length}/${activeChargers.length} configured`, sub:unprofiledRows.length ? `${names(unprofiledRows)} without profile` : rt.t("charger.no_profile_summary",{},"All active chargers profiled"), tone:"neutral" },
+      { icon:"mdi:ev-station", label:rt.t("charger.availability",{},"Availability"), value:`${availableCount}/${activeChargers.length} available`, sub:availableRows.length ? names(availableRows) : rt.t("common.no_charger_available",{},"No charger currently available"), tone:"neutral" },
+      { icon:"mdi:lightning-bolt", label:rt.t("charger.runtime",{},"Runtime"), value:totalPowerDisplay, sub:`${connectedCount} connected · ${chargingCount} charging`, tone:"neutral" }
     ];
     if (faultCount) chargerHeaderCards.push({
       icon:"mdi:alert-circle-outline",
-      label:rhiMobilityT(this.hass,"charger.issue",{},"Issue"),
+      label:rt.t("charger.issue",{},"Issue"),
       value:`${faultCount} fault${faultCount === 1 ? "" : "s"}`,
       sub:names(faultRows),
       tone:"warn"
@@ -7210,16 +7210,16 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
         ${hbMobilityPageHero(rt, "chargers")}
         ${hbMobilityStatusGrid(rt, chargerHeaderCards, "chargers-top-status")}
         ${hbMobilityQuickActions(rt, [
-          { icon:"mdi:cog-outline", label:rhiMobilityT(this.hass,"charger.manage",{},"Manage chargers & profiles"), path:"/config/integrations/integration/rhi_mobility", primary:true },
-          { icon:"mdi:car-electric", label:rhiMobilityT(this.hass,"charger.vehicle_management",{},"Vehicle Management"), path:hbMobilityPath("/dashboard") },
-          { icon:"mdi:calendar-clock", label:rhiMobilityT(this.hass,"charger.charging_plan",{},"Charging plan"), path:hbMobilityPath("/planning") },
-          { icon:"mdi:target", label:rhiMobilityT(this.hass,"charger.strategies",{},"Strategies"), path:hbMobilityPath("/strategies") }
+          { icon:"mdi:cog-outline", label:rt.t("charger.manage",{},"Manage chargers & profiles"), path:"/config/integrations/integration/rhi_mobility", primary:true },
+          { icon:"mdi:car-electric", label:rt.t("charger.vehicle_management",{},"Vehicle Management"), path:hbMobilityPath("/dashboard") },
+          { icon:"mdi:calendar-clock", label:rt.t("charger.charging_plan",{},"Charging plan"), path:hbMobilityPath("/planning") },
+          { icon:"mdi:target", label:rt.t("charger.strategies",{},"Strategies"), path:hbMobilityPath("/strategies") }
         ])}
-        <section class="section-title"><h2>${rt.escape(rhiMobilityT(this.hass,"charger.active",{},"Active chargers"))}</h2><span>${activeChargers.length} active · ${connectedCount} connected · ${chargingCount} charging · ${rt.escape(totalPowerDisplay)}</span></section>
+        <section class="section-title"><h2>${rt.escape(rt.t("charger.active",{},"Active chargers"))}</h2><span>${activeChargers.length} active · ${connectedCount} connected · ${chargingCount} charging · ${rt.escape(totalPowerDisplay)}</span></section>
         <section class="grid">
-          ${activeChargers.length ? activeChargers.map((c) => this.renderCharger(rt, c)).join("") : `<div class="empty-state"><ha-icon icon="mdi:ev-station-off"></ha-icon><h2>${rt.escape(rhiMobilityT(this.hass,"charger.no_active",{},"No active chargers"))}</h2><p>${rt.escape(rhiMobilityT(this.hass,"charger.activate_when_needed",{},"Activate a charger below when needed."))}</p></div>`}
+          ${activeChargers.length ? activeChargers.map((c) => this.renderCharger(rt, c)).join("") : `<div class="empty-state"><ha-icon icon="mdi:ev-station-off"></ha-icon><h2>${rt.escape(rt.t("charger.no_active",{},"No active chargers"))}</h2><p>${rt.escape(rt.t("charger.activate_when_needed",{},"Activate a charger below when needed."))}</p></div>`}
         </section>
-        ${inactiveChargers.length ? `<section class="section-title compact-title"><h2>${rt.escape(rhiMobilityT(this.hass,"charger.inactive",{},"Inactive chargers"))}</h2><span>${inactiveChargers.length} inactive</span></section><section class="inactive-list">${inactiveChargers.map((c)=>this.renderCollapsedCharger(rt,c)).join("")}</section>` : `<section class="debt-strip"><ha-icon icon="mdi:information-outline"></ha-icon><b>Inactive chargers (0)</b><span>${rt.escape(rhiMobilityT(this.hass,"charger.disabled_hidden",{},"Disabled chargers are hidden."))}</span></section>`}
+        ${inactiveChargers.length ? `<section class="section-title compact-title"><h2>${rt.escape(rt.t("charger.inactive",{},"Inactive chargers"))}</h2><span>${inactiveChargers.length} inactive</span></section><section class="inactive-list">${inactiveChargers.map((c)=>this.renderCollapsedCharger(rt,c)).join("")}</section>` : `<section class="debt-strip"><ha-icon icon="mdi:information-outline"></ha-icon><b>Inactive chargers (0)</b><span>${rt.escape(rt.t("charger.disabled_hidden",{},"Disabled chargers are hidden."))}</span></section>`}
         
       </div>
       <style>${this.styles()}
@@ -8529,19 +8529,19 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
       </section>
 
       <section class="ov-quickbar energy-like" aria-label="Quick actions">
-        <span class="ov-quick-title">${rt.escape(rhiMobilityT(this.hass,"common.quick_actions",{},"Quick actions"))}</span>
-        <button class="ov-nav-action primary" data-nav="${hbMobilityPath("/dashboard")}"><ha-icon icon="mdi:car-cog"></ha-icon>${rt.escape(rhiMobilityT(this.hass,"common.vehicle_actions",{},"Vehicle actions"))}</button>
-        <button class="ov-nav-action" data-nav="${hbMobilityPath("/planning")}"><ha-icon icon="mdi:calendar-clock"></ha-icon>${rt.escape(rhiMobilityT(this.hass,"charger.charging_plan",{},"Charging plan"))}</button>
-        <button class="ov-nav-action" data-nav="${hbMobilityPath("/dashboard")}"><ha-icon icon="mdi:fan"></ha-icon>${rt.escape(rhiMobilityT(this.hass,"common.precondition",{},"Precondition"))}</button>
-        <button class="ov-nav-action" data-nav="${hbMobilityPath("/dashboard")}"><ha-icon icon="mdi:ev-station"></ha-icon>${rt.escape(rhiMobilityT(this.hass,"common.change_charger",{},"Change charger"))}</button>
+        <span class="ov-quick-title">${rt.escape(rt.t("common.quick_actions",{},"Quick actions"))}</span>
+        <button class="ov-nav-action primary" data-nav="${hbMobilityPath("/dashboard")}"><ha-icon icon="mdi:car-cog"></ha-icon>${rt.escape(rt.t("common.vehicle_actions",{},"Vehicle actions"))}</button>
+        <button class="ov-nav-action" data-nav="${hbMobilityPath("/planning")}"><ha-icon icon="mdi:calendar-clock"></ha-icon>${rt.escape(rt.t("charger.charging_plan",{},"Charging plan"))}</button>
+        <button class="ov-nav-action" data-nav="${hbMobilityPath("/dashboard")}"><ha-icon icon="mdi:fan"></ha-icon>${rt.escape(rt.t("common.precondition",{},"Precondition"))}</button>
+        <button class="ov-nav-action" data-nav="${hbMobilityPath("/dashboard")}"><ha-icon icon="mdi:ev-station"></ha-icon>${rt.escape(rt.t("common.change_charger",{},"Change charger"))}</button>
       </section>
 
       <section class="ov-panel ov-core-vehicles ov-overview-vehicles">
         <div class="ov-panel-head">
-          <div><h2>${rt.escape(rhiMobilityT(this.hass,"dashboard.vehicles",{},"Vehicles"))}</h2><p>${rt.escape(rhiMobilityT(this.hass,"dashboard.vehicles_description",{},"Readiness first: range and energy, security, comfort, maintenance, charger relationship and direct actions."))}</p></div>
-          <button data-nav="${hbMobilityPath("/dashboard")}">${rt.escape(rhiMobilityT(this.hass,"charger.vehicle_management",{},"Vehicle Management"))} <ha-icon icon="mdi:chevron-right"></ha-icon></button>
+          <div><h2>${rt.escape(rt.t("dashboard.vehicles",{},"Vehicles"))}</h2><p>${rt.escape(rt.t("dashboard.vehicles_description",{},"Readiness first: range and energy, security, comfort, maintenance, charger relationship and direct actions."))}</p></div>
+          <button data-nav="${hbMobilityPath("/dashboard")}">${rt.escape(rt.t("charger.vehicle_management",{},"Vehicle Management"))} <ha-icon icon="mdi:chevron-right"></ha-icon></button>
         </div>
-        <div class="ov-vehicle-list">${activeVehicles.length ? activeVehicles.map((vehicle)=>this.renderOverviewVehicleRow(rt,vehicle,chargers)).join("") : `<div class="ov-empty">${rt.escape(rhiMobilityT(this.hass,"dashboard.no_active",{},"No active vehicles."))}</div>`}</div>
+        <div class="ov-vehicle-list">${activeVehicles.length ? activeVehicles.map((vehicle)=>this.renderOverviewVehicleRow(rt,vehicle,chargers)).join("") : `<div class="ov-empty">${rt.escape(rt.t("dashboard.no_active",{},"No active vehicles."))}</div>`}</div>
       </section>`;
   }
 
@@ -8593,10 +8593,10 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
         { icon:"mdi:ev-station", label:"Charging setup", value:`${configuredCount}/${activeCount} assigned`, sub:unassignedRows.length ? `${names(unassignedRows)} no charger` : "All active vehicles assigned", tone:"neutral" }
       ], "vehicles-top-status")}
       ${hbMobilityQuickActions(rt, [
-        { icon:"mdi:cog-outline", label:rhiMobilityT(this.hass,"common.manage_vehicles_profiles",{},"Manage vehicles & profiles"), path:managementPath, primary:true },
-        { icon:"mdi:ev-station", label:rhiMobilityT(this.hass,"common.charger_management",{},"Charger Management"), path:hbMobilityPath("/charger-maintenance") },
-        { icon:"mdi:calendar-clock", label:rhiMobilityT(this.hass,"charger.charging_plan",{},"Charging plan"), path:hbMobilityPath("/planning") },
-        { icon:"mdi:target", label:rhiMobilityT(this.hass,"charger.strategies",{},"Strategies"), path:hbMobilityPath("/strategies") }
+        { icon:"mdi:cog-outline", label:rt.t("common.manage_vehicles_profiles",{},"Manage vehicles & profiles"), path:managementPath, primary:true },
+        { icon:"mdi:ev-station", label:rt.t("common.charger_management",{},"Charger Management"), path:hbMobilityPath("/charger-maintenance") },
+        { icon:"mdi:calendar-clock", label:rt.t("charger.charging_plan",{},"Charging plan"), path:hbMobilityPath("/planning") },
+        { icon:"mdi:target", label:rt.t("charger.strategies",{},"Strategies"), path:hbMobilityPath("/strategies") }
       ])}
 
       <section class="vehicle-management-bar vehicle-filter-bar" aria-label="Vehicle filters and sorting">
@@ -8614,7 +8614,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
 
       ${visibleActive.length ? `
         <section class="vehicle-workspace-head">
-          <div><h2>${rt.escape(rhiMobilityT(this.hass,"dashboard.active_vehicles",{},"Active vehicles"))}</h2><p>${rt.escape(rhiMobilityT(this.hass,"dashboard.active_vehicles_description",{},"Readiness and actions first. Charger assignment and lifecycle remain Mobility-owned controls."))}</p></div>
+          <div><h2>${rt.escape(rt.t("dashboard.active_vehicles",{},"Active vehicles"))}</h2><p>${rt.escape(rt.t("dashboard.active_vehicles_description",{},"Readiness and actions first. Charger assignment and lifecycle remain Mobility-owned controls."))}</p></div>
           <span class="vehicle-count-pill">${visibleActive.length} shown</span>
         </section>
         <section class="vehicles vehicle-workspace-list">${visibleActive.map((v)=>this.renderVehicle(rt,v,chargers)).join("")}</section>
@@ -8622,7 +8622,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
 
       ${visibleInactive.length ? `
         <section class="vehicle-workspace-head inactive-head">
-          <div><h2>${rt.escape(rhiMobilityT(this.hass,"dashboard.inactive_vehicles",{},"Inactive vehicles"))}</h2><p>${rt.escape(rhiMobilityT(this.hass,"dashboard.inactive_vehicles_description",{},"Disabled vehicles stay available for deliberate reactivation and detail access."))}</p></div>
+          <div><h2>${rt.escape(rt.t("dashboard.inactive_vehicles",{},"Inactive vehicles"))}</h2><p>${rt.escape(rt.t("dashboard.inactive_vehicles_description",{},"Disabled vehicles stay available for deliberate reactivation and detail access."))}</p></div>
           <span class="vehicle-count-pill muted">${visibleInactive.length} shown</span>
         </section>
         <section class="inactive-list">${visibleInactive.map((v)=>this.renderInactiveVehicle(rt,v)).join("")}</section>
@@ -10286,7 +10286,7 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
     const source = plan.available ? "Energy backend" : "Energy planning unavailable";
     const today = this.fmtKwh(plan.today.plannedKwh);
     const remaining = this.fmtKwh(plan.today.stillToPlanKwh);
-    return `<strong>${rt.escape(source)}</strong><span>${rt.escape(rhiMobilityT(rt?.hass,"planning.planned_today",{},"Planned today"))} ${rt.escape(today)}</span><span>${rt.escape(rhiMobilityT(rt?.hass,"planning.still_to_plan",{},"Still to plan"))} ${rt.escape(remaining)}</span>`;
+    return `<strong>${rt.escape(source)}</strong><span>${rt.escape((rt?.t?.("planning.planned_today",{},"Planned today") || "Planned today"))} ${rt.escape(today)}</span><span>${rt.escape((rt?.t?.("planning.still_to_plan",{},"Still to plan") || "Still to plan"))} ${rt.escape(remaining)}</span>`;
   }
 
   strategyHeroMeta(rt) {
@@ -10300,7 +10300,7 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
     const energy = this.fmtKwh(insights.totalVehicleEnergyKwh);
     const value = insights.totalAttributedEur === null ? "N/A" : `€${Number(insights.totalAttributedEur).toFixed(2)}`;
     const source = insights.meteringAvailable || insights.valueAvailable ? "Energy backend" : "Energy Insights unavailable";
-    return `<strong>${rt.escape(source)}</strong><span>${rt.escape(rhiMobilityT(rt?.hass,"planning.vehicle_energy",{},"Vehicle energy"))} ${rt.escape(energy)}</span><span>${rt.escape(rhiMobilityT(rt?.hass,"planning.attributed_value",{},"Attributed value"))} ${rt.escape(value)}</span>`;
+    return `<strong>${rt.escape(source)}</strong><span>${rt.escape((rt?.t?.("planning.vehicle_energy",{},"Vehicle energy") || "Vehicle energy"))} ${rt.escape(energy)}</span><span>${rt.escape((rt?.t?.("planning.attributed_value",{},"Attributed value") || "Attributed value"))} ${rt.escape(value)}</span>`;
   }
 
   renderPlanning(rt) {
@@ -10310,7 +10310,7 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
       ["mdi:calendar-check-outline","Planned today",this.fmtKwh(plan.today.plannedKwh),plan.today.state || "Energy planning"],
       ["mdi:calendar-alert-outline","Still to plan",this.fmtKwh(plan.today.stillToPlanKwh),"Published by Energy"],
       ["mdi:weather-sunset-up","Tomorrow",this.fmtKwh(plan.tomorrow.plannedKwh),plan.tomorrow.state || "Next horizon"],
-      ["mdi:source-branch-check","Contract",plan.contractVersion || (plan.available ? rhiMobilityT(rt?.hass,"common.published",{},"Published") : rhiMobilityT(rt?.hass,"common.unavailable",{},"Unavailable")),plan.source]
+      ["mdi:source-branch-check","Contract",plan.contractVersion || (plan.available ? (rt?.t?.("common.published",{},"Published") || "Published") : (rt?.t?.("common.unavailable",{},"Unavailable") || "Unavailable")),plan.source]
     ];
     const rows = mobilityRows.slice(0, 8).map((row) => {
       const id = String(row.asset_id || row.target_asset_id || row.flexible_asset_id || row.consumer_asset_id || row.participant_id || "Mobility asset");
@@ -10332,20 +10332,20 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
 
     return `<section class="rhi-context-grid">
       <article class="rhi-context-card">
-        <div class="rhi-context-card-kicker"><ha-icon icon="mdi:calendar-clock"></ha-icon>${rt.escape(rhiMobilityT(rt?.hass,"planning.energy_owned",{},"Energy-owned planning"))}</div>
-        <h3>${rt.escape(rhiMobilityT(rt?.hass,"planning.what_charge_when",{},"What will charge, and when?"))}</h3>
-        <p>${rt.escape(rhiMobilityT(rt?.hass,"planning.schedule_desc",{},"Only schedule and energy details explicitly published by Energy are shown. If a vehicle only participates in planning but has no schedule yet, that gap is stated directly."))}</p>
+        <div class="rhi-context-card-kicker"><ha-icon icon="mdi:calendar-clock"></ha-icon>${rt.escape((rt?.t?.("planning.energy_owned",{},"Energy-owned planning") || "Energy-owned planning"))}</div>
+        <h3>${rt.escape((rt?.t?.("planning.what_charge_when",{},"What will charge, and when?") || "What will charge, and when?"))}</h3>
+        <p>${rt.escape((rt?.t?.("planning.schedule_desc",{},"Only schedule and energy details explicitly published by Energy are shown. If a vehicle only participates in planning but has no schedule yet, that gap is stated directly.") || "Only schedule and energy details explicitly published by Energy are shown. If a vehicle only participates in planning but has no schedule yet, that gap is stated directly."))}</p>
         ${rows ? `<div class="rhi-data-list">${rows}</div>` : ""}
         ${contractGap ? `<div class="rhi-context-note">${rt.escape(contractGap)}</div>` : ""}
       </article>
       <article class="rhi-context-card">
-        <div class="rhi-context-card-kicker"><ha-icon icon="mdi:car-clock"></ha-icon>${rt.escape(rhiMobilityT(rt?.hass,"planning.execution_context",{},"Mobility execution context"))}</div>
-        <h3>${rt.escape(rhiMobilityT(rt?.hass,"planning.can_execute",{},"Can the plan execute?"))}</h3>
-        <p>${rt.escape(rhiMobilityT(rt?.hass,"planning.execution_desc",{},"Mobility keeps charger assignment, physical connection and command readiness separate from Energy planning. A published plan is not presented as executable unless those facts exist."))}</p>
+        <div class="rhi-context-card-kicker"><ha-icon icon="mdi:car-clock"></ha-icon>${rt.escape((rt?.t?.("planning.execution_context",{},"Mobility execution context") || "Mobility execution context"))}</div>
+        <h3>${rt.escape((rt?.t?.("planning.can_execute",{},"Can the plan execute?") || "Can the plan execute?"))}</h3>
+        <p>${rt.escape((rt?.t?.("planning.execution_desc",{},"Mobility keeps charger assignment, physical connection and command readiness separate from Energy planning. A published plan is not presented as executable unless those facts exist.") || "Mobility keeps charger assignment, physical connection and command readiness separate from Energy planning. A published plan is not presented as executable unless those facts exist."))}</p>
         <div class="rhi-data-list">
-          <div class="rhi-data-row"><b>${rt.escape(rhiMobilityT(rt?.hass,"planning.source",{},"Source"))}</b><span>${rt.escape(plan.source)}</span></div>
-          <div class="rhi-data-row"><b>${rt.escape(rhiMobilityT(rt?.hass,"planning.vehicles_in_planning",{},"Vehicles in planning"))}</b><span>${rt.escape(String(mobilityRows.length))}</span></div>
-          <div class="rhi-data-row"><b>${rt.escape(rhiMobilityT(rt?.hass,"planning.plan_state",{},"Plan state"))}</b><span>${rt.escape(plan.state || rhiMobilityT(rt?.hass,"common.unavailable",{},"Unavailable"))}</span></div>
+          <div class="rhi-data-row"><b>${rt.escape((rt?.t?.("planning.source",{},"Source") || "Source"))}</b><span>${rt.escape(plan.source)}</span></div>
+          <div class="rhi-data-row"><b>${rt.escape((rt?.t?.("planning.vehicles_in_planning",{},"Vehicles in planning") || "Vehicles in planning"))}</b><span>${rt.escape(String(mobilityRows.length))}</span></div>
+          <div class="rhi-data-row"><b>${rt.escape((rt?.t?.("planning.plan_state",{},"Plan state") || "Plan state"))}</b><span>${rt.escape(plan.state || (rt?.t?.("common.unavailable",{},"Unavailable") || "Unavailable"))}</span></div>
         </div>
       </article>
     </section>`;
@@ -10368,17 +10368,17 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
       : "";
     return `<section class="rhi-context-grid">
       <article class="rhi-context-card">
-        <div class="rhi-context-card-kicker"><ha-icon icon="mdi:tune-variant"></ha-icon>${rt.escape(rhiMobilityT(rt?.hass,"strategy.configured_intent",{},"Configured intent"))}</div>
-        <h3>${rt.escape(rhiMobilityT(rt?.hass,"strategy.mobility_profiles",{},"Mobility energy profiles"))}</h3>
-        <p>${rt.escape(rhiMobilityT(rt?.hass,"strategy.profiles_desc",{},"Relevant Energy strategy profiles are shown read-only here. Profile meaning and editable strategy settings remain owned by Energy."))}</p>
+        <div class="rhi-context-card-kicker"><ha-icon icon="mdi:tune-variant"></ha-icon>${rt.escape((rt?.t?.("strategy.configured_intent",{},"Configured intent") || "Configured intent"))}</div>
+        <h3>${rt.escape((rt?.t?.("strategy.mobility_profiles",{},"Mobility energy profiles") || "Mobility energy profiles"))}</h3>
+        <p>${rt.escape((rt?.t?.("strategy.profiles_desc",{},"Relevant Energy strategy profiles are shown read-only here. Profile meaning and editable strategy settings remain owned by Energy.") || "Relevant Energy strategy profiles are shown read-only here. Profile meaning and editable strategy settings remain owned by Energy."))}</p>
         ${profileRows ? `<div class="rhi-data-list">${profileRows}</div>` : ""}
         ${unavailable ? `<div class="rhi-context-note">${rt.escape(unavailable)}</div>` : ""}
       </article>
       <article class="rhi-context-card">
-        <div class="rhi-context-card-kicker"><ha-icon icon="mdi:shield-check-outline"></ha-icon>${rt.escape(rhiMobilityT(rt?.hass,"strategy.effective",{},"Effective strategy"))}</div>
-        <h3>${rt.escape(rhiMobilityT(rt?.hass,"strategy.in_effect",{},"What is in effect"))}</h3>
-        <p>${rt.escape(rhiMobilityT(rt?.hass,"strategy.effective_desc",{},"Effective policy is filtered to exact Mobility asset ids so vehicle/charger behavior is not confused with unrelated Energy domains."))}</p>
-        ${effectiveRows ? `<div class="rhi-data-list">${effectiveRows}</div>` : `<div class="rhi-context-note">${rt.escape(rhiMobilityT(rt?.hass,"strategy.no_effective",{},"No effective Mobility policy is currently published by Energy."))}</div>`}
+        <div class="rhi-context-card-kicker"><ha-icon icon="mdi:shield-check-outline"></ha-icon>${rt.escape((rt?.t?.("strategy.effective",{},"Effective strategy") || "Effective strategy"))}</div>
+        <h3>${rt.escape((rt?.t?.("strategy.in_effect",{},"What is in effect") || "What is in effect"))}</h3>
+        <p>${rt.escape((rt?.t?.("strategy.effective_desc",{},"Effective policy is filtered to exact Mobility asset ids so vehicle/charger behavior is not confused with unrelated Energy domains.") || "Effective policy is filtered to exact Mobility asset ids so vehicle/charger behavior is not confused with unrelated Energy domains."))}</p>
+        ${effectiveRows ? `<div class="rhi-data-list">${effectiveRows}</div>` : `<div class="rhi-context-note">${rt.escape((rt?.t?.("strategy.no_effective",{},"No effective Mobility policy is currently published by Energy.") || "No effective Mobility policy is currently published by Energy."))}</div>`}
       </article>
     </section>`;
   }
@@ -10393,8 +10393,8 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
       return `<article class="rhi-insight-vehicle">
         <div class="rhi-insight-vehicle-head"><div>${this.vehicleIdentity(rt,id,row)}</div><span>${rt.escape(quality)}</span></div>
         <div class="rhi-insight-metrics">
-          <div><small>${rt.escape(rhiMobilityT(rt?.hass,"insights.measured_energy",{},"Measured energy"))}</small><b>${rt.escape(energy)}</b></div>
-          <div><small>${rt.escape(rhiMobilityT(rt?.hass,"insights.attributed_value",{},"Attributed value"))}</small><b>${rt.escape(value)}</b></div>
+          <div><small>${rt.escape((rt?.t?.("insights.measured_energy",{},"Measured energy") || "Measured energy"))}</small><b>${rt.escape(energy)}</b></div>
+          <div><small>${rt.escape((rt?.t?.("insights.attributed_value",{},"Attributed value") || "Attributed value"))}</small><b>${rt.escape(value)}</b></div>
         </div>
       </article>`;
     }).join("");
@@ -10403,20 +10403,20 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
       : (!rows ? "Energy is available, but no published metering/value record currently matches a canonical Mobility vehicle id." : "");
     return `<section class="rhi-context-grid insights-grid">
       <article class="rhi-context-card rhi-insights-wide">
-        <div class="rhi-context-card-kicker"><ha-icon icon="mdi:chart-timeline-variant"></ha-icon>${rt.escape(rhiMobilityT(rt?.hass,"insights.measured_mobility",{},"Measured Mobility"))}</div>
-        <h3>${rt.escape(rhiMobilityT(rt?.hass,"insights.vehicle_energy_value",{},"Vehicle energy & value"))}</h3>
-        <p>${rt.escape(rhiMobilityT(rt?.hass,"insights.vehicle_energy_desc",{},"Per-vehicle energy and financial attribution come directly from Energy public UX contracts. Mobility only joins them by canonical asset id."))}</p>
+        <div class="rhi-context-card-kicker"><ha-icon icon="mdi:chart-timeline-variant"></ha-icon>${rt.escape((rt?.t?.("insights.measured_mobility",{},"Measured Mobility") || "Measured Mobility"))}</div>
+        <h3>${rt.escape((rt?.t?.("insights.vehicle_energy_value",{},"Vehicle energy & value") || "Vehicle energy & value"))}</h3>
+        <p>${rt.escape((rt?.t?.("insights.vehicle_energy_desc",{},"Per-vehicle energy and financial attribution come directly from Energy public UX contracts. Mobility only joins them by canonical asset id.") || "Per-vehicle energy and financial attribution come directly from Energy public UX contracts. Mobility only joins them by canonical asset id."))}</p>
         ${rows ? `<div class="rhi-insight-vehicle-list">${rows}</div>` : ""}
         ${gap ? `<div class="rhi-context-note">${rt.escape(gap)}</div>` : ""}
       </article>
       <article class="rhi-context-card">
-        <div class="rhi-context-card-kicker"><ha-icon icon="mdi:history"></ha-icon>${rt.escape(rhiMobilityT(rt?.hass,"insights.mobility_evidence",{},"Mobility evidence"))}</div>
-        <h3>${rt.escape(rhiMobilityT(rt?.hass,"insights.execution_history",{},"Execution history"))}</h3>
-        <p>${rt.escape(rhiMobilityT(rt?.hass,"insights.execution_history_desc",{},"Commands, readiness transitions and vehicle/charger execution remain Mobility-owned. Energy measurements complement that history; they do not replace it."))}</p>
+        <div class="rhi-context-card-kicker"><ha-icon icon="mdi:history"></ha-icon>${rt.escape((rt?.t?.("insights.mobility_evidence",{},"Mobility evidence") || "Mobility evidence"))}</div>
+        <h3>${rt.escape((rt?.t?.("insights.execution_history",{},"Execution history") || "Execution history"))}</h3>
+        <p>${rt.escape((rt?.t?.("insights.execution_history_desc",{},"Commands, readiness transitions and vehicle/charger execution remain Mobility-owned. Energy measurements complement that history; they do not replace it.") || "Commands, readiness transitions and vehicle/charger execution remain Mobility-owned. Energy measurements complement that history; they do not replace it."))}</p>
         <div class="rhi-data-list">
-          <div class="rhi-data-row"><b>${rt.escape(rhiMobilityT(rt?.hass,"insights.metering_contract",{},"Metering contract"))}</b><span>${rt.escape(insights.meteringContractVersion || (insights.meteringAvailable ? rhiMobilityT(rt?.hass,"common.published",{},"Published") : rhiMobilityT(rt?.hass,"common.unavailable",{},"Unavailable")))}</span></div>
-          <div class="rhi-data-row"><b>${rt.escape(rhiMobilityT(rt?.hass,"insights.value_contract",{},"Value contract"))}</b><span>${rt.escape(insights.valueContractVersion || (insights.valueAvailable ? rhiMobilityT(rt?.hass,"common.published",{},"Published") : rhiMobilityT(rt?.hass,"common.unavailable",{},"Unavailable")))}</span></div>
-          <div class="rhi-data-row"><b>${rt.escape(rhiMobilityT(rt?.hass,"insights.value_state",{},"Value state"))}</b><span>${rt.escape(insights.valueState)}</span></div>
+          <div class="rhi-data-row"><b>${rt.escape((rt?.t?.("insights.metering_contract",{},"Metering contract") || "Metering contract"))}</b><span>${rt.escape(insights.meteringContractVersion || (insights.meteringAvailable ? (rt?.t?.("common.published",{},"Published") || "Published") : (rt?.t?.("common.unavailable",{},"Unavailable") || "Unavailable")))}</span></div>
+          <div class="rhi-data-row"><b>${rt.escape((rt?.t?.("insights.value_contract",{},"Value contract") || "Value contract"))}</b><span>${rt.escape(insights.valueContractVersion || (insights.valueAvailable ? (rt?.t?.("common.published",{},"Published") || "Published") : (rt?.t?.("common.unavailable",{},"Unavailable") || "Unavailable")))}</span></div>
+          <div class="rhi-data-row"><b>${rt.escape((rt?.t?.("insights.value_state",{},"Value state") || "Value state"))}</b><span>${rt.escape(insights.valueState)}</span></div>
         </div>
       </article>
     </section>`;
@@ -10462,16 +10462,16 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
       : "";
     return `<section class="rhi-context-grid log-grid">
       <article class="rhi-context-card rhi-log-wide">
-        <div class="rhi-context-card-kicker"><ha-icon icon="mdi:text-box-search-outline"></ha-icon>${rt.escape(rhiMobilityT(rt?.hass,"activity.mobility_log",{},"Mobility log"))}</div>
-        <h3>${rt.escape(rhiMobilityT(rt?.hass,"activity.what_happened",{},"What happened?"))}</h3>
-        <p>${rt.escape(rhiMobilityT(rt?.hass,"activity.desc",{},"Recent vehicle, charger and command activity is shown with the asset, outcome and backend reason. Technical contract names stay out of the primary reading path."))}</p>
-        ${entries ? `<div class="rhi-log-list">${entries}</div>` : `<div class="rhi-context-note">${rt.escape(rhiMobilityT(rt?.hass,"activity.no_rows",{},"No activity rows are currently published."))}</div>`}
+        <div class="rhi-context-card-kicker"><ha-icon icon="mdi:text-box-search-outline"></ha-icon>${rt.escape((rt?.t?.("activity.mobility_log",{},"Mobility log") || "Mobility log"))}</div>
+        <h3>${rt.escape((rt?.t?.("activity.what_happened",{},"What happened?") || "What happened?"))}</h3>
+        <p>${rt.escape((rt?.t?.("activity.desc",{},"Recent vehicle, charger and command activity is shown with the asset, outcome and backend reason. Technical contract names stay out of the primary reading path.") || "Recent vehicle, charger and command activity is shown with the asset, outcome and backend reason. Technical contract names stay out of the primary reading path."))}</p>
+        ${entries ? `<div class="rhi-log-list">${entries}</div>` : `<div class="rhi-context-note">${rt.escape((rt?.t?.("activity.no_rows",{},"No activity rows are currently published.") || "No activity rows are currently published."))}</div>`}
         ${gap}
       </article>
       <article class="rhi-context-card">
-        <div class="rhi-context-card-kicker"><ha-icon icon="mdi:alert-outline"></ha-icon>${rt.escape(rhiMobilityT(rt?.hass,"activity.exceptions",{},"Exceptions"))} · ${rt.escape(String(exceptions.length))}</div>
-        <h3>${rt.escape(rhiMobilityT(rt?.hass,"activity.what_attention",{},"What needs attention?"))}</h3>
-        <p>${exceptions.length ? `${rt.escape(String(exceptions.length))} failed or rejected item${exceptions.length === 1 ? "" : "s"}. The backend reason is shown below.` : rhiMobilityT(rt?.hass,"activity.no_failures",{},"No failed or rejected activity is currently published.")}</p>
+        <div class="rhi-context-card-kicker"><ha-icon icon="mdi:alert-outline"></ha-icon>${rt.escape((rt?.t?.("activity.exceptions",{},"Exceptions") || "Exceptions"))} · ${rt.escape(String(exceptions.length))}</div>
+        <h3>${rt.escape((rt?.t?.("activity.what_attention",{},"What needs attention?") || "What needs attention?"))}</h3>
+        <p>${exceptions.length ? `${rt.escape(String(exceptions.length))} failed or rejected item${exceptions.length === 1 ? "" : "s"}. The backend reason is shown below.` : (rt?.t?.("activity.no_failures",{},"No failed or rejected activity is currently published.") || "No failed or rejected activity is currently published.")}</p>
         ${exceptions.slice(0,8).map((row)=>`<div class="rhi-data-row"><b>${rt.escape(titleOf(row))}</b><span>${rt.escape(reasonOf(row) || statusOf(row))}</span></div>`).join("")}
       </article>
     </section>`;
@@ -10572,9 +10572,9 @@ class HomeBrainMobilityAssetDetailCard extends HTMLElement {
       this.shadowRoot.innerHTML = `
         <ha-card>
           <div class="missing">
-            <h2>${rt.escape(rhiMobilityT(rt?.hass,"asset.not_registered",{},"Asset not registered"))}</h2>
-            <p>${rt.escape(rhiMobilityT(rt?.hass,"asset.not_found",{},"No registered Mobility asset was found for"))} <b>${rt.escape(assetId || rhiMobilityT(rt?.hass,"asset.missing_id",{},"missing asset id"))}</b>.</p>
-            <button data-nav="/mobility-supervisor/dashboard">← ${rt.escape(rhiMobilityT(rt?.hass,"asset.back_dashboard",{},"Back to Dashboard"))}</button>
+            <h2>${rt.escape((rt?.t?.("asset.not_registered",{},"Asset not registered") || "Asset not registered"))}</h2>
+            <p>${rt.escape((rt?.t?.("asset.not_found",{},"No registered Mobility asset was found for") || "No registered Mobility asset was found for"))} <b>${rt.escape(assetId || (rt?.t?.("asset.missing_id",{},"missing asset id") || "missing asset id"))}</b>.</p>
+            <button data-nav="/mobility-supervisor/dashboard">← ${rt.escape((rt?.t?.("asset.back_dashboard",{},"Back to Dashboard") || "Back to Dashboard"))}</button>
           </div>
           <style>
             ha-card{background:transparent;box-shadow:none;border:none}
