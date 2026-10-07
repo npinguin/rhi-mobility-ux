@@ -37,7 +37,10 @@ const pilotFiles=[
   "src/ui/components/charger-visual-picker.js",
   "src/ui/components/vehicle-visual-picker.js",
   "src/ui/screens/charger-maintenance.js",
-  "src/ui/screens/mobility-dashboard.js"
+  "src/ui/screens/mobility-dashboard.js",
+  "src/ui/screens/router.js",
+  "src/domain/adapters/vehicle-adapter.js",
+  "src/domain/adapters/charger-adapter.js"
 ];
 const forbiddenPilotLiterals=[
   "<p class=\\\"eyebrow\\\">HOME INTELLIGENCE / MOBILITY</p>",
@@ -52,7 +55,15 @@ const forbiddenPilotLiterals=[
   ">Save appearance<",
   "title:\"Choose appearance\"",
   "eyebrow:\"Appearance · Charger\"",
-  "eyebrow:\"Appearance · Vehicle\""
+  "eyebrow:\"Appearance · Vehicle\"",
+  "<h3>What will charge, and when?</h3>",
+  "<h3>Mobility energy profiles</h3>",
+  "<h3>Vehicle energy & value</h3>",
+  "<h3>What happened?</h3>",
+  "<h2>Asset not registered</h2>",
+  "label:\"No charger\"",
+  "label:\"In use\""
+
 ];
 for(const file of pilotFiles){
   const source=fs.readFileSync(file,"utf8");
