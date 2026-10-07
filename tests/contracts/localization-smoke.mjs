@@ -31,4 +31,40 @@ for(const locale of ["en","nl","fr"]){
     for(const rx of machineTokens) if(rx.test(String(value))) throw new Error(`${locale}:${key} leaks machine terminology: ${value}`);
   }
 }
-console.log("PASS Mobility localization: complete EN/NL/FR keys, HA locale fallback and user-safe copy");
+const pilotFiles=[
+  "src/app/header-and-navigation.js",
+  "src/ui/components/asset-shell.js",
+  "src/ui/components/charger-visual-picker.js",
+  "src/ui/components/vehicle-visual-picker.js",
+  "src/ui/screens/charger-maintenance.js",
+  "src/ui/screens/mobility-dashboard.js"
+];
+const forbiddenPilotLiterals=[
+  "HOME INTELLIGENCE / MOBILITY",
+  ">Active chargers<",
+  ">Inactive chargers<",
+  ">No active chargers<",
+  ">Vehicles<",
+  ">Active vehicles<",
+  ">Inactive vehicles<",
+  ">Dashboard temporarily unavailable<",
+  ">Quick actions<",
+  ">Save appearance<",
+  "title:\"Choose appearance\"",
+  "eyebrow:\"Appearance · Charger\"",
+  "eyebrow:\"Appearance · Vehicle\""
+];
+for(const file of pilotFiles){
+  const source=fs.readFileSync(file,"utf8");
+  for(const token of forbiddenPilotLiterals){
+    if(source.includes(token)) throw new Error(`pilot-visible literal bypasses localization in ${file}: ${token}`);
+  }
+}
+for(const key of [
+  "shell.eyebrow","appearance.charger.eyebrow","appearance.vehicle.eyebrow",
+  "charger.active","charger.inactive","dashboard.vehicles","dashboard.active_vehicles",
+  "dashboard.inactive_vehicles","dashboard.temporarily_unavailable"
+]){
+  for(const locale of ["en","nl","fr"]) if(!resources[locale][key]) throw new Error(`missing pilot localization ${locale}:${key}`);
+}
+console.log("PASS Mobility localization: complete EN/NL/FR keys, HA locale fallback, pilot-surface enforcement and user-safe copy");
