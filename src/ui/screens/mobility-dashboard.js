@@ -766,19 +766,19 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
       </section>
 
       <section class="ov-quickbar energy-like" aria-label="Quick actions">
-        <span class="ov-quick-title">${rt.escape(rhiMobilityT(this.hass,"common.quick_actions",{},"Quick actions"))}</span>
-        <button class="ov-nav-action primary" data-nav="${hbMobilityPath("/dashboard")}"><ha-icon icon="mdi:car-cog"></ha-icon>${rt.escape(rhiMobilityT(this.hass,"common.vehicle_actions",{},"Vehicle actions"))}</button>
-        <button class="ov-nav-action" data-nav="${hbMobilityPath("/planning")}"><ha-icon icon="mdi:calendar-clock"></ha-icon>${rt.escape(rhiMobilityT(this.hass,"charger.charging_plan",{},"Charging plan"))}</button>
-        <button class="ov-nav-action" data-nav="${hbMobilityPath("/dashboard")}"><ha-icon icon="mdi:fan"></ha-icon>${rt.escape(rhiMobilityT(this.hass,"common.precondition",{},"Precondition"))}</button>
-        <button class="ov-nav-action" data-nav="${hbMobilityPath("/dashboard")}"><ha-icon icon="mdi:ev-station"></ha-icon>${rt.escape(rhiMobilityT(this.hass,"common.change_charger",{},"Change charger"))}</button>
+        <span class="ov-quick-title">${rt.escape(rt.t("common.quick_actions",{},"Quick actions"))}</span>
+        <button class="ov-nav-action primary" data-nav="${hbMobilityPath("/dashboard")}"><ha-icon icon="mdi:car-cog"></ha-icon>${rt.escape(rt.t("common.vehicle_actions",{},"Vehicle actions"))}</button>
+        <button class="ov-nav-action" data-nav="${hbMobilityPath("/planning")}"><ha-icon icon="mdi:calendar-clock"></ha-icon>${rt.escape(rt.t("charger.charging_plan",{},"Charging plan"))}</button>
+        <button class="ov-nav-action" data-nav="${hbMobilityPath("/dashboard")}"><ha-icon icon="mdi:fan"></ha-icon>${rt.escape(rt.t("common.precondition",{},"Precondition"))}</button>
+        <button class="ov-nav-action" data-nav="${hbMobilityPath("/dashboard")}"><ha-icon icon="mdi:ev-station"></ha-icon>${rt.escape(rt.t("common.change_charger",{},"Change charger"))}</button>
       </section>
 
       <section class="ov-panel ov-core-vehicles ov-overview-vehicles">
         <div class="ov-panel-head">
-          <div><h2>${rt.escape(rhiMobilityT(this.hass,"dashboard.vehicles",{},"Vehicles"))}</h2><p>${rt.escape(rhiMobilityT(this.hass,"dashboard.vehicles_description",{},"Readiness first: range and energy, security, comfort, maintenance, charger relationship and direct actions."))}</p></div>
-          <button data-nav="${hbMobilityPath("/dashboard")}">${rt.escape(rhiMobilityT(this.hass,"charger.vehicle_management",{},"Vehicle Management"))} <ha-icon icon="mdi:chevron-right"></ha-icon></button>
+          <div><h2>${rt.escape(rt.t("dashboard.vehicles",{},"Vehicles"))}</h2><p>${rt.escape(rt.t("dashboard.vehicles_description",{},"Readiness first: range and energy, security, comfort, maintenance, charger relationship and direct actions."))}</p></div>
+          <button data-nav="${hbMobilityPath("/dashboard")}">${rt.escape(rt.t("charger.vehicle_management",{},"Vehicle Management"))} <ha-icon icon="mdi:chevron-right"></ha-icon></button>
         </div>
-        <div class="ov-vehicle-list">${activeVehicles.length ? activeVehicles.map((vehicle)=>this.renderOverviewVehicleRow(rt,vehicle,chargers)).join("") : `<div class="ov-empty">${rt.escape(rhiMobilityT(this.hass,"dashboard.no_active",{},"No active vehicles."))}</div>`}</div>
+        <div class="ov-vehicle-list">${activeVehicles.length ? activeVehicles.map((vehicle)=>this.renderOverviewVehicleRow(rt,vehicle,chargers)).join("") : `<div class="ov-empty">${rt.escape(rt.t("dashboard.no_active",{},"No active vehicles."))}</div>`}</div>
       </section>`;
   }
 
@@ -830,10 +830,10 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
         { icon:"mdi:ev-station", label:"Charging setup", value:`${configuredCount}/${activeCount} assigned`, sub:unassignedRows.length ? `${names(unassignedRows)} no charger` : "All active vehicles assigned", tone:"neutral" }
       ], "vehicles-top-status")}
       ${hbMobilityQuickActions(rt, [
-        { icon:"mdi:cog-outline", label:rhiMobilityT(this.hass,"common.manage_vehicles_profiles",{},"Manage vehicles & profiles"), path:managementPath, primary:true },
-        { icon:"mdi:ev-station", label:rhiMobilityT(this.hass,"common.charger_management",{},"Charger Management"), path:hbMobilityPath("/charger-maintenance") },
-        { icon:"mdi:calendar-clock", label:rhiMobilityT(this.hass,"charger.charging_plan",{},"Charging plan"), path:hbMobilityPath("/planning") },
-        { icon:"mdi:target", label:rhiMobilityT(this.hass,"charger.strategies",{},"Strategies"), path:hbMobilityPath("/strategies") }
+        { icon:"mdi:cog-outline", label:rt.t("common.manage_vehicles_profiles",{},"Manage vehicles & profiles"), path:managementPath, primary:true },
+        { icon:"mdi:ev-station", label:rt.t("common.charger_management",{},"Charger Management"), path:hbMobilityPath("/charger-maintenance") },
+        { icon:"mdi:calendar-clock", label:rt.t("charger.charging_plan",{},"Charging plan"), path:hbMobilityPath("/planning") },
+        { icon:"mdi:target", label:rt.t("charger.strategies",{},"Strategies"), path:hbMobilityPath("/strategies") }
       ])}
 
       <section class="vehicle-management-bar vehicle-filter-bar" aria-label="Vehicle filters and sorting">
@@ -851,7 +851,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
 
       ${visibleActive.length ? `
         <section class="vehicle-workspace-head">
-          <div><h2>${rt.escape(rhiMobilityT(this.hass,"dashboard.active_vehicles",{},"Active vehicles"))}</h2><p>${rt.escape(rhiMobilityT(this.hass,"dashboard.active_vehicles_description",{},"Readiness and actions first. Charger assignment and lifecycle remain Mobility-owned controls."))}</p></div>
+          <div><h2>${rt.escape(rt.t("dashboard.active_vehicles",{},"Active vehicles"))}</h2><p>${rt.escape(rt.t("dashboard.active_vehicles_description",{},"Readiness and actions first. Charger assignment and lifecycle remain Mobility-owned controls."))}</p></div>
           <span class="vehicle-count-pill">${visibleActive.length} shown</span>
         </section>
         <section class="vehicles vehicle-workspace-list">${visibleActive.map((v)=>this.renderVehicle(rt,v,chargers)).join("")}</section>
@@ -859,7 +859,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
 
       ${visibleInactive.length ? `
         <section class="vehicle-workspace-head inactive-head">
-          <div><h2>${rt.escape(rhiMobilityT(this.hass,"dashboard.inactive_vehicles",{},"Inactive vehicles"))}</h2><p>${rt.escape(rhiMobilityT(this.hass,"dashboard.inactive_vehicles_description",{},"Disabled vehicles stay available for deliberate reactivation and detail access."))}</p></div>
+          <div><h2>${rt.escape(rt.t("dashboard.inactive_vehicles",{},"Inactive vehicles"))}</h2><p>${rt.escape(rt.t("dashboard.inactive_vehicles_description",{},"Disabled vehicles stay available for deliberate reactivation and detail access."))}</p></div>
           <span class="vehicle-count-pill muted">${visibleInactive.length} shown</span>
         </section>
         <section class="inactive-list">${visibleInactive.map((v)=>this.renderInactiveVehicle(rt,v)).join("")}</section>
