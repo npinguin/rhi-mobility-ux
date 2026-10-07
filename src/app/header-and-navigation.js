@@ -74,7 +74,7 @@ function hbMobilityNav(active = "overview", configuredBase = "") {
 function hbMobilityTitleBlock(title = "", description = "") {
   const resolvedTitle=title || rhiMobilityT(null,"nav.mobility",{},"Mobility");
   const resolvedDescription=description || rhiMobilityT(null,"hero.overview.description",{},"See your mobility status and what needs attention.");
-  return `<section class="title"><p class="eyebrow">HOME INTELLIGENCE / MOBILITY</p><h1>${rhiUxEscape(resolvedTitle)}</h1><p>${rhiUxEscape(resolvedDescription)}</p></section>`;
+  return `<section class="title"><p class="eyebrow">${rhiUxEscape(rhiMobilityT(null,"shell.eyebrow",{},"HOME INTELLIGENCE / MOBILITY"))}</p><h1>${rhiUxEscape(resolvedTitle)}</h1><p>${rhiUxEscape(resolvedDescription)}</p></section>`;
 }
 
 function hbMobilityReleaseFooter(rt) {
