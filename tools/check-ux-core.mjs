@@ -26,4 +26,6 @@ if(!vendor.includes("{asset_id}")) throw new Error("runtime-safe navigation toke
 if(!vendor.includes("function rhiUxCompanyBrand(") || !vendor.includes("Robotix.be") || !vendor.includes("DomotiX · Network · Security")) throw new Error("canonical Core company brand missing");
 if(header.includes("HB_MOBILITY_COMPANY_LOGO") || header.includes("hbMobilityCompanyBrand")) throw new Error("Mobility must not own company branding");
 if(!vendor.includes("function rhiUxVisualPickerShell(")) throw new Error("shared Core visual picker shell missing");
+if(!vendor.includes("function rhiUxCoreStyles(")) throw new Error("complete Core CSS snapshot missing from vendor");
+if(!vendor.includes(".rhiUxPageHeroArt{position:absolute")) throw new Error("Core page-hero CSS missing from vendor snapshot");
 console.log(`PASS Mobility consumes pinned RHI UX Core ${meta.version} including shared visual picker shell without runtime coupling`);
