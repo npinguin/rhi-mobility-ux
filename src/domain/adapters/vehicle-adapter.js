@@ -31,7 +31,7 @@ class HomeBrainVehicleAdapter {
     const currentUnset = rawCurrent === undefined || rawCurrent === null || String(rawCurrent).trim() === "" || (allowNone && String(rawCurrent).trim() === String(noneValue ?? ""));
     const currentValue = currentUnset && allowNone ? String(noneValue ?? "") : String(rawCurrent ?? "").trim();
     const choices = [];
-    if (allowNone) choices.push({ value:String(noneValue ?? ""), label:"No charger", is_none:true });
+    if (allowNone) choices.push({ value:String(noneValue ?? ""), label:rhiMobilityT(this.rt?.hass,"vehicle.no_charger",{},"No charger"), is_none:true });
     for (const choice of (editor.choices || [])) {
       const value = String(choice?.value ?? choice?.id ?? choice?.asset_id ?? choice ?? "").trim();
       const label = String(choice?.label ?? choice?.display_name ?? choice?.name ?? (value ? this.rt.chargerLabel(value) : "")).trim();
