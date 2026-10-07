@@ -116,20 +116,20 @@ class HomeBrainVehicleVisualPicker {
           ${placeholder("Choose model…",!current.model)}
           ${models.map((model)=>`<option value="${this.rt.escape(model)}" ${model===current.model?"selected":""}>${this.rt.escape(model)}</option>`).join("")}
         </select></label>
-        <label><span>Variant</span><select data-vehicle-picker-variant="${this.rt.escape(assetId)}" ${!current.model?"disabled":""}>
-          ${placeholder("Choose variant…",!current.vehicle)}
+        <label><span>${this.rt.escape(rhiMobilityT(this.rt?.hass,"common.variant",{},"Variant"))}</span><select data-vehicle-picker-variant="${this.rt.escape(assetId)}" ${!current.model?"disabled":""}>
+          ${placeholder(rhiMobilityT(this.rt?.hass,"common.choose_variant",{},"Choose variant…"),!current.vehicle)}
           ${variants.map((row)=>`<option value="${this.rt.escape(row.id)}" ${row.id===current.vehicle?.id?"selected":""}>${this.rt.escape(row.variant)} · ${this.rt.escape(row.years)}</option>`).join("")}
         </select></label>
-        <label><span>Colour</span><select data-vehicle-picker-color="${this.rt.escape(assetId)}" ${!current.vehicle?"disabled":""}>
-          ${placeholder("Choose colour…",!current.color)}
+        <label><span>${this.rt.escape(rhiMobilityT(this.rt?.hass,"common.colour",{},"Colour"))}</span><select data-vehicle-picker-color="${this.rt.escape(assetId)}" ${!current.vehicle?"disabled":""}>
+          ${placeholder(rhiMobilityT(this.rt?.hass,"common.choose_colour",{},"Choose colour…"),!current.color)}
           ${colors.map((row)=>`<option value="${this.rt.escape(row.id)}" ${row.id===current.color?.id?"selected":""}>${this.rt.escape(row.label)}</option>`).join("")}
         </select></label>`;
-    const selectedHtml=`<div class="visual-picker-selection"><small>Selected</small><b>${this.rt.escape(current.vehicle?.label || current.vehicle?.model || "Choose a vehicle")}</b><span>${this.rt.escape(current.color?.label || "")}</span></div>${notice}`;
-    const saveHtml=`<button class="primary vehicle-picker-save" data-vehicle-picker-save="${this.rt.escape(assetId)}" data-vehicle-profile-id="${this.rt.escape(current.profile_id)}" data-vehicle-key="${this.rt.escape(current.key)}" ${!current.writable?"disabled":""}><ha-icon icon="mdi:check"></ha-icon><span>Save appearance</span></button>`;
+    const selectedHtml=`<div class="visual-picker-selection"><small>${this.rt.escape(rhiMobilityT(this.rt?.hass,"common.selected",{},"Selected"))}</small><b>${this.rt.escape(current.vehicle?.label || current.vehicle?.model || rhiMobilityT(this.rt?.hass,"appearance.choose_vehicle",{},"Choose a vehicle"))}</b><span>${this.rt.escape(current.color?.label || "")}</span></div>${notice}`;
+    const saveHtml=`<button class="primary vehicle-picker-save" data-vehicle-picker-save="${this.rt.escape(assetId)}" data-vehicle-profile-id="${this.rt.escape(current.profile_id)}" data-vehicle-key="${this.rt.escape(current.key)}" ${!current.writable?"disabled":""}><ha-icon icon="mdi:check"></ha-icon><span>${this.rt.escape(rhiMobilityT(this.rt?.hass,"common.save_appearance",{},"Save appearance"))}</span></button>`;
     const shell=rhiUxVisualPickerShell({
-      eyebrow:"Appearance · Vehicle",
-      title:"Choose appearance",
-      description:"Select the real vehicle, then refine brand, model, variant and colour.",
+      eyebrow:rhiMobilityT(this.rt?.hass,"appearance.vehicle.eyebrow",{},"Appearance · Vehicle"),
+      title:rhiMobilityT(this.rt?.hass,"common.choose_appearance",{},"Choose appearance"),
+      description:rhiMobilityT(this.rt?.hass,"appearance.vehicle.description",{},"Select the real vehicle, then refine brand, model, variant and colour."),
       choicesHtml:tiles,
       refineHtml,
       selectedHtml,
