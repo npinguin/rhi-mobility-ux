@@ -50,7 +50,8 @@ const detailRt={
   vehicleById:()=>({asset_id:'vehicle_test',asset_type:'vehicle',image_key:'vehicle_audi_q8'}),
   assetById:()=>null,
   assetUrl:(p)=>'/assets/'+p,
-  escape:(v)=>String(v??'')
+  escape:(v)=>String(v??''),
+  t:(_key,_params={},fallback='')=>fallback
 };
 const shell=new Shell({},detailRt);
 const detailPicker=shell.renderEditableProperty({asset_id:'vehicle_test',property:{asset_id:'vehicle_test',property_key:'vehicle.image_key',value:'vehicle_audi_q8'},icon:'mdi:palette',label:'Vehicle visual'});
@@ -66,7 +67,8 @@ const id4Rt={
   visualImageKey:()=> 'volkswagen.id4.2024-2026.ev.scale-silver',
   isWritableProperty:()=> true,
   assetUrl:(p)=>'/assets/'+p,
-  escape:(v)=>String(v??'')
+  escape:(v)=>String(v??''),
+  t:(_key,_params={},fallback='')=>fallback
 };
 const id4Selection=new Picker(id4Rt).selection({asset_id:'vehicle_id4'});
 if(id4Selection.brand!=='Volkswagen') throw new Error(`ID.4 picker drifted brand to ${id4Selection.brand}`);
@@ -85,7 +87,8 @@ const logRt={
   ],
   mobilityActivityV2:()=>({activity_count:1}),
   assetDisplayName:()=> 'Test vehicle',
-  escape:(v)=>String(v??'').replace(/[&<>]/g,(ch)=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[ch]))
+  escape:(v)=>String(v??'').replace(/[&<>]/g,(ch)=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[ch])),
+  t:(_key,_params={},fallback='')=>fallback
 };
 const logHtml=logCard.renderLog(logRt);
 for(const needle of ['What happened?','What needs attention?','Lock vehicle','Test vehicle','rejected','vehicle_unavailable','1 failed or rejected']){
@@ -97,7 +100,8 @@ const gapHtml=logCard.renderLog({
   activityRowsFor:()=>[],
   mobilityActivityV2:()=>({activity_count:8}),
   assetDisplayName:(id)=>id,
-  escape:(v)=>String(v??'')
+  escape:(v)=>String(v??''),
+  t:(_key,_params={},fallback='')=>fallback
 });
 if(!gapHtml.includes('reports 8 recent items but publishes no activity rows')) throw new Error('Log must fail visibly when count and rows disagree');
 
