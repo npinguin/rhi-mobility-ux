@@ -40,7 +40,7 @@ const pilotFiles=[
   "src/ui/screens/mobility-dashboard.js"
 ];
 const forbiddenPilotLiterals=[
-  "HOME INTELLIGENCE / MOBILITY",
+  "<p class=\\\"eyebrow\\\">HOME INTELLIGENCE / MOBILITY</p>",
   ">Active chargers<",
   ">Inactive chargers<",
   ">No active chargers<",
