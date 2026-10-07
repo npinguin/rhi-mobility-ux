@@ -112,7 +112,7 @@ for(const key of ['asset.profile_id','vehicle.selected_charger']) {
   if(row.editor_value!=='__none__') throw new Error(`unset vehicle configuration must use backend none token for ${key}`);
   if(!row.choices.length) throw new Error(`vehicle configuration choices missing for ${key}`);
 }
-if(!vehicleAdapter.includes('label:"No charger"') || !vehicleAdapter.includes('allow_none:allowNone')) throw new Error('shared vehicle adapter must model backend-owned No charger semantics once');
+if(!vehicleAdapter.includes('rhiMobilityT(this.rt?.hass,"vehicle.no_charger"') || !vehicleAdapter.includes('allow_none:allowNone')) throw new Error('shared vehicle adapter must model backend-owned no-charger semantics once with localized presentation');
 if(!dashboard.includes('adapter.chargerAssignmentModel()')) throw new Error('Overview/vehicle surfaces must consume the shared charger-assignment model');
 
 const vehicleRuntimeControl=vrt.propertyByCompoundKey(vehicle,'vehicle.requested_charge_power_kw');
