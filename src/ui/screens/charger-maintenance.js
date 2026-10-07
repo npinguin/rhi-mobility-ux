@@ -356,13 +356,13 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
     const names = (rows)=>rows.slice(0,3).map(labelFor).join(" · ");
 
     const chargerHeaderCards = [
-      { icon:"mdi:card-account-details-outline", label:rhiMobilityT(this.hass,"charger.profiles",{},"Profiles"), value:`${profiledRows.length}/${activeChargers.length} configured`, sub:unprofiledRows.length ? `${names(unprofiledRows)} without profile` : rhiMobilityT(this.hass,"charger.no_profile_summary",{},"All active chargers profiled"), tone:"neutral" },
-      { icon:"mdi:ev-station", label:rhiMobilityT(this.hass,"charger.availability",{},"Availability"), value:`${availableCount}/${activeChargers.length} available`, sub:availableRows.length ? names(availableRows) : rhiMobilityT(this.hass,"common.no_charger_available",{},"No charger currently available"), tone:"neutral" },
-      { icon:"mdi:lightning-bolt", label:rhiMobilityT(this.hass,"charger.runtime",{},"Runtime"), value:totalPowerDisplay, sub:`${connectedCount} connected · ${chargingCount} charging`, tone:"neutral" }
+      { icon:"mdi:card-account-details-outline", label:rt.t("charger.profiles",{},"Profiles"), value:`${profiledRows.length}/${activeChargers.length} configured`, sub:unprofiledRows.length ? `${names(unprofiledRows)} without profile` : rt.t("charger.no_profile_summary",{},"All active chargers profiled"), tone:"neutral" },
+      { icon:"mdi:ev-station", label:rt.t("charger.availability",{},"Availability"), value:`${availableCount}/${activeChargers.length} available`, sub:availableRows.length ? names(availableRows) : rt.t("common.no_charger_available",{},"No charger currently available"), tone:"neutral" },
+      { icon:"mdi:lightning-bolt", label:rt.t("charger.runtime",{},"Runtime"), value:totalPowerDisplay, sub:`${connectedCount} connected · ${chargingCount} charging`, tone:"neutral" }
     ];
     if (faultCount) chargerHeaderCards.push({
       icon:"mdi:alert-circle-outline",
-      label:rhiMobilityT(this.hass,"charger.issue",{},"Issue"),
+      label:rt.t("charger.issue",{},"Issue"),
       value:`${faultCount} fault${faultCount === 1 ? "" : "s"}`,
       sub:names(faultRows),
       tone:"warn"
@@ -382,16 +382,16 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
         ${hbMobilityPageHero(rt, "chargers")}
         ${hbMobilityStatusGrid(rt, chargerHeaderCards, "chargers-top-status")}
         ${hbMobilityQuickActions(rt, [
-          { icon:"mdi:cog-outline", label:rhiMobilityT(this.hass,"charger.manage",{},"Manage chargers & profiles"), path:"/config/integrations/integration/rhi_mobility", primary:true },
-          { icon:"mdi:car-electric", label:rhiMobilityT(this.hass,"charger.vehicle_management",{},"Vehicle Management"), path:hbMobilityPath("/dashboard") },
-          { icon:"mdi:calendar-clock", label:rhiMobilityT(this.hass,"charger.charging_plan",{},"Charging plan"), path:hbMobilityPath("/planning") },
-          { icon:"mdi:target", label:rhiMobilityT(this.hass,"charger.strategies",{},"Strategies"), path:hbMobilityPath("/strategies") }
+          { icon:"mdi:cog-outline", label:rt.t("charger.manage",{},"Manage chargers & profiles"), path:"/config/integrations/integration/rhi_mobility", primary:true },
+          { icon:"mdi:car-electric", label:rt.t("charger.vehicle_management",{},"Vehicle Management"), path:hbMobilityPath("/dashboard") },
+          { icon:"mdi:calendar-clock", label:rt.t("charger.charging_plan",{},"Charging plan"), path:hbMobilityPath("/planning") },
+          { icon:"mdi:target", label:rt.t("charger.strategies",{},"Strategies"), path:hbMobilityPath("/strategies") }
         ])}
-        <section class="section-title"><h2>${rt.escape(rhiMobilityT(this.hass,"charger.active",{},"Active chargers"))}</h2><span>${activeChargers.length} active · ${connectedCount} connected · ${chargingCount} charging · ${rt.escape(totalPowerDisplay)}</span></section>
+        <section class="section-title"><h2>${rt.escape(rt.t("charger.active",{},"Active chargers"))}</h2><span>${activeChargers.length} active · ${connectedCount} connected · ${chargingCount} charging · ${rt.escape(totalPowerDisplay)}</span></section>
         <section class="grid">
-          ${activeChargers.length ? activeChargers.map((c) => this.renderCharger(rt, c)).join("") : `<div class="empty-state"><ha-icon icon="mdi:ev-station-off"></ha-icon><h2>${rt.escape(rhiMobilityT(this.hass,"charger.no_active",{},"No active chargers"))}</h2><p>${rt.escape(rhiMobilityT(this.hass,"charger.activate_when_needed",{},"Activate a charger below when needed."))}</p></div>`}
+          ${activeChargers.length ? activeChargers.map((c) => this.renderCharger(rt, c)).join("") : `<div class="empty-state"><ha-icon icon="mdi:ev-station-off"></ha-icon><h2>${rt.escape(rt.t("charger.no_active",{},"No active chargers"))}</h2><p>${rt.escape(rt.t("charger.activate_when_needed",{},"Activate a charger below when needed."))}</p></div>`}
         </section>
-        ${inactiveChargers.length ? `<section class="section-title compact-title"><h2>${rt.escape(rhiMobilityT(this.hass,"charger.inactive",{},"Inactive chargers"))}</h2><span>${inactiveChargers.length} inactive</span></section><section class="inactive-list">${inactiveChargers.map((c)=>this.renderCollapsedCharger(rt,c)).join("")}</section>` : `<section class="debt-strip"><ha-icon icon="mdi:information-outline"></ha-icon><b>Inactive chargers (0)</b><span>${rt.escape(rhiMobilityT(this.hass,"charger.disabled_hidden",{},"Disabled chargers are hidden."))}</span></section>`}
+        ${inactiveChargers.length ? `<section class="section-title compact-title"><h2>${rt.escape(rt.t("charger.inactive",{},"Inactive chargers"))}</h2><span>${inactiveChargers.length} inactive</span></section><section class="inactive-list">${inactiveChargers.map((c)=>this.renderCollapsedCharger(rt,c)).join("")}</section>` : `<section class="debt-strip"><ha-icon icon="mdi:information-outline"></ha-icon><b>Inactive chargers (0)</b><span>${rt.escape(rt.t("charger.disabled_hidden",{},"Disabled chargers are hidden."))}</span></section>`}
         
       </div>
       <style>${this.styles()}
