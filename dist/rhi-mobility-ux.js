@@ -691,7 +691,7 @@ const RHI_MOBILITY_TRANSLATIONS = Object.freeze({
     "common.none":"None","common.selected":"Selected","common.brand":"Brand","common.model":"Model","common.variant":"Variant","common.finish":"Finish","common.colour":"Colour","common.save_appearance":"Save appearance","common.choose_brand":"Choose brand…","common.choose_model":"Choose model…","common.choose_variant":"Choose variant…","common.choose_finish":"Choose finish…","common.choose_colour":"Choose colour…","common.standard":"Standard","common.no_choices_published":"No choices published",
     "shell.eyebrow":"HOME INTELLIGENCE / MOBILITY","appearance.charger.eyebrow":"Appearance · Charger","appearance.charger.description":"Select the real charger, then refine brand, model, variant and finish.","appearance.vehicle.eyebrow":"Appearance · Vehicle","appearance.vehicle.description":"Select the real vehicle, then refine brand, model, variant and colour.","appearance.choose_charger":"Choose a charger","appearance.choose_vehicle":"Choose a vehicle",
     "charger.profiles":"Profiles","charger.availability":"Availability","charger.runtime":"Runtime","charger.issue":"Issue","charger.active":"Active chargers","charger.inactive":"Inactive chargers","charger.no_active":"No active chargers","charger.activate_when_needed":"Activate a charger below when needed.","charger.disabled_hidden":"Disabled chargers are hidden.","charger.manage":"Manage chargers & profiles","charger.vehicle_management":"Vehicle Management","charger.charging_plan":"Charging plan","charger.strategies":"Strategies",
-    "dashboard.vehicles":"Vehicles","dashboard.vehicles_description":"Readiness first: range and energy, security, comfort, maintenance, charger relationship and direct actions.","dashboard.active_vehicles":"Active vehicles","dashboard.active_vehicles_description":"Readiness and actions first. Charger assignment and lifecycle remain Mobility-owned controls.","dashboard.inactive_vehicles":"Inactive vehicles","dashboard.inactive_vehicles_description":"Disabled vehicles stay available for deliberate reactivation and detail access.","dashboard.temporarily_unavailable":"Dashboard temporarily unavailable","dashboard.render_failed":"The frontend loaded, but the dashboard could not render the current backend contract safely.","common.configured":"configured","common.without_profile":"without profile","common.all_profiled":"All active items profiled","common.available":"available","common.connected":"connected","common.charging":"charging","common.active":"active","common.inactive":"inactive","common.disabled":"disabled","common.assigned":"assigned","common.shown":"shown","common.fault":"fault","common.faults":"faults","common.all":"All","common.sort":"Sort","common.configured_order":"Configured order","common.name":"Name","common.no_disabled":"No disabled vehicles","common.no_charger":"no charger","common.no_charger_available":"No charger currently available","common.all_assigned":"All active vehicles assigned","common.manage_vehicles_profiles":"Manage vehicles & profiles","common.charger_management":"Charger Management","common.vehicle_actions":"Vehicle actions","common.precondition":"Precondition","common.change_charger":"Change charger","dashboard.no_active":"No active vehicles.","dashboard.no_active_filter":"No active vehicles match this filter.","dashboard.no_disabled":"No disabled vehicles.","charger.no_profile_summary":"All active chargers profiled"
+    "dashboard.vehicles":"Vehicles","dashboard.vehicles_description":"Readiness first: range and energy, security, comfort, maintenance, charger relationship and direct actions.","dashboard.active_vehicles":"Active vehicles","dashboard.active_vehicles_description":"Readiness and actions first. Charger assignment and lifecycle remain Mobility-owned controls.","dashboard.inactive_vehicles":"Inactive vehicles","dashboard.inactive_vehicles_description":"Disabled vehicles stay available for deliberate reactivation and detail access.","dashboard.temporarily_unavailable":"Dashboard temporarily unavailable","dashboard.render_failed":"The frontend loaded, but the dashboard could not render the current backend contract safely.","common.configured":"configured","common.without_profile":"without profile","common.all_profiled":"All active items profiled","common.available":"available","common.connected":"connected","common.charging":"charging","common.active":"active","common.inactive":"inactive","common.disabled":"disabled","common.assigned":"assigned","common.shown":"shown","common.fault":"fault","common.faults":"faults","common.all":"All","common.sort":"Sort","common.configured_order":"Configured order","common.name":"Name","common.no_disabled":"No disabled vehicles","common.no_charger":"no charger","common.no_charger_available":"No charger currently available","common.all_assigned":"All active vehicles assigned","common.manage_vehicles_profiles":"Manage vehicles & profiles","common.charger_management":"Charger Management","common.vehicle_actions":"Vehicle actions","common.precondition":"Precondition","common.change_charger":"Change charger","dashboard.no_active":"No active vehicles.","dashboard.no_active_filter":"No active vehicles match this filter.","dashboard.no_disabled":"No disabled vehicles.","charger.no_profile_summary":"All active chargers profiled","planning.planned_today":"Planned today","planning.still_to_plan":"Still to plan","planning.vehicle_energy":"Vehicle energy","planning.attributed_value":"Attributed value","planning.energy_owned":"Energy-owned planning","planning.what_charge_when":"What will charge, and when?","planning.schedule_desc":"Only schedule and energy details explicitly published by Energy are shown. If a vehicle only participates in planning but has no schedule yet, that gap is stated directly.","planning.execution_context":"Mobility execution context","planning.can_execute":"Can the plan execute?","planning.execution_desc":"Mobility keeps charger assignment, physical connection and command readiness separate from Energy planning. A published plan is not presented as executable unless those facts exist.","planning.source":"Source","planning.vehicles_in_planning":"Vehicles in planning","planning.plan_state":"Plan state","strategy.configured_intent":"Configured intent","strategy.mobility_profiles":"Mobility energy profiles","strategy.profiles_desc":"Relevant Energy strategy profiles are shown read-only here. Profile meaning and editable strategy settings remain owned by Energy.","strategy.effective":"Effective strategy","strategy.in_effect":"What is in effect","strategy.effective_desc":"Effective policy is filtered to exact Mobility asset ids so vehicle and charger behavior is not confused with unrelated Energy domains.","strategy.no_effective":"No effective Mobility policy is currently published by Energy.","insights.measured_mobility":"Measured Mobility","insights.measured_energy":"Measured energy","insights.attributed_value":"Attributed value","insights.vehicle_energy_value":"Vehicle energy & value","insights.vehicle_energy_desc":"Per-vehicle energy and financial attribution come directly from Energy public UX contracts. Mobility only joins them by canonical asset id.","insights.mobility_evidence":"Mobility evidence","insights.execution_history":"Execution history","insights.execution_history_desc":"Commands, readiness transitions and vehicle/charger execution remain Mobility-owned. Energy measurements complement that history; they do not replace it.","insights.metering_contract":"Metering contract","insights.value_contract":"Value contract","insights.value_state":"Value state","common.published":"Published","activity.mobility_log":"Mobility log","activity.what_happened":"What happened?","activity.desc":"Recent vehicle, charger and command activity is shown with the asset, outcome and backend reason. Technical contract names stay out of the primary reading path.","activity.no_rows":"No activity rows are currently published.","activity.exceptions":"Exceptions","activity.what_attention":"What needs attention?","activity.no_failures":"No failed or rejected activity is currently published.","asset.not_registered":"Asset not registered","asset.not_found":"No registered Mobility asset was found for","asset.back_dashboard":"Back to Dashboard","asset.missing_id":"missing asset id","vehicle.no_charger":"No charger","charger.state_disabled":"Disabled","charger.state_unavailable":"Unavailable","charger.state_in_use":"In use","charger.state_free":"Free","charger.fact_state":"State","charger.fact_power":"Power","charger.fact_vehicle":"Vehicle","charger.fact_issue":"Issue"
   }),
   nl: Object.freeze({
     "nav.mobility":"Mobiliteit","nav.overview":"Overzicht","nav.vehicles":"Voertuigen","nav.chargers":"Laadpunten",
@@ -729,7 +729,7 @@ const RHI_MOBILITY_TRANSLATIONS = Object.freeze({
     "common.none":"Geen","common.selected":"Geselecteerd","common.brand":"Merk","common.model":"Model","common.variant":"Variant","common.finish":"Afwerking","common.colour":"Kleur","common.save_appearance":"Weergave opslaan","common.choose_brand":"Kies merk…","common.choose_model":"Kies model…","common.choose_variant":"Kies variant…","common.choose_finish":"Kies afwerking…","common.choose_colour":"Kies kleur…","common.standard":"Standaard","common.no_choices_published":"Geen keuzes beschikbaar",
     "shell.eyebrow":"HOME INTELLIGENCE / MOBILITEIT","appearance.charger.eyebrow":"Weergave · Laadpunt","appearance.charger.description":"Selecteer het echte laadpunt en verfijn daarna merk, model, variant en afwerking.","appearance.vehicle.eyebrow":"Weergave · Voertuig","appearance.vehicle.description":"Selecteer het echte voertuig en verfijn daarna merk, model, variant en kleur.","appearance.choose_charger":"Kies een laadpunt","appearance.choose_vehicle":"Kies een voertuig",
     "charger.profiles":"Profielen","charger.availability":"Beschikbaarheid","charger.runtime":"Runtime","charger.issue":"Probleem","charger.active":"Actieve laadpunten","charger.inactive":"Inactieve laadpunten","charger.no_active":"Geen actieve laadpunten","charger.activate_when_needed":"Activeer hieronder een laadpunt wanneer nodig.","charger.disabled_hidden":"Uitgeschakelde laadpunten zijn verborgen.","charger.manage":"Laadpunten en profielen beheren","charger.vehicle_management":"Voertuigbeheer","charger.charging_plan":"Laadplanning","charger.strategies":"Strategieën",
-    "dashboard.vehicles":"Voertuigen","dashboard.vehicles_description":"Eerst de inzetbaarheid: bereik en energie, veiligheid, comfort, onderhoud, laadrelatie en directe acties.","dashboard.active_vehicles":"Actieve voertuigen","dashboard.active_vehicles_description":"Eerst inzetbaarheid en acties. Toewijzing aan laadpunten en lifecycle blijven Mobility-controls.","dashboard.inactive_vehicles":"Inactieve voertuigen","dashboard.inactive_vehicles_description":"Uitgeschakelde voertuigen blijven beschikbaar voor bewuste heractivering en detailweergave.","dashboard.temporarily_unavailable":"Dashboard tijdelijk niet beschikbaar","dashboard.render_failed":"De frontend is geladen, maar kon het huidige backendcontract niet veilig weergeven.","common.configured":"ingesteld","common.without_profile":"zonder profiel","common.all_profiled":"Alle actieve items hebben een profiel","common.available":"beschikbaar","common.connected":"verbonden","common.charging":"aan het laden","common.active":"actief","common.inactive":"inactief","common.disabled":"uitgeschakeld","common.assigned":"toegewezen","common.shown":"getoond","common.fault":"fout","common.faults":"fouten","common.all":"Alle","common.sort":"Sorteren","common.configured_order":"Ingestelde volgorde","common.name":"Naam","common.no_disabled":"Geen uitgeschakelde voertuigen","common.no_charger":"geen laadpunt","common.no_charger_available":"Geen laadpunt momenteel beschikbaar","common.all_assigned":"Alle actieve voertuigen zijn toegewezen","common.manage_vehicles_profiles":"Voertuigen en profielen beheren","common.charger_management":"Laadpunten beheren","common.vehicle_actions":"Voertuigacties","common.precondition":"Voorverwarmen/koelen","common.change_charger":"Laadpunt wijzigen","dashboard.no_active":"Geen actieve voertuigen.","dashboard.no_active_filter":"Geen actieve voertuigen voldoen aan dit filter.","dashboard.no_disabled":"Geen uitgeschakelde voertuigen.","charger.no_profile_summary":"Alle actieve laadpunten hebben een profiel"
+    "dashboard.vehicles":"Voertuigen","dashboard.vehicles_description":"Eerst de inzetbaarheid: bereik en energie, veiligheid, comfort, onderhoud, laadrelatie en directe acties.","dashboard.active_vehicles":"Actieve voertuigen","dashboard.active_vehicles_description":"Eerst inzetbaarheid en acties. Toewijzing aan laadpunten en lifecycle blijven Mobility-controls.","dashboard.inactive_vehicles":"Inactieve voertuigen","dashboard.inactive_vehicles_description":"Uitgeschakelde voertuigen blijven beschikbaar voor bewuste heractivering en detailweergave.","dashboard.temporarily_unavailable":"Dashboard tijdelijk niet beschikbaar","dashboard.render_failed":"De frontend is geladen, maar kon het huidige backendcontract niet veilig weergeven.","common.configured":"ingesteld","common.without_profile":"zonder profiel","common.all_profiled":"Alle actieve items hebben een profiel","common.available":"beschikbaar","common.connected":"verbonden","common.charging":"aan het laden","common.active":"actief","common.inactive":"inactief","common.disabled":"uitgeschakeld","common.assigned":"toegewezen","common.shown":"getoond","common.fault":"fout","common.faults":"fouten","common.all":"Alle","common.sort":"Sorteren","common.configured_order":"Ingestelde volgorde","common.name":"Naam","common.no_disabled":"Geen uitgeschakelde voertuigen","common.no_charger":"geen laadpunt","common.no_charger_available":"Geen laadpunt momenteel beschikbaar","common.all_assigned":"Alle actieve voertuigen zijn toegewezen","common.manage_vehicles_profiles":"Voertuigen en profielen beheren","common.charger_management":"Laadpunten beheren","common.vehicle_actions":"Voertuigacties","common.precondition":"Voorverwarmen/koelen","common.change_charger":"Laadpunt wijzigen","dashboard.no_active":"Geen actieve voertuigen.","dashboard.no_active_filter":"Geen actieve voertuigen voldoen aan dit filter.","dashboard.no_disabled":"Geen uitgeschakelde voertuigen.","charger.no_profile_summary":"Alle actieve laadpunten hebben een profiel","planning.planned_today":"Vandaag gepland","planning.still_to_plan":"Nog te plannen","planning.vehicle_energy":"Voertuigenergie","planning.attributed_value":"Toegerekende waarde","planning.energy_owned":"Planning door Energy","planning.what_charge_when":"Wat laadt wanneer?","planning.schedule_desc":"Alleen planning- en energiedetails die expliciet door Energy zijn gepubliceerd worden getoond. Als een voertuig enkel aan planning deelneemt maar nog geen schema heeft, wordt dat expliciet vermeld.","planning.execution_context":"Uitvoeringscontext Mobility","planning.can_execute":"Kan de planning worden uitgevoerd?","planning.execution_desc":"Mobility houdt laadpunttoewijzing, fysieke verbinding en commandogereedheid gescheiden van Energy-planning. Een gepubliceerd plan wordt pas als uitvoerbaar getoond wanneer die feiten beschikbaar zijn.","planning.source":"Bron","planning.vehicles_in_planning":"Voertuigen in planning","planning.plan_state":"Planningsstatus","strategy.configured_intent":"Ingestelde intentie","strategy.mobility_profiles":"Energieprofielen mobiliteit","strategy.profiles_desc":"Relevante Energy-strategieprofielen worden hier alleen-lezen getoond. Betekenis en wijzigbare strategie-instellingen blijven eigendom van Energy.","strategy.effective":"Effectieve strategie","strategy.in_effect":"Wat is van kracht","strategy.effective_desc":"Effectief beleid wordt gefilterd op exacte Mobility asset-id’s zodat voertuig- en laadpuntgedrag niet met andere Energy-domeinen wordt verward.","strategy.no_effective":"Energy publiceert momenteel geen effectief Mobility-beleid.","insights.measured_mobility":"Gemeten mobiliteit","insights.measured_energy":"Gemeten energie","insights.attributed_value":"Toegerekende waarde","insights.vehicle_energy_value":"Voertuigenergie & waarde","insights.vehicle_energy_desc":"Energie en financiële toerekening per voertuig komen rechtstreeks uit de publieke Energy UX-contracten. Mobility koppelt ze alleen via de canonieke asset-id.","insights.mobility_evidence":"Mobility-bewijs","insights.execution_history":"Uitvoeringshistoriek","insights.execution_history_desc":"Commando’s, gereedheidstransities en voertuig-/laadpuntuitvoering blijven eigendom van Mobility. Energy-metingen vullen die historiek aan; ze vervangen ze niet.","insights.metering_contract":"Meetcontract","insights.value_contract":"Waardecontract","insights.value_state":"Waardestatus","common.published":"Gepubliceerd","activity.mobility_log":"Mobiliteitslog","activity.what_happened":"Wat is er gebeurd?","activity.desc":"Recente voertuig-, laadpunt- en commandoactiviteit wordt getoond met asset, resultaat en backendreden. Technische contractnamen blijven buiten het primaire gebruikerspad.","activity.no_rows":"Er zijn momenteel geen activiteitsregels gepubliceerd.","activity.exceptions":"Uitzonderingen","activity.what_attention":"Wat vraagt aandacht?","activity.no_failures":"Er is momenteel geen mislukte of geweigerde activiteit gepubliceerd.","asset.not_registered":"Asset niet geregistreerd","asset.not_found":"Geen geregistreerde Mobility-asset gevonden voor","asset.back_dashboard":"Terug naar dashboard","asset.missing_id":"ontbrekende asset-id","vehicle.no_charger":"Geen laadpunt","charger.state_disabled":"Uitgeschakeld","charger.state_unavailable":"Niet beschikbaar","charger.state_in_use":"In gebruik","charger.state_free":"Vrij","charger.fact_state":"Status","charger.fact_power":"Vermogen","charger.fact_vehicle":"Voertuig","charger.fact_issue":"Probleem"
   }),
   fr: Object.freeze({
     "nav.mobility":"Mobilité","nav.overview":"Vue d’ensemble","nav.vehicles":"Véhicules","nav.chargers":"Bornes",
@@ -767,7 +767,7 @@ const RHI_MOBILITY_TRANSLATIONS = Object.freeze({
     "common.none":"Aucun","common.selected":"Sélectionné","common.brand":"Marque","common.model":"Modèle","common.variant":"Variante","common.finish":"Finition","common.colour":"Couleur","common.save_appearance":"Enregistrer l’apparence","common.choose_brand":"Choisir une marque…","common.choose_model":"Choisir un modèle…","common.choose_variant":"Choisir une variante…","common.choose_finish":"Choisir une finition…","common.choose_colour":"Choisir une couleur…","common.standard":"Standard","common.no_choices_published":"Aucun choix disponible",
     "shell.eyebrow":"HOME INTELLIGENCE / MOBILITÉ","appearance.charger.eyebrow":"Apparence · Borne","appearance.charger.description":"Sélectionnez la borne réelle, puis affinez la marque, le modèle, la variante et la finition.","appearance.vehicle.eyebrow":"Apparence · Véhicule","appearance.vehicle.description":"Sélectionnez le véhicule réel, puis affinez la marque, le modèle, la variante et la couleur.","appearance.choose_charger":"Choisir une borne","appearance.choose_vehicle":"Choisir un véhicule",
     "charger.profiles":"Profils","charger.availability":"Disponibilité","charger.runtime":"Runtime","charger.issue":"Problème","charger.active":"Bornes actives","charger.inactive":"Bornes inactives","charger.no_active":"Aucune borne active","charger.activate_when_needed":"Activez une borne ci-dessous lorsque nécessaire.","charger.disabled_hidden":"Les bornes désactivées sont masquées.","charger.manage":"Gérer les bornes et profils","charger.vehicle_management":"Gestion des véhicules","charger.charging_plan":"Plan de charge","charger.strategies":"Stratégies",
-    "dashboard.vehicles":"Véhicules","dashboard.vehicles_description":"Priorité à l’aptitude: autonomie et énergie, sécurité, confort, entretien, relation avec la borne et actions directes.","dashboard.active_vehicles":"Véhicules actifs","dashboard.active_vehicles_description":"Priorité à l’aptitude et aux actions. L’attribution des bornes et le cycle de vie restent gérés par Mobility.","dashboard.inactive_vehicles":"Véhicules inactifs","dashboard.inactive_vehicles_description":"Les véhicules désactivés restent disponibles pour une réactivation volontaire et l’accès aux détails.","dashboard.temporarily_unavailable":"Tableau de bord temporairement indisponible","dashboard.render_failed":"Le frontend est chargé, mais n’a pas pu afficher en toute sécurité le contrat backend actuel.","common.configured":"configuré","common.without_profile":"sans profil","common.all_profiled":"Tous les éléments actifs ont un profil","common.available":"disponible","common.connected":"connecté","common.charging":"en charge","common.active":"actif","common.inactive":"inactif","common.disabled":"désactivé","common.assigned":"attribué","common.shown":"affiché","common.fault":"défaut","common.faults":"défauts","common.all":"Tous","common.sort":"Trier","common.configured_order":"Ordre configuré","common.name":"Nom","common.no_disabled":"Aucun véhicule désactivé","common.no_charger":"aucune borne","common.no_charger_available":"Aucune borne actuellement disponible","common.all_assigned":"Tous les véhicules actifs sont attribués","common.manage_vehicles_profiles":"Gérer les véhicules et profils","common.charger_management":"Gestion des bornes","common.vehicle_actions":"Actions véhicule","common.precondition":"Préconditionner","common.change_charger":"Changer de borne","dashboard.no_active":"Aucun véhicule actif.","dashboard.no_active_filter":"Aucun véhicule actif ne correspond à ce filtre.","dashboard.no_disabled":"Aucun véhicule désactivé.","charger.no_profile_summary":"Toutes les bornes actives ont un profil"
+    "dashboard.vehicles":"Véhicules","dashboard.vehicles_description":"Priorité à l’aptitude: autonomie et énergie, sécurité, confort, entretien, relation avec la borne et actions directes.","dashboard.active_vehicles":"Véhicules actifs","dashboard.active_vehicles_description":"Priorité à l’aptitude et aux actions. L’attribution des bornes et le cycle de vie restent gérés par Mobility.","dashboard.inactive_vehicles":"Véhicules inactifs","dashboard.inactive_vehicles_description":"Les véhicules désactivés restent disponibles pour une réactivation volontaire et l’accès aux détails.","dashboard.temporarily_unavailable":"Tableau de bord temporairement indisponible","dashboard.render_failed":"Le frontend est chargé, mais n’a pas pu afficher en toute sécurité le contrat backend actuel.","common.configured":"configuré","common.without_profile":"sans profil","common.all_profiled":"Tous les éléments actifs ont un profil","common.available":"disponible","common.connected":"connecté","common.charging":"en charge","common.active":"actif","common.inactive":"inactif","common.disabled":"désactivé","common.assigned":"attribué","common.shown":"affiché","common.fault":"défaut","common.faults":"défauts","common.all":"Tous","common.sort":"Trier","common.configured_order":"Ordre configuré","common.name":"Nom","common.no_disabled":"Aucun véhicule désactivé","common.no_charger":"aucune borne","common.no_charger_available":"Aucune borne actuellement disponible","common.all_assigned":"Tous les véhicules actifs sont attribués","common.manage_vehicles_profiles":"Gérer les véhicules et profils","common.charger_management":"Gestion des bornes","common.vehicle_actions":"Actions véhicule","common.precondition":"Préconditionner","common.change_charger":"Changer de borne","dashboard.no_active":"Aucun véhicule actif.","dashboard.no_active_filter":"Aucun véhicule actif ne correspond à ce filtre.","dashboard.no_disabled":"Aucun véhicule désactivé.","charger.no_profile_summary":"Toutes les bornes actives ont un profil","planning.planned_today":"Prévu aujourd’hui","planning.still_to_plan":"Reste à planifier","planning.vehicle_energy":"Énergie du véhicule","planning.attributed_value":"Valeur attribuée","planning.energy_owned":"Planification gérée par Energy","planning.what_charge_when":"Qu’est-ce qui chargera, et quand ?","planning.schedule_desc":"Seuls les détails de planification et d’énergie explicitement publiés par Energy sont affichés. Si un véhicule participe à la planification sans avoir encore de calendrier, cette lacune est indiquée directement.","planning.execution_context":"Contexte d’exécution Mobility","planning.can_execute":"Le plan peut-il être exécuté ?","planning.execution_desc":"Mobility sépare l’attribution des bornes, la connexion physique et la disponibilité des commandes de la planification Energy. Un plan publié n’est présenté comme exécutable que lorsque ces faits existent.","planning.source":"Source","planning.vehicles_in_planning":"Véhicules dans la planification","planning.plan_state":"État du plan","strategy.configured_intent":"Intention configurée","strategy.mobility_profiles":"Profils énergétiques de mobilité","strategy.profiles_desc":"Les profils de stratégie Energy pertinents sont affichés ici en lecture seule. Leur signification et les réglages modifiables restent gérés par Energy.","strategy.effective":"Stratégie effective","strategy.in_effect":"Ce qui est en vigueur","strategy.effective_desc":"La politique effective est filtrée sur les identifiants Mobility exacts afin de ne pas confondre le comportement des véhicules et bornes avec d’autres domaines Energy.","strategy.no_effective":"Aucune politique Mobility effective n’est actuellement publiée par Energy.","insights.measured_mobility":"Mobilité mesurée","insights.measured_energy":"Énergie mesurée","insights.attributed_value":"Valeur attribuée","insights.vehicle_energy_value":"Énergie & valeur du véhicule","insights.vehicle_energy_desc":"L’énergie et l’attribution financière par véhicule proviennent directement des contrats UX publics Energy. Mobility les relie uniquement via l’identifiant d’asset canonique.","insights.mobility_evidence":"Preuves Mobility","insights.execution_history":"Historique d’exécution","insights.execution_history_desc":"Les commandes, transitions de disponibilité et l’exécution véhicule/borne restent gérées par Mobility. Les mesures Energy complètent cet historique sans le remplacer.","insights.metering_contract":"Contrat de mesure","insights.value_contract":"Contrat de valeur","insights.value_state":"État de la valeur","common.published":"Publié","activity.mobility_log":"Journal de mobilité","activity.what_happened":"Que s’est-il passé ?","activity.desc":"L’activité récente des véhicules, bornes et commandes est affichée avec l’asset, le résultat et la raison backend. Les noms techniques de contrats restent hors du parcours principal.","activity.no_rows":"Aucune ligne d’activité n’est actuellement publiée.","activity.exceptions":"Exceptions","activity.what_attention":"Qu’est-ce qui demande votre attention ?","activity.no_failures":"Aucune activité échouée ou rejetée n’est actuellement publiée.","asset.not_registered":"Asset non enregistré","asset.not_found":"Aucun asset Mobility enregistré trouvé pour","asset.back_dashboard":"Retour au tableau de bord","asset.missing_id":"identifiant d’asset manquant","vehicle.no_charger":"Aucune borne","charger.state_disabled":"Désactivé","charger.state_unavailable":"Indisponible","charger.state_in_use":"En cours d’utilisation","charger.state_free":"Libre","charger.fact_state":"État","charger.fact_power":"Puissance","charger.fact_vehicle":"Véhicule","charger.fact_issue":"Problème"
   })
 });
 
@@ -5065,7 +5065,7 @@ class HomeBrainVehicleAdapter {
     const currentUnset = rawCurrent === undefined || rawCurrent === null || String(rawCurrent).trim() === "" || (allowNone && String(rawCurrent).trim() === String(noneValue ?? ""));
     const currentValue = currentUnset && allowNone ? String(noneValue ?? "") : String(rawCurrent ?? "").trim();
     const choices = [];
-    if (allowNone) choices.push({ value:String(noneValue ?? ""), label:"No charger", is_none:true });
+    if (allowNone) choices.push({ value:String(noneValue ?? ""), label:rhiMobilityT(this.rt?.hass,"vehicle.no_charger",{},"No charger"), is_none:true });
     for (const choice of (editor.choices || [])) {
       const value = String(choice?.value ?? choice?.id ?? choice?.asset_id ?? choice ?? "").trim();
       const label = String(choice?.label ?? choice?.display_name ?? choice?.name ?? (value ? this.rt.chargerLabel(value) : "")).trim();
@@ -5356,13 +5356,13 @@ class HomeBrainChargerAdapter {
   overviewAvailability() {
     const assetId = this.assetId();
     const lifecycle = this.rt.lifecycleStatus(this.registryEntry() || assetId);
-    if (lifecycle === "disabled") return { bucket:"disabled", resolved:true, label:"Disabled" };
+    if (lifecycle === "disabled") return { bucket:"disabled", resolved:true, label:rhiMobilityT(this.rt?.hass,"charger.state_disabled",{},"Disabled") };
     if (lifecycle !== "active") return { bucket:"unknown", resolved:false, label:"N/A" };
 
     const snapshot = this.rt.chargerProductSnapshot(assetId);
     const operatingResolved = !!snapshot?.operating?.resolved;
     const operating = operatingResolved ? String(snapshot.operating.value || "").trim().toLowerCase() : "";
-    if (operating === "fault") return { bucket:"unavailable", resolved:true, label:"Unavailable" };
+    if (operating === "fault") return { bucket:"unavailable", resolved:true, label:rhiMobilityT(this.rt?.hass,"charger.state_unavailable",{},"Unavailable") };
 
     // "Free" is an occupancy statement, not a charging-power statement.
     // An idle/stopped charger may still have a vehicle physically connected.
@@ -5372,10 +5372,10 @@ class HomeBrainChargerAdapter {
       || ["connected", "asset_connected"].includes(connection);
     const physicallyDisconnected = ["disconnected", "no_asset_connected"].includes(connection);
 
-    if (physicallyConnected) return { bucket:"in_use", resolved:true, label:"In use" };
-    if (["running", "preparing", "suspended"].includes(operating)) return { bucket:"in_use", resolved:true, label:"In use" };
+    if (physicallyConnected) return { bucket:"in_use", resolved:true, label:rhiMobilityT(this.rt?.hass,"charger.state_in_use",{},"In use") };
+    if (["running", "preparing", "suspended"].includes(operating)) return { bucket:"in_use", resolved:true, label:rhiMobilityT(this.rt?.hass,"charger.state_in_use",{},"In use") };
     if (physicallyDisconnected && ["idle", "stopped"].includes(operating)) {
-      return { bucket:"free", resolved:true, label:"Free" };
+      return { bucket:"free", resolved:true, label:rhiMobilityT(this.rt?.hass,"charger.state_free",{},"Free") };
     }
 
     // Fail closed: without connection/relationship evidence we cannot call a
@@ -5505,14 +5505,14 @@ class HomeBrainChargerAdapter {
     const faultActive = String(fault.state || "").toLowerCase() === "active";
 
     const stateTile = {
-      label:"State",
+      label:rhiMobilityT(this.rt?.hass,"charger.fact_state",{},"State"),
       value:String(chargingIntel.summary || connectionIntel.summary || "Unavailable"),
       subvalue:String(connectionIntel.summary || chargingIntel.reason || "State conclusion unavailable"),
       icon:"mdi:ev-station",
       tone:faultActive ? "attention" : "neutral"
     };
     const powerTile = {
-      label:"Power",
+      label:rhiMobilityT(this.rt?.hass,"charger.fact_power",{},"Power"),
       value:String(powerIntel.summary || "Unavailable"),
       subvalue:String(powerIntel.reason || "Power conclusion unavailable"),
       icon:"mdi:flash",
@@ -5523,7 +5523,7 @@ class HomeBrainChargerAdapter {
     const vehicleDisplay = String(projection.relationships?.connected_vehicle_display_name || "No vehicle identified");
     const vehicleRoute = String(projection.relationships?.vehicle_detail_route || "");
     const vehicleTile = {
-      label:"Vehicle",
+      label:rhiMobilityT(this.rt?.hass,"charger.fact_vehicle",{},"Vehicle"),
       value:vehicleDisplay,
       subvalue:String(vehicleIntel.reason || "Vehicle relationship unavailable"),
       icon:"mdi:car-electric",
@@ -5535,7 +5535,7 @@ class HomeBrainChargerAdapter {
     const headerStatus = [stateTile, powerTile, vehicleTile];
     if (faultActive) {
       headerStatus.push({
-        label:"Issue",
+        label:rhiMobilityT(this.rt?.hass,"charger.fact_issue",{},"Issue"),
         value:String(fault.code || "Fault"),
         subvalue:String(fault.reason || "Charger fault active"),
         icon:"mdi:alert-circle-outline",
@@ -10282,7 +10282,7 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
     const source = plan.available ? "Energy backend" : "Energy planning unavailable";
     const today = this.fmtKwh(plan.today.plannedKwh);
     const remaining = this.fmtKwh(plan.today.stillToPlanKwh);
-    return `<strong>${rt.escape(source)}</strong><span>Planned today ${rt.escape(today)}</span><span>Still to plan ${rt.escape(remaining)}</span>`;
+    return `<strong>${rt.escape(source)}</strong><span>${rt.escape(rhiMobilityT(rt?.hass,"planning.planned_today",{},"Planned today"))} ${rt.escape(today)}</span><span>${rt.escape(rhiMobilityT(rt?.hass,"planning.still_to_plan",{},"Still to plan"))} ${rt.escape(remaining)}</span>`;
   }
 
   strategyHeroMeta(rt) {
@@ -10296,7 +10296,7 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
     const energy = this.fmtKwh(insights.totalVehicleEnergyKwh);
     const value = insights.totalAttributedEur === null ? "N/A" : `€${Number(insights.totalAttributedEur).toFixed(2)}`;
     const source = insights.meteringAvailable || insights.valueAvailable ? "Energy backend" : "Energy Insights unavailable";
-    return `<strong>${rt.escape(source)}</strong><span>Vehicle energy ${rt.escape(energy)}</span><span>Attributed value ${rt.escape(value)}</span>`;
+    return `<strong>${rt.escape(source)}</strong><span>${rt.escape(rhiMobilityT(rt?.hass,"planning.vehicle_energy",{},"Vehicle energy"))} ${rt.escape(energy)}</span><span>${rt.escape(rhiMobilityT(rt?.hass,"planning.attributed_value",{},"Attributed value"))} ${rt.escape(value)}</span>`;
   }
 
   renderPlanning(rt) {
@@ -10306,7 +10306,7 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
       ["mdi:calendar-check-outline","Planned today",this.fmtKwh(plan.today.plannedKwh),plan.today.state || "Energy planning"],
       ["mdi:calendar-alert-outline","Still to plan",this.fmtKwh(plan.today.stillToPlanKwh),"Published by Energy"],
       ["mdi:weather-sunset-up","Tomorrow",this.fmtKwh(plan.tomorrow.plannedKwh),plan.tomorrow.state || "Next horizon"],
-      ["mdi:source-branch-check","Contract",plan.contractVersion || (plan.available ? "Published" : "Unavailable"),plan.source]
+      ["mdi:source-branch-check","Contract",plan.contractVersion || (plan.available ? rhiMobilityT(rt?.hass,"common.published",{},"Published") : rhiMobilityT(rt?.hass,"common.unavailable",{},"Unavailable")),plan.source]
     ];
     const rows = mobilityRows.slice(0, 8).map((row) => {
       const id = String(row.asset_id || row.target_asset_id || row.flexible_asset_id || row.consumer_asset_id || row.participant_id || "Mobility asset");
@@ -10328,20 +10328,20 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
 
     return `<section class="rhi-context-grid">
       <article class="rhi-context-card">
-        <div class="rhi-context-card-kicker"><ha-icon icon="mdi:calendar-clock"></ha-icon>Energy-owned planning</div>
-        <h3>What will charge, and when?</h3>
-        <p>Only schedule and energy details explicitly published by Energy are shown. If a vehicle only participates in planning but has no schedule yet, that gap is stated directly.</p>
+        <div class="rhi-context-card-kicker"><ha-icon icon="mdi:calendar-clock"></ha-icon>${rt.escape(rhiMobilityT(rt?.hass,"planning.energy_owned",{},"Energy-owned planning"))}</div>
+        <h3>${rt.escape(rhiMobilityT(rt?.hass,"planning.what_charge_when",{},"What will charge, and when?"))}</h3>
+        <p>${rt.escape(rhiMobilityT(rt?.hass,"planning.schedule_desc",{},"Only schedule and energy details explicitly published by Energy are shown. If a vehicle only participates in planning but has no schedule yet, that gap is stated directly."))}</p>
         ${rows ? `<div class="rhi-data-list">${rows}</div>` : ""}
         ${contractGap ? `<div class="rhi-context-note">${rt.escape(contractGap)}</div>` : ""}
       </article>
       <article class="rhi-context-card">
-        <div class="rhi-context-card-kicker"><ha-icon icon="mdi:car-clock"></ha-icon>Mobility execution context</div>
-        <h3>Can the plan execute?</h3>
-        <p>Mobility keeps charger assignment, physical connection and command readiness separate from Energy planning. A published plan is not presented as executable unless those facts exist.</p>
+        <div class="rhi-context-card-kicker"><ha-icon icon="mdi:car-clock"></ha-icon>${rt.escape(rhiMobilityT(rt?.hass,"planning.execution_context",{},"Mobility execution context"))}</div>
+        <h3>${rt.escape(rhiMobilityT(rt?.hass,"planning.can_execute",{},"Can the plan execute?"))}</h3>
+        <p>${rt.escape(rhiMobilityT(rt?.hass,"planning.execution_desc",{},"Mobility keeps charger assignment, physical connection and command readiness separate from Energy planning. A published plan is not presented as executable unless those facts exist."))}</p>
         <div class="rhi-data-list">
-          <div class="rhi-data-row"><b>Source</b><span>${rt.escape(plan.source)}</span></div>
-          <div class="rhi-data-row"><b>Vehicles in planning</b><span>${rt.escape(String(mobilityRows.length))}</span></div>
-          <div class="rhi-data-row"><b>Plan state</b><span>${rt.escape(plan.state || "Unavailable")}</span></div>
+          <div class="rhi-data-row"><b>${rt.escape(rhiMobilityT(rt?.hass,"planning.source",{},"Source"))}</b><span>${rt.escape(plan.source)}</span></div>
+          <div class="rhi-data-row"><b>${rt.escape(rhiMobilityT(rt?.hass,"planning.vehicles_in_planning",{},"Vehicles in planning"))}</b><span>${rt.escape(String(mobilityRows.length))}</span></div>
+          <div class="rhi-data-row"><b>${rt.escape(rhiMobilityT(rt?.hass,"planning.plan_state",{},"Plan state"))}</b><span>${rt.escape(plan.state || rhiMobilityT(rt?.hass,"common.unavailable",{},"Unavailable"))}</span></div>
         </div>
       </article>
     </section>`;
@@ -10364,17 +10364,17 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
       : "";
     return `<section class="rhi-context-grid">
       <article class="rhi-context-card">
-        <div class="rhi-context-card-kicker"><ha-icon icon="mdi:tune-variant"></ha-icon>Configured intent</div>
-        <h3>Mobility energy profiles</h3>
-        <p>Relevant Energy strategy profiles are shown read-only here. Profile meaning and editable strategy settings remain owned by Energy.</p>
+        <div class="rhi-context-card-kicker"><ha-icon icon="mdi:tune-variant"></ha-icon>${rt.escape(rhiMobilityT(rt?.hass,"strategy.configured_intent",{},"Configured intent"))}</div>
+        <h3>${rt.escape(rhiMobilityT(rt?.hass,"strategy.mobility_profiles",{},"Mobility energy profiles"))}</h3>
+        <p>${rt.escape(rhiMobilityT(rt?.hass,"strategy.profiles_desc",{},"Relevant Energy strategy profiles are shown read-only here. Profile meaning and editable strategy settings remain owned by Energy."))}</p>
         ${profileRows ? `<div class="rhi-data-list">${profileRows}</div>` : ""}
         ${unavailable ? `<div class="rhi-context-note">${rt.escape(unavailable)}</div>` : ""}
       </article>
       <article class="rhi-context-card">
-        <div class="rhi-context-card-kicker"><ha-icon icon="mdi:shield-check-outline"></ha-icon>Effective strategy</div>
-        <h3>What is in effect</h3>
-        <p>Effective policy is filtered to exact Mobility asset ids so vehicle/charger behavior is not confused with unrelated Energy domains.</p>
-        ${effectiveRows ? `<div class="rhi-data-list">${effectiveRows}</div>` : `<div class="rhi-context-note">No effective Mobility policy is currently published by Energy.</div>`}
+        <div class="rhi-context-card-kicker"><ha-icon icon="mdi:shield-check-outline"></ha-icon>${rt.escape(rhiMobilityT(rt?.hass,"strategy.effective",{},"Effective strategy"))}</div>
+        <h3>${rt.escape(rhiMobilityT(rt?.hass,"strategy.in_effect",{},"What is in effect"))}</h3>
+        <p>${rt.escape(rhiMobilityT(rt?.hass,"strategy.effective_desc",{},"Effective policy is filtered to exact Mobility asset ids so vehicle/charger behavior is not confused with unrelated Energy domains."))}</p>
+        ${effectiveRows ? `<div class="rhi-data-list">${effectiveRows}</div>` : `<div class="rhi-context-note">${rt.escape(rhiMobilityT(rt?.hass,"strategy.no_effective",{},"No effective Mobility policy is currently published by Energy."))}</div>`}
       </article>
     </section>`;
   }
@@ -10389,8 +10389,8 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
       return `<article class="rhi-insight-vehicle">
         <div class="rhi-insight-vehicle-head"><div>${this.vehicleIdentity(rt,id,row)}</div><span>${rt.escape(quality)}</span></div>
         <div class="rhi-insight-metrics">
-          <div><small>Measured energy</small><b>${rt.escape(energy)}</b></div>
-          <div><small>Attributed value</small><b>${rt.escape(value)}</b></div>
+          <div><small>${rt.escape(rhiMobilityT(rt?.hass,"insights.measured_energy",{},"Measured energy"))}</small><b>${rt.escape(energy)}</b></div>
+          <div><small>${rt.escape(rhiMobilityT(rt?.hass,"insights.attributed_value",{},"Attributed value"))}</small><b>${rt.escape(value)}</b></div>
         </div>
       </article>`;
     }).join("");
@@ -10399,20 +10399,20 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
       : (!rows ? "Energy is available, but no published metering/value record currently matches a canonical Mobility vehicle id." : "");
     return `<section class="rhi-context-grid insights-grid">
       <article class="rhi-context-card rhi-insights-wide">
-        <div class="rhi-context-card-kicker"><ha-icon icon="mdi:chart-timeline-variant"></ha-icon>Measured Mobility</div>
-        <h3>Vehicle energy & value</h3>
-        <p>Per-vehicle energy and financial attribution come directly from Energy public UX contracts. Mobility only joins them by canonical asset id.</p>
+        <div class="rhi-context-card-kicker"><ha-icon icon="mdi:chart-timeline-variant"></ha-icon>${rt.escape(rhiMobilityT(rt?.hass,"insights.measured_mobility",{},"Measured Mobility"))}</div>
+        <h3>${rt.escape(rhiMobilityT(rt?.hass,"insights.vehicle_energy_value",{},"Vehicle energy & value"))}</h3>
+        <p>${rt.escape(rhiMobilityT(rt?.hass,"insights.vehicle_energy_desc",{},"Per-vehicle energy and financial attribution come directly from Energy public UX contracts. Mobility only joins them by canonical asset id."))}</p>
         ${rows ? `<div class="rhi-insight-vehicle-list">${rows}</div>` : ""}
         ${gap ? `<div class="rhi-context-note">${rt.escape(gap)}</div>` : ""}
       </article>
       <article class="rhi-context-card">
-        <div class="rhi-context-card-kicker"><ha-icon icon="mdi:history"></ha-icon>Mobility evidence</div>
-        <h3>Execution history</h3>
-        <p>Commands, readiness transitions and vehicle/charger execution remain Mobility-owned. Energy measurements complement that history; they do not replace it.</p>
+        <div class="rhi-context-card-kicker"><ha-icon icon="mdi:history"></ha-icon>${rt.escape(rhiMobilityT(rt?.hass,"insights.mobility_evidence",{},"Mobility evidence"))}</div>
+        <h3>${rt.escape(rhiMobilityT(rt?.hass,"insights.execution_history",{},"Execution history"))}</h3>
+        <p>${rt.escape(rhiMobilityT(rt?.hass,"insights.execution_history_desc",{},"Commands, readiness transitions and vehicle/charger execution remain Mobility-owned. Energy measurements complement that history; they do not replace it."))}</p>
         <div class="rhi-data-list">
-          <div class="rhi-data-row"><b>Metering contract</b><span>${rt.escape(insights.meteringContractVersion || (insights.meteringAvailable ? "Published" : "Unavailable"))}</span></div>
-          <div class="rhi-data-row"><b>Value contract</b><span>${rt.escape(insights.valueContractVersion || (insights.valueAvailable ? "Published" : "Unavailable"))}</span></div>
-          <div class="rhi-data-row"><b>Value state</b><span>${rt.escape(insights.valueState)}</span></div>
+          <div class="rhi-data-row"><b>${rt.escape(rhiMobilityT(rt?.hass,"insights.metering_contract",{},"Metering contract"))}</b><span>${rt.escape(insights.meteringContractVersion || (insights.meteringAvailable ? rhiMobilityT(rt?.hass,"common.published",{},"Published") : rhiMobilityT(rt?.hass,"common.unavailable",{},"Unavailable")))}</span></div>
+          <div class="rhi-data-row"><b>${rt.escape(rhiMobilityT(rt?.hass,"insights.value_contract",{},"Value contract"))}</b><span>${rt.escape(insights.valueContractVersion || (insights.valueAvailable ? rhiMobilityT(rt?.hass,"common.published",{},"Published") : rhiMobilityT(rt?.hass,"common.unavailable",{},"Unavailable")))}</span></div>
+          <div class="rhi-data-row"><b>${rt.escape(rhiMobilityT(rt?.hass,"insights.value_state",{},"Value state"))}</b><span>${rt.escape(insights.valueState)}</span></div>
         </div>
       </article>
     </section>`;
@@ -10458,16 +10458,16 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
       : "";
     return `<section class="rhi-context-grid log-grid">
       <article class="rhi-context-card rhi-log-wide">
-        <div class="rhi-context-card-kicker"><ha-icon icon="mdi:text-box-search-outline"></ha-icon>Mobility log</div>
-        <h3>What happened?</h3>
-        <p>Recent vehicle, charger and command activity is shown with the asset, outcome and backend reason. Technical contract names stay out of the primary reading path.</p>
-        ${entries ? `<div class="rhi-log-list">${entries}</div>` : `<div class="rhi-context-note">No activity rows are currently published.</div>`}
+        <div class="rhi-context-card-kicker"><ha-icon icon="mdi:text-box-search-outline"></ha-icon>${rt.escape(rhiMobilityT(rt?.hass,"activity.mobility_log",{},"Mobility log"))}</div>
+        <h3>${rt.escape(rhiMobilityT(rt?.hass,"activity.what_happened",{},"What happened?"))}</h3>
+        <p>${rt.escape(rhiMobilityT(rt?.hass,"activity.desc",{},"Recent vehicle, charger and command activity is shown with the asset, outcome and backend reason. Technical contract names stay out of the primary reading path."))}</p>
+        ${entries ? `<div class="rhi-log-list">${entries}</div>` : `<div class="rhi-context-note">${rt.escape(rhiMobilityT(rt?.hass,"activity.no_rows",{},"No activity rows are currently published."))}</div>`}
         ${gap}
       </article>
       <article class="rhi-context-card">
-        <div class="rhi-context-card-kicker"><ha-icon icon="mdi:alert-outline"></ha-icon>Exceptions · ${rt.escape(String(exceptions.length))}</div>
-        <h3>What needs attention?</h3>
-        <p>${exceptions.length ? `${rt.escape(String(exceptions.length))} failed or rejected item${exceptions.length === 1 ? "" : "s"}. The backend reason is shown below.` : "No failed or rejected activity is currently published."}</p>
+        <div class="rhi-context-card-kicker"><ha-icon icon="mdi:alert-outline"></ha-icon>${rt.escape(rhiMobilityT(rt?.hass,"activity.exceptions",{},"Exceptions"))} · ${rt.escape(String(exceptions.length))}</div>
+        <h3>${rt.escape(rhiMobilityT(rt?.hass,"activity.what_attention",{},"What needs attention?"))}</h3>
+        <p>${exceptions.length ? `${rt.escape(String(exceptions.length))} failed or rejected item${exceptions.length === 1 ? "" : "s"}. The backend reason is shown below.` : rhiMobilityT(rt?.hass,"activity.no_failures",{},"No failed or rejected activity is currently published.")}</p>
         ${exceptions.slice(0,8).map((row)=>`<div class="rhi-data-row"><b>${rt.escape(titleOf(row))}</b><span>${rt.escape(reasonOf(row) || statusOf(row))}</span></div>`).join("")}
       </article>
     </section>`;
@@ -10568,9 +10568,9 @@ class HomeBrainMobilityAssetDetailCard extends HTMLElement {
       this.shadowRoot.innerHTML = `
         <ha-card>
           <div class="missing">
-            <h2>Asset not registered</h2>
-            <p>No registered Mobility asset was found for <b>${rt.escape(assetId || "missing asset id")}</b>.</p>
-            <button data-nav="/mobility-supervisor/dashboard">← Back to Dashboard</button>
+            <h2>${rt.escape(rhiMobilityT(rt?.hass,"asset.not_registered",{},"Asset not registered"))}</h2>
+            <p>${rt.escape(rhiMobilityT(rt?.hass,"asset.not_found",{},"No registered Mobility asset was found for"))} <b>${rt.escape(assetId || rhiMobilityT(rt?.hass,"asset.missing_id",{},"missing asset id"))}</b>.</p>
+            <button data-nav="/mobility-supervisor/dashboard">← ${rt.escape(rhiMobilityT(rt?.hass,"asset.back_dashboard",{},"Back to Dashboard"))}</button>
           </div>
           <style>
             ha-card{background:transparent;box-shadow:none;border:none}
