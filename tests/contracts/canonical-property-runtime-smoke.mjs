@@ -33,7 +33,11 @@ if(runtime.includes("  propertyPresentationFamilyOverride(")) throw new Error("d
 if(!runtime.includes("this._canonicalProperties.rows(canonical)")) throw new Error("Mobility canonical property index is not the v2PropertyRows authority");
 if(body("  v2PropertyRows(assetId = \"\") {","  v2ComponentDetailSections(").includes("Object.values(this.hass?.states")) throw new Error("v2PropertyRows still scans all HA states");
 if(!placement.includes("row.section_id") || !placement.includes("row.visibility")) throw new Error("Mobility placement must consume backend section/visibility metadata");
-if(!runtime.includes("state?.last_updated")) throw new Error("Mobility runtime signatures must use entity revisions");
+if(!runtime.includes("state?.last_updated")) throw new Error("Mobility boundary-contract signatures must use entity revisions");
+const revisionBody=body("  productRevisionSignature(assetId = \"\", contractIds = []) {","  runtimeSignature(assetId = \"\") {");
+if(!revisionBody.includes("this._canonicalProperties.revision(canonical)")) throw new Error("product revision must use canonical asset revision counter");
+if(revisionBody.includes(".entityIds(canonical)")) throw new Error("product revision must not rescan all canonical property entity ids");
 if(runtime.includes("JSON.stringify(this.mobilityRuntimeV2())") || runtime.includes("JSON.stringify(this.mobilityExperienceV2())")) throw new Error("runtimeSignature must not serialize full aggregate contracts");
 for(const token of ["component_id","section_id","visibility","render_as"]) if(!index.includes(token)) throw new Error("Mobility property index must track placement metadata: "+token);
+if(!index.includes("assetRevisions") || !index.includes("_globalRevision")) throw new Error("Mobility property index must maintain revision counters");
 console.log("PASS Mobility canonical-property indexing and metadata-owned placement");

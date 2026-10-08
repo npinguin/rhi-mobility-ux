@@ -727,9 +727,9 @@ class HomeBrainAssetRuntime {
 
   productRevisionSignature(assetId = "", contractIds = []) {
     const canonical=assetId ? this.canonicalAssetId(assetId) : "";
-    const propertyIds=this._canonicalProperties.entityIds(canonical);
+    const canonicalRevision=this._canonicalProperties.revision(canonical);
     const contractEntityIds=contractIds.map((id)=>this.contractEntityIdForRevision(id)).filter(Boolean);
-    return this.entityRevisionSignature([...propertyIds,...contractEntityIds]);
+    return `canonical:${canonical || "*"}:${canonicalRevision}|${this.entityRevisionSignature(contractEntityIds)}`;
   }
 
   runtimeSignature(assetId = "") {
