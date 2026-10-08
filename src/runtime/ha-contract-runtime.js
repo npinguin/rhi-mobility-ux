@@ -6,6 +6,7 @@ class HomeBrainAssetRuntime {
   constructor(hass, config = {}) {
     this.hass = hass;
     this.config = config;
+    this._canonicalProperties = mobilityCanonicalPropertyIndex(hass);
     if (typeof rhiMobilitySetLocaleFromHass === "function") rhiMobilitySetLocaleFromHass(hass);
     this._cache = HomeBrainAssetRuntime._cache || (HomeBrainAssetRuntime._cache = new Map());
     this._memo = new Map();
@@ -705,25 +706,24 @@ class HomeBrainAssetRuntime {
 
   runtimeSignature(assetId = "") {
     const canonical = assetId ? this.canonicalAssetId(assetId) : "";
-    const parts = [
-      JSON.stringify(this.releaseContract()),
-      JSON.stringify(this.assetIndexRows("all")),
-      JSON.stringify(this.profileRows()),
-      JSON.stringify(canonical ? this.propertyRows(canonical) : this.propertyRows("")),
-      JSON.stringify(canonical ? this.relationshipRows(canonical) : this.relationshipRows("")),
-      JSON.stringify(canonical ? this.commandRegistry(canonical) : this.publicCommandRows()),
-      JSON.stringify(canonical ? this.activityRowsFor(canonical) : this.activityRowsFor("")),
-      JSON.stringify(canonical ? this.intelligenceRowsFor(canonical) : this.intelligenceRowsFor("")),
-      JSON.stringify(canonical ? this.energyAssetPublicationRows(canonical) : this.energyAssetPublicationRows("")),
-      JSON.stringify(this.mobilityRuntimeV2()),
-      JSON.stringify(this.mobilityExperienceV2()),
-      JSON.stringify(this.mobilityPolicyV2()),
-      JSON.stringify(this.mobilityCommandV2()),
-      JSON.stringify(this.mobilityActivityV2()),
-      JSON.stringify(this.mobilityProfileCatalogV2()),
-      JSON.stringify(this.mobilitySupervisionV2())
-    ];
-    return parts.join("|");
+    const ids = new Set(this._canonicalProperties.entityIds(canonical));
+    // Keep the two genuine boundary contracts and transitional aggregate
+    // authorities in the signature by entity identity only. Do not serialize
+    // their complete payloads on every HA tick.
+    for (const id of [
+      "sensor.rhi_mobility_runtime_v2",
+      "sensor.rhi_mobility_experience_v2",
+      "sensor.rhi_mobility_policy_v2",
+      "sensor.rhi_mobility_activity_v2",
+      "sensor.rhi_mobility_profile_catalog_v2",
+      "sensor.rhi_mobility_supervision_v2",
+      "sensor.rhi_mobility_command_v2",
+      "sensor.rhi_mobility_energy_v2"
+    ]) ids.add(id);
+    return [...ids].sort().map((id)=>{
+      const state=this.hass?.states?.[id];
+      return `${id}:${state?.state ?? ""}:${state?.last_updated ?? ""}`;
+    }).join("|");
   }
 
   publicCommandRows() {
@@ -1276,50 +1276,26 @@ class HomeBrainAssetRuntime {
   }
 
   propertyFamily(row = {}) {
-    const explicit = this.propertyFamilyContractValue(row);
-    const valid = this.canonicalFamilies();
-    const override = this.propertyPresentationFamilyOverride(row, explicit);
-    if (override) return override;
-    if (explicit && valid.includes(explicit)) return explicit;
-    return this.fallbackFamilyForPropertyKey(row.property_key || row.normalized_property || row.fact_type || "", row.asset_type || "");
+    return this.propertyFamilyContractValue(row);
   }
 
   propertyGroup(row = {}) {
-    const explicitRaw = String(row.group || row.property_group || row.ux_group || "").trim();
-    if (explicitRaw) {
-      const explicit = explicitRaw.toLowerCase() === "main_info" ? "overview" : explicitRaw;
-      return explicit;
-    }
-    const k = String(row.property_key || "").toLowerCase();
-    if (k.startsWith("mobility.")) return "domain_intelligence";
-    if (k.startsWith("fleet.")) return "fleet_intelligence";
-    if (k.startsWith("connections.")) return "connection_intelligence";
-    if (k.startsWith("owners.")) return "owner_intelligence";
-    if (k.includes("lock")) return "locks";
-    if (k.includes("door")) return "doors";
-    if (k.includes("window")) return "windows";
-    if (k.includes("climate")) return "cabin_climate";
-    if (k.includes("soc") || k.includes("battery")) return "battery_state";
-    if (k.includes("range")) return "range";
-    if (k.includes("session") || k.includes("lifetime") || k.includes("meter")) return "metering";
-    if (k.includes("current_limit") || k.includes("requested_power")) return "charge_settings";
-    if (k.includes("status") || k.includes("charge") || k.includes("plug")) return "charging_state";
-    return "general";
+    return String(row.group || row.property_group || row.ux_group || row.section_id || "").trim();
   }
 
   propertyParent(row = {}) {
-    return String(row.parent || row.parent_property || row.parent_key || row.summary_parent || this.propertyGroup(row) || "general").trim();
+    return String(row.parent || row.parent_property || row.parent_key || row.summary_parent || "").trim();
   }
 
   propertyDetailLevel(row = {}) {
-    const explicit = String(row.detail_level || row.visibility_level || row.ux_detail_level || "").trim().toLowerCase();
-    if (["summary","operational","technical"].includes(explicit)) return explicit;
-    const f = this.propertyFamily(row);
-    const k = String(row.property_key || "").toLowerCase();
-    if (f === "diagnostics" || k.includes("source_") || k.includes("diagnostic")) return "technical";
-    if (["asset.display_name","asset.short_name","vehicle.soc_pct","vehicle.ev_range_km","vehicle.full_range_km","vehicle.lock_state","vehicle.climate_state","vehicle.charge_state","vehicle.charging_state","charger.operating_state","charger.connection_state","charger.power_kw"].includes(k)) return "summary";
-    return "operational";
+    const explicit = String(row.detail_level || row.visibility_level || row.ux_detail_level || row.visibility || "").trim().toLowerCase();
+    if (["summary","operational","technical","engineering","diagnostics","diagnostics_only"].includes(explicit)) {
+      if (["technical","engineering","diagnostics","diagnostics_only"].includes(explicit)) return "technical";
+      return explicit;
+    }
+    return "";
   }
+
 
   propertyDisplayLabel(row = {}) {
     const key = String(row.property_key || row.fact_type || "");
@@ -1483,18 +1459,15 @@ class HomeBrainAssetRuntime {
   }
 
   familyLogicalSectionForProperty(row = {}) {
-    const level = this.propertyDetailLevel(row);
-    const family = this.propertyFamily(row);
-    const group = String(this.propertyGroup(row) || "").toLowerCase();
-    const k = String(row.property_key || "").toLowerCase();
-    const authority = String(row.authority || row.value_authority || row.source_layer || "").toLowerCase();
-    if (level === "technical" || family === "diagnostics" || group === "diagnostics" || k.includes("diagnostic") || k.includes("error") || k.includes("warning") || k.includes("firmware") || k.includes("communication")) return "diagnostics";
-    if (group === "metering" || family === "metering" || k.includes("session_energy") || k.includes("lifetime_energy") || k.includes("grid_energy") || k.includes("solar_energy") || k.includes("cost") || k.includes("meter") || k.includes("cycle_count") || k.includes("efficiency")) return "metering";
-    if (group === "overview" || level === "summary") return "overview";
-    if (group === "details") return "details";
-    if (group === "actions") return "details"; // R41.4: actions are commands only; properties stay readable/editable elsewhere.
-    if (authority.includes("diagnostic")) return "diagnostics";
-    return "details";
+    const visibility=String(row.visibility || row.ux_visibility || "").trim().toLowerCase();
+    if (["engineering","diagnostics","diagnostics_only"].includes(visibility)) return "diagnostics";
+    const section=String(row.section_id || row.group || row.property_group || row.ux_group || "").trim().toLowerCase();
+    if (!section) return "";
+    if (["configuration","config","settings","editors"].includes(section)) return "editors";
+    if (["metering","history"].includes(section)) return "metering";
+    if (["overview","key","key_properties","summary"].includes(section)) return "overview";
+    if (["diagnostics","engineering"].includes(section)) return "diagnostics";
+    return section;
   }
 
   familyLogicalSectionLabel(section = "details") {
@@ -2297,34 +2270,14 @@ class HomeBrainAssetRuntime {
 
   v2PropertyRows(assetId = "") {
     const canonical = assetId ? this.canonicalAssetId(assetId) : "";
-    const rows = [];
-    for (const state of Object.values(this.hass?.states || {})) {
-      const attrs = state?.attributes || {};
-      if (String(attrs.canonical_contract || "").toUpperCase() !== "MOBILITY_PUBLIC_RUNTIME_V2") continue;
-      const rowAsset = this.canonicalAssetId(attrs.asset_id || "");
-      const propertyKey = String(attrs.property_key || "").trim();
-      if (!rowAsset || !propertyKey || (canonical && rowAsset !== canonical)) continue;
-      rows.push(this.normalizePropertyRow({
-        ...attrs,
-        asset_id:rowAsset,
-        property_key:propertyKey,
-        value:Object.prototype.hasOwnProperty.call(attrs,"value") ? attrs.value : state?.state,
-        display_name:attrs.display_name || attrs.friendly_name || state?.attributes?.friendly_name || "",
-        _source_entity_id:state?.entity_id || "",
-        canonical_contract:"MOBILITY_PUBLIC_RUNTIME_V2"
-      }));
-    }
-    const byKey = new Map();
-    for (const row of rows.filter(Boolean)) {
-      const key = `${row.asset_id}:${row.property_key}`;
-      const current = byKey.get(key);
-      if (!current || String(row._source_entity_id || "").startsWith("sensor.rhi_mobility_")) byKey.set(key, row);
-    }
-    return [...byKey.values()].sort((a,b)=>
-      String(a.asset_id || "").localeCompare(String(b.asset_id || "")) ||
-      Number(a.display_order ?? 9999) - Number(b.display_order ?? 9999) ||
-      String(a.property_key || "").localeCompare(String(b.property_key || ""))
-    );
+    return this._canonicalProperties.rows(canonical)
+      .map((row)=>this.normalizePropertyRow(row))
+      .filter(Boolean)
+      .sort((a,b)=>
+        String(a.asset_id || "").localeCompare(String(b.asset_id || "")) ||
+        Number(a.display_order ?? 9999) - Number(b.display_order ?? 9999) ||
+        String(a.property_key || "").localeCompare(String(b.property_key || ""))
+      );
   }
 
   v2ComponentDetailSections(assetId = "", assetType = "") {
