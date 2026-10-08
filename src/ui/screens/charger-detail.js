@@ -20,14 +20,15 @@ class HomeBrainChargerAssetDetailCard extends HTMLElement {
     this._hass = hass;
     const rt = new HomeBrainAssetRuntime(hass, this.config);
     const id = this.config.charger_id;
-    const sig = [
-      rt.runtimeSignature(id),
-      JSON.stringify(rt.propertyRows(id)),
-      JSON.stringify(rt.relationshipRows(id)),
-      JSON.stringify(rt.commandsFor(id)),
-      JSON.stringify(rt.activityRowsFor(id)),
-      JSON.stringify(rt.intelligenceRowsFor(id))
-    ].join("|");
+    const sig = rt.productRevisionSignature(id, [
+      "MOBILITY_PUBLIC_RUNTIME_V2",
+      "MOBILITY_EXPERIENCE_V2",
+      "MOBILITY_POLICY_V2",
+      "MOBILITY_COMMAND_V2",
+      "MOBILITY_ACTIVITY_V2",
+      "MOBILITY_PROFILE_CATALOG_V2",
+      "MOBILITY_SUPERVISION_V2"
+    ]);
     if (sig !== this._lastSignature) {
       this._lastSignature = sig;
       const model = new HomeBrainChargerAdapter(rt, id, this.config).build();

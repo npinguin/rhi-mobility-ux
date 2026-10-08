@@ -1,0 +1,123 @@
+// Persistent Mobility canonical-property index.
+//
+// Current Mobility property entities identify themselves with
+// canonical_contract=MOBILITY_PUBLIC_RUNTIME_V2. They already publish the
+// producer-owned placement metadata (component_id, section_id, visibility,
+// placements, render_as, display_order, friendly_name). The UX consumes that
+// metadata literally and never derives placement from property_key.
+class MobilityCanonicalPropertyIndex {
+  constructor(hass = {}) {
+    this.byEntity = new Map();
+    this.byAsset = new Map();
+    this.byAssetAndKey = new Map();
+    this.stateRefs = new Map();
+    this._stateCount = 0;
+    this.discover(hass);
+  }
+
+  isCanonicalPropertyState(state) {
+    const attrs = state?.attributes || {};
+    return String(attrs.canonical_contract || '').toUpperCase() === 'MOBILITY_PUBLIC_RUNTIME_V2'
+      && !!String(attrs.asset_id || '').trim()
+      && !!String(attrs.property_key || '').trim();
+  }
+
+  rawRow(entityId, state) {
+    if (!this.isCanonicalPropertyState(state)) return null;
+    const attrs = state.attributes || {};
+    return {
+      ...attrs,
+      asset_id:String(attrs.asset_id || '').trim(),
+      property_key:String(attrs.property_key || '').trim(),
+      value:Object.prototype.hasOwnProperty.call(attrs,'value') ? attrs.value : state?.state,
+      display_name:attrs.display_name || attrs.friendly_name || '',
+      _source_entity_id:String(entityId || ''),
+      canonical_contract:'MOBILITY_PUBLIC_RUNTIME_V2'
+    };
+  }
+
+  _index(entityId, state) {
+    const row=this.rawRow(entityId,state);
+    if(!row) return;
+    this.byEntity.set(entityId,row);
+    if(!this.byAsset.has(row.asset_id)) this.byAsset.set(row.asset_id,[]);
+    this.byAsset.get(row.asset_id).push(row);
+    this.byAssetAndKey.set(`${row.asset_id}::${row.property_key}`,row);
+    this.stateRefs.set(entityId,state);
+  }
+
+  discover(hass = {}) {
+    this.byEntity.clear();
+    this.byAsset.clear();
+    this.byAssetAndKey.clear();
+    this.stateRefs.clear();
+    const states=hass?.states || {};
+    this._stateCount=Object.keys(states).length;
+    for(const [entityId,state] of Object.entries(states)) this._index(entityId,state);
+    return this;
+  }
+
+  refresh(hass = {}) {
+    const states=hass?.states || {};
+    if(Object.keys(states).length !== this._stateCount) {
+      this.discover(hass);
+      return;
+    }
+    let metadataChanged=false;
+    const changed=[];
+    for(const [entityId,previous] of this.stateRefs.entries()) {
+      const current=states[entityId];
+      if(current===previous) continue;
+      changed.push([entityId,current]);
+      const before=this.byEntity.get(entityId);
+      const after=this.rawRow(entityId,current);
+      if(!after || !before ||
+        before.asset_id!==after.asset_id ||
+        before.property_key!==after.property_key ||
+        before.component_id!==after.component_id ||
+        before.section_id!==after.section_id ||
+        before.visibility!==after.visibility ||
+        before.render_as!==after.render_as) {
+        metadataChanged=true;
+        break;
+      }
+    }
+    if(metadataChanged) {
+      this.discover(hass);
+      return;
+    }
+    for(const [entityId,current] of changed) {
+      const before=this.byEntity.get(entityId);
+      const after=this.rawRow(entityId,current);
+      this.byEntity.set(entityId,after);
+      this.byAssetAndKey.set(`${after.asset_id}::${after.property_key}`,after);
+      this.byAsset.set(after.asset_id,(this.byAsset.get(after.asset_id)||[]).map(row=>row._source_entity_id===entityId?after:row));
+      this.stateRefs.set(entityId,current);
+    }
+  }
+
+  rows(assetId = '') {
+    const id=String(assetId || '').trim();
+    return id ? [...(this.byAsset.get(id)||[])] : [...this.byEntity.values()];
+  }
+
+  row(assetId='',propertyKey='') {
+    return this.byAssetAndKey.get(`${String(assetId||'')}::${String(propertyKey||'')}`) || null;
+  }
+
+  entityIds(assetId='') {
+    const id=String(assetId||'').trim();
+    return this.rows(id).map(row=>row._source_entity_id).filter(Boolean);
+  }
+}
+
+function mobilityCanonicalPropertyIndex(hass = {}) {
+  const current=HomeBrainAssetRuntime?._canonicalPropertyIndex;
+  if(!current) {
+    const created=new MobilityCanonicalPropertyIndex(hass);
+    HomeBrainAssetRuntime._canonicalPropertyIndex=created;
+    return created;
+  }
+  current.refresh(hass);
+  return current;
+}

@@ -13,6 +13,7 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
     this._chargerPendingAppearance = this._chargerPendingAppearance || new Map();
     this._chargerAppearanceError = this._chargerAppearanceError || new Map();
     this._lastSignature = this._lastSignature || "";
+    this._lastRevisionSignature = this._lastRevisionSignature || "";
     this._lastRenderAt = this._lastRenderAt || 0;
   }
 
@@ -306,6 +307,16 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
   set hass(hass) {
     this._hass = hass;
     const rt = new HomeBrainAssetRuntime(hass, this.config);
+    const forceRender = !!this._forceRender;
+    this._forceRender = false;
+    const revisionSignature = rt.productRevisionSignature("", [
+      "MOBILITY_PUBLIC_RUNTIME_V2",
+      "MOBILITY_EXPERIENCE_V2",
+      "MOBILITY_COMMAND_V2",
+      "MOBILITY_PROFILE_CATALOG_V2"
+    ]);
+    if (!forceRender && this._lastRenderOk && revisionSignature === this._lastRevisionSignature) return;
+    this._lastRevisionSignature = revisionSignature;
     const factory = new HomeBrainAssetFactory(rt);
     const chargers = factory.chargers().filter((a) => rt.lifecycleStatus(a) !== "retired").sort((a,b)=>(Number(a.sort_order ?? 999)-Number(b.sort_order ?? 999)) || String(a.display_name).localeCompare(String(b.display_name)));
     const activeChargers = chargers.filter((c) => rt.lifecycleStatus(c) === "active");
