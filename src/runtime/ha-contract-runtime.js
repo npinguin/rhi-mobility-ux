@@ -1340,19 +1340,19 @@ class HomeBrainAssetRuntime {
     return raw.replace(new RegExp(`\\s*${escaped}$`, "i"), "").trim();
   }
 
-  formatNumberForUnit(value, unit = "", propertyKey = "") {
+  formatNumberForUnit(value, unit = "", _propertyKey = "") {
     const raw = this.valueWithoutUnit(value, unit);
     const n = Number(String(raw).replace(",", "."));
     if (!Number.isFinite(n)) return String(value ?? "");
     const u = String(unit || "").trim();
-    const key = String(propertyKey || "").toLowerCase();
-    let decimals = 2;
     const ul = u.toLowerCase();
-    if (ul === "kwh" || key.includes("energy") || key.includes("cost")) decimals = 4;
-    else if (ul === "kw" || key.includes("power")) decimals = 2;
-    else if (ul === "a" || key.includes("current")) decimals = 1;
-    else if (ul === "km" || key.includes("range") || key.includes("odometer") || key.includes("distance")) decimals = 0;
-    else if (u === "%" || key.includes("soc") || key.includes("pct")) decimals = Math.abs(n - Math.round(n)) < 0.05 ? 0 : 1;
+    let decimals = 2;
+    if (ul === "kwh" || ul === "wh") decimals = 4;
+    else if (ul === "kw" || ul === "w") decimals = 2;
+    else if (ul === "a") decimals = 1;
+    else if (ul === "km" || ul === "m") decimals = 0;
+    else if (u === "%") decimals = Math.abs(n - Math.round(n)) < 0.05 ? 0 : 1;
+    else if (["eur","€","usd","$","gbp","£"].includes(ul)) decimals = 2;
     const fixed = n.toFixed(decimals);
     return fixed.replace(/\.0+$/, "").replace(/(\.\d*?)0+$/, "$1");
   }
