@@ -16,6 +16,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     this._vehicleAppearanceError = this._vehicleAppearanceError || new Map();
     this._lastDashboardRenderAt = this._lastDashboardRenderAt || 0;
     this._lastSignature = this._lastSignature || "";
+    this._lastRevisionSignature = this._lastRevisionSignature || "";
     if (!this._viewPositionBound) {
       this._viewPositionListener = ()=>this.rememberViewPosition();
       window.addEventListener("pagehide", this._viewPositionListener);
@@ -921,6 +922,16 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
           this._lastDashboardRenderAt = now;
           const rt = new HomeBrainAssetRuntime(hass, this.config);
           this.rt = rt;
+          const revisionSignature = rt.productRevisionSignature("", [
+            "MOBILITY_PUBLIC_RUNTIME_V2",
+            "MOBILITY_EXPERIENCE_V2",
+            "MOBILITY_COMMAND_V2",
+            "MOBILITY_ACTIVITY_V2",
+            "MOBILITY_PROFILE_CATALOG_V2",
+            "MOBILITY_SUPERVISION_V2"
+          ]);
+          if (!forceRender && this._lastRenderOk && revisionSignature === this._lastRevisionSignature) return;
+          this._lastRevisionSignature = revisionSignature;
           const factory = new HomeBrainAssetFactory(rt);
           const vehicles = factory.vehicles().filter((a)=>a.lifecycle_state !== "Retired").sort((a,b)=>(Number(a.sort_order ?? 999)-Number(b.sort_order ?? 999)) || String(a.display_name).localeCompare(String(b.display_name)));
           const chargers = factory.chargers().filter((a)=>a.frontend_allowed !== false && rt.lifecycleStatus(a) === "active").sort((a,b)=>(Number(a.sort_order ?? 999)-Number(b.sort_order ?? 999)) || String(a.display_name).localeCompare(String(b.display_name)));
