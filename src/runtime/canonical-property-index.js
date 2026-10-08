@@ -11,7 +11,10 @@ class MobilityCanonicalPropertyIndex {
     this.byAsset = new Map();
     this.byAssetAndKey = new Map();
     this.stateRefs = new Map();
+    this.assetRevisions = new Map();
+    this._globalRevision = 0;
     this._stateCount = 0;
+    this._hassRef = null;
     this.discover(hass);
   }
 
@@ -52,12 +55,16 @@ class MobilityCanonicalPropertyIndex {
     this.byAssetAndKey.clear();
     this.stateRefs.clear();
     const states=hass?.states || {};
+    this._hassRef=hass;
     this._stateCount=Object.keys(states).length;
     for(const [entityId,state] of Object.entries(states)) this._index(entityId,state);
+    this._globalRevision += 1;
+    for(const assetId of this.byAsset.keys()) this.assetRevisions.set(assetId,(this.assetRevisions.get(assetId)||0)+1);
     return this;
   }
 
   refresh(hass = {}) {
+    if(hass === this._hassRef) return;
     const states=hass?.states || {};
     if(Object.keys(states).length !== this._stateCount) {
       this.discover(hass);
@@ -86,6 +93,7 @@ class MobilityCanonicalPropertyIndex {
       this.discover(hass);
       return;
     }
+    const changedAssets=new Set();
     for(const [entityId,current] of changed) {
       const before=this.byEntity.get(entityId);
       const after=this.rawRow(entityId,current);
@@ -93,7 +101,13 @@ class MobilityCanonicalPropertyIndex {
       this.byAssetAndKey.set(`${after.asset_id}::${after.property_key}`,after);
       this.byAsset.set(after.asset_id,(this.byAsset.get(after.asset_id)||[]).map(row=>row._source_entity_id===entityId?after:row));
       this.stateRefs.set(entityId,current);
+      changedAssets.add(after.asset_id);
     }
+    if(changedAssets.size) {
+      this._globalRevision += 1;
+      changedAssets.forEach(assetId=>this.assetRevisions.set(assetId,(this.assetRevisions.get(assetId)||0)+1));
+    }
+    this._hassRef=hass;
   }
 
   rows(assetId = '') {
@@ -108,6 +122,11 @@ class MobilityCanonicalPropertyIndex {
   entityIds(assetId='') {
     const id=String(assetId||'').trim();
     return this.rows(id).map(row=>row._source_entity_id).filter(Boolean);
+  }
+
+  revision(assetId='') {
+    const id=String(assetId||'').trim();
+    return id ? (this.assetRevisions.get(id)||0) : this._globalRevision;
   }
 }
 
