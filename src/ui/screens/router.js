@@ -6,6 +6,7 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
     super();
     this.attachShadow({ mode: "open" });
     this.config = {};
+    this._lastRevisionSignature = "";
   }
   setConfig(config = {}) { this.config = config; }
   getCardSize() { return 8; }
@@ -14,6 +15,16 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
     this._hass = hass;
     const rt = new HomeBrainAssetRuntime(hass, this.config);
     const view = this.config.view || this.viewFromPath();
+    const revisionIds = view === "log"
+      ? ["sensor.rhi_mobility_activity_v2"]
+      : view === "planning"
+        ? ["sensor.rhi_energy_public_contract_v2","sensor.rhi_mobility_runtime_v2","sensor.rhi_mobility_command_v2"]
+        : view === "strategies"
+          ? ["sensor.rhi_energy_public_contract_v2","sensor.rhi_mobility_runtime_v2"]
+          : ["sensor.rhi_energy_public_contract_v2","sensor.rhi_mobility_runtime_v2","sensor.rhi_mobility_activity_v2"];
+    const revisionSignature = `${view}|${rt.entityRevisionSignature(revisionIds)}`;
+    if (revisionSignature === this._lastRevisionSignature) return;
+    this._lastRevisionSignature = revisionSignature;
     const data = this.viewModel(view);
     this.shadowRoot.innerHTML = `<ha-card><div class="page">
       ${hbMobilityNav(view)}
