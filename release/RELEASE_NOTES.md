@@ -1,13 +1,14 @@
-# v1.0.0-rc.84 — pilot localization and Core convergence
+# v1.0.0-rc.85 — canonical runtime performance
 
-- converge Mobility UX on the current shared RHI UX Core 1.6.3 commit `56560ba61893089b3e0ab8b6535fd777a799066b`;
-- expand EN/NL/FR product localization for the shell, appearance pickers, dashboard and charger-management pilot surfaces;
-- route primary pilot-visible copy through stable localization keys instead of embedded English literals;
-- add a release-blocking source guard for raw pilot-visible copy bypassing localization;
-- preserve canonical Vehicle/Charger/Fleet projections and V2-only backend ownership from rc.83;
-- reset target-Home-Assistant qualification because shared Core and rendered product copy changed.
+- introduce a persistent canonical per-asset property index so normal rendering no longer repeatedly scans all Home Assistant states;
+- use per-asset canonical revision counters plus selected producer-owned contract revisions to decide whether a screen is dirty before materializing adapters and view models;
+- remove full aggregate-contract JSON serialization from detail/dashboard invalidation;
+- remove property-name semantic placement fallbacks; component, section and visibility metadata remain backend-owned;
+- keep generic number formatting driven by published units rather than property names;
+- retain existing user-visible Mobility behaviour and EN/NL/FR localization while the aggregate V2 contracts remain compatibility surfaces;
+- preserve RHI UX Core 1.6.3 and immutable HACS tag-tree delivery.
 
-Rollback: **v1.0.0-rc.83**.
+Rollback: **v1.0.0-rc.84**.
 Known accepted technical debt: **0**.
 Known accepted feature debt: **0**.
 Target-runtime qualification remains required before stable promotion.
