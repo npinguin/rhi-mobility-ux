@@ -704,6 +704,34 @@ class HomeBrainAssetRuntime {
     return this.releaseContract().contract_health;
   }
 
+  contractEntityIdForRevision(contractId = "") {
+    const ids = {
+      MOBILITY_PUBLIC_RUNTIME_V2:"sensor.rhi_mobility_runtime_v2",
+      MOBILITY_EXPERIENCE_V2:"sensor.rhi_mobility_experience_v2",
+      MOBILITY_POLICY_V2:"sensor.rhi_mobility_policy_v2",
+      MOBILITY_COMMAND_V2:"sensor.rhi_mobility_command_v2",
+      MOBILITY_ACTIVITY_V2:"sensor.rhi_mobility_activity_v2",
+      MOBILITY_PROFILE_CATALOG_V2:"sensor.rhi_mobility_profile_catalog_v2",
+      MOBILITY_SUPERVISION_V2:"sensor.rhi_mobility_supervision_v2",
+      MOBILITY_ENERGY_V2:"sensor.rhi_mobility_energy_v2"
+    };
+    return ids[String(contractId || "")] || "";
+  }
+
+  entityRevisionSignature(entityIds = []) {
+    return [...new Set(entityIds.filter(Boolean))].sort().map((id)=>{
+      const state=this.hass?.states?.[id];
+      return `${id}:${state?.state ?? ""}:${state?.last_updated ?? ""}`;
+    }).join("|");
+  }
+
+  productRevisionSignature(assetId = "", contractIds = []) {
+    const canonical=assetId ? this.canonicalAssetId(assetId) : "";
+    const propertyIds=this._canonicalProperties.entityIds(canonical);
+    const contractEntityIds=contractIds.map((id)=>this.contractEntityIdForRevision(id)).filter(Boolean);
+    return this.entityRevisionSignature([...propertyIds,...contractEntityIds]);
+  }
+
   runtimeSignature(assetId = "") {
     const canonical = assetId ? this.canonicalAssetId(assetId) : "";
     const ids = new Set(this._canonicalProperties.entityIds(canonical));
