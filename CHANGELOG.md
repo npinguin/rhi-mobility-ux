@@ -1,3 +1,13 @@
+## 1.0.0-rc.85 — Canonical Mobility Property Interface
+
+- make MOBILITY_CANONICAL_PROPERTY_V2 the primary per-property UX authority;
+- keep MOBILITY_PUBLIC_RUNTIME_V2 as a compatibility aggregate during migration;
+- preserve backend-owned property placement and write metadata;
+- explicitly prefer canonical property rows over duplicate aggregate-era property rows;
+- keep command and Energy boundary contracts unchanged;
+- require Mobility M0.10.41;
+- retain zero accepted technical and feature debt.
+
 ## 1.0.0-rc.84 — Pilot Localization and Core Convergence
 
 - adopt RHI UX Core 1.6.3 as the exact build-time presentation baseline;
