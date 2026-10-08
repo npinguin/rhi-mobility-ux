@@ -15,6 +15,7 @@ export function mobilityRuntimeSource(){
   return [
     'app/asset-paths.js',
     'app/asset-catalog.js',
+    'runtime/canonical-property-index.js',
     'runtime/ha-contract-runtime.js'
   ].map(sourceModule).join('\n');
 }
