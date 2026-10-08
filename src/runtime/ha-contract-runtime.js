@@ -1252,56 +1252,11 @@ class HomeBrainAssetRuntime {
     return aliases[f] || f;
   }
 
-  fallbackFamilyForPropertyKey(propertyKey = "", assetType = "") {
-    const k = String(propertyKey || "").toLowerCase();
-    const plain = k.replace(/^(vehicle|charger|person|asset|mobility|fleet|connections|owners)\./, "");
-    if (!plain) return "overview";
-    // R22.11.17 intelligence alignment: R39 introduces domain/subdomain intelligence
-    // prefixes. These are only consumed when they are published through approved
-    // runtime property indexes; the UX must not query new intelligence registries.
-    if (k.startsWith("mobility.")) return plain.includes("diagnostic") || plain.includes("trust") ? "diagnostics" : "overview";
-    if (k.startsWith("fleet.")) return plain.includes("location") ? "location" : plain.includes("energy") ? "energy" : "vehicle";
-    if (k.startsWith("connections.")) return plain.includes("meter") || plain.includes("energy") || plain.includes("cost") ? "metering" : "charging";
-    if (k.startsWith("owners.")) return plain.includes("present") || plain.includes("location") ? "location" : "vehicle";
-    if (k.startsWith("asset.")) return "overview";
-    if (plain.includes("diagnostic") || plain.includes("source_") || plain.includes("api_quota") || plain.includes("latency") || plain.includes("reconnect")) return "diagnostics";
-    if (plain.includes("tire") || plain.includes("tyre")) return "tires";
-    if (plain.includes("location") || plain.includes("position") || plain.includes("park_time")) return "location";
-    if (plain.includes("climate") || plain.includes("cabin") || plain.includes("temperature") || plain.includes("precondition")) return "climate";
-    if (plain.includes("lock") || plain.includes("security") || plain.includes("alarm")) return "security";
-    if (plain.includes("door") || plain.includes("window") || plain.includes("hood") || plain.includes("trunk") || plain.includes("tailgate") || plain.includes("roof") || plain.includes("opening")) return "openings";
-    if (plain.includes("service") || plain.includes("oil") || plain.includes("odometer") || plain.includes("mileage") || plain.includes("last_seen") || plain.includes("firmware") || plain.includes("serial")) return "maintenance";
-    if (plain.includes("range") || plain.includes("fuel_range") || plain.includes("nominal_range")) return "range";
-    if (plain.includes("soc") || plain.includes("battery")) return "battery";
-    if (plain.includes("session_energy") || plain.includes("lifetime_energy") || plain.includes("grid_energy") || plain.includes("solar_energy") || plain.includes("meter") || plain.includes("cost")) return "metering";
-    if (plain.includes("energy")) return "energy";
-    if (plain.includes("charge") || plain.includes("charging") || plain.includes("plug") || plain.includes("ready_by") || plain.includes("target_soc") || plain.includes("current_limit") || plain.includes("requested_power") || plain.includes("power_kw") || plain.includes("current_a") || plain.includes("voltage") || plain.includes("phase") || plain.includes("status")) return "charging";
-    if (assetType === "vehicle") return "vehicle";
-    return "overview";
-  }
 
   propertyFamilyContractValue(row = {}) {
     return this.normalizedFamilyName(row.family || row.property_family || row.ux_family || "");
   }
 
-  propertyPresentationFamilyOverride(row = {}, explicit = "") {
-    const assetType = String(row.asset_type || "").toLowerCase();
-    const k = String(row.property_key || "").toLowerCase();
-    const e = String(explicit || "").toLowerCase();
-
-    // Runtime R40.7 observed: charger asset identity rows can be published with
-    // family=vehicle. UX must remain readable while reporting the backend gap.
-    if (assetType === "charger" && e === "vehicle" && k.startsWith("asset.")) return "overview";
-    if (assetType === "person" && (e === "vehicle" || e === "charger") && k.startsWith("asset.")) return "overview";
-
-    // Charger electrical and configuration settings belong to the charging
-    // presentation family even when the backend temporarily publishes family=charger.
-    if (assetType === "charger" && e === "charger") {
-      if (/(current|voltage|power|phase|energy|meter|requested_power|current_limit|status|charging_policy|offered|export|import|session|lifetime)/.test(k)) return "charging";
-      if (/(error|warning|latency|reconnect|uptime|firmware|last_seen|config_response)/.test(k)) return "maintenance";
-    }
-    return "";
-  }
 
   propertyFamily(row = {}) {
     return this.propertyFamilyContractValue(row);
@@ -1461,7 +1416,7 @@ class HomeBrainAssetRuntime {
     const assetId = this.canonicalAssetId(command.asset_id || "");
     const currentKey = String(command.current_state_property || "").trim();
     const row = currentKey ? this.factContractRow(assetId, currentKey) : null;
-    const propFamily = row ? this.propertyFamily(row) : (currentKey ? this.fallbackFamilyForPropertyKey(currentKey, command.asset_type || "") : "");
+    const propFamily = row ? this.propertyFamily(row) : "";
     if (explicit && propFamily && explicit !== propFamily) return `Command family '${explicit}' does not match property family '${propFamily}' for ${currentKey}`;
     return "";
   }
@@ -1469,9 +1424,7 @@ class HomeBrainAssetRuntime {
   resolvedCommandFamily(command = {}) {
     const explicit = this.normalizedFamilyName(command.command_family || command.family || "");
     if (explicit) return explicit;
-    const currentKey = String(command.current_state_property || "").trim();
-    if (currentKey) return this.fallbackFamilyForPropertyKey(currentKey, command.asset_type || "");
-    return this.normalizedFamilyName(command.command_group || command.group || "") || "overview";
+    return this.normalizedFamilyName(command.command_group || command.group || "");
   }
 
   familyCommandRows(assetId = "", family = "") {
@@ -1960,12 +1913,8 @@ class HomeBrainAssetRuntime {
       const parent = this.propertyParent(prop);
       const logical = this.propertyWriteSection(prop);
       bucket.properties.push({ ...prop, _ux_family:family, _ux_group:group, _ux_parent:parent, _ux_level:level, _ux_logical_section:logical });
-      const contractFamily = this.propertyFamilyContractValue(prop);
-      const overrideFamily = this.propertyPresentationFamilyOverride(prop, contractFamily);
-      if (overrideFamily) warnings.push(`Backend grouping issue for ${prop.asset_id}:${prop.property_key}; contract family '${contractFamily}' rendered as '${overrideFamily}'.`);
-      if (!prop.family) warnings.push(`Missing property.family for ${prop.property_key}; UX fallback '${family}' used.`);
-      if (!prop.group) warnings.push(`Missing property.group for ${prop.property_key}; UX fallback '${group}' used.`);
-      if (!prop.parent && !prop.parent_property && !prop.parent_key && !prop.summary_parent) warnings.push(`Missing property.parent for ${prop.property_key}; UX fallback '${parent}' used.`);
+      if (!family) warnings.push(`Missing property family metadata for ${prop.property_key}; property remains a contract gap.`);
+      if (!logical) warnings.push(`Missing section/placement metadata for ${prop.property_key}; property remains a contract gap.`);
       if (prop.editable && !this.isWritableProperty(prop)) warnings.push(`Editable property ${prop.property_key} is not writable under R41.4; UX renders it read-only and reports backend contract gap.`);
       if (String(prop.group || "").toLowerCase() === "main_info") warnings.push(`Property ${prop.property_key} still uses deprecated group=main_info; R41.4 requires group=overview.`);
       if (String(prop.group || "").toLowerCase() === "actions") warnings.push(`Property ${prop.property_key} uses group=actions; R41.4 reserves Actions for command_index only.`);
