@@ -56,7 +56,7 @@ class HomeBrainAssetRuntime {
 
   contractAuthorityRegistry() {
     return {
-      canonical_property_v1: { contract_id: "MOBILITY_CANONICAL_PROPERTY_V1", role: "primary_property_authority" },
+      canonical_property_v1: { contract_id: "MOBILITY_CANONICAL_PROPERTY_V2", role: "primary_property_authority" },
       fleet_runtime_v2: { contract_id: "MOBILITY_PUBLIC_RUNTIME_V2", role: "compatibility_aggregate" },
       product_experience_v2: { contract_id: "MOBILITY_EXPERIENCE_V2", role: "authority" },
       product_policy_v2: { contract_id: "MOBILITY_POLICY_V2", role: "authority" },
@@ -2299,7 +2299,7 @@ class HomeBrainAssetRuntime {
   isCanonicalMobilityPropertyState(state) {
     const attrs = state?.attributes || {};
     const contract = String(attrs.canonical_contract || "").toUpperCase();
-    return contract === "MOBILITY_CANONICAL_PROPERTY_V1"
+    return contract === "MOBILITY_CANONICAL_PROPERTY_V2"
       || (
         contract === "MOBILITY_PUBLIC_RUNTIME_V2"
         && !!attrs.asset_id
@@ -2323,7 +2323,7 @@ class HomeBrainAssetRuntime {
         value:Object.prototype.hasOwnProperty.call(attrs,"value") ? attrs.value : state?.state,
         display_name:attrs.display_name || attrs.friendly_name || state?.attributes?.friendly_name || "",
         _source_entity_id:state?.entity_id || "",
-        canonical_contract:String(attrs.canonical_contract || "MOBILITY_CANONICAL_PROPERTY_V1")
+        canonical_contract:String(attrs.canonical_contract || "MOBILITY_CANONICAL_PROPERTY_V2")
       }));
     }
     const byKey = new Map();
@@ -2332,7 +2332,7 @@ class HomeBrainAssetRuntime {
       const current = byKey.get(key);
       const currentContract = String(current?.canonical_contract || "").toUpperCase();
       const rowContract = String(row.canonical_contract || "").toUpperCase();
-      if (!current || (rowContract === "MOBILITY_CANONICAL_PROPERTY_V1" && currentContract !== "MOBILITY_CANONICAL_PROPERTY_V1")) {
+      if (!current || (rowContract === "MOBILITY_CANONICAL_PROPERTY_V2" && currentContract !== "MOBILITY_CANONICAL_PROPERTY_V2")) {
         byKey.set(key, row);
       }
     }
@@ -2602,7 +2602,7 @@ class HomeBrainAssetRuntime {
       property_key: wanted,
       value:Object.prototype.hasOwnProperty.call(attrs,"value") ? attrs.value : state?.state,
       _source_entity_id: state?.entity_id || "",
-      canonical_contract: String(attrs.canonical_contract || "MOBILITY_CANONICAL_PROPERTY_V1")
+      canonical_contract: String(attrs.canonical_contract || "MOBILITY_CANONICAL_PROPERTY_V2")
     });
   }
 
@@ -2620,7 +2620,7 @@ class HomeBrainAssetRuntime {
     // V2 property publication may contain duplicate transport rows; prefer the richest canonical row so complete write metadata is not shadowed.
     const score = (row) => {
       let value = 0;
-      if (String(row.canonical_contract || "").toUpperCase() === "MOBILITY_CANONICAL_PROPERTY_V1") value += 32;
+      if (String(row.canonical_contract || "").toUpperCase() === "MOBILITY_CANONICAL_PROPERTY_V2") value += 32;
       else if (String(row.canonical_contract || "").toUpperCase() === "MOBILITY_PUBLIC_RUNTIME_V2") value += 16;
       if (this.contractBool(row.write_supported, false)) value += 8;
       if (this.contractBool(row.editable, false)) value += 4;
