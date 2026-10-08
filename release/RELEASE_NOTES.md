@@ -1,13 +1,14 @@
-# v1.0.0-rc.84 — pilot localization and Core convergence
+# v1.0.0-rc.85 — canonical Mobility property interface
 
-- converge Mobility UX on the current shared RHI UX Core 1.6.3 commit `56560ba61893089b3e0ab8b6535fd777a799066b`;
-- expand EN/NL/FR product localization for the shell, appearance pickers, dashboard and charger-management pilot surfaces;
-- route primary pilot-visible copy through stable localization keys instead of embedded English literals;
-- add a release-blocking source guard for raw pilot-visible copy bypassing localization;
-- preserve canonical Vehicle/Charger/Fleet projections and V2-only backend ownership from rc.83;
-- reset target-Home-Assistant qualification because shared Core and rendered product copy changed.
+- consume **MOBILITY_CANONICAL_PROPERTY_V2** as the primary per-property authority;
+- retain **MOBILITY_PUBLIC_RUNTIME_V2** only as compatibility aggregate/fallback during migration;
+- preserve backend-owned component, section, visibility, render, write and quality metadata;
+- make canonical property rows outrank duplicate aggregate-era rows;
+- keep **MOBILITY_COMMAND_V2** as the product command authority and **MOBILITY_ENERGY_V2** as the Energy boundary;
+- preserve current Vehicle/Charger UX and fail-closed semantics;
+- qualify against Mobility **M0.10.41**.
 
-Rollback: **v1.0.0-rc.83**.
+Rollback: **v1.0.0-rc.84**.
 Known accepted technical debt: **0**.
 Known accepted feature debt: **0**.
-Target-runtime qualification remains required before stable promotion.
+Target-runtime functional and CPU qualification remains required before stable promotion.
