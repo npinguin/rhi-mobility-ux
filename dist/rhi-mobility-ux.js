@@ -1188,6 +1188,131 @@ const HI_MOBILITY_INTELLIGENCE_MODEL_ALIGNMENT = Object.freeze({
   }
 });
 
+// ---- src/runtime/canonical-property-index.js ----
+// Persistent Mobility canonical-property index.
+//
+// Current Mobility property entities identify themselves with
+// canonical_contract=MOBILITY_PUBLIC_RUNTIME_V2. They already publish the
+// producer-owned placement metadata (component_id, section_id, visibility,
+// placements, render_as, display_order, friendly_name). The UX consumes that
+// metadata literally and never derives placement from property_key.
+class MobilityCanonicalPropertyIndex {
+  constructor(hass = {}) {
+    this.byEntity = new Map();
+    this.byAsset = new Map();
+    this.byAssetAndKey = new Map();
+    this.stateRefs = new Map();
+    this._stateCount = 0;
+    this.discover(hass);
+  }
+
+  isCanonicalPropertyState(state) {
+    const attrs = state?.attributes || {};
+    return String(attrs.canonical_contract || '').toUpperCase() === 'MOBILITY_PUBLIC_RUNTIME_V2'
+      && !!String(attrs.asset_id || '').trim()
+      && !!String(attrs.property_key || '').trim();
+  }
+
+  rawRow(entityId, state) {
+    if (!this.isCanonicalPropertyState(state)) return null;
+    const attrs = state.attributes || {};
+    return {
+      ...attrs,
+      asset_id:String(attrs.asset_id || '').trim(),
+      property_key:String(attrs.property_key || '').trim(),
+      value:Object.prototype.hasOwnProperty.call(attrs,'value') ? attrs.value : state?.state,
+      display_name:attrs.display_name || attrs.friendly_name || '',
+      _source_entity_id:String(entityId || ''),
+      canonical_contract:'MOBILITY_PUBLIC_RUNTIME_V2'
+    };
+  }
+
+  _index(entityId, state) {
+    const row=this.rawRow(entityId,state);
+    if(!row) return;
+    this.byEntity.set(entityId,row);
+    if(!this.byAsset.has(row.asset_id)) this.byAsset.set(row.asset_id,[]);
+    this.byAsset.get(row.asset_id).push(row);
+    this.byAssetAndKey.set(`${row.asset_id}::${row.property_key}`,row);
+    this.stateRefs.set(entityId,state);
+  }
+
+  discover(hass = {}) {
+    this.byEntity.clear();
+    this.byAsset.clear();
+    this.byAssetAndKey.clear();
+    this.stateRefs.clear();
+    const states=hass?.states || {};
+    this._stateCount=Object.keys(states).length;
+    for(const [entityId,state] of Object.entries(states)) this._index(entityId,state);
+    return this;
+  }
+
+  refresh(hass = {}) {
+    const states=hass?.states || {};
+    if(Object.keys(states).length !== this._stateCount) {
+      this.discover(hass);
+      return;
+    }
+    let metadataChanged=false;
+    const changed=[];
+    for(const [entityId,previous] of this.stateRefs.entries()) {
+      const current=states[entityId];
+      if(current===previous) continue;
+      changed.push([entityId,current]);
+      const before=this.byEntity.get(entityId);
+      const after=this.rawRow(entityId,current);
+      if(!after || !before ||
+        before.asset_id!==after.asset_id ||
+        before.property_key!==after.property_key ||
+        before.component_id!==after.component_id ||
+        before.section_id!==after.section_id ||
+        before.visibility!==after.visibility ||
+        before.render_as!==after.render_as) {
+        metadataChanged=true;
+        break;
+      }
+    }
+    if(metadataChanged) {
+      this.discover(hass);
+      return;
+    }
+    for(const [entityId,current] of changed) {
+      const before=this.byEntity.get(entityId);
+      const after=this.rawRow(entityId,current);
+      this.byEntity.set(entityId,after);
+      this.byAssetAndKey.set(`${after.asset_id}::${after.property_key}`,after);
+      this.byAsset.set(after.asset_id,(this.byAsset.get(after.asset_id)||[]).map(row=>row._source_entity_id===entityId?after:row));
+      this.stateRefs.set(entityId,current);
+    }
+  }
+
+  rows(assetId = '') {
+    const id=String(assetId || '').trim();
+    return id ? [...(this.byAsset.get(id)||[])] : [...this.byEntity.values()];
+  }
+
+  row(assetId='',propertyKey='') {
+    return this.byAssetAndKey.get(`${String(assetId||'')}::${String(propertyKey||'')}`) || null;
+  }
+
+  entityIds(assetId='') {
+    const id=String(assetId||'').trim();
+    return this.rows(id).map(row=>row._source_entity_id).filter(Boolean);
+  }
+}
+
+function mobilityCanonicalPropertyIndex(hass = {}) {
+  const current=HomeBrainAssetRuntime?._canonicalPropertyIndex;
+  if(!current) {
+    const created=new MobilityCanonicalPropertyIndex(hass);
+    HomeBrainAssetRuntime._canonicalPropertyIndex=created;
+    return created;
+  }
+  current.refresh(hass);
+  return current;
+}
+
 // ---- src/runtime/ha-contract-runtime.js ----
 // 10-ha-contract-runtime.js
 // Home Assistant state reader, contract loaders, property/relationship/command resolvers, and release contract access.
@@ -1197,6 +1322,7 @@ class HomeBrainAssetRuntime {
   constructor(hass, config = {}) {
     this.hass = hass;
     this.config = config;
+    this._canonicalProperties = mobilityCanonicalPropertyIndex(hass);
     if (typeof rhiMobilitySetLocaleFromHass === "function") rhiMobilitySetLocaleFromHass(hass);
     this._cache = HomeBrainAssetRuntime._cache || (HomeBrainAssetRuntime._cache = new Map());
     this._memo = new Map();
@@ -1894,27 +2020,54 @@ class HomeBrainAssetRuntime {
     return this.releaseContract().contract_health;
   }
 
+  contractEntityIdForRevision(contractId = "") {
+    const ids = {
+      MOBILITY_PUBLIC_RUNTIME_V2:"sensor.rhi_mobility_runtime_v2",
+      MOBILITY_EXPERIENCE_V2:"sensor.rhi_mobility_experience_v2",
+      MOBILITY_POLICY_V2:"sensor.rhi_mobility_policy_v2",
+      MOBILITY_COMMAND_V2:"sensor.rhi_mobility_command_v2",
+      MOBILITY_ACTIVITY_V2:"sensor.rhi_mobility_activity_v2",
+      MOBILITY_PROFILE_CATALOG_V2:"sensor.rhi_mobility_profile_catalog_v2",
+      MOBILITY_SUPERVISION_V2:"sensor.rhi_mobility_supervision_v2",
+      MOBILITY_ENERGY_V2:"sensor.rhi_mobility_energy_v2"
+    };
+    return ids[String(contractId || "")] || "";
+  }
+
+  entityRevisionSignature(entityIds = []) {
+    return [...new Set(entityIds.filter(Boolean))].sort().map((id)=>{
+      const state=this.hass?.states?.[id];
+      return `${id}:${state?.state ?? ""}:${state?.last_updated ?? ""}`;
+    }).join("|");
+  }
+
+  productRevisionSignature(assetId = "", contractIds = []) {
+    const canonical=assetId ? this.canonicalAssetId(assetId) : "";
+    const propertyIds=this._canonicalProperties.entityIds(canonical);
+    const contractEntityIds=contractIds.map((id)=>this.contractEntityIdForRevision(id)).filter(Boolean);
+    return this.entityRevisionSignature([...propertyIds,...contractEntityIds]);
+  }
+
   runtimeSignature(assetId = "") {
     const canonical = assetId ? this.canonicalAssetId(assetId) : "";
-    const parts = [
-      JSON.stringify(this.releaseContract()),
-      JSON.stringify(this.assetIndexRows("all")),
-      JSON.stringify(this.profileRows()),
-      JSON.stringify(canonical ? this.propertyRows(canonical) : this.propertyRows("")),
-      JSON.stringify(canonical ? this.relationshipRows(canonical) : this.relationshipRows("")),
-      JSON.stringify(canonical ? this.commandRegistry(canonical) : this.publicCommandRows()),
-      JSON.stringify(canonical ? this.activityRowsFor(canonical) : this.activityRowsFor("")),
-      JSON.stringify(canonical ? this.intelligenceRowsFor(canonical) : this.intelligenceRowsFor("")),
-      JSON.stringify(canonical ? this.energyAssetPublicationRows(canonical) : this.energyAssetPublicationRows("")),
-      JSON.stringify(this.mobilityRuntimeV2()),
-      JSON.stringify(this.mobilityExperienceV2()),
-      JSON.stringify(this.mobilityPolicyV2()),
-      JSON.stringify(this.mobilityCommandV2()),
-      JSON.stringify(this.mobilityActivityV2()),
-      JSON.stringify(this.mobilityProfileCatalogV2()),
-      JSON.stringify(this.mobilitySupervisionV2())
-    ];
-    return parts.join("|");
+    const ids = new Set(this._canonicalProperties.entityIds(canonical));
+    // Keep the two genuine boundary contracts and transitional aggregate
+    // authorities in the signature by entity identity only. Do not serialize
+    // their complete payloads on every HA tick.
+    for (const id of [
+      "sensor.rhi_mobility_runtime_v2",
+      "sensor.rhi_mobility_experience_v2",
+      "sensor.rhi_mobility_policy_v2",
+      "sensor.rhi_mobility_activity_v2",
+      "sensor.rhi_mobility_profile_catalog_v2",
+      "sensor.rhi_mobility_supervision_v2",
+      "sensor.rhi_mobility_command_v2",
+      "sensor.rhi_mobility_energy_v2"
+    ]) ids.add(id);
+    return [...ids].sort().map((id)=>{
+      const state=this.hass?.states?.[id];
+      return `${id}:${state?.state ?? ""}:${state?.last_updated ?? ""}`;
+    }).join("|");
   }
 
   publicCommandRows() {
@@ -2415,102 +2568,33 @@ class HomeBrainAssetRuntime {
     return aliases[f] || f;
   }
 
-  fallbackFamilyForPropertyKey(propertyKey = "", assetType = "") {
-    const k = String(propertyKey || "").toLowerCase();
-    const plain = k.replace(/^(vehicle|charger|person|asset|mobility|fleet|connections|owners)\./, "");
-    if (!plain) return "overview";
-    // R22.11.17 intelligence alignment: R39 introduces domain/subdomain intelligence
-    // prefixes. These are only consumed when they are published through approved
-    // runtime property indexes; the UX must not query new intelligence registries.
-    if (k.startsWith("mobility.")) return plain.includes("diagnostic") || plain.includes("trust") ? "diagnostics" : "overview";
-    if (k.startsWith("fleet.")) return plain.includes("location") ? "location" : plain.includes("energy") ? "energy" : "vehicle";
-    if (k.startsWith("connections.")) return plain.includes("meter") || plain.includes("energy") || plain.includes("cost") ? "metering" : "charging";
-    if (k.startsWith("owners.")) return plain.includes("present") || plain.includes("location") ? "location" : "vehicle";
-    if (k.startsWith("asset.")) return "overview";
-    if (plain.includes("diagnostic") || plain.includes("source_") || plain.includes("api_quota") || plain.includes("latency") || plain.includes("reconnect")) return "diagnostics";
-    if (plain.includes("tire") || plain.includes("tyre")) return "tires";
-    if (plain.includes("location") || plain.includes("position") || plain.includes("park_time")) return "location";
-    if (plain.includes("climate") || plain.includes("cabin") || plain.includes("temperature") || plain.includes("precondition")) return "climate";
-    if (plain.includes("lock") || plain.includes("security") || plain.includes("alarm")) return "security";
-    if (plain.includes("door") || plain.includes("window") || plain.includes("hood") || plain.includes("trunk") || plain.includes("tailgate") || plain.includes("roof") || plain.includes("opening")) return "openings";
-    if (plain.includes("service") || plain.includes("oil") || plain.includes("odometer") || plain.includes("mileage") || plain.includes("last_seen") || plain.includes("firmware") || plain.includes("serial")) return "maintenance";
-    if (plain.includes("range") || plain.includes("fuel_range") || plain.includes("nominal_range")) return "range";
-    if (plain.includes("soc") || plain.includes("battery")) return "battery";
-    if (plain.includes("session_energy") || plain.includes("lifetime_energy") || plain.includes("grid_energy") || plain.includes("solar_energy") || plain.includes("meter") || plain.includes("cost")) return "metering";
-    if (plain.includes("energy")) return "energy";
-    if (plain.includes("charge") || plain.includes("charging") || plain.includes("plug") || plain.includes("ready_by") || plain.includes("target_soc") || plain.includes("current_limit") || plain.includes("requested_power") || plain.includes("power_kw") || plain.includes("current_a") || plain.includes("voltage") || plain.includes("phase") || plain.includes("status")) return "charging";
-    if (assetType === "vehicle") return "vehicle";
-    return "overview";
-  }
 
   propertyFamilyContractValue(row = {}) {
     return this.normalizedFamilyName(row.family || row.property_family || row.ux_family || "");
   }
 
-  propertyPresentationFamilyOverride(row = {}, explicit = "") {
-    const assetType = String(row.asset_type || "").toLowerCase();
-    const k = String(row.property_key || "").toLowerCase();
-    const e = String(explicit || "").toLowerCase();
 
-    // Runtime R40.7 observed: charger asset identity rows can be published with
-    // family=vehicle. UX must remain readable while reporting the backend gap.
-    if (assetType === "charger" && e === "vehicle" && k.startsWith("asset.")) return "overview";
-    if (assetType === "person" && (e === "vehicle" || e === "charger") && k.startsWith("asset.")) return "overview";
+  propertyFamily(row = {}) {
+    return this.propertyFamilyContractValue(row);
+  }
 
-    // Charger electrical and configuration settings belong to the charging
-    // presentation family even when the backend temporarily publishes family=charger.
-    if (assetType === "charger" && e === "charger") {
-      if (/(current|voltage|power|phase|energy|meter|requested_power|current_limit|status|charging_policy|offered|export|import|session|lifetime)/.test(k)) return "charging";
-      if (/(error|warning|latency|reconnect|uptime|firmware|last_seen|config_response)/.test(k)) return "maintenance";
+  propertyGroup(row = {}) {
+    return String(row.group || row.property_group || row.ux_group || row.section_id || "").trim();
+  }
+
+  propertyParent(row = {}) {
+    return String(row.parent || row.parent_property || row.parent_key || row.summary_parent || "").trim();
+  }
+
+  propertyDetailLevel(row = {}) {
+    const explicit = String(row.detail_level || row.visibility_level || row.ux_detail_level || row.visibility || "").trim().toLowerCase();
+    if (["summary","operational","technical","engineering","diagnostics","diagnostics_only"].includes(explicit)) {
+      if (["technical","engineering","diagnostics","diagnostics_only"].includes(explicit)) return "technical";
+      return explicit;
     }
     return "";
   }
 
-  propertyFamily(row = {}) {
-    const explicit = this.propertyFamilyContractValue(row);
-    const valid = this.canonicalFamilies();
-    const override = this.propertyPresentationFamilyOverride(row, explicit);
-    if (override) return override;
-    if (explicit && valid.includes(explicit)) return explicit;
-    return this.fallbackFamilyForPropertyKey(row.property_key || row.normalized_property || row.fact_type || "", row.asset_type || "");
-  }
-
-  propertyGroup(row = {}) {
-    const explicitRaw = String(row.group || row.property_group || row.ux_group || "").trim();
-    if (explicitRaw) {
-      const explicit = explicitRaw.toLowerCase() === "main_info" ? "overview" : explicitRaw;
-      return explicit;
-    }
-    const k = String(row.property_key || "").toLowerCase();
-    if (k.startsWith("mobility.")) return "domain_intelligence";
-    if (k.startsWith("fleet.")) return "fleet_intelligence";
-    if (k.startsWith("connections.")) return "connection_intelligence";
-    if (k.startsWith("owners.")) return "owner_intelligence";
-    if (k.includes("lock")) return "locks";
-    if (k.includes("door")) return "doors";
-    if (k.includes("window")) return "windows";
-    if (k.includes("climate")) return "cabin_climate";
-    if (k.includes("soc") || k.includes("battery")) return "battery_state";
-    if (k.includes("range")) return "range";
-    if (k.includes("session") || k.includes("lifetime") || k.includes("meter")) return "metering";
-    if (k.includes("current_limit") || k.includes("requested_power")) return "charge_settings";
-    if (k.includes("status") || k.includes("charge") || k.includes("plug")) return "charging_state";
-    return "general";
-  }
-
-  propertyParent(row = {}) {
-    return String(row.parent || row.parent_property || row.parent_key || row.summary_parent || this.propertyGroup(row) || "general").trim();
-  }
-
-  propertyDetailLevel(row = {}) {
-    const explicit = String(row.detail_level || row.visibility_level || row.ux_detail_level || "").trim().toLowerCase();
-    if (["summary","operational","technical"].includes(explicit)) return explicit;
-    const f = this.propertyFamily(row);
-    const k = String(row.property_key || "").toLowerCase();
-    if (f === "diagnostics" || k.includes("source_") || k.includes("diagnostic")) return "technical";
-    if (["asset.display_name","asset.short_name","vehicle.soc_pct","vehicle.ev_range_km","vehicle.full_range_km","vehicle.lock_state","vehicle.climate_state","vehicle.charge_state","vehicle.charging_state","charger.operating_state","charger.connection_state","charger.power_kw"].includes(k)) return "summary";
-    return "operational";
-  }
 
   propertyDisplayLabel(row = {}) {
     const key = String(row.property_key || row.fact_type || "");
@@ -2572,19 +2656,19 @@ class HomeBrainAssetRuntime {
     return raw.replace(new RegExp(`\\s*${escaped}$`, "i"), "").trim();
   }
 
-  formatNumberForUnit(value, unit = "", propertyKey = "") {
+  formatNumberForUnit(value, unit = "", _propertyKey = "") {
     const raw = this.valueWithoutUnit(value, unit);
     const n = Number(String(raw).replace(",", "."));
     if (!Number.isFinite(n)) return String(value ?? "");
     const u = String(unit || "").trim();
-    const key = String(propertyKey || "").toLowerCase();
-    let decimals = 2;
     const ul = u.toLowerCase();
-    if (ul === "kwh" || key.includes("energy") || key.includes("cost")) decimals = 4;
-    else if (ul === "kw" || key.includes("power")) decimals = 2;
-    else if (ul === "a" || key.includes("current")) decimals = 1;
-    else if (ul === "km" || key.includes("range") || key.includes("odometer") || key.includes("distance")) decimals = 0;
-    else if (u === "%" || key.includes("soc") || key.includes("pct")) decimals = Math.abs(n - Math.round(n)) < 0.05 ? 0 : 1;
+    let decimals = 2;
+    if (ul === "kwh" || ul === "wh") decimals = 4;
+    else if (ul === "kw" || ul === "w") decimals = 2;
+    else if (ul === "a") decimals = 1;
+    else if (ul === "km" || ul === "m") decimals = 0;
+    else if (u === "%") decimals = Math.abs(n - Math.round(n)) < 0.05 ? 0 : 1;
+    else if (["eur","€","usd","$","gbp","£"].includes(ul)) decimals = 2;
     const fixed = n.toFixed(decimals);
     return fixed.replace(/\.0+$/, "").replace(/(\.\d*?)0+$/, "$1");
   }
@@ -2648,7 +2732,7 @@ class HomeBrainAssetRuntime {
     const assetId = this.canonicalAssetId(command.asset_id || "");
     const currentKey = String(command.current_state_property || "").trim();
     const row = currentKey ? this.factContractRow(assetId, currentKey) : null;
-    const propFamily = row ? this.propertyFamily(row) : (currentKey ? this.fallbackFamilyForPropertyKey(currentKey, command.asset_type || "") : "");
+    const propFamily = row ? this.propertyFamily(row) : "";
     if (explicit && propFamily && explicit !== propFamily) return `Command family '${explicit}' does not match property family '${propFamily}' for ${currentKey}`;
     return "";
   }
@@ -2656,9 +2740,7 @@ class HomeBrainAssetRuntime {
   resolvedCommandFamily(command = {}) {
     const explicit = this.normalizedFamilyName(command.command_family || command.family || "");
     if (explicit) return explicit;
-    const currentKey = String(command.current_state_property || "").trim();
-    if (currentKey) return this.fallbackFamilyForPropertyKey(currentKey, command.asset_type || "");
-    return this.normalizedFamilyName(command.command_group || command.group || "") || "overview";
+    return this.normalizedFamilyName(command.command_group || command.group || "");
   }
 
   familyCommandRows(assetId = "", family = "") {
@@ -2674,18 +2756,15 @@ class HomeBrainAssetRuntime {
   }
 
   familyLogicalSectionForProperty(row = {}) {
-    const level = this.propertyDetailLevel(row);
-    const family = this.propertyFamily(row);
-    const group = String(this.propertyGroup(row) || "").toLowerCase();
-    const k = String(row.property_key || "").toLowerCase();
-    const authority = String(row.authority || row.value_authority || row.source_layer || "").toLowerCase();
-    if (level === "technical" || family === "diagnostics" || group === "diagnostics" || k.includes("diagnostic") || k.includes("error") || k.includes("warning") || k.includes("firmware") || k.includes("communication")) return "diagnostics";
-    if (group === "metering" || family === "metering" || k.includes("session_energy") || k.includes("lifetime_energy") || k.includes("grid_energy") || k.includes("solar_energy") || k.includes("cost") || k.includes("meter") || k.includes("cycle_count") || k.includes("efficiency")) return "metering";
-    if (group === "overview" || level === "summary") return "overview";
-    if (group === "details") return "details";
-    if (group === "actions") return "details"; // R41.4: actions are commands only; properties stay readable/editable elsewhere.
-    if (authority.includes("diagnostic")) return "diagnostics";
-    return "details";
+    const visibility=String(row.visibility || row.ux_visibility || "").trim().toLowerCase();
+    if (["engineering","diagnostics","diagnostics_only"].includes(visibility)) return "diagnostics";
+    const section=String(row.section_id || row.group || row.property_group || row.ux_group || "").trim().toLowerCase();
+    if (!section) return "";
+    if (["configuration","config","settings","editors"].includes(section)) return "editors";
+    if (["metering","history"].includes(section)) return "metering";
+    if (["overview","key","key_properties","summary"].includes(section)) return "overview";
+    if (["diagnostics","engineering"].includes(section)) return "diagnostics";
+    return section;
   }
 
   familyLogicalSectionLabel(section = "details") {
@@ -3150,12 +3229,8 @@ class HomeBrainAssetRuntime {
       const parent = this.propertyParent(prop);
       const logical = this.propertyWriteSection(prop);
       bucket.properties.push({ ...prop, _ux_family:family, _ux_group:group, _ux_parent:parent, _ux_level:level, _ux_logical_section:logical });
-      const contractFamily = this.propertyFamilyContractValue(prop);
-      const overrideFamily = this.propertyPresentationFamilyOverride(prop, contractFamily);
-      if (overrideFamily) warnings.push(`Backend grouping issue for ${prop.asset_id}:${prop.property_key}; contract family '${contractFamily}' rendered as '${overrideFamily}'.`);
-      if (!prop.family) warnings.push(`Missing property.family for ${prop.property_key}; UX fallback '${family}' used.`);
-      if (!prop.group) warnings.push(`Missing property.group for ${prop.property_key}; UX fallback '${group}' used.`);
-      if (!prop.parent && !prop.parent_property && !prop.parent_key && !prop.summary_parent) warnings.push(`Missing property.parent for ${prop.property_key}; UX fallback '${parent}' used.`);
+      if (!family) warnings.push(`Missing property family metadata for ${prop.property_key}; property remains a contract gap.`);
+      if (!logical) warnings.push(`Missing section/placement metadata for ${prop.property_key}; property remains a contract gap.`);
       if (prop.editable && !this.isWritableProperty(prop)) warnings.push(`Editable property ${prop.property_key} is not writable under R41.4; UX renders it read-only and reports backend contract gap.`);
       if (String(prop.group || "").toLowerCase() === "main_info") warnings.push(`Property ${prop.property_key} still uses deprecated group=main_info; R41.4 requires group=overview.`);
       if (String(prop.group || "").toLowerCase() === "actions") warnings.push(`Property ${prop.property_key} uses group=actions; R41.4 reserves Actions for command_index only.`);
@@ -3488,34 +3563,14 @@ class HomeBrainAssetRuntime {
 
   v2PropertyRows(assetId = "") {
     const canonical = assetId ? this.canonicalAssetId(assetId) : "";
-    const rows = [];
-    for (const state of Object.values(this.hass?.states || {})) {
-      const attrs = state?.attributes || {};
-      if (String(attrs.canonical_contract || "").toUpperCase() !== "MOBILITY_PUBLIC_RUNTIME_V2") continue;
-      const rowAsset = this.canonicalAssetId(attrs.asset_id || "");
-      const propertyKey = String(attrs.property_key || "").trim();
-      if (!rowAsset || !propertyKey || (canonical && rowAsset !== canonical)) continue;
-      rows.push(this.normalizePropertyRow({
-        ...attrs,
-        asset_id:rowAsset,
-        property_key:propertyKey,
-        value:Object.prototype.hasOwnProperty.call(attrs,"value") ? attrs.value : state?.state,
-        display_name:attrs.display_name || attrs.friendly_name || state?.attributes?.friendly_name || "",
-        _source_entity_id:state?.entity_id || "",
-        canonical_contract:"MOBILITY_PUBLIC_RUNTIME_V2"
-      }));
-    }
-    const byKey = new Map();
-    for (const row of rows.filter(Boolean)) {
-      const key = `${row.asset_id}:${row.property_key}`;
-      const current = byKey.get(key);
-      if (!current || String(row._source_entity_id || "").startsWith("sensor.rhi_mobility_")) byKey.set(key, row);
-    }
-    return [...byKey.values()].sort((a,b)=>
-      String(a.asset_id || "").localeCompare(String(b.asset_id || "")) ||
-      Number(a.display_order ?? 9999) - Number(b.display_order ?? 9999) ||
-      String(a.property_key || "").localeCompare(String(b.property_key || ""))
-    );
+    return this._canonicalProperties.rows(canonical)
+      .map((row)=>this.normalizePropertyRow(row))
+      .filter(Boolean)
+      .sort((a,b)=>
+        String(a.asset_id || "").localeCompare(String(b.asset_id || "")) ||
+        Number(a.display_order ?? 9999) - Number(b.display_order ?? 9999) ||
+        String(a.property_key || "").localeCompare(String(b.property_key || ""))
+      );
   }
 
   v2ComponentDetailSections(assetId = "", assetType = "") {
