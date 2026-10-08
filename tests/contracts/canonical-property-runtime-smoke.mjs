@@ -3,18 +3,37 @@ import fs from "node:fs";
 const runtime=fs.readFileSync("src/runtime/ha-contract-runtime.js","utf8");
 const index=fs.readFileSync("src/runtime/canonical-property-index.js","utf8");
 
-for(const forbidden of [
-  "return this.fallbackFamilyForPropertyKey(",
-  "k.includes(\"soc\") || k.includes(\"battery\")",
-  "k.includes(\"current_limit\") || k.includes(\"requested_power\")",
-  "k.includes(\"status\") || k.includes(\"charge\") || k.includes(\"plug\")"
-]){
-  if(runtime.includes(forbidden)) throw new Error("Mobility placement heuristic remains active: "+forbidden);
+function body(startToken,endToken){
+  const start=runtime.indexOf(startToken);
+  const end=runtime.indexOf(endToken,start+startToken.length);
+  if(start<0 || end<0) throw new Error("missing runtime contract section: "+startToken);
+  return runtime.slice(start,end);
 }
+
+const placement=[
+  body("  propertyFamily(row = {}) {","  propertyDisplayLabel(row = {}) {"),
+  body("  familyLogicalSectionForProperty(row = {}) {","  familyLogicalSectionLabel("),
+  body("  resolvedCommandFamily(command = {}) {","  familyCommandRows(")
+].join("\n");
+
+for(const forbidden of [
+  "fallbackFamilyForPropertyKey",
+  "propertyPresentationFamilyOverride",
+  ".includes(\"soc\")",
+  ".includes(\"battery\")",
+  ".includes(\"power\")",
+  ".includes(\"status\")",
+  ".includes(\"charge\")",
+  "property_key"
+]){
+  if(placement.includes(forbidden)) throw new Error("Mobility placement heuristic remains active: "+forbidden);
+}
+if(runtime.includes("  fallbackFamilyForPropertyKey(")) throw new Error("dead property-name family fallback remains in runtime");
+if(runtime.includes("  propertyPresentationFamilyOverride(")) throw new Error("dead frontend family override remains in runtime");
 if(!runtime.includes("this._canonicalProperties.rows(canonical)")) throw new Error("Mobility canonical property index is not the v2PropertyRows authority");
-if(runtime.includes("for (const state of Object.values(this.hass?.states || {}))")) throw new Error("v2PropertyRows still scans all HA states");
-if(!runtime.includes("row.section_id") || !runtime.includes("row.visibility")) throw new Error("Mobility placement must consume backend section/visibility metadata");
+if(body("  v2PropertyRows(assetId = \"\") {","  v2ComponentDetailSections(").includes("Object.values(this.hass?.states")) throw new Error("v2PropertyRows still scans all HA states");
+if(!placement.includes("row.section_id") || !placement.includes("row.visibility")) throw new Error("Mobility placement must consume backend section/visibility metadata");
 if(!runtime.includes("state?.last_updated")) throw new Error("Mobility runtime signatures must use entity revisions");
 if(runtime.includes("JSON.stringify(this.mobilityRuntimeV2())") || runtime.includes("JSON.stringify(this.mobilityExperienceV2())")) throw new Error("runtimeSignature must not serialize full aggregate contracts");
-if(!index.includes("component_id") || !index.includes("section_id") || !index.includes("render_as")) throw new Error("Mobility property index must treat placement metadata as index identity");
+for(const token of ["component_id","section_id","visibility","render_as"]) if(!index.includes(token)) throw new Error("Mobility property index must track placement metadata: "+token);
 console.log("PASS Mobility canonical-property indexing and metadata-owned placement");
