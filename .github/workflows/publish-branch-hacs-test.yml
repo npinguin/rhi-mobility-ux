@@ -54,7 +54,7 @@ jobs:
           set -euo pipefail
           npm ci
           npm run preflight
-          npm run release:check
+          npm run test:release
       - name: HACS validation
         uses: hacs/action@885037da508419fd08c13515967aec868dfdee2d
         with:
