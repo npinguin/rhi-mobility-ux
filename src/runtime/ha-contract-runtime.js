@@ -662,8 +662,8 @@ class HomeBrainAssetRuntime {
     const effective = this.cleanValue(relation.effective_charger_id || "", "none") || "none";
     const connected = relation.observed_identity_proven === true ? (this.cleanValue(relation.physically_connected_charger_id || "", "none") || "none") : "none";
     return {
-      assigned:selected !== "none" ? selected : effective, effective, selected, connected,
-      assigned_display_name:this.assetDisplayName(selected !== "none" ? selected : effective),
+      assigned:selected, effective, selected, connected,
+      assigned_display_name:this.assetDisplayName(selected),
       effective_display_name:this.assetDisplayName(effective),
       connected_display_name:this.assetDisplayName(connected),
       relationship_resolution:relation.relationship_status || relation.resolution_status || "V2",
@@ -734,9 +734,8 @@ class HomeBrainAssetRuntime {
   runtimeSignature(assetId = "") {
     const canonical = assetId ? this.canonicalAssetId(assetId) : "";
     const ids = new Set(this._canonicalProperties.entityIds(canonical));
-    // Keep the two genuine boundary contracts and transitional aggregate
-    // authorities in the signature by entity identity only. Do not serialize
-    // their complete payloads on every HA tick.
+    // Track explicit producer-owned authorities by entity revision only.
+    // Do not serialize complete contract payloads on every HA tick.
     for (const id of [
       "sensor.rhi_mobility_runtime_v2",
       "sensor.rhi_mobility_experience_v2",
@@ -1991,43 +1990,25 @@ class HomeBrainAssetRuntime {
 
   vehicleOverviewMetricSlots(assetId = "") {
     const canonical = this.canonicalAssetId(assetId);
-    const experience = this.vehicleExperienceV2(canonical) || {};
-    const clean = (value) => {
-      const text = String(value ?? "").trim();
-      return text && !["unknown","unavailable","none","null","—","no range data","no battery data"].includes(text.toLowerCase()) ? text : "";
-    };
     const propDisplay = (key) => {
       const prop = this.semanticProperty(canonical, key);
       if (!prop) return { display:"", prop:null };
-      const raw = this.cleanValue(prop.value, "");
-      if (raw === "" || raw === null || raw === undefined) return { display:"", prop };
-      return { display:this.formatValue(raw, prop.unit || "", key), prop };
+      if (prop.value === undefined || prop.value === null || String(prop.value).trim() === "") return { display:"", prop };
+      return { display:this.formatValue(prop.value, prop.unit || "", key), prop };
     };
 
     const total = propDisplay("vehicle.range_total_km");
     const ev = propDisplay("vehicle.ev_range_km");
     const soc = propDisplay("vehicle.soc_pct");
     const currentEnergy = propDisplay("vehicle.current_energy_kwh");
-    const batteryEnergy = currentEnergy.display ? currentEnergy : propDisplay("vehicle.battery_energy_kwh");
-
-    const rangeIntel = experience.range_intelligence || {};
-    const energyIntel = experience.energy_intelligence || {};
-    const rangeSummary = clean(rangeIntel.summary);
-    const rangeReason = clean(rangeIntel.reason);
-    const energySummary = clean(energyIntel.summary);
+    const batteryEnergy = propDisplay("vehicle.battery_energy_kwh");
+    const energy = currentEnergy.display ? currentEnergy : batteryEnergy;
 
     const slots = [];
-    const totalDisplay = total.display || (/km\s+total/i.test(rangeSummary) ? rangeSummary : "");
-    const evFromSummary = /km\s+electric/i.test(rangeSummary) ? rangeSummary : "";
-    const evFromReason = /km\s+electric/i.test(rangeReason) ? rangeReason : "";
-    const evDisplay = ev.display || evFromSummary || evFromReason;
-    const batteryPct = soc.display || (/%/.test(energySummary) ? energySummary : "");
-    const batteryDisplay = [batteryPct, batteryEnergy.display].filter(Boolean).join(" · ");
-
-    if (totalDisplay) slots.push({ label:"Range", display:totalDisplay, value:totalDisplay, resolved:true, available:true, property_key:total.prop ? "vehicle.range_total_km" : "experience.range_intelligence", prop:total.prop || null, source:total.prop ? "MOBILITY_PUBLIC_RUNTIME_V2" : "MOBILITY_EXPERIENCE_V2" });
-    if (evDisplay && evDisplay !== totalDisplay) slots.push({ label:"Electric", display:evDisplay, value:evDisplay, resolved:true, available:true, property_key:ev.prop ? "vehicle.ev_range_km" : "experience.range_intelligence", prop:ev.prop || null, source:ev.prop ? "MOBILITY_PUBLIC_RUNTIME_V2" : "MOBILITY_EXPERIENCE_V2" });
-    if (batteryDisplay) slots.push({ label:"Battery", display:batteryDisplay, value:batteryDisplay, resolved:true, available:true, property_key:soc.prop ? "vehicle.soc_pct" : "experience.energy_intelligence", prop:soc.prop || batteryEnergy.prop || null, source:(soc.prop || batteryEnergy.prop) ? "MOBILITY_PUBLIC_RUNTIME_V2" : "MOBILITY_EXPERIENCE_V2" });
-
+    if (total.display) slots.push({ label:"Range", display:total.display, value:total.display, resolved:true, available:true, property_key:"vehicle.range_total_km", prop:total.prop, source:"MOBILITY_CANONICAL_PROPERTY_V2" });
+    if (ev.display && ev.display !== total.display) slots.push({ label:"Electric", display:ev.display, value:ev.display, resolved:true, available:true, property_key:"vehicle.ev_range_km", prop:ev.prop, source:"MOBILITY_CANONICAL_PROPERTY_V2" });
+    const batteryDisplay = [soc.display, energy.display].filter(Boolean).join(" · ");
+    if (batteryDisplay) slots.push({ label:"Battery", display:batteryDisplay, value:batteryDisplay, resolved:true, available:true, property_key:"vehicle.soc_pct", prop:soc.prop || energy.prop, source:"MOBILITY_CANONICAL_PROPERTY_V2" });
     return slots;
   }
 
@@ -2385,58 +2366,55 @@ class HomeBrainAssetRuntime {
 
   normalizePropertyRow(row = {}) {
     if (!row || typeof row !== "object") return null;
-    const asset_id = row.asset_id || "";
-    const asset_type = row.asset_type || (String(asset_id).startsWith("vehicle_") ? "vehicle" : String(asset_id).startsWith("charger_") ? "charger" : String(asset_id).startsWith("person_") ? "person" : "");
-    const property_key = String(row.property_key || row.normalized_property || row.fact_type || row.key || "").trim();
-    if (!asset_id || !property_key) return null;
-    const fact_type = row.fact_type || property_key.split('.').pop();
+    const asset_id = String(row.asset_id || "").trim();
+    const asset_type = String(row.asset_type || row.logical_object_class || row.object_class || "").trim();
+    const property_key = String(row.property_key || "").trim();
+    if (!asset_id || !asset_type || !property_key) return null;
     return {
       ...row,
       asset_id,
       asset_type,
       property_key,
-      fact_type,
-      normalized_property: row.normalized_property || property_key,
-      value: row.value,
-      unit: row.unit ?? row.unit_of_measurement ?? "",
-      quality: row.quality || row.health || "Unknown",
-      health: row.health || row.quality || "Unknown",
-      access: row.access || (this.contractBool(row.editable, false) ? "editable" : "read_only"),
-      persistence: row.persistence || "",
-      editable: this.contractBool(row.editable, false),
-      editor: row.editor || row.editor_type || "",
-      validation: this.parseJsonValue(row.validation, row.validation || {}),
-      choices: this.parseJsonValue(row.choices, row.choices || null),
-      options: this.parseJsonValue(row.options, row.options || null),
-      choice_source: row.choice_source || "",
-      value_field: row.value_field || "value",
-      label_field: row.label_field || "label",
-      secondary_label_field: row.secondary_label_field || "secondary_label",
-      allow_none: this.contractBool(row.allow_none, false),
-      none_value: row.none_value ?? "",
-      // Backend V2 write metadata is authoritative. Never manufacture writeability from
-      // the mere presence of a target/service binding.
-      write_supported: this.contractBool(row.write_supported, false),
-      write_binding_type: row.write_binding_type || row.editor || "",
-      write_service_domain: row.write_service_domain || "",
-      write_service_action: row.write_service_action || "",
-      write_target_entity: row.write_target_entity || "",
-      write_service_data: this.parseJsonValue(row.write_service_data, row.write_service_data || {}),
-      write_value_field: row.write_value_field || row.write_field || "",
-      write_command: row.write_command || "",
-      family: row.family || row.property_family || row.ux_family || "",
-      group: row.group || row.property_group || row.ux_group || "",
-      parent: row.parent || row.parent_property || row.parent_key || row.summary_parent || "",
-      parent_property: row.parent_property || row.parent || row.parent_key || row.summary_parent || "",
-      detail_level: row.detail_level || row.visibility_level || row.ux_detail_level || "",
-      logical_entity: row.logical_entity || "",
-      display_order: row.display_order ?? row.sort_order ?? row.priority ?? 999,
-      display_name: row.display_name || row.label || row.name || "",
-      description: row.description || row.help || row.meaning || "",
-      icon: row.icon || "",
-      semantic_value_type: row.semantic_value_type || row.semantic_type || "",
-      value_type: row.value_type || row.type || row.semantic_value_type || row.semantic_type || "",
-      importance: row.importance || row.priority_level || ""
+      fact_type:String(row.fact_type || ""),
+      normalized_property:property_key,
+      value:row.value,
+      unit:row.unit ?? row.unit_of_measurement ?? "",
+      quality:String(row.quality || ""),
+      health:String(row.health || row.quality || ""),
+      access:String(row.access || ""),
+      persistence:String(row.persistence || ""),
+      editable:this.contractBool(row.editable, false),
+      editor:String(row.editor || row.editor_type || ""),
+      validation:this.parseJsonValue(row.validation, row.validation || {}),
+      choices:this.parseJsonValue(row.choices, row.choices || null),
+      options:this.parseJsonValue(row.options, row.options || null),
+      choice_source:String(row.choice_source || ""),
+      value_field:String(row.value_field || ""),
+      label_field:String(row.label_field || ""),
+      secondary_label_field:String(row.secondary_label_field || ""),
+      allow_none:this.contractBool(row.allow_none, false),
+      none_value:row.none_value ?? "",
+      write_supported:this.contractBool(row.write_supported, false),
+      write_binding_type:String(row.write_binding_type || row.editor || ""),
+      write_service_domain:String(row.write_service_domain || ""),
+      write_service_action:String(row.write_service_action || ""),
+      write_target_entity:String(row.write_target_entity || ""),
+      write_service_data:this.parseJsonValue(row.write_service_data, row.write_service_data || {}),
+      write_value_field:String(row.write_value_field || ""),
+      write_command:String(row.write_command || ""),
+      family:String(row.family || row.presentation_family || ""),
+      group:String(row.group || row.section_id || ""),
+      parent:String(row.parent || ""),
+      parent_property:String(row.parent_property || ""),
+      detail_level:String(row.detail_level || row.visibility || ""),
+      logical_entity:String(row.logical_entity || ""),
+      display_order:row.display_order ?? 999,
+      display_name:String(row.display_name || row.friendly_name || ""),
+      description:String(row.description || ""),
+      icon:String(row.icon || ""),
+      semantic_value_type:String(row.semantic_value_type || ""),
+      value_type:String(row.value_type || ""),
+      importance:String(row.importance || "")
     };
   }
 
@@ -2465,8 +2443,8 @@ class HomeBrainAssetRuntime {
     const one = (rows) => rows.length === 1 ? String(rows[0]?.vehicle_id || rows[0]?.asset_id || "none") : "none";
     const selected = one(configured), effective = one(effectiveRows), connected = one(physical);
     return {
-      assigned:selected !== "none" ? selected : effective, connected, effective, selected,
-      assigned_vehicle:selected !== "none" ? selected : effective,
+      assigned:selected, connected, effective, selected,
+      assigned_vehicle:selected,
       connected_vehicle:connected, effective_vehicle:effective, selected_vehicle:selected,
       relationship_resolution:physical.length > 1 || effectiveRows.length > 1 || configured.length > 1 ? "CONFLICT" : "V2",
       confidence:physical.length === 1 ? "proven" : "",
@@ -3012,7 +2990,7 @@ class HomeBrainAssetRuntime {
 
   assetViewModel(assetId) {
     const canonical = this.canonicalAssetId(assetId);
-    const asset = this.assetById(canonical, canonical.startsWith("vehicle_") ? "vehicle" : canonical.startsWith("charger_") ? "charger" : "all") || this.registryEntry(canonical) || { asset_id: canonical };
+    const asset = this.assetById(canonical, canonical.startsWith("vehicle_") ? "vehicle" : canonical.startsWith("charger_") ? "charger" : "all") || { asset_id:canonical, contract_gap:true };
     const facts = canonical.startsWith("vehicle_") ? { charging: this.liveChargingContextForVehicle(canonical) } : { charging: this.liveChargerInfo(canonical) };
     return {
       asset,
