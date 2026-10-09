@@ -1,4 +1,5 @@
 import fs from "node:fs";
+import vm from "node:vm";
 
 const runtime=fs.readFileSync("src/runtime/ha-contract-runtime.js","utf8");
 const index=fs.readFileSync("src/runtime/canonical-property-index.js","utf8");
@@ -49,4 +50,26 @@ if(contractDiscovery.includes("Object.values(this.hass?.states")) throw new Erro
 const overviewMetrics=body('  vehicleOverviewMetricSlots(assetId = "") {','  vehicleComponentDetailSections(assetId = "") {');
 if(overviewMetrics.includes("range_intelligence") || overviewMetrics.includes("energy_intelligence")) throw new Error("vehicle overview still substitutes Experience summaries for missing canonical properties");
 
-console.log("PASS Mobility canonical-property indexing and metadata-owned placement");
+
+const context=vm.createContext({Map,Set,Object,String,Array});
+vm.runInContext(index+"\\nglobalThis.MobilityCanonicalPropertyIndex=MobilityCanonicalPropertyIndex;",context);
+const Index=context.MobilityCanonicalPropertyIndex;
+const mk=(entity,asset="vehicle_1")=>({state:"42",attributes:{
+  canonical_contract:"MOBILITY_CANONICAL_PROPERTY_V2",
+  asset_id:asset,property_key:"battery.soc_pct",
+  presentation_role:"key",component_id:"status",section_id:"overview"
+}});
+const initial={states:{"sensor.vehicle_soc":mk(),"sensor.noncanonical":{state:"x",attributes:{}}}};
+const propertyIndex=new Index(initial);
+const beforeRevision=propertyIndex.revision("vehicle_1");
+const replacement={states:{"sensor.new_vehicle_soc":mk(),"sensor.noncanonical":initial.states["sensor.noncanonical"]}};
+propertyIndex.refresh(replacement);
+if(propertyIndex.row("vehicle_1","battery.soc_pct")?._source_entity_id!=="sensor.new_vehicle_soc") throw new Error("same-count entity replacement must be discovered");
+if(propertyIndex.byEntity.has("sensor.vehicle_soc")) throw new Error("stale canonical entity survived replacement");
+if(propertyIndex.revision("vehicle_1")<=beforeRevision) throw new Error("entity replacement must invalidate asset revision");
+const beforeRemoval=propertyIndex.revision();
+const vanished={states:{"sensor.noncanonical":replacement.states["sensor.noncanonical"],"sensor.other":{state:"y",attributes:{}}}};
+propertyIndex.refresh(vanished);
+if(propertyIndex.rows("vehicle_1").length!==0 || propertyIndex.revision()<=beforeRemoval) throw new Error("canonical removal must invalidate without shrinking HA state count");
+
+console.log("PASS Mobility canonical-property indexing, membership revision and metadata-owned placement");
