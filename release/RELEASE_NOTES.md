@@ -1,17 +1,14 @@
-# v1.0.0-rc.85 — canonical runtime performance
+# v1.0.0-rc.86 — canonical V2 zero-debt candidate
 
-- introduce a persistent canonical per-asset property index so normal rendering no longer repeatedly scans all Home Assistant states;
-- use per-asset canonical revision counters plus selected producer-owned contract revisions to decide whether a screen is dirty before materializing adapters and view models;
-- remove full aggregate-contract JSON serialization from detail/dashboard invalidation;
-- remove property-name semantic placement fallbacks; component, section and visibility metadata remain backend-owned;
-- keep generic number formatting driven by published units rather than property names;
-- consume MOBILITY_CANONICAL_PROPERTY_V2 as the primary per-property authority while aggregate Runtime V2 remains a compatibility surface;
-- retain existing user-visible Mobility behaviour and EN/NL/FR localization while the remaining aggregate V2 contracts stay transitional;
-- preserve MOBILITY_COMMAND_V2 and MOBILITY_ENERGY_V2 as real producer-owned domain boundaries;
-- qualify against Mobility M0.10.41;
-- preserve RHI UX Core 1.6.3 and immutable HACS tag-tree delivery.
+- publish the exact current Mobility UX runtime after the canonical V2, performance and zero-debt closures;
+- consume **MOBILITY_CANONICAL_PROPERTY_V2** as primary per-property authority;
+- retain **MOBILITY_PUBLIC_RUNTIME_V2** only as compatibility aggregate/fallback during migration;
+- keep revision-scoped canonical indexing and canonical duplicate precedence;
+- remove frontend semantic fallbacks that could recreate backend meaning;
+- keep **MOBILITY_COMMAND_V2** as command authority and **MOBILITY_ENERGY_V2** as the Energy boundary;
+- qualify against Mobility **M0.10.41**.
 
-Rollback: **v1.0.0-rc.84**.
+Rollback: **v1.0.0-rc.85**.
 Known accepted technical debt: **0**.
 Known accepted feature debt: **0**.
-Target-runtime qualification remains required before stable promotion.
+Target-runtime functional and CPU qualification remains required before stable promotion.
