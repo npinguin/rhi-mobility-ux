@@ -55,7 +55,7 @@ const context=vm.createContext({Map,Set,Object,String,Array});
 vm.runInContext(index+"\nglobalThis.MobilityCanonicalPropertyIndex=MobilityCanonicalPropertyIndex;",context);
 const Index=context.MobilityCanonicalPropertyIndex;
 const mk=(entity,asset="vehicle_1")=>({state:"42",attributes:{
-  canonical_contract:"MOBILITY_CANONICAL_PROPERTY_V2",
+  canonical_contract:"RHI_MOBILITY_CANONICAL_PROPERTY_V1",
   asset_id:asset,property_key:"battery.soc_pct",
   presentation_role:"key",component_id:"status",section_id:"overview"
 }});
@@ -72,4 +72,11 @@ const vanished={states:{"sensor.noncanonical":replacement.states["sensor.noncano
 propertyIndex.refresh(vanished);
 if(propertyIndex.rows("vehicle_1").length!==0 || propertyIndex.revision()<=beforeRemoval) throw new Error("canonical removal must invalidate without shrinking HA state count");
 
+const duplicate={states:{"sensor.a":mk(),"sensor.b":mk()}};
+const conflicting=new Index(duplicate);
+if(conflicting.row("vehicle_1","battery.soc_pct")!==null) throw new Error("duplicate native property must fail closed");
+if(conflicting.contractGaps()[0]?.reason!=="duplicate_canonical_property") throw new Error("duplicate native property must be reportable");
+const removedRevision=conflicting.revision("vehicle_1");
+conflicting.refresh({states:{"sensor.noncanonical":{state:"ok",attributes:{}}}});
+if(conflicting.revision("vehicle_1")<=removedRevision) throw new Error("removed native asset must invalidate its own revision");
 console.log("PASS Mobility canonical-property indexing, membership revision and metadata-owned placement");
