@@ -237,70 +237,34 @@ class HomeBrainAssetRuntime {
     return attrs;
   }
 
-  commandV2Label(commandKey = "") {
-    const key = String(commandKey || "").split(".").pop() || "";
-    const translationKeys = {
-      start:"action.start_charging",
-      stop:"action.stop_charging",
-      start_charging:"action.start_charging",
-      stop_charging:"action.stop_charging",
-      unlock_connector:"action.unlock_connector",
-      restart:"action.restart",
-      identify:"action.identify",
-      lock:"action.lock",
-      unlock:"action.unlock",
-      climate_start:"action.climate_start",
-      climate_stop:"action.climate_stop",
-      refresh:"action.refresh"
-    };
-    const translationKey = translationKeys[key] || "";
-    return translationKey ? this.t(translationKey,{},this.titleize(key.replace(/_/g, " "))) : this.titleize(key.replace(/_/g, " "));
-  }
-
   commandV2Rows(assetId = "") {
     const contract = this.mobilityCommandV2();
     if (!contract) return null;
     const canonical = this.canonicalAssetId(assetId);
-    const order = {
-      "charger.command.start":10,
-      "charger.command.start_charging":10,
-      "charger.command.stop":20,
-      "charger.command.stop_charging":20,
-      "charger.command.unlock_connector":30,
-      "vehicle.command.lock":10,
-      "vehicle.command.unlock":20,
-      "vehicle.command.climate_start":30,
-      "vehicle.command.climate_stop":40,
-      "charger.command.restart":70,
-      "charger.command.identify":80,
-      "vehicle.command.refresh":90
-    };
     return contract.commands
       .filter((row) => row && (!canonical || this.canonicalAssetId(row.asset_id || "") === canonical))
-      .map((row) => {
-        const key = String(row.command_key || "").trim();
-        const placement = String(row.placement || "").trim();
-        const family = placement.split(".").pop() || "";
-        return this.normalizeCommandEntry({
-          ...row,
-          command_id: row.command_id || (row.asset_id && key ? `${row.asset_id}:${key}` : key),
-          command_key:key,
-          label:row.label || this.commandV2Label(key),
-          command_family:row.command_family || (family === "primary" ? "charging" : family),
-          category:row.category || (family === "engineering" ? "secondary" : "primary"),
-          frontend_allowed:row.supported !== false,
-          exists:row.supported !== false,
-          enabled:row.supported !== false,
-          execution_allowed:row.execution_allowed === true,
-          blocked_reason:row.blocked_reason || "",
-          sort_order:row.sort_order ?? order[key] ?? 999,
-          service_domain:"rhi_mobility",
-          service_action:"execute_command",
-          service_data:{ asset_id:row.asset_id || canonical, command_key:key },
-          service_target:{},
-          _authority:"MOBILITY_COMMAND_V2"
-        }, row.asset_id || canonical);
-      })
+      .filter((row) => !!String(row.command_key || "").trim())
+      .filter((row) => !!String(row.label || "").trim())
+      .filter((row) => !!String(row.placement || "").trim())
+      .map((row) => this.normalizeCommandEntry({
+        ...row,
+        command_id:String(row.command_id || "").trim(),
+        command_key:String(row.command_key || "").trim(),
+        label:String(row.label || "").trim(),
+        command_family:String(row.command_family || "").trim(),
+        category:String(row.category || "").trim(),
+        frontend_allowed:row.supported !== false,
+        exists:row.supported !== false,
+        enabled:row.supported !== false,
+        execution_allowed:row.execution_allowed === true,
+        blocked_reason:row.blocked_reason || "",
+        sort_order:row.sort_order ?? 999,
+        service_domain:"rhi_mobility",
+        service_action:"execute_command",
+        service_data:{ asset_id:row.asset_id || canonical, command_key:String(row.command_key || "").trim() },
+        service_target:{},
+        _authority:"MOBILITY_COMMAND_V2"
+      }, row.asset_id || canonical))
       .filter(Boolean);
   }
 
@@ -1151,56 +1115,11 @@ class HomeBrainAssetRuntime {
 
 
   propertyDisplayLabel(row = {}) {
-    const key = String(row.property_key || row.fact_type || "");
-    const labels = {
-      "vehicle.preferred_charger_id":"Preferred charger",
-      "vehicle.connected_charger_id":"Connected charger",
-      "vehicle.effective_charger_id":"Active charger",
-      "vehicle.assigned_charger_id":"Preferred charger",
-      "vehicle.selected_charger":"Preferred charger",
-      "vehicle.effective_charger":"Active charger",
-      "vehicle.connected_charger":"Connected charger",
-      "vehicle.nominal_range_km":"Nominal range",
-      "vehicle.max_ac_power_kw":"Max AC power",
-      "vehicle.effective_max_charge_power_kw":"Effective max charge power",
-      "vehicle.effective_phase_count":"Effective phases",
-      "vehicle.phase_capability":"Phase capability",
-      "charger.max_ac_power_kw":"Max AC power",
-      "charger.physical_min_power_kw":"Physical min power",
-      "charger.physical_max_power_kw":"Physical max power",
-      "charger.phase_capability":"Phase capability",
-      "charger.energy_kwh":"Energy",
-      "vehicle.charge_mode":"Charge mode",
-      "vehicle.billing_account_id":"Billing account",
-      "charger.billing_account_id":"Billing account",
-      "vehicle.requested_charge_power_kw":"Vehicle charge power",
-      "requested_charge_power_kw":"Vehicle charge power",
-      "requested_power_kw":"Vehicle charge power",
-      "charge_power_kw":"Vehicle charge power",
-      "vehicle.requested_power_kw":"Vehicle charge power",
-      "vehicle.charge_power_kw":"Vehicle charge power",
-      "vehicle.mobility_charge_power_kw":"Vehicle charge power",
-      "charger.requested_power_kw":"Requested power",
-      "charger.current_limit_a":"Current limit",
-      "charger.connection_state":"Connection",
-      "charger.connected_vehicle_id":"Connected vehicle",
-      "charger.effective_vehicle_id":"Active vehicle",
-      "charger.selected_vehicle":"Connected vehicle",
-      "charger.effective_vehicle":"Active vehicle",
-      "charger.connected_vehicle":"Connected vehicle",
-      "charger.operating_state":"Operating state",
-      "charger.status":"Source status",
-      "lifecycle_status":"Lifecycle",
-      "asset.lifecycle_status":"Lifecycle",
-      "vehicle.lifecycle_status":"Lifecycle",
-      "charger.lifecycle_status":"Lifecycle"
-    };
-    if (labels[key]) return labels[key];
-    const explicit = String(row.display_name || row.label || row.name || "").trim();
-    if (explicit && explicit !== key) return explicit;
-    const labelKey = key.replace(/^(vehicle|charger|person|asset)\./, "");
-    return this.titleize(labelKey.replace(/_/g, " "));
+    const key = String(row.property_key || "");
+    const explicit = String(row.friendly_name || row.display_name || "").trim();
+    return explicit || `Contract gap: ${key || "property label"}`;
   }
+
 
   valueWithoutUnit(value, unit = "") {
     const raw = String(value ?? "").trim();
@@ -1930,7 +1849,8 @@ class HomeBrainAssetRuntime {
     const canonical = this.canonicalAssetId(assetId);
     const grouped = new Map();
     for (const row of this.v2PropertyRows(canonical)) {
-      const componentId = String(row.component_id || "details");
+      const componentId = String(row.component_id || "").trim();
+      if (!componentId) continue;
       if (!grouped.has(componentId)) grouped.set(componentId,{ component_id:componentId, asset_id:canonical, properties:[] });
       grouped.get(componentId).properties.push(row);
     }
@@ -2021,7 +1941,8 @@ class HomeBrainAssetRuntime {
     const canonical = this.canonicalAssetId(assetId);
     const grouped = new Map();
     for (const row of this.v2PropertyRows(canonical)) {
-      const componentId = String(row.component_id || "details");
+      const componentId = String(row.component_id || "").trim();
+      if (!componentId) continue;
       if (!grouped.has(componentId)) grouped.set(componentId,{ component_id:componentId, asset_id:canonical, properties:[] });
       grouped.get(componentId).properties.push(row);
     }
@@ -2114,16 +2035,13 @@ class HomeBrainAssetRuntime {
     const props = this.v2PropertyRows(canonical);
     if (!props.length) return null;
 
-    const hiddenFromProduct = assetType === "charger"
-      ? new Set(["charger.status","source_status","charger.operating_state"])
-      : new Set();
     const product = [];
     const engineering = [];
     const unplaced = [];
     for (const prop of props) {
       const visibility = String(prop.visibility || prop.ux_visibility || "").toLowerCase();
       if (visibility === "internal") continue;
-      if (visibility === "engineering" || visibility === "diagnostics" || visibility === "diagnostics_only" || hiddenFromProduct.has(String(prop.property_key || ""))) {
+      if (visibility === "engineering" || visibility === "diagnostics" || visibility === "diagnostics_only") {
         engineering.push(prop);
         continue;
       }
