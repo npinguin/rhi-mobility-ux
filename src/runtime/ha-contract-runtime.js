@@ -76,7 +76,6 @@ class HomeBrainAssetRuntime {
 
   allowedContractEntityIds() {
     return new Set([
-      "sensor.rhi_mobility_runtime_v2",
       "sensor.rhi_mobility_experience_v2",
       "sensor.rhi_mobility_policy_v2",
       "sensor.rhi_mobility_command_v2",
