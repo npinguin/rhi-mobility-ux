@@ -1,3 +1,12 @@
+## 1.0.0-rc.87 — Zero-Debt Canonical Property Release
+
+- make MOBILITY_CANONICAL_PROPERTY_V2 the sole frontend per-property truth;
+- remove legacy aliases, secondary lookup paths and broad contract discovery;
+- remove Experience/property substitution and frontend-invented component placement;
+- require producer-owned property and command presentation metadata;
+- retain MOBILITY_COMMAND_V2 and MOBILITY_ENERGY_V2 only as genuine boundary contracts;
+- add zero-debt ratchets preventing semantic fallbacks from returning.
+
 ## 1.0.0-rc.86 — Canonical V2 Zero-Debt Candidate
 
 - publish canonical V2 + performance + zero-debt runtime under a new immutable version;
