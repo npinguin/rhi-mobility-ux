@@ -1586,7 +1586,8 @@ class HomeBrainAssetRuntime {
     const attempts = Math.max(1, Number(options.attempts || 20));
     const delayMs = Math.max(25, Number(options.delay_ms || 150));
     for (let attempt = 0; attempt < attempts; attempt += 1) {
-      const row = this.v2SemanticProperty(canonical, propertyKey) || this.semanticProperty(canonical, propertyKey);
+      this._canonicalProperties.refresh(this.hass);
+      const row = this.v2SemanticProperty(canonical, propertyKey);
       if (row && this.canonicalWriteValueEqual(row.value, expected)) return true;
       if (attempt < attempts - 1) await new Promise((resolve)=>setTimeout(resolve, delayMs));
     }
@@ -1677,7 +1678,8 @@ class HomeBrainAssetRuntime {
     const renderedPublicPropertyKeys = new Set();
     const engineeringPublicPropertyKeys = new Set();
     const addFamily = (family) => {
-      const f = this.normalizedFamilyName(family) || "overview";
+      const f = this.normalizedFamilyName(family);
+      if (!f) return null;
       if (!groups.has(f)) groups.set(f, { properties:[], commands:[] });
       return groups.get(f);
     };
@@ -1701,8 +1703,11 @@ class HomeBrainAssetRuntime {
       const group = this.propertyGroup(prop);
       const parent = this.propertyParent(prop);
       const logical = this.propertyWriteSection(prop);
+      if (!family || !bucket) {
+        warnings.push(`Missing property family metadata for ${prop.property_key}; property remains a contract gap.`);
+        continue;
+      }
       bucket.properties.push({ ...prop, _ux_family:family, _ux_group:group, _ux_parent:parent, _ux_level:level, _ux_logical_section:logical });
-      if (!family) warnings.push(`Missing property family metadata for ${prop.property_key}; property remains a contract gap.`);
       if (!logical) warnings.push(`Missing section/placement metadata for ${prop.property_key}; property remains a contract gap.`);
       if (prop.editable && !this.isWritableProperty(prop)) warnings.push(`Editable property ${prop.property_key} is not writable under R41.4; UX renders it read-only and reports backend contract gap.`);
       if (String(prop.group || "").toLowerCase() === "main_info") warnings.push(`Property ${prop.property_key} still uses deprecated group=main_info; R41.4 requires group=overview.`);
