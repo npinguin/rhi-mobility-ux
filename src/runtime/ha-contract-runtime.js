@@ -57,7 +57,8 @@ class HomeBrainAssetRuntime {
 
   contractAuthorityRegistry() {
     return {
-      fleet_runtime_v2: { contract_id: "MOBILITY_PUBLIC_RUNTIME_V2", role: "authority" },
+      canonical_property_v2: { contract_id: "MOBILITY_CANONICAL_PROPERTY_V2", role: "primary_property_authority" },
+      fleet_runtime_v2: { contract_id: "MOBILITY_PUBLIC_RUNTIME_V2", role: "compatibility_aggregate" },
       product_experience_v2: { contract_id: "MOBILITY_EXPERIENCE_V2", role: "authority" },
       product_policy_v2: { contract_id: "MOBILITY_POLICY_V2", role: "authority" },
       command_v2: { contract_id: "MOBILITY_COMMAND_V2", role: "authority" },
