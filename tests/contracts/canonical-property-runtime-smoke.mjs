@@ -52,7 +52,7 @@ if(overviewMetrics.includes("range_intelligence") || overviewMetrics.includes("e
 
 
 const context=vm.createContext({Map,Set,Object,String,Array});
-vm.runInContext(index+"\\nglobalThis.MobilityCanonicalPropertyIndex=MobilityCanonicalPropertyIndex;",context);
+vm.runInContext(index+"\nglobalThis.MobilityCanonicalPropertyIndex=MobilityCanonicalPropertyIndex;",context);
 const Index=context.MobilityCanonicalPropertyIndex;
 const mk=(entity,asset="vehicle_1")=>({state:"42",attributes:{
   canonical_contract:"MOBILITY_CANONICAL_PROPERTY_V2",
