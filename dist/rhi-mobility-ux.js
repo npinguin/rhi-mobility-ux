@@ -1,5 +1,5 @@
 /**
- * Robotix Home Intelligence Mobility UX v1.0.0-rc.84
+ * Robotix Home Intelligence Mobility UX v1.0.0-rc.85
  * GENERATED FILE - DO NOT EDIT.
  * License: GPL-3.0-only
  */
@@ -952,7 +952,7 @@ function hbMobilityPresentationStyles() {
 // ---- src/app/header-and-navigation.js ----
 // Mobility presentation adapter onto the shared RHI UX Core.
 // Domain semantics remain owned by Mobility runtime/projections.
-const UX_VERSION = "1.0.0-rc.84";
+const UX_VERSION = "1.0.0-rc.85";
 const HB_MOBILITY_ROUTE_SEGMENTS = new Set([
   "overview","dashboard","vehicles","charger-maintenance","chargers",
   "planning","strategies","history","log","asset-detail","detail","charging"
@@ -1191,11 +1191,10 @@ const HI_MOBILITY_INTELLIGENCE_MODEL_ALIGNMENT = Object.freeze({
 // ---- src/runtime/canonical-property-index.js ----
 // Persistent Mobility canonical-property index.
 //
-// Current Mobility property entities identify themselves with
-// canonical_contract=MOBILITY_PUBLIC_RUNTIME_V2. They already publish the
-// producer-owned placement metadata (component_id, section_id, visibility,
-// placements, render_as, display_order, friendly_name). The UX consumes that
-// metadata literally and never derives placement from property_key.
+// Mobility canonical property entities identify themselves with
+// canonical_contract=MOBILITY_CANONICAL_PROPERTY_V2. Aggregate Runtime V2
+// property rows remain compatibility input during migration only. Both carry
+// producer-owned placement metadata; canonical property rows always win.
 class MobilityCanonicalPropertyIndex {
   constructor(hass = {}) {
     this.byEntity = new Map();
@@ -1211,7 +1210,8 @@ class MobilityCanonicalPropertyIndex {
 
   isCanonicalPropertyState(state) {
     const attrs = state?.attributes || {};
-    return String(attrs.canonical_contract || '').toUpperCase() === 'MOBILITY_PUBLIC_RUNTIME_V2'
+    const contract=String(attrs.canonical_contract || '').toUpperCase();
+    return ['MOBILITY_CANONICAL_PROPERTY_V2','MOBILITY_PUBLIC_RUNTIME_V2'].includes(contract)
       && !!String(attrs.asset_id || '').trim()
       && !!String(attrs.property_key || '').trim();
   }
@@ -1226,7 +1226,7 @@ class MobilityCanonicalPropertyIndex {
       value:Object.prototype.hasOwnProperty.call(attrs,'value') ? attrs.value : state?.state,
       display_name:attrs.display_name || attrs.friendly_name || '',
       _source_entity_id:String(entityId || ''),
-      canonical_contract:'MOBILITY_PUBLIC_RUNTIME_V2'
+      canonical_contract:String(attrs.canonical_contract || 'MOBILITY_CANONICAL_PROPERTY_V2').toUpperCase()
     };
   }
 
@@ -1236,7 +1236,11 @@ class MobilityCanonicalPropertyIndex {
     this.byEntity.set(entityId,row);
     if(!this.byAsset.has(row.asset_id)) this.byAsset.set(row.asset_id,[]);
     this.byAsset.get(row.asset_id).push(row);
-    this.byAssetAndKey.set(`${row.asset_id}::${row.property_key}`,row);
+    const compound=`${row.asset_id}::${row.property_key}`;
+    const current=this.byAssetAndKey.get(compound);
+    const rowCanonical=String(row.canonical_contract || '').toUpperCase()==='MOBILITY_CANONICAL_PROPERTY_V2';
+    const currentCanonical=String(current?.canonical_contract || '').toUpperCase()==='MOBILITY_CANONICAL_PROPERTY_V2';
+    if(!current || rowCanonical || !currentCanonical) this.byAssetAndKey.set(compound,row);
     this.stateRefs.set(entityId,state);
   }
 
@@ -1303,7 +1307,16 @@ class MobilityCanonicalPropertyIndex {
 
   rows(assetId = '') {
     const id=String(assetId || '').trim();
-    return id ? [...(this.byAsset.get(id)||[])] : [...this.byEntity.values()];
+    const source=id ? [...(this.byAsset.get(id)||[])] : [...this.byEntity.values()];
+    const selected=new Map();
+    for(const row of source) {
+      const key=`${row.asset_id}::${row.property_key}`;
+      const current=selected.get(key);
+      const rowCanonical=String(row.canonical_contract || '').toUpperCase()==='MOBILITY_CANONICAL_PROPERTY_V2';
+      const currentCanonical=String(current?.canonical_contract || '').toUpperCase()==='MOBILITY_CANONICAL_PROPERTY_V2';
+      if(!current || rowCanonical || !currentCanonical) selected.set(key,row);
+    }
+    return [...selected.values()];
   }
 
   row(assetId='',propertyKey='') {
@@ -1392,7 +1405,8 @@ class HomeBrainAssetRuntime {
 
   contractAuthorityRegistry() {
     return {
-      fleet_runtime_v2: { contract_id: "MOBILITY_PUBLIC_RUNTIME_V2", role: "authority" },
+      canonical_property_v2: { contract_id: "MOBILITY_CANONICAL_PROPERTY_V2", role: "primary_property_authority" },
+      fleet_runtime_v2: { contract_id: "MOBILITY_PUBLIC_RUNTIME_V2", role: "compatibility_aggregate" },
       product_experience_v2: { contract_id: "MOBILITY_EXPERIENCE_V2", role: "authority" },
       product_policy_v2: { contract_id: "MOBILITY_POLICY_V2", role: "authority" },
       command_v2: { contract_id: "MOBILITY_COMMAND_V2", role: "authority" },
