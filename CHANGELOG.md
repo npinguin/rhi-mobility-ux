@@ -1,10 +1,12 @@
-## 1.0.0-rc.85 — Canonical Property Performance Architecture
+## 1.0.0-rc.85 — Canonical Runtime Performance
 
-- persistently index canonical per-asset property entities instead of rescanning all HA states;
-- consume producer-owned placement metadata literally and remove property-name placement heuristics;
-- use entity revision signatures instead of serializing complete Runtime/Experience/Policy/Activity trees on refresh;
-- suppress dashboard/detail/management/routed rebuilds for irrelevant Home Assistant state updates;
-- preserve thin producer-owned command and Energy boundary contracts, multilingual UX and fail-closed truth.
+- index MOBILITY_CANONICAL_PROPERTY_V2 per-asset properties once instead of scanning all Home Assistant states for each property projection;
+- stop serializing complete Runtime, Experience, Policy, Command, Activity and Supervision contract trees to detect ordinary UI changes;
+- gate dashboard, asset-detail, charger-management and routed views on relevant entity/canonical revision changes before building view models;
+- remove frontend property-name heuristics from semantic placement and consume backend-owned component, section and visibility metadata literally;
+- make generic numeric formatting unit-driven instead of property-name-driven;
+- retain MOBILITY_COMMAND_V2 and MOBILITY_ENERGY_V2 as producer-owned domain-boundary contracts and keep aggregate V2 contracts transitional during migration;
+- preserve EN/NL/FR pilot localization, HACS packaging and zero accepted technical/feature debt.
 
 ## 1.0.0-rc.84 — Pilot Localization and Core Convergence
 
