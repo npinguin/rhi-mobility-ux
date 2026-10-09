@@ -237,6 +237,26 @@ class HomeBrainAssetRuntime {
     return attrs;
   }
 
+  commandV2Label(commandKey = "") {
+    const key = String(commandKey || "").split(".").pop() || "";
+    const translationKeys = {
+      start:"action.start_charging",
+      stop:"action.stop_charging",
+      start_charging:"action.start_charging",
+      stop_charging:"action.stop_charging",
+      unlock_connector:"action.unlock_connector",
+      restart:"action.restart",
+      identify:"action.identify",
+      lock:"action.lock",
+      unlock:"action.unlock",
+      climate_start:"action.climate_start",
+      climate_stop:"action.climate_stop",
+      refresh:"action.refresh"
+    };
+    const translationKey = translationKeys[key] || "";
+    return translationKey ? this.t(translationKey,{},this.titleize(key.replace(/_/g," "))) : this.titleize(key.replace(/_/g," "));
+  }
+
   commandV2Rows(assetId = "") {
     const contract = this.mobilityCommandV2();
     if (!contract) return null;
@@ -244,13 +264,12 @@ class HomeBrainAssetRuntime {
     return contract.commands
       .filter((row) => row && (!canonical || this.canonicalAssetId(row.asset_id || "") === canonical))
       .filter((row) => !!String(row.command_key || "").trim())
-      .filter((row) => !!String(row.label || "").trim())
       .filter((row) => !!String(row.placement || "").trim())
       .map((row) => this.normalizeCommandEntry({
         ...row,
         command_id:String(row.command_id || "").trim(),
         command_key:String(row.command_key || "").trim(),
-        label:String(row.label || "").trim(),
+        label:String(row.label || "").trim() || this.commandV2Label(row.command_key),
         command_family:String(row.command_family || "").trim(),
         category:String(row.category || "").trim(),
         frontend_allowed:row.supported !== false,
