@@ -118,14 +118,17 @@ for(const needle of [
   'vehicle.ev_range_km',
   'vehicle.soc_pct',
   'vehicle.current_energy_kwh',
-  'this.vehicleExperienceV2(canonical)',
   'this.semanticProperty(canonical, key)',
-  'experience.range_intelligence',
-  'experience.energy_intelligence',
-  'if (totalDisplay) slots.push',
+  'if (total.display) slots.push',
   'if (batteryDisplay) slots.push'
 ]) if(!runtime.includes(needle)) throw new Error('rc.64 canonical vehicle summary regression: missing '+needle);
-if(runtime.includes('propertyByCompoundKey(canonical, spec.property_key)')) throw new Error('rc.64 vehicle summary regressed to materialized-property-only slots');
+if(runtime.includes('propertyByCompoundKey(canonical, spec.property_key)')) throw new Error('rc.64 vehicle summary regressed to secondary property lookup');
+const summaryStart=runtime.indexOf('  vehicleOverviewMetricSlots(assetId = "") {');
+const summaryEnd=runtime.indexOf('  vehicleComponentDetailSections(assetId = "") {',summaryStart);
+const summaryBlock=runtime.slice(summaryStart,summaryEnd);
+if(summaryBlock.includes('vehicleExperienceV2') || summaryBlock.includes('range_intelligence') || summaryBlock.includes('energy_intelligence')) {
+  throw new Error('vehicle summary must not backfill canonical properties from Experience V2');
+}
 
 if(!chargers.includes('.charger-visual:not(.image-missing) .charger-visual-fallback{display:none}')) {
   throw new Error('rc.59 real charger artwork must suppress generic fallback');
