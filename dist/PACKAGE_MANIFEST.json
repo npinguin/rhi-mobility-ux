@@ -12,7 +12,7 @@
     "metadata",
     "vehicles"
   ],
-  "runtime_sha256": "5a9d28b2c8bbe650465a6932754aa768f2b08453974997e5abdef77103fbe91f",
+  "runtime_sha256": "1eb7d41030843cdd0d39803fe625a4aa7eedef2b76589f2495a124976f59f51f",
   "files": [
     {
       "path": "assets/chargers/charger_fallback.png",
@@ -104,7 +104,7 @@
     },
     {
       "path": "rhi-mobility-ux.js",
-      "bytes": 793577
+      "bytes": 793904
     },
     {
       "path": "rhi-mobility-ux.js.sha256",
