@@ -1200,6 +1200,7 @@ class MobilityCanonicalPropertyIndex {
     this.byAsset = new Map();
     this.byAssetAndKey = new Map();
     this.stateRefs = new Map();
+    this.ambiguousKeys = new Set();
     this.assetRevisions = new Map();
     this._globalRevision = 0;
     this._stateCount = 0;
@@ -1238,20 +1239,24 @@ class MobilityCanonicalPropertyIndex {
     const compound=`${row.asset_id}::${row.property_key}`;
     const current=this.byAssetAndKey.get(compound);
     if(!current) this.byAssetAndKey.set(compound,row);
+    else this.ambiguousKeys.add(compound);
     this.stateRefs.set(entityId,state);
   }
 
   discover(hass = {}) {
+    const previousAssetIds = new Set(this.byAsset.keys());
     this.byEntity.clear();
     this.byAsset.clear();
     this.byAssetAndKey.clear();
     this.stateRefs.clear();
+    this.ambiguousKeys.clear();
     const states=hass?.states || {};
     this._hassRef=hass;
     this._stateCount=Object.keys(states).length;
     for(const [entityId,state] of Object.entries(states)) this._index(entityId,state);
     this._globalRevision += 1;
-    for(const assetId of this.byAsset.keys()) this.assetRevisions.set(assetId,(this.assetRevisions.get(assetId)||0)+1);
+    for(const assetId of new Set([...previousAssetIds,...this.byAsset.keys()]))
+      this.assetRevisions.set(assetId,(this.assetRevisions.get(assetId)||0)+1);
     return this;
   }
 
@@ -1311,7 +1316,12 @@ class MobilityCanonicalPropertyIndex {
   }
 
   row(assetId='',propertyKey='') {
-    return this.byAssetAndKey.get(`${String(assetId||'')}::${String(propertyKey||'')}`) || null;
+    const key=`${String(assetId||'')}::${String(propertyKey||'')}`;
+    return this.ambiguousKeys.has(key) ? null : (this.byAssetAndKey.get(key) || null);
+  }
+
+  contractGaps() {
+    return [...this.ambiguousKeys].sort().map(key=>({key,reason:'duplicate_canonical_property'}));
   }
 
   entityIds(assetId='') {
