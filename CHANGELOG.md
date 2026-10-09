@@ -1,3 +1,10 @@
+## 1.0.0-rc.88 — Experimental Mobility HACS native-property candidate
+
+- align release compatibility declaration with actual backend canonical property marker `RHI_MOBILITY_CANONICAL_PROPERTY_V1`;
+- preserve duplicate/renamed-property fail-closed indexing and HACS package reproducibility;
+- publish explicit, separately versioned installable experimental test candidate;
+- retain unresolved Runtime V2 migration and HA execution/relationship qualification as stable NO-GO gates.
+
 ## 1.0.0-rc.87 — Zero-Debt Canonical Property Release
 
 - make MOBILITY_CANONICAL_PROPERTY_V2 the sole frontend per-property truth;
