@@ -1192,7 +1192,7 @@ const HI_MOBILITY_INTELLIGENCE_MODEL_ALIGNMENT = Object.freeze({
 // Persistent Mobility canonical-property index.
 //
 // Mobility canonical property entities identify themselves with
-// canonical_contract=MOBILITY_CANONICAL_PROPERTY_V2. This is the sole
+// canonical_contract=RHI_MOBILITY_CANONICAL_PROPERTY_V1. This is the sole
 // frontend property-truth contract. Aggregate Runtime V2 never backfills it.
 class MobilityCanonicalPropertyIndex {
   constructor(hass = {}) {
@@ -1211,7 +1211,7 @@ class MobilityCanonicalPropertyIndex {
   isCanonicalPropertyState(state) {
     const attrs = state?.attributes || {};
     const contract=String(attrs.canonical_contract || '').toUpperCase();
-    return contract === 'MOBILITY_CANONICAL_PROPERTY_V2'
+    return contract === 'RHI_MOBILITY_CANONICAL_PROPERTY_V1'
       && !!String(attrs.asset_id || '').trim()
       && !!String(attrs.property_key || '').trim();
   }
@@ -1226,7 +1226,7 @@ class MobilityCanonicalPropertyIndex {
       value:Object.prototype.hasOwnProperty.call(attrs,'value') ? attrs.value : state?.state,
       display_name:attrs.display_name || attrs.friendly_name || '',
       _source_entity_id:String(entityId || ''),
-      canonical_contract:String(attrs.canonical_contract || 'MOBILITY_CANONICAL_PROPERTY_V2').toUpperCase()
+      canonical_contract:String(attrs.canonical_contract || 'RHI_MOBILITY_CANONICAL_PROPERTY_V1').toUpperCase()
     };
   }
 
