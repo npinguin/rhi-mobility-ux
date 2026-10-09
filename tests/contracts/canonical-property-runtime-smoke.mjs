@@ -40,4 +40,13 @@ if(revisionBody.includes(".entityIds(canonical)")) throw new Error("product revi
 if(runtime.includes("JSON.stringify(this.mobilityRuntimeV2())") || runtime.includes("JSON.stringify(this.mobilityExperienceV2())")) throw new Error("runtimeSignature must not serialize full aggregate contracts");
 for(const token of ["component_id","section_id","visibility","render_as"]) if(!index.includes(token)) throw new Error("Mobility property index must track placement metadata: "+token);
 if(!index.includes("assetRevisions") || !index.includes("_globalRevision")) throw new Error("Mobility property index must maintain revision counters");
+
+if(runtime.includes("legacyAliases =")) throw new Error("legacy property alias matrix remains in Mobility runtime");
+const semanticLookup=body('  semanticProperty(assetId = "", propertyKey = "") {','  propertyByCompoundKey(assetId = "", propertyKey = "") {');
+if(semanticLookup.includes("||")) throw new Error("semanticProperty still contains a secondary lookup fallback");
+const contractDiscovery=body('  contractEntity(contractId = "", preferredEntityIds = []) {','  mobilityRuntimeV2() {');
+if(contractDiscovery.includes("Object.values(this.hass?.states")) throw new Error("contract discovery still scans arbitrary HA states as fallback");
+const overviewMetrics=body('  vehicleOverviewMetricSlots(assetId = "") {','  vehicleComponentDetailSections(assetId = "") {');
+if(overviewMetrics.includes("range_intelligence") || overviewMetrics.includes("energy_intelligence")) throw new Error("vehicle overview still substitutes Experience summaries for missing canonical properties");
+
 console.log("PASS Mobility canonical-property indexing and metadata-owned placement");
