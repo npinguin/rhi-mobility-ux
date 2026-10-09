@@ -21,7 +21,7 @@ const prop=(entityId,key,value,extra={})=>[entityId,{
   entity_id:entityId,
   state:value===null?'unknown':String(value),
   attributes:{
-    canonical_contract:'MOBILITY_PUBLIC_RUNTIME_V2',
+    canonical_contract:'MOBILITY_CANONICAL_PROPERTY_V2',
     asset_id:aid,
     asset_type:'charger',
     property_key:key,
