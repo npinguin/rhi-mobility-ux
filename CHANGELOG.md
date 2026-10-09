@@ -1,3 +1,11 @@
+## 1.0.0-rc.85 — Canonical Property Performance Architecture
+
+- persistently index canonical per-asset property entities instead of rescanning all HA states;
+- consume producer-owned placement metadata literally and remove property-name placement heuristics;
+- use entity revision signatures instead of serializing complete Runtime/Experience/Policy/Activity trees on refresh;
+- suppress dashboard/detail/management/routed rebuilds for irrelevant Home Assistant state updates;
+- preserve thin producer-owned command and Energy boundary contracts, multilingual UX and fail-closed truth.
+
 ## 1.0.0-rc.84 — Pilot Localization and Core Convergence
 
 - adopt RHI UX Core 1.6.3 as the exact build-time presentation baseline;
