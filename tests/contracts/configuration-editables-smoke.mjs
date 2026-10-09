@@ -14,7 +14,7 @@ function propertyState(entityId, assetId, propertyKey, value, extra={}){
     entity_id:entityId,
     state:value===null ? 'unknown' : String(value),
     attributes:{
-      canonical_contract:'MOBILITY_PUBLIC_RUNTIME_V2',
+      canonical_contract:'MOBILITY_CANONICAL_PROPERTY_V2',
       asset_id:assetId,
       property_key:propertyKey,
       value,

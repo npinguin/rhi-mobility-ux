@@ -18,6 +18,14 @@ const legacy=[
   /sensor\.mobility_release_(?:contract|identity)/g,
   /sensor\.energy_(?:planning|planning_experience|flexible_asset|strategy_profile|strategy_effective|asset_metering|value_accounting)_index/g
 ];
+
+const semanticFallbacks=[
+  /legacyAliases\s*=\s*\{/g,
+  /compatibility_aggregate/g,
+  /return\s+this\.v2SemanticProperty\([^\n]+\)\s*\|\|\s*this\.propertyByCompoundKey/g,
+  /Object\.values\(this\.hass\?\.states\s*\|\|\s*\{\}\)\.find\([^\n]*contract_id/g,
+];
+
 function files(dir){
   if(!fs.existsSync(dir)) return [];
   return fs.readdirSync(dir,{withFileTypes:true}).flatMap(e=>{
@@ -34,9 +42,13 @@ for(const file of files(path.join(root,"src"))){
     const matches=text.match(rx)||[];
     if(matches.length) failures.push(`${rel}: legacy Mobility product API remains: ${[...new Set(matches)].join(", ")}`);
   }
+  for(const rx of semanticFallbacks){
+    const matches=text.match(rx)||[];
+    if(matches.length) failures.push(`${rel}: semantic compatibility fallback remains: ${[...new Set(matches)].join(", ")}`);
+  }
 }
 if(failures.length){
   console.error(failures.join("\n"));
   process.exit(1);
 }
-console.log("PASS zero-debt gate: no Mobility V1 product API and no !important presentation debt");
+console.log("PASS zero-debt gate: canonical Mobility truth fails closed; no semantic compatibility fallback, V1 product API or presentation debt");

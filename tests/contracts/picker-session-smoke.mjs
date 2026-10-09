@@ -29,10 +29,11 @@ if(!chargerBlock.includes('this._chargerPickerDraft.set')) throw new Error('char
 if(!dashboard.includes('if (!forceRender && this._vehiclePickerAsset && this._lastRenderOk) return;')) throw new Error('open vehicle picker must block normal HA card reconstruction');
 if(!chargers.includes('if (!this._forceRender && this._chargerPickerAsset && this._lastRenderOk) return;')) throw new Error('open charger picker must allow one forced render, then block normal HA card reconstruction');
 if(!router.includes('activeDetailControl?.closest?.(".detail-vehicle-picker,.detail-charger-picker")')) throw new Error('focused detail picker must survive runtime refresh');
-for(const needle of ['MOBILITY_PUBLIC_RUNTIME_V2','v2SemanticProperty(assetId = "", propertyKey = "")','semanticProperty(assetId = "", propertyKey = "")','write_supported','write_service_domain','write_target_entity']) {
-  if(!runtime.includes(needle)) throw new Error(`runtime duplicate property resolution no longer prefers canonical writable metadata: missing ${needle}`);
+for(const needle of ['MOBILITY_CANONICAL_PROPERTY_V2','v2SemanticProperty(assetId = "", propertyKey = "")','semanticProperty(assetId = "", propertyKey = "")','write_supported','write_service_domain','write_target_entity']) {
+  if(!runtime.includes(needle)) throw new Error(`canonical property/write contract regression: missing ${needle}`);
 }
-if(!runtime.includes('rows.slice().sort((a,b)=>score(b)-score(a))[0]')) throw new Error('compound property lookup must choose the richest canonical duplicate');
+if(runtime.includes('rows.slice().sort((a,b)=>score(b)-score(a))[0]')) throw new Error('frontend duplicate-property scoring must not return');
+if(!runtime.includes('return this.v2SemanticProperty(assetId, propertyKey);')) throw new Error('compound property lookup must remain exact canonical lookup');
 if(!assetShell.includes('saveButton.disabled = !visual.writable')) throw new Error('detail picker must honor the V2 profile + appearance selection write capability');
 
 for(const needle of ['Domain public runtime V2','local draft + live preview','must not trigger a complete Home Assistant card render','Reuse by Energy']) {

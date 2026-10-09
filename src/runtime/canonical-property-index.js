@@ -1,9 +1,8 @@
 // Persistent Mobility canonical-property index.
 //
 // Mobility canonical property entities identify themselves with
-// canonical_contract=MOBILITY_CANONICAL_PROPERTY_V2. Aggregate Runtime V2
-// property rows remain compatibility input during migration only. Both carry
-// producer-owned placement metadata; canonical property rows always win.
+// canonical_contract=MOBILITY_CANONICAL_PROPERTY_V2. This is the sole
+// frontend property-truth contract. Aggregate Runtime V2 never backfills it.
 class MobilityCanonicalPropertyIndex {
   constructor(hass = {}) {
     this.byEntity = new Map();
@@ -20,7 +19,7 @@ class MobilityCanonicalPropertyIndex {
   isCanonicalPropertyState(state) {
     const attrs = state?.attributes || {};
     const contract=String(attrs.canonical_contract || '').toUpperCase();
-    return ['MOBILITY_CANONICAL_PROPERTY_V2','MOBILITY_PUBLIC_RUNTIME_V2'].includes(contract)
+    return contract === 'MOBILITY_CANONICAL_PROPERTY_V2'
       && !!String(attrs.asset_id || '').trim()
       && !!String(attrs.property_key || '').trim();
   }
@@ -47,9 +46,7 @@ class MobilityCanonicalPropertyIndex {
     this.byAsset.get(row.asset_id).push(row);
     const compound=`${row.asset_id}::${row.property_key}`;
     const current=this.byAssetAndKey.get(compound);
-    const rowCanonical=String(row.canonical_contract || '').toUpperCase()==='MOBILITY_CANONICAL_PROPERTY_V2';
-    const currentCanonical=String(current?.canonical_contract || '').toUpperCase()==='MOBILITY_CANONICAL_PROPERTY_V2';
-    if(!current || rowCanonical || !currentCanonical) this.byAssetAndKey.set(compound,row);
+    if(!current) this.byAssetAndKey.set(compound,row);
     this.stateRefs.set(entityId,state);
   }
 
@@ -68,7 +65,6 @@ class MobilityCanonicalPropertyIndex {
   }
 
   refresh(hass = {}) {
-    if(hass === this._hassRef) return;
     const states=hass?.states || {};
     if(Object.keys(states).length !== this._stateCount) {
       this.discover(hass);
@@ -117,15 +113,7 @@ class MobilityCanonicalPropertyIndex {
   rows(assetId = '') {
     const id=String(assetId || '').trim();
     const source=id ? [...(this.byAsset.get(id)||[])] : [...this.byEntity.values()];
-    const selected=new Map();
-    for(const row of source) {
-      const key=`${row.asset_id}::${row.property_key}`;
-      const current=selected.get(key);
-      const rowCanonical=String(row.canonical_contract || '').toUpperCase()==='MOBILITY_CANONICAL_PROPERTY_V2';
-      const currentCanonical=String(current?.canonical_contract || '').toUpperCase()==='MOBILITY_CANONICAL_PROPERTY_V2';
-      if(!current || rowCanonical || !currentCanonical) selected.set(key,row);
-    }
-    return [...selected.values()];
+    return source;
   }
 
   row(assetId='',propertyKey='') {

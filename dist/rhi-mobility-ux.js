@@ -1192,9 +1192,8 @@ const HI_MOBILITY_INTELLIGENCE_MODEL_ALIGNMENT = Object.freeze({
 // Persistent Mobility canonical-property index.
 //
 // Mobility canonical property entities identify themselves with
-// canonical_contract=MOBILITY_CANONICAL_PROPERTY_V2. Aggregate Runtime V2
-// property rows remain compatibility input during migration only. Both carry
-// producer-owned placement metadata; canonical property rows always win.
+// canonical_contract=MOBILITY_CANONICAL_PROPERTY_V2. This is the sole
+// frontend property-truth contract. Aggregate Runtime V2 never backfills it.
 class MobilityCanonicalPropertyIndex {
   constructor(hass = {}) {
     this.byEntity = new Map();
@@ -1211,7 +1210,7 @@ class MobilityCanonicalPropertyIndex {
   isCanonicalPropertyState(state) {
     const attrs = state?.attributes || {};
     const contract=String(attrs.canonical_contract || '').toUpperCase();
-    return ['MOBILITY_CANONICAL_PROPERTY_V2','MOBILITY_PUBLIC_RUNTIME_V2'].includes(contract)
+    return contract === 'MOBILITY_CANONICAL_PROPERTY_V2'
       && !!String(attrs.asset_id || '').trim()
       && !!String(attrs.property_key || '').trim();
   }
@@ -1238,9 +1237,7 @@ class MobilityCanonicalPropertyIndex {
     this.byAsset.get(row.asset_id).push(row);
     const compound=`${row.asset_id}::${row.property_key}`;
     const current=this.byAssetAndKey.get(compound);
-    const rowCanonical=String(row.canonical_contract || '').toUpperCase()==='MOBILITY_CANONICAL_PROPERTY_V2';
-    const currentCanonical=String(current?.canonical_contract || '').toUpperCase()==='MOBILITY_CANONICAL_PROPERTY_V2';
-    if(!current || rowCanonical || !currentCanonical) this.byAssetAndKey.set(compound,row);
+    if(!current) this.byAssetAndKey.set(compound,row);
     this.stateRefs.set(entityId,state);
   }
 
@@ -1259,7 +1256,6 @@ class MobilityCanonicalPropertyIndex {
   }
 
   refresh(hass = {}) {
-    if(hass === this._hassRef) return;
     const states=hass?.states || {};
     if(Object.keys(states).length !== this._stateCount) {
       this.discover(hass);
@@ -1308,15 +1304,7 @@ class MobilityCanonicalPropertyIndex {
   rows(assetId = '') {
     const id=String(assetId || '').trim();
     const source=id ? [...(this.byAsset.get(id)||[])] : [...this.byEntity.values()];
-    const selected=new Map();
-    for(const row of source) {
-      const key=`${row.asset_id}::${row.property_key}`;
-      const current=selected.get(key);
-      const rowCanonical=String(row.canonical_contract || '').toUpperCase()==='MOBILITY_CANONICAL_PROPERTY_V2';
-      const currentCanonical=String(current?.canonical_contract || '').toUpperCase()==='MOBILITY_CANONICAL_PROPERTY_V2';
-      if(!current || rowCanonical || !currentCanonical) selected.set(key,row);
-    }
-    return [...selected.values()];
+    return source;
   }
 
   row(assetId='',propertyKey='') {
@@ -1406,7 +1394,7 @@ class HomeBrainAssetRuntime {
   contractAuthorityRegistry() {
     return {
       canonical_property_v2: { contract_id: "MOBILITY_CANONICAL_PROPERTY_V2", role: "primary_property_authority" },
-      fleet_runtime_v2: { contract_id: "MOBILITY_PUBLIC_RUNTIME_V2", role: "compatibility_aggregate" },
+      fleet_runtime_v2: { contract_id: "MOBILITY_PUBLIC_RUNTIME_V2", role: "asset_relationship_authority" },
       product_experience_v2: { contract_id: "MOBILITY_EXPERIENCE_V2", role: "authority" },
       product_policy_v2: { contract_id: "MOBILITY_POLICY_V2", role: "authority" },
       command_v2: { contract_id: "MOBILITY_COMMAND_V2", role: "authority" },
@@ -1460,9 +1448,7 @@ class HomeBrainAssetRuntime {
       const state = this.hass?.states?.[entityId];
       if (String(state?.attributes?.contract_id || "") === wanted) return state;
     }
-    return Object.values(this.hass?.states || {}).find((state) =>
-      String(state?.attributes?.contract_id || "") === wanted
-    );
+    return undefined;
   }
 
   mobilityRuntimeV2() {
@@ -1604,53 +1590,36 @@ class HomeBrainAssetRuntime {
       refresh:"action.refresh"
     };
     const translationKey = translationKeys[key] || "";
-    return translationKey ? this.t(translationKey,{},this.titleize(key.replace(/_/g, " "))) : this.titleize(key.replace(/_/g, " "));
+    return translationKey ? this.t(translationKey,{},this.titleize(key.replace(/_/g," "))) : this.titleize(key.replace(/_/g," "));
   }
 
   commandV2Rows(assetId = "") {
     const contract = this.mobilityCommandV2();
     if (!contract) return null;
     const canonical = this.canonicalAssetId(assetId);
-    const order = {
-      "charger.command.start":10,
-      "charger.command.start_charging":10,
-      "charger.command.stop":20,
-      "charger.command.stop_charging":20,
-      "charger.command.unlock_connector":30,
-      "vehicle.command.lock":10,
-      "vehicle.command.unlock":20,
-      "vehicle.command.climate_start":30,
-      "vehicle.command.climate_stop":40,
-      "charger.command.restart":70,
-      "charger.command.identify":80,
-      "vehicle.command.refresh":90
-    };
     return contract.commands
       .filter((row) => row && (!canonical || this.canonicalAssetId(row.asset_id || "") === canonical))
-      .map((row) => {
-        const key = String(row.command_key || "").trim();
-        const placement = String(row.placement || "").trim();
-        const family = placement.split(".").pop() || "";
-        return this.normalizeCommandEntry({
-          ...row,
-          command_id: row.command_id || (row.asset_id && key ? `${row.asset_id}:${key}` : key),
-          command_key:key,
-          label:row.label || this.commandV2Label(key),
-          command_family:row.command_family || (family === "primary" ? "charging" : family),
-          category:row.category || (family === "engineering" ? "secondary" : "primary"),
-          frontend_allowed:row.supported !== false,
-          exists:row.supported !== false,
-          enabled:row.supported !== false,
-          execution_allowed:row.execution_allowed === true,
-          blocked_reason:row.blocked_reason || "",
-          sort_order:row.sort_order ?? order[key] ?? 999,
-          service_domain:"rhi_mobility",
-          service_action:"execute_command",
-          service_data:{ asset_id:row.asset_id || canonical, command_key:key },
-          service_target:{},
-          _authority:"MOBILITY_COMMAND_V2"
-        }, row.asset_id || canonical);
-      })
+      .filter((row) => !!String(row.command_key || "").trim())
+      .filter((row) => !!String(row.placement || "").trim())
+      .map((row) => this.normalizeCommandEntry({
+        ...row,
+        command_id:String(row.command_id || "").trim(),
+        command_key:String(row.command_key || "").trim(),
+        label:String(row.label || "").trim() || this.commandV2Label(row.command_key),
+        command_family:String(row.command_family || "").trim(),
+        category:String(row.category || "").trim(),
+        frontend_allowed:row.supported !== false,
+        exists:row.supported !== false,
+        enabled:row.supported !== false,
+        execution_allowed:row.execution_allowed === true,
+        blocked_reason:row.blocked_reason || "",
+        sort_order:row.sort_order ?? 999,
+        service_domain:"rhi_mobility",
+        service_action:"execute_command",
+        service_data:{ asset_id:row.asset_id || canonical, command_key:String(row.command_key || "").trim() },
+        service_target:{},
+        _authority:"MOBILITY_COMMAND_V2"
+      }, row.asset_id || canonical))
       .filter(Boolean);
   }
 
@@ -1829,9 +1798,9 @@ class HomeBrainAssetRuntime {
   }
 
   registryEntryFromList(assetId, list = null) {
-    const id = String(assetId || "");
-    const items = list || [...this.assetIndexRows("all"), ...this.assetIndexRows("vehicle"), ...this.assetIndexRows("charger")];
-    return items.find((a) => a.asset_id === id || a.asset_id === id.replace(/^vehicle_/, "").replace(/^charger_/, "") || a.asset_id === `vehicle_${id}` || a.asset_id === `charger_${id}`) || null;
+    const id = this.canonicalAssetId(assetId);
+    const items = list || this.assetIndexRows("all");
+    return items.find((a) => String(a.asset_id || "") === id) || null;
   }
 
   assetDisplayName(assetId) {
@@ -2012,8 +1981,8 @@ class HomeBrainAssetRuntime {
     const effective = this.cleanValue(relation.effective_charger_id || "", "none") || "none";
     const connected = relation.observed_identity_proven === true ? (this.cleanValue(relation.physically_connected_charger_id || "", "none") || "none") : "none";
     return {
-      assigned:selected !== "none" ? selected : effective, effective, selected, connected,
-      assigned_display_name:this.assetDisplayName(selected !== "none" ? selected : effective),
+      assigned:selected, effective, selected, connected,
+      assigned_display_name:this.assetDisplayName(selected),
       effective_display_name:this.assetDisplayName(effective),
       connected_display_name:this.assetDisplayName(connected),
       relationship_resolution:relation.relationship_status || relation.resolution_status || "V2",
@@ -2084,9 +2053,8 @@ class HomeBrainAssetRuntime {
   runtimeSignature(assetId = "") {
     const canonical = assetId ? this.canonicalAssetId(assetId) : "";
     const ids = new Set(this._canonicalProperties.entityIds(canonical));
-    // Keep the two genuine boundary contracts and transitional aggregate
-    // authorities in the signature by entity identity only. Do not serialize
-    // their complete payloads on every HA tick.
+    // Track explicit producer-owned authorities by entity revision only.
+    // Do not serialize complete contract payloads on every HA tick.
     for (const id of [
       "sensor.rhi_mobility_runtime_v2",
       "sensor.rhi_mobility_experience_v2",
@@ -2435,137 +2403,9 @@ class HomeBrainAssetRuntime {
     return rows.filter((r) => r && (!t || String(r.asset_type || "").toLowerCase() === t));
   }
 
-  propertyKeyCandidates(assetId = "", field = "") {
-    const canonical = this.canonicalAssetId(assetId || "");
-    const assetType = canonical.startsWith("vehicle_") ? "vehicle" : canonical.startsWith("charger_") ? "charger" : canonical.startsWith("person_") ? "person" : "";
-    const raw = String(field || "").trim();
-    const stripped = raw.replace(/^(vehicle|charger|person|asset)\./, "");
-    const candidates = [];
-    const add = (v) => {
-      const x = String(v ?? "").trim();
-      if (x && !candidates.includes(x)) candidates.push(x);
-    };
-    add(raw);
-    add(stripped);
-    if (assetType) {
-      add(`${assetType}.${raw}`);
-      add(`${assetType}.${stripped}`);
-    }
-    if (!raw.startsWith("asset.")) add(`asset.${stripped}`);
-
-    const legacyAliases = {
-      soc: ["soc_pct", "battery_pct", "battery", "state_of_charge", "battery_percent"],
-      battery: ["soc_pct", "battery_pct", "state_of_charge"],
-      battery_pct: ["soc_pct"],
-      soc_pct: ["battery", "state_of_charge"],
-      range_km: ["ev_range_km", "range_ev_km", "full_range_km", "range_total_km", "total_range_km"],
-      ev_range: ["ev_range_km", "electric_range_km", "secondary_engine_range"],
-      electric_range_km: ["ev_range_km"],
-      total_range_km: ["range_total_km", "full_range_km", "total_range_km", "range_km", "hybrid_range_km", "primary_engine_range", "vehicle.range_total_km"],
-      full_range: ["range_total_km", "full_range_km", "total_range_km"],
-      full_range_km: ["range_total_km", "full_range_km", "total_range_km", "range_km", "hybrid_range_km"],
-      selected_charger: ["vehicle.assigned_charger_id", "vehicle.selected_charger"],
-      assigned_charger_id: ["vehicle.assigned_charger_id", "vehicle.selected_charger"],
-      assigned_charger: ["vehicle.assigned_charger_id", "vehicle.assigned_charger", "vehicle.selected_charger"],
-      effective_charger: ["vehicle.effective_charger_id", "vehicle.effective_charger"],
-      effective_charger_id: ["vehicle.effective_charger_id", "vehicle.effective_charger"],
-      connected_charger: ["vehicle.connected_charger_id", "vehicle.connected_charger"],
-      connected_charger_id: ["vehicle.connected_charger_id", "vehicle.connected_charger"],
-      preferred_charger_id: ["vehicle.preferred_charger_id", "vehicle.assigned_charger_id", "vehicle.selected_charger"],
-      charging_power: ["charging_power_kw", "charge_power", "power_kw", "current_power_kw", "import_power_kw"],
-      charge_power: ["charging_power_kw"],
-      import_power_kw: ["charging_power_kw", "power_kw", "current_power_kw"],
-      net_power_kw: ["charging_power_kw", "power_kw", "current_power_kw"],
-      actual_power_kw: ["charging_power_kw", "power_kw", "current_power_kw"],
-      current_power_kw: ["power_kw", "charging_power_kw"],
-      charger_state: ["operating_state", "charger.operating_state"],
-      operational_status: ["operating_state", "charger.operating_state"],
-      connection_state: ["connection_state", "connected_state", "vehicle_connection_state", "ev_connection_state", "plug_state", "connector_state"],
-      connected_vehicle_id: ["connected_vehicle_id", "connected_vehicle", "effective_vehicle_id", "effective_vehicle", "selected_vehicle"],
-      effective_vehicle_id: ["effective_vehicle_id", "effective_vehicle", "connected_vehicle_id", "connected_vehicle", "selected_vehicle"],
-      selected_vehicle: ["selected_vehicle", "effective_vehicle", "connected_vehicle"],
-      session_state: ["status", "charging_state"],
-      runtime_activity: ["status", "charging_state", "last_seen"],
-      actual_current_a: ["current_a", "current_limit_a"],
-      current_limit: ["current_limit_a", "requested_current_a", "requested_current_limit", "requested_power_kw"],
-      current_limit_amps: ["current_limit_a"],
-      requested_current_limit: ["requested_current_a", "current_limit_a"],
-      requested_power: ["requested_power_kw"],
-      requested_power_kw: ["requested_power_kw", "vehicle.requested_power_kw", "vehicle.requested_charge_power_kw", "vehicle.charge_power_kw", "vehicle.mobility_charge_power_kw", "current_limit_a"],
-      requested_charge_power_kw: ["vehicle.requested_charge_power_kw", "requested_charge_power_kw", "vehicle.requested_power_kw", "requested_power_kw", "vehicle.charge_power_kw", "vehicle.mobility_charge_power_kw"],
-      vehicle_charge_power_kw: ["vehicle.requested_charge_power_kw", "vehicle.requested_power_kw", "vehicle.charge_power_kw", "vehicle.mobility_charge_power_kw", "requested_power_kw"],
-      vehicle_charge_power: ["vehicle.requested_charge_power_kw", "vehicle.requested_power_kw", "vehicle.charge_power_kw", "vehicle.mobility_charge_power_kw", "requested_power_kw"],
-      active_phases: ["effective_phase_count", "phase_count", "phases"],
-      effective_phases: ["effective_phase_count", "phase_count", "phases"],
-      phases: ["effective_phase_count", "phase_count"],
-      phase_count: ["effective_phase_count", "phase_count", "phases"],
-      min_power_kw: ["effective_min_power_kw"],
-      max_power_kw: ["effective_max_power_kw"],
-      min_current_a: ["charger.min_current_a", "min_current_a", "effective_min_current_a"],
-      max_current_a: ["charger.max_current_a", "max_current_a", "effective_max_current_a"],
-      effective_min_current_a: ["charger.min_current_a", "min_current_a", "effective_min_current_a", "current_limit_a"],
-      effective_max_current_a: ["charger.max_current_a", "max_current_a", "effective_max_current_a", "current_limit_a"],
-      physical_min_power_kw: ["charger.physical_min_power_kw", "physical_min_power_kw", "effective_min_power_kw", "min_power_kw"],
-      physical_max_power_kw: ["charger.physical_max_power_kw", "physical_max_power_kw", "effective_max_power_kw", "max_power_kw"],
-      power_source: ["status"],
-      data_freshness: ["last_seen", "health"],
-      vehicle_health: ["health"],
-      charger_health: ["health", "charger.health"],
-      data_quality: ["health"],
-      make_model: ["model", "vehicle.model", "charger.model"],
-      manufacturer: ["vendor", "make"],
-      vendor: ["manufacturer"],
-      owner: ["owner_label"],
-      present: ["person.present", "asset.present", "vehicle.present"],
-      ready_by: ["vehicle.ready_by"],
-      target_soc: ["target_soc_pct"],
-      target_soc_pct: ["vehicle.target_soc_pct", "default_target_soc_pct"],
-      climate: ["climate_state"],
-      climate_status: ["climate_state"],
-      security: ["lock_state"],
-      lock: ["lock_state"],
-      door: ["door_state"],
-      doors: ["door_state"],
-      windows: ["window_state"],
-      trunk: ["trunk_state"],
-      hood: ["hood_state"],
-      roof: ["roof_state"],
-      odometer: ["odometer_km"],
-      mileage: ["odometer_km"],
-      service_due: ["service_due_days", "service_due_distance_km"],
-      oil_change: ["oil_change_due_days", "oil_change_due_distance_km"],
-      voltage: ["voltage_v", "phase_voltage_l1_v"],
-      current: ["current_a"],
-      power: ["power_kw"],
-      session_energy: ["session_energy_kwh"],
-      lifetime_energy: ["lifetime_energy_kwh"]
-    };
-    for (const alias of (legacyAliases[raw] || legacyAliases[stripped] || [])) add(alias);
-
-    // Latest foundation matrix: accept any normalized property as direct key and bridge
-    // plain keys to their normalized form. This makes every published property readable
-    // one way or another without raw/entity fallback.
-    const catalog = this.normalizedPropertyCatalog(assetType);
-    for (const row of catalog) {
-      const key = String(row.property_key || "");
-      const plain = String(row.plain_key || key.replace(/^(vehicle|charger|person|asset)\./, ""));
-      if (raw === key || stripped === key || raw === plain || stripped === plain || raw.endsWith(`.${plain}`)) {
-        add(key); add(plain);
-      }
-    }
-
-    const expanded = [];
-    for (const item of candidates) {
-      add(item);
-      expanded.push(item);
-      const plain = String(item).replace(/^(vehicle|charger|person|asset)\./, "");
-      expanded.push(plain);
-      if (assetType) expanded.push(`${assetType}.${plain}`);
-      if (!String(item).startsWith("asset.")) expanded.push(`asset.${plain}`);
-    }
-    for (const item of expanded) add(item);
-    if (canonical.startsWith("charger_") && stripped === "charging_state") { add("operating_state"); add("charger.operating_state"); }
-    return candidates;
+  propertyKeyCandidates(_assetId = "", field = "") {
+    const key = String(field || "").trim();
+    return key ? [key] : [];
   }
 
 
@@ -2630,56 +2470,11 @@ class HomeBrainAssetRuntime {
 
 
   propertyDisplayLabel(row = {}) {
-    const key = String(row.property_key || row.fact_type || "");
-    const labels = {
-      "vehicle.preferred_charger_id":"Preferred charger",
-      "vehicle.connected_charger_id":"Connected charger",
-      "vehicle.effective_charger_id":"Active charger",
-      "vehicle.assigned_charger_id":"Preferred charger",
-      "vehicle.selected_charger":"Preferred charger",
-      "vehicle.effective_charger":"Active charger",
-      "vehicle.connected_charger":"Connected charger",
-      "vehicle.nominal_range_km":"Nominal range",
-      "vehicle.max_ac_power_kw":"Max AC power",
-      "vehicle.effective_max_charge_power_kw":"Effective max charge power",
-      "vehicle.effective_phase_count":"Effective phases",
-      "vehicle.phase_capability":"Phase capability",
-      "charger.max_ac_power_kw":"Max AC power",
-      "charger.physical_min_power_kw":"Physical min power",
-      "charger.physical_max_power_kw":"Physical max power",
-      "charger.phase_capability":"Phase capability",
-      "charger.energy_kwh":"Energy",
-      "vehicle.charge_mode":"Charge mode",
-      "vehicle.billing_account_id":"Billing account",
-      "charger.billing_account_id":"Billing account",
-      "vehicle.requested_charge_power_kw":"Vehicle charge power",
-      "requested_charge_power_kw":"Vehicle charge power",
-      "requested_power_kw":"Vehicle charge power",
-      "charge_power_kw":"Vehicle charge power",
-      "vehicle.requested_power_kw":"Vehicle charge power",
-      "vehicle.charge_power_kw":"Vehicle charge power",
-      "vehicle.mobility_charge_power_kw":"Vehicle charge power",
-      "charger.requested_power_kw":"Requested power",
-      "charger.current_limit_a":"Current limit",
-      "charger.connection_state":"Connection",
-      "charger.connected_vehicle_id":"Connected vehicle",
-      "charger.effective_vehicle_id":"Active vehicle",
-      "charger.selected_vehicle":"Connected vehicle",
-      "charger.effective_vehicle":"Active vehicle",
-      "charger.connected_vehicle":"Connected vehicle",
-      "charger.operating_state":"Operating state",
-      "charger.status":"Source status",
-      "lifecycle_status":"Lifecycle",
-      "asset.lifecycle_status":"Lifecycle",
-      "vehicle.lifecycle_status":"Lifecycle",
-      "charger.lifecycle_status":"Lifecycle"
-    };
-    if (labels[key]) return labels[key];
-    const explicit = String(row.display_name || row.label || row.name || "").trim();
-    if (explicit && explicit !== key) return explicit;
-    const labelKey = key.replace(/^(vehicle|charger|person|asset)\./, "");
-    return this.titleize(labelKey.replace(/_/g, " "));
+    const key = String(row.property_key || "");
+    const explicit = String(row.friendly_name || row.display_name || "").trim();
+    return explicit || `Contract gap: ${key || "property label"}`;
   }
+
 
   valueWithoutUnit(value, unit = "") {
     const raw = String(value ?? "").trim();
@@ -3146,7 +2941,8 @@ class HomeBrainAssetRuntime {
     const attempts = Math.max(1, Number(options.attempts || 20));
     const delayMs = Math.max(25, Number(options.delay_ms || 150));
     for (let attempt = 0; attempt < attempts; attempt += 1) {
-      const row = this.v2SemanticProperty(canonical, propertyKey) || this.semanticProperty(canonical, propertyKey);
+      this._canonicalProperties.refresh(this.hass);
+      const row = this.v2SemanticProperty(canonical, propertyKey);
       if (row && this.canonicalWriteValueEqual(row.value, expected)) return true;
       if (attempt < attempts - 1) await new Promise((resolve)=>setTimeout(resolve, delayMs));
     }
@@ -3237,7 +3033,8 @@ class HomeBrainAssetRuntime {
     const renderedPublicPropertyKeys = new Set();
     const engineeringPublicPropertyKeys = new Set();
     const addFamily = (family) => {
-      const f = this.normalizedFamilyName(family) || "overview";
+      const f = this.normalizedFamilyName(family);
+      if (!f) return null;
       if (!groups.has(f)) groups.set(f, { properties:[], commands:[] });
       return groups.get(f);
     };
@@ -3261,8 +3058,11 @@ class HomeBrainAssetRuntime {
       const group = this.propertyGroup(prop);
       const parent = this.propertyParent(prop);
       const logical = this.propertyWriteSection(prop);
+      if (!family || !bucket) {
+        warnings.push(`Missing property family metadata for ${prop.property_key}; property remains a contract gap.`);
+        continue;
+      }
       bucket.properties.push({ ...prop, _ux_family:family, _ux_group:group, _ux_parent:parent, _ux_level:level, _ux_logical_section:logical });
-      if (!family) warnings.push(`Missing property family metadata for ${prop.property_key}; property remains a contract gap.`);
       if (!logical) warnings.push(`Missing section/placement metadata for ${prop.property_key}; property remains a contract gap.`);
       if (prop.editable && !this.isWritableProperty(prop)) warnings.push(`Editable property ${prop.property_key} is not writable under R41.4; UX renders it read-only and reports backend contract gap.`);
       if (String(prop.group || "").toLowerCase() === "main_info") warnings.push(`Property ${prop.property_key} still uses deprecated group=main_info; R41.4 requires group=overview.`);
@@ -3409,7 +3209,8 @@ class HomeBrainAssetRuntime {
     const canonical = this.canonicalAssetId(assetId);
     const grouped = new Map();
     for (const row of this.v2PropertyRows(canonical)) {
-      const componentId = String(row.component_id || "details");
+      const componentId = String(row.component_id || "").trim();
+      if (!componentId) continue;
       if (!grouped.has(componentId)) grouped.set(componentId,{ component_id:componentId, asset_id:canonical, properties:[] });
       grouped.get(componentId).properties.push(row);
     }
@@ -3469,43 +3270,25 @@ class HomeBrainAssetRuntime {
 
   vehicleOverviewMetricSlots(assetId = "") {
     const canonical = this.canonicalAssetId(assetId);
-    const experience = this.vehicleExperienceV2(canonical) || {};
-    const clean = (value) => {
-      const text = String(value ?? "").trim();
-      return text && !["unknown","unavailable","none","null","—","no range data","no battery data"].includes(text.toLowerCase()) ? text : "";
-    };
     const propDisplay = (key) => {
       const prop = this.semanticProperty(canonical, key);
       if (!prop) return { display:"", prop:null };
-      const raw = this.cleanValue(prop.value, "");
-      if (raw === "" || raw === null || raw === undefined) return { display:"", prop };
-      return { display:this.formatValue(raw, prop.unit || "", key), prop };
+      if (prop.value === undefined || prop.value === null || String(prop.value).trim() === "") return { display:"", prop };
+      return { display:this.formatValue(prop.value, prop.unit || "", key), prop };
     };
 
     const total = propDisplay("vehicle.range_total_km");
     const ev = propDisplay("vehicle.ev_range_km");
     const soc = propDisplay("vehicle.soc_pct");
     const currentEnergy = propDisplay("vehicle.current_energy_kwh");
-    const batteryEnergy = currentEnergy.display ? currentEnergy : propDisplay("vehicle.battery_energy_kwh");
-
-    const rangeIntel = experience.range_intelligence || {};
-    const energyIntel = experience.energy_intelligence || {};
-    const rangeSummary = clean(rangeIntel.summary);
-    const rangeReason = clean(rangeIntel.reason);
-    const energySummary = clean(energyIntel.summary);
+    const batteryEnergy = propDisplay("vehicle.battery_energy_kwh");
+    const energy = currentEnergy.display ? currentEnergy : batteryEnergy;
 
     const slots = [];
-    const totalDisplay = total.display || (/km\s+total/i.test(rangeSummary) ? rangeSummary : "");
-    const evFromSummary = /km\s+electric/i.test(rangeSummary) ? rangeSummary : "";
-    const evFromReason = /km\s+electric/i.test(rangeReason) ? rangeReason : "";
-    const evDisplay = ev.display || evFromSummary || evFromReason;
-    const batteryPct = soc.display || (/%/.test(energySummary) ? energySummary : "");
-    const batteryDisplay = [batteryPct, batteryEnergy.display].filter(Boolean).join(" · ");
-
-    if (totalDisplay) slots.push({ label:"Range", display:totalDisplay, value:totalDisplay, resolved:true, available:true, property_key:total.prop ? "vehicle.range_total_km" : "experience.range_intelligence", prop:total.prop || null, source:total.prop ? "MOBILITY_PUBLIC_RUNTIME_V2" : "MOBILITY_EXPERIENCE_V2" });
-    if (evDisplay && evDisplay !== totalDisplay) slots.push({ label:"Electric", display:evDisplay, value:evDisplay, resolved:true, available:true, property_key:ev.prop ? "vehicle.ev_range_km" : "experience.range_intelligence", prop:ev.prop || null, source:ev.prop ? "MOBILITY_PUBLIC_RUNTIME_V2" : "MOBILITY_EXPERIENCE_V2" });
-    if (batteryDisplay) slots.push({ label:"Battery", display:batteryDisplay, value:batteryDisplay, resolved:true, available:true, property_key:soc.prop ? "vehicle.soc_pct" : "experience.energy_intelligence", prop:soc.prop || batteryEnergy.prop || null, source:(soc.prop || batteryEnergy.prop) ? "MOBILITY_PUBLIC_RUNTIME_V2" : "MOBILITY_EXPERIENCE_V2" });
-
+    if (total.display) slots.push({ label:"Range", display:total.display, value:total.display, resolved:true, available:true, property_key:"vehicle.range_total_km", prop:total.prop, source:"MOBILITY_CANONICAL_PROPERTY_V2" });
+    if (ev.display && ev.display !== total.display) slots.push({ label:"Electric", display:ev.display, value:ev.display, resolved:true, available:true, property_key:"vehicle.ev_range_km", prop:ev.prop, source:"MOBILITY_CANONICAL_PROPERTY_V2" });
+    const batteryDisplay = [soc.display, energy.display].filter(Boolean).join(" · ");
+    if (batteryDisplay) slots.push({ label:"Battery", display:batteryDisplay, value:batteryDisplay, resolved:true, available:true, property_key:"vehicle.soc_pct", prop:soc.prop || energy.prop, source:"MOBILITY_CANONICAL_PROPERTY_V2" });
     return slots;
   }
 
@@ -3518,7 +3301,8 @@ class HomeBrainAssetRuntime {
     const canonical = this.canonicalAssetId(assetId);
     const grouped = new Map();
     for (const row of this.v2PropertyRows(canonical)) {
-      const componentId = String(row.component_id || "details");
+      const componentId = String(row.component_id || "").trim();
+      if (!componentId) continue;
       if (!grouped.has(componentId)) grouped.set(componentId,{ component_id:componentId, asset_id:canonical, properties:[] });
       grouped.get(componentId).properties.push(row);
     }
@@ -3611,16 +3395,13 @@ class HomeBrainAssetRuntime {
     const props = this.v2PropertyRows(canonical);
     if (!props.length) return null;
 
-    const hiddenFromProduct = assetType === "charger"
-      ? new Set(["charger.status","source_status","charger.operating_state"])
-      : new Set();
     const product = [];
     const engineering = [];
     const unplaced = [];
     for (const prop of props) {
       const visibility = String(prop.visibility || prop.ux_visibility || "").toLowerCase();
       if (visibility === "internal") continue;
-      if (visibility === "engineering" || visibility === "diagnostics" || visibility === "diagnostics_only" || hiddenFromProduct.has(String(prop.property_key || ""))) {
+      if (visibility === "engineering" || visibility === "diagnostics" || visibility === "diagnostics_only") {
         engineering.push(prop);
         continue;
       }
@@ -3849,105 +3630,69 @@ class HomeBrainAssetRuntime {
     const canonical = this.canonicalAssetId(assetId);
     const wanted = String(propertyKey || "").trim();
     if (!canonical || !wanted) return null;
-    const states = Object.values(this.hass?.states || {});
-    const matches = states.filter((state) => {
-      const attrs = state?.attributes || {};
-      return String(attrs.canonical_contract || "").toUpperCase() === "MOBILITY_PUBLIC_RUNTIME_V2"
-        && String(attrs.asset_id || "") === canonical
-        && String(attrs.property_key || "") === wanted;
-    });
-    if (!matches.length) return null;
-    const state = matches.find((row)=>String(row.entity_id || "").startsWith("sensor.rhi_mobility_")) || matches[0];
-    const attrs = state?.attributes || {};
-    return this.normalizePropertyRow({
-      ...attrs,
-      asset_id: canonical,
-      property_key: wanted,
-      value:Object.prototype.hasOwnProperty.call(attrs,"value") ? attrs.value : state?.state,
-      _source_entity_id: state?.entity_id || "",
-      canonical_contract: "MOBILITY_PUBLIC_RUNTIME_V2"
-    });
+    const row = this._canonicalProperties.row(canonical, wanted);
+    return row ? this.normalizePropertyRow(row) : null;
   }
 
   semanticProperty(assetId = "", propertyKey = "") {
-    return this.v2SemanticProperty(assetId, propertyKey)
-      || this.propertyByCompoundKey(assetId, propertyKey);
+    return this.v2SemanticProperty(assetId, propertyKey);
   }
 
   propertyByCompoundKey(assetId = "", propertyKey = "") {
-    const canonical = this.canonicalAssetId(assetId);
-    const wanted = String(propertyKey || "").trim();
-    if (!canonical || !wanted) return null;
-    const rows = this.propertyRows(canonical).filter((r)=>String(r.property_key || "") === wanted || String(r._compound_key || "") === `${canonical}:${wanted}`);
-    if (!rows.length) return null;
-    // V2 property publication may contain duplicate transport rows; prefer the richest canonical row so complete write metadata is not shadowed.
-    const score = (row) => {
-      let value = 0;
-      if (String(row.canonical_contract || "").toUpperCase() === "MOBILITY_PUBLIC_RUNTIME_V2") value += 16;
-      if (this.contractBool(row.write_supported, false)) value += 8;
-      if (this.contractBool(row.editable, false)) value += 4;
-      if (row.write_service_domain && row.write_service_action && row.write_target_entity) value += 4;
-      if (row.value !== undefined && row.value !== null && String(row.value).trim() !== "") value += 2;
-      if (this.contractBool(row.available, false)) value += 1;
-      return value;
-    };
-    return rows.slice().sort((a,b)=>score(b)-score(a))[0] || null;
+    return this.v2SemanticProperty(assetId, propertyKey);
   }
 
   normalizePropertyRow(row = {}) {
     if (!row || typeof row !== "object") return null;
-    const asset_id = row.asset_id || "";
-    const asset_type = row.asset_type || (String(asset_id).startsWith("vehicle_") ? "vehicle" : String(asset_id).startsWith("charger_") ? "charger" : String(asset_id).startsWith("person_") ? "person" : "");
-    const property_key = String(row.property_key || row.normalized_property || row.fact_type || row.key || "").trim();
-    if (!asset_id || !property_key) return null;
-    const fact_type = row.fact_type || property_key.split('.').pop();
+    const asset_id = String(row.asset_id || "").trim();
+    const asset_type = String(row.asset_type || row.logical_object_class || row.object_class || "").trim();
+    const property_key = String(row.property_key || "").trim();
+    if (!asset_id || !asset_type || !property_key) return null;
     return {
       ...row,
       asset_id,
       asset_type,
       property_key,
-      fact_type,
-      normalized_property: row.normalized_property || property_key,
-      value: row.value,
-      unit: row.unit ?? row.unit_of_measurement ?? "",
-      quality: row.quality || row.health || "Unknown",
-      health: row.health || row.quality || "Unknown",
-      access: row.access || (this.contractBool(row.editable, false) ? "editable" : "read_only"),
-      persistence: row.persistence || "",
-      editable: this.contractBool(row.editable, false),
-      editor: row.editor || row.editor_type || "",
-      validation: this.parseJsonValue(row.validation, row.validation || {}),
-      choices: this.parseJsonValue(row.choices, row.choices || null),
-      options: this.parseJsonValue(row.options, row.options || null),
-      choice_source: row.choice_source || "",
-      value_field: row.value_field || "value",
-      label_field: row.label_field || "label",
-      secondary_label_field: row.secondary_label_field || "secondary_label",
-      allow_none: this.contractBool(row.allow_none, false),
-      none_value: row.none_value ?? "",
-      // Backend V2 write metadata is authoritative. Never manufacture writeability from
-      // the mere presence of a target/service binding.
-      write_supported: this.contractBool(row.write_supported, false),
-      write_binding_type: row.write_binding_type || row.editor || "",
-      write_service_domain: row.write_service_domain || "",
-      write_service_action: row.write_service_action || "",
-      write_target_entity: row.write_target_entity || "",
-      write_service_data: this.parseJsonValue(row.write_service_data, row.write_service_data || {}),
-      write_value_field: row.write_value_field || row.write_field || "",
-      write_command: row.write_command || "",
-      family: row.family || row.property_family || row.ux_family || "",
-      group: row.group || row.property_group || row.ux_group || "",
-      parent: row.parent || row.parent_property || row.parent_key || row.summary_parent || "",
-      parent_property: row.parent_property || row.parent || row.parent_key || row.summary_parent || "",
-      detail_level: row.detail_level || row.visibility_level || row.ux_detail_level || "",
-      logical_entity: row.logical_entity || "",
-      display_order: row.display_order ?? row.sort_order ?? row.priority ?? 999,
-      display_name: row.display_name || row.label || row.name || "",
-      description: row.description || row.help || row.meaning || "",
-      icon: row.icon || "",
-      semantic_value_type: row.semantic_value_type || row.semantic_type || "",
-      value_type: row.value_type || row.type || row.semantic_value_type || row.semantic_type || "",
-      importance: row.importance || row.priority_level || ""
+      fact_type:String(row.fact_type || ""),
+      normalized_property:property_key,
+      value:row.value,
+      unit:row.unit ?? row.unit_of_measurement ?? "",
+      quality:String(row.quality || ""),
+      health:String(row.health || row.quality || ""),
+      access:String(row.access || ""),
+      persistence:String(row.persistence || ""),
+      editable:this.contractBool(row.editable, false),
+      editor:String(row.editor || row.editor_type || ""),
+      validation:this.parseJsonValue(row.validation, row.validation || {}),
+      choices:this.parseJsonValue(row.choices, row.choices || null),
+      options:this.parseJsonValue(row.options, row.options || null),
+      choice_source:String(row.choice_source || ""),
+      value_field:String(row.value_field || ""),
+      label_field:String(row.label_field || ""),
+      secondary_label_field:String(row.secondary_label_field || ""),
+      allow_none:this.contractBool(row.allow_none, false),
+      none_value:row.none_value ?? "",
+      write_supported:this.contractBool(row.write_supported, false),
+      write_binding_type:String(row.write_binding_type || row.editor || ""),
+      write_service_domain:String(row.write_service_domain || ""),
+      write_service_action:String(row.write_service_action || ""),
+      write_target_entity:String(row.write_target_entity || ""),
+      write_service_data:this.parseJsonValue(row.write_service_data, row.write_service_data || {}),
+      write_value_field:String(row.write_value_field || ""),
+      write_command:String(row.write_command || ""),
+      family:String(row.family || row.presentation_family || ""),
+      group:String(row.group || row.section_id || ""),
+      parent:String(row.parent || ""),
+      parent_property:String(row.parent_property || ""),
+      detail_level:String(row.detail_level || row.visibility || ""),
+      logical_entity:String(row.logical_entity || ""),
+      display_order:row.display_order ?? 999,
+      display_name:String(row.display_name || row.friendly_name || ""),
+      description:String(row.description || ""),
+      icon:String(row.icon || ""),
+      semantic_value_type:String(row.semantic_value_type || ""),
+      value_type:String(row.value_type || ""),
+      importance:String(row.importance || "")
     };
   }
 
@@ -3976,8 +3721,8 @@ class HomeBrainAssetRuntime {
     const one = (rows) => rows.length === 1 ? String(rows[0]?.vehicle_id || rows[0]?.asset_id || "none") : "none";
     const selected = one(configured), effective = one(effectiveRows), connected = one(physical);
     return {
-      assigned:selected !== "none" ? selected : effective, connected, effective, selected,
-      assigned_vehicle:selected !== "none" ? selected : effective,
+      assigned:selected, connected, effective, selected,
+      assigned_vehicle:selected,
       connected_vehicle:connected, effective_vehicle:effective, selected_vehicle:selected,
       relationship_resolution:physical.length > 1 || effectiveRows.length > 1 || configured.length > 1 ? "CONFLICT" : "V2",
       confidence:physical.length === 1 ? "proven" : "",
@@ -4132,26 +3877,8 @@ class HomeBrainAssetRuntime {
   }
 
   factContractRow(assetId, field) {
-    const canonical = this.canonicalAssetId(assetId);
-    const wanted = this.factTypeAliases(field, canonical);
-    for (const key of wanted) {
-      const direct = this.propertyByCompoundKey(canonical, key);
-      if (direct) return direct;
-    }
-    const rows = this.factRows(canonical);
-    for (const factType of wanted) {
-      const wantedPlain = String(factType || "").replace(/^(vehicle|charger|person|asset)\./, "");
-      const row = rows.find((f) => {
-        const t = String(f.fact_type || f.field || "");
-        const pk = String(f.property_key || f.normalized_property || "");
-        const pkPlain = pk.replace(/^(vehicle|charger|person|asset)\./, "");
-        return t === factType || t === wantedPlain || pk === factType || pkPlain === wantedPlain || pk.endsWith(`.${wantedPlain}`);
-      });
-      if (row) return row;
-    }
-    return null;
+    return this.semanticProperty(assetId, field);
   }
-
 
 
   factEntity(assetId, field) {
@@ -4541,7 +4268,7 @@ class HomeBrainAssetRuntime {
 
   assetViewModel(assetId) {
     const canonical = this.canonicalAssetId(assetId);
-    const asset = this.assetById(canonical, canonical.startsWith("vehicle_") ? "vehicle" : canonical.startsWith("charger_") ? "charger" : "all") || this.registryEntry(canonical) || { asset_id: canonical };
+    const asset = this.assetById(canonical, canonical.startsWith("vehicle_") ? "vehicle" : canonical.startsWith("charger_") ? "charger" : "all") || { asset_id:canonical, contract_gap:true };
     const facts = canonical.startsWith("vehicle_") ? { charging: this.liveChargingContextForVehicle(canonical) } : { charging: this.liveChargerInfo(canonical) };
     return {
       asset,

@@ -1,6 +1,6 @@
 import vm from 'node:vm';
 import { mobilityRuntimeSource } from '../helpers/source-fixtures.mjs';
-const ctx={console,globalThis:{}};ctx.globalThis=ctx;vm.createContext(ctx);
+const ctx={console,setTimeout,clearTimeout,globalThis:{}};ctx.globalThis=ctx;vm.createContext(ctx);
 vm.runInContext(mobilityRuntimeSource()+'\n;globalThis.HomeBrainAssetRuntime=HomeBrainAssetRuntime;',ctx);
 const Runtime=ctx.HomeBrainAssetRuntime;
 
@@ -8,7 +8,7 @@ const v2PropertyState=(entityId,assetId,propertyKey,value,unit='')=>({
   entity_id:entityId,
   state:String(value),
   attributes:{
-    canonical_contract:'MOBILITY_PUBLIC_RUNTIME_V2',
+    canonical_contract:'MOBILITY_CANONICAL_PROPERTY_V2',
     asset_id:assetId,
     asset_type:'charger',
     property_key:propertyKey,
@@ -156,7 +156,7 @@ const v2PropertyHass={states:{
     entity_id:'sensor.rhi_mobility_vehicle_id4_image_key',
     state:'volkswagen.id4.2024-2026.ev.scale-silver',
     attributes:{
-      canonical_contract:'MOBILITY_PUBLIC_RUNTIME_V2',
+      canonical_contract:'MOBILITY_CANONICAL_PROPERTY_V2',
       asset_id:'vehicle_id4',
       asset_type:'vehicle',
       property_key:'vehicle.image_key',
@@ -172,7 +172,7 @@ const v2PropertyHass={states:{
     entity_id:'sensor.rhi_mobility_vehicle_id4_profile_id',
     state:'volkswagen_id4_pro_my2026',
     attributes:{
-      canonical_contract:'MOBILITY_PUBLIC_RUNTIME_V2',
+      canonical_contract:'MOBILITY_CANONICAL_PROPERTY_V2',
       asset_id:'vehicle_id4',
       asset_type:'vehicle',
       property_key:'asset.profile_id',
@@ -188,10 +188,16 @@ const v2PropertyHass={states:{
 },callService:async(domain,service,data)=>{
   v2PropertyCalls.push({domain,service,data});
   if(domain==='select' && service==='select_option' && data?.entity_id==='select.rhi_mobility_vehicle_id4_asset_profile_id') {
-    v2PropertyHass.states['sensor.rhi_mobility_vehicle_id4_profile_id'].state='volkswagen_id4_pro_my2026';
+    v2PropertyHass.states['sensor.rhi_mobility_vehicle_id4_profile_id']={
+      ...v2PropertyHass.states['sensor.rhi_mobility_vehicle_id4_profile_id'],
+      state:'volkswagen_id4_pro_my2026'
+    };
   }
   if(domain==='text' && service==='set_value' && data?.entity_id==='text.rhi_mobility_vehicle_id4_vehicle_image_key') {
-    v2PropertyHass.states['sensor.rhi_mobility_vehicle_id4_image_key'].state=String(data.value ?? '');
+    v2PropertyHass.states['sensor.rhi_mobility_vehicle_id4_image_key']={
+      ...v2PropertyHass.states['sensor.rhi_mobility_vehicle_id4_image_key'],
+      state:String(data.value ?? '')
+    };
   }
 }};
 const v2PropertyRt=new Runtime(v2PropertyHass,{});
