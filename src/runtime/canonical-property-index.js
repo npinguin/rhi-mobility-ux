@@ -66,7 +66,10 @@ class MobilityCanonicalPropertyIndex {
 
   refresh(hass = {}) {
     const states=hass?.states || {};
-    if(Object.keys(states).length !== this._stateCount) {
+    // Same-sized HA replacements can still add/remove canonical entities.
+    const membershipChanged=[...this.stateRefs.keys()].some(id=>!Object.prototype.hasOwnProperty.call(states,id)) ||
+      Object.entries(states).some(([id,state])=>!this.stateRefs.has(id) && this.isCanonicalPropertyState(state));
+    if(Object.keys(states).length !== this._stateCount || membershipChanged) {
       this.discover(hass);
       return;
     }
