@@ -1,5 +1,5 @@
 {
-  "ux_version": "1.0.0-rc.87",
+  "ux_version": "1.0.0-rc.88",
   "release_stage": "release_candidate",
   "legacy_source_release": "R22.12.11.30",
   "mobility_contract": {
@@ -18,7 +18,7 @@
       "MOBILITY_PROFILE_CATALOG_V2",
       "MOBILITY_SUPERVISION_V2",
       "MOBILITY_ENERGY_V2",
-      "MOBILITY_CANONICAL_PROPERTY_V2"
+      "RHI_MOBILITY_CANONICAL_PROPERTY_V1"
     ]
   },
   "ux_core": {
