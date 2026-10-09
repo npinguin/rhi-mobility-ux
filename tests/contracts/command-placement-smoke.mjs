@@ -16,6 +16,7 @@ const commands=[
   command_id:`${aid}:${command_key}`,
   asset_id:aid,
   command_key,
+  label:command_key.split('.').pop().replace(/_/g,' '),
   supported:true,
   execution_allowed,
   blocked_reason:execution_allowed?'':'already_stopped',
@@ -78,8 +79,8 @@ if(calls[0].data.asset_id!==aid || calls[0].data.command_key!=='charger.command.
 
 const vehicle='vehicle_test';
 hass.states['sensor.rhi_mobility_command_v2'].attributes.commands.push(
-  {command_id:`${vehicle}:vehicle.command.lock`,asset_id:vehicle,command_key:'vehicle.command.lock',supported:true,execution_allowed:true,blocked_reason:'ready',placement:'vehicle.security',protective:false},
-  {command_id:`${vehicle}:vehicle.command.refresh`,asset_id:vehicle,command_key:'vehicle.command.refresh',supported:true,execution_allowed:true,blocked_reason:'ready',placement:'vehicle.engineering',protective:false}
+  {command_id:`${vehicle}:vehicle.command.lock`,asset_id:vehicle,command_key:'vehicle.command.lock',label:'Lock',supported:true,execution_allowed:true,blocked_reason:'ready',placement:'vehicle.security',protective:false},
+  {command_id:`${vehicle}:vehicle.command.refresh`,asset_id:vehicle,command_key:'vehicle.command.refresh',label:'Refresh',supported:true,execution_allowed:true,blocked_reason:'ready',placement:'vehicle.engineering',protective:false}
 );
 rt._memo.clear();
 const vehicleQuick=rt.commandsForSurface(vehicle,'quick_actions');
