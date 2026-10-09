@@ -188,10 +188,16 @@ const v2PropertyHass={states:{
 },callService:async(domain,service,data)=>{
   v2PropertyCalls.push({domain,service,data});
   if(domain==='select' && service==='select_option' && data?.entity_id==='select.rhi_mobility_vehicle_id4_asset_profile_id') {
-    v2PropertyHass.states['sensor.rhi_mobility_vehicle_id4_profile_id'].state='volkswagen_id4_pro_my2026';
+    v2PropertyHass.states['sensor.rhi_mobility_vehicle_id4_profile_id']={
+      ...v2PropertyHass.states['sensor.rhi_mobility_vehicle_id4_profile_id'],
+      state:'volkswagen_id4_pro_my2026'
+    };
   }
   if(domain==='text' && service==='set_value' && data?.entity_id==='text.rhi_mobility_vehicle_id4_vehicle_image_key') {
-    v2PropertyHass.states['sensor.rhi_mobility_vehicle_id4_image_key'].state=String(data.value ?? '');
+    v2PropertyHass.states['sensor.rhi_mobility_vehicle_id4_image_key']={
+      ...v2PropertyHass.states['sensor.rhi_mobility_vehicle_id4_image_key'],
+      state:String(data.value ?? '')
+    };
   }
 }};
 const v2PropertyRt=new Runtime(v2PropertyHass,{});
