@@ -24,6 +24,8 @@ const semanticFallbacks=[
   /compatibility_aggregate/g,
   /return\s+this\.v2SemanticProperty\([^\n]+\)\s*\|\|\s*this\.propertyByCompoundKey/g,
   /Object\.values\(this\.hass\?\.states\s*\|\|\s*\{\}\)\.find\([^\n]*contract_id/g,
+  /commandV2Label\s*\(/g,
+  /label:String\(row\.label\s*\|\|\s*""\)\.trim\(\)\s*\|\|/g,
 ];
 
 function files(dir){
