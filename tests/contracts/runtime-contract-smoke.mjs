@@ -8,7 +8,7 @@ const v2PropertyState=(entityId,assetId,propertyKey,value,unit='')=>({
   entity_id:entityId,
   state:String(value),
   attributes:{
-    canonical_contract:'MOBILITY_CANONICAL_PROPERTY_V2',
+    canonical_contract:'RHI_MOBILITY_CANONICAL_PROPERTY_V1',
     asset_id:assetId,
     asset_type:'charger',
     property_key:propertyKey,
@@ -156,7 +156,7 @@ const v2PropertyHass={states:{
     entity_id:'sensor.rhi_mobility_vehicle_id4_image_key',
     state:'volkswagen.id4.2024-2026.ev.scale-silver',
     attributes:{
-      canonical_contract:'MOBILITY_CANONICAL_PROPERTY_V2',
+      canonical_contract:'RHI_MOBILITY_CANONICAL_PROPERTY_V1',
       asset_id:'vehicle_id4',
       asset_type:'vehicle',
       property_key:'vehicle.image_key',
@@ -172,7 +172,7 @@ const v2PropertyHass={states:{
     entity_id:'sensor.rhi_mobility_vehicle_id4_profile_id',
     state:'volkswagen_id4_pro_my2026',
     attributes:{
-      canonical_contract:'MOBILITY_CANONICAL_PROPERTY_V2',
+      canonical_contract:'RHI_MOBILITY_CANONICAL_PROPERTY_V1',
       asset_id:'vehicle_id4',
       asset_type:'vehicle',
       property_key:'asset.profile_id',
