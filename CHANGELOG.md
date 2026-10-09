@@ -1,3 +1,11 @@
+## 1.0.0-rc.86 — Canonical V2 Zero-Debt Candidate
+
+- publish canonical V2 + performance + zero-debt runtime under a new immutable version;
+- canonical Mobility property V2 remains primary per-property truth;
+- Runtime V2 remains compatibility aggregate only;
+- retain revision-scoped invalidation and canonical duplicate precedence;
+- require M0.10.41.
+
 ## 1.0.0-rc.85 — Canonical Runtime Performance
 
 - index MOBILITY_CANONICAL_PROPERTY_V2 per-asset properties once instead of scanning all Home Assistant states for each property projection;
