@@ -58,7 +58,7 @@ class HomeBrainAssetRuntime {
   contractAuthorityRegistry() {
     return {
       canonical_property_v2: { contract_id: "MOBILITY_CANONICAL_PROPERTY_V2", role: "primary_property_authority" },
-      fleet_runtime_v2: { contract_id: "MOBILITY_PUBLIC_RUNTIME_V2", role: "compatibility_aggregate" },
+      fleet_runtime_v2: { contract_id: "MOBILITY_PUBLIC_RUNTIME_V2", role: "asset_relationship_authority" },
       product_experience_v2: { contract_id: "MOBILITY_EXPERIENCE_V2", role: "authority" },
       product_policy_v2: { contract_id: "MOBILITY_POLICY_V2", role: "authority" },
       command_v2: { contract_id: "MOBILITY_COMMAND_V2", role: "authority" },
@@ -112,9 +112,7 @@ class HomeBrainAssetRuntime {
       const state = this.hass?.states?.[entityId];
       if (String(state?.attributes?.contract_id || "") === wanted) return state;
     }
-    return Object.values(this.hass?.states || {}).find((state) =>
-      String(state?.attributes?.contract_id || "") === wanted
-    );
+    return undefined;
   }
 
   mobilityRuntimeV2() {
@@ -481,9 +479,9 @@ class HomeBrainAssetRuntime {
   }
 
   registryEntryFromList(assetId, list = null) {
-    const id = String(assetId || "");
-    const items = list || [...this.assetIndexRows("all"), ...this.assetIndexRows("vehicle"), ...this.assetIndexRows("charger")];
-    return items.find((a) => a.asset_id === id || a.asset_id === id.replace(/^vehicle_/, "").replace(/^charger_/, "") || a.asset_id === `vehicle_${id}` || a.asset_id === `charger_${id}`) || null;
+    const id = this.canonicalAssetId(assetId);
+    const items = list || this.assetIndexRows("all");
+    return items.find((a) => String(a.asset_id || "") === id) || null;
   }
 
   assetDisplayName(assetId) {
@@ -1087,137 +1085,9 @@ class HomeBrainAssetRuntime {
     return rows.filter((r) => r && (!t || String(r.asset_type || "").toLowerCase() === t));
   }
 
-  propertyKeyCandidates(assetId = "", field = "") {
-    const canonical = this.canonicalAssetId(assetId || "");
-    const assetType = canonical.startsWith("vehicle_") ? "vehicle" : canonical.startsWith("charger_") ? "charger" : canonical.startsWith("person_") ? "person" : "";
-    const raw = String(field || "").trim();
-    const stripped = raw.replace(/^(vehicle|charger|person|asset)\./, "");
-    const candidates = [];
-    const add = (v) => {
-      const x = String(v ?? "").trim();
-      if (x && !candidates.includes(x)) candidates.push(x);
-    };
-    add(raw);
-    add(stripped);
-    if (assetType) {
-      add(`${assetType}.${raw}`);
-      add(`${assetType}.${stripped}`);
-    }
-    if (!raw.startsWith("asset.")) add(`asset.${stripped}`);
-
-    const legacyAliases = {
-      soc: ["soc_pct", "battery_pct", "battery", "state_of_charge", "battery_percent"],
-      battery: ["soc_pct", "battery_pct", "state_of_charge"],
-      battery_pct: ["soc_pct"],
-      soc_pct: ["battery", "state_of_charge"],
-      range_km: ["ev_range_km", "range_ev_km", "full_range_km", "range_total_km", "total_range_km"],
-      ev_range: ["ev_range_km", "electric_range_km", "secondary_engine_range"],
-      electric_range_km: ["ev_range_km"],
-      total_range_km: ["range_total_km", "full_range_km", "total_range_km", "range_km", "hybrid_range_km", "primary_engine_range", "vehicle.range_total_km"],
-      full_range: ["range_total_km", "full_range_km", "total_range_km"],
-      full_range_km: ["range_total_km", "full_range_km", "total_range_km", "range_km", "hybrid_range_km"],
-      selected_charger: ["vehicle.assigned_charger_id", "vehicle.selected_charger"],
-      assigned_charger_id: ["vehicle.assigned_charger_id", "vehicle.selected_charger"],
-      assigned_charger: ["vehicle.assigned_charger_id", "vehicle.assigned_charger", "vehicle.selected_charger"],
-      effective_charger: ["vehicle.effective_charger_id", "vehicle.effective_charger"],
-      effective_charger_id: ["vehicle.effective_charger_id", "vehicle.effective_charger"],
-      connected_charger: ["vehicle.connected_charger_id", "vehicle.connected_charger"],
-      connected_charger_id: ["vehicle.connected_charger_id", "vehicle.connected_charger"],
-      preferred_charger_id: ["vehicle.preferred_charger_id", "vehicle.assigned_charger_id", "vehicle.selected_charger"],
-      charging_power: ["charging_power_kw", "charge_power", "power_kw", "current_power_kw", "import_power_kw"],
-      charge_power: ["charging_power_kw"],
-      import_power_kw: ["charging_power_kw", "power_kw", "current_power_kw"],
-      net_power_kw: ["charging_power_kw", "power_kw", "current_power_kw"],
-      actual_power_kw: ["charging_power_kw", "power_kw", "current_power_kw"],
-      current_power_kw: ["power_kw", "charging_power_kw"],
-      charger_state: ["operating_state", "charger.operating_state"],
-      operational_status: ["operating_state", "charger.operating_state"],
-      connection_state: ["connection_state", "connected_state", "vehicle_connection_state", "ev_connection_state", "plug_state", "connector_state"],
-      connected_vehicle_id: ["connected_vehicle_id", "connected_vehicle", "effective_vehicle_id", "effective_vehicle", "selected_vehicle"],
-      effective_vehicle_id: ["effective_vehicle_id", "effective_vehicle", "connected_vehicle_id", "connected_vehicle", "selected_vehicle"],
-      selected_vehicle: ["selected_vehicle", "effective_vehicle", "connected_vehicle"],
-      session_state: ["status", "charging_state"],
-      runtime_activity: ["status", "charging_state", "last_seen"],
-      actual_current_a: ["current_a", "current_limit_a"],
-      current_limit: ["current_limit_a", "requested_current_a", "requested_current_limit", "requested_power_kw"],
-      current_limit_amps: ["current_limit_a"],
-      requested_current_limit: ["requested_current_a", "current_limit_a"],
-      requested_power: ["requested_power_kw"],
-      requested_power_kw: ["requested_power_kw", "vehicle.requested_power_kw", "vehicle.requested_charge_power_kw", "vehicle.charge_power_kw", "vehicle.mobility_charge_power_kw", "current_limit_a"],
-      requested_charge_power_kw: ["vehicle.requested_charge_power_kw", "requested_charge_power_kw", "vehicle.requested_power_kw", "requested_power_kw", "vehicle.charge_power_kw", "vehicle.mobility_charge_power_kw"],
-      vehicle_charge_power_kw: ["vehicle.requested_charge_power_kw", "vehicle.requested_power_kw", "vehicle.charge_power_kw", "vehicle.mobility_charge_power_kw", "requested_power_kw"],
-      vehicle_charge_power: ["vehicle.requested_charge_power_kw", "vehicle.requested_power_kw", "vehicle.charge_power_kw", "vehicle.mobility_charge_power_kw", "requested_power_kw"],
-      active_phases: ["effective_phase_count", "phase_count", "phases"],
-      effective_phases: ["effective_phase_count", "phase_count", "phases"],
-      phases: ["effective_phase_count", "phase_count"],
-      phase_count: ["effective_phase_count", "phase_count", "phases"],
-      min_power_kw: ["effective_min_power_kw"],
-      max_power_kw: ["effective_max_power_kw"],
-      min_current_a: ["charger.min_current_a", "min_current_a", "effective_min_current_a"],
-      max_current_a: ["charger.max_current_a", "max_current_a", "effective_max_current_a"],
-      effective_min_current_a: ["charger.min_current_a", "min_current_a", "effective_min_current_a", "current_limit_a"],
-      effective_max_current_a: ["charger.max_current_a", "max_current_a", "effective_max_current_a", "current_limit_a"],
-      physical_min_power_kw: ["charger.physical_min_power_kw", "physical_min_power_kw", "effective_min_power_kw", "min_power_kw"],
-      physical_max_power_kw: ["charger.physical_max_power_kw", "physical_max_power_kw", "effective_max_power_kw", "max_power_kw"],
-      power_source: ["status"],
-      data_freshness: ["last_seen", "health"],
-      vehicle_health: ["health"],
-      charger_health: ["health", "charger.health"],
-      data_quality: ["health"],
-      make_model: ["model", "vehicle.model", "charger.model"],
-      manufacturer: ["vendor", "make"],
-      vendor: ["manufacturer"],
-      owner: ["owner_label"],
-      present: ["person.present", "asset.present", "vehicle.present"],
-      ready_by: ["vehicle.ready_by"],
-      target_soc: ["target_soc_pct"],
-      target_soc_pct: ["vehicle.target_soc_pct", "default_target_soc_pct"],
-      climate: ["climate_state"],
-      climate_status: ["climate_state"],
-      security: ["lock_state"],
-      lock: ["lock_state"],
-      door: ["door_state"],
-      doors: ["door_state"],
-      windows: ["window_state"],
-      trunk: ["trunk_state"],
-      hood: ["hood_state"],
-      roof: ["roof_state"],
-      odometer: ["odometer_km"],
-      mileage: ["odometer_km"],
-      service_due: ["service_due_days", "service_due_distance_km"],
-      oil_change: ["oil_change_due_days", "oil_change_due_distance_km"],
-      voltage: ["voltage_v", "phase_voltage_l1_v"],
-      current: ["current_a"],
-      power: ["power_kw"],
-      session_energy: ["session_energy_kwh"],
-      lifetime_energy: ["lifetime_energy_kwh"]
-    };
-    for (const alias of (legacyAliases[raw] || legacyAliases[stripped] || [])) add(alias);
-
-    // Latest foundation matrix: accept any normalized property as direct key and bridge
-    // plain keys to their normalized form. This makes every published property readable
-    // one way or another without raw/entity fallback.
-    const catalog = this.normalizedPropertyCatalog(assetType);
-    for (const row of catalog) {
-      const key = String(row.property_key || "");
-      const plain = String(row.plain_key || key.replace(/^(vehicle|charger|person|asset)\./, ""));
-      if (raw === key || stripped === key || raw === plain || stripped === plain || raw.endsWith(`.${plain}`)) {
-        add(key); add(plain);
-      }
-    }
-
-    const expanded = [];
-    for (const item of candidates) {
-      add(item);
-      expanded.push(item);
-      const plain = String(item).replace(/^(vehicle|charger|person|asset)\./, "");
-      expanded.push(plain);
-      if (assetType) expanded.push(`${assetType}.${plain}`);
-      if (!String(item).startsWith("asset.")) expanded.push(`asset.${plain}`);
-    }
-    for (const item of expanded) add(item);
-    if (canonical.startsWith("charger_") && stripped === "charging_state") { add("operating_state"); add("charger.operating_state"); }
-    return candidates;
+  propertyKeyCandidates(_assetId = "", field = "") {
+    const key = String(field || "").trim();
+    return key ? [key] : [];
   }
 
 
@@ -2501,49 +2371,16 @@ class HomeBrainAssetRuntime {
     const canonical = this.canonicalAssetId(assetId);
     const wanted = String(propertyKey || "").trim();
     if (!canonical || !wanted) return null;
-    const states = Object.values(this.hass?.states || {});
-    const matches = states.filter((state) => {
-      const attrs = state?.attributes || {};
-      return String(attrs.canonical_contract || "").toUpperCase() === "MOBILITY_PUBLIC_RUNTIME_V2"
-        && String(attrs.asset_id || "") === canonical
-        && String(attrs.property_key || "") === wanted;
-    });
-    if (!matches.length) return null;
-    const state = matches.find((row)=>String(row.entity_id || "").startsWith("sensor.rhi_mobility_")) || matches[0];
-    const attrs = state?.attributes || {};
-    return this.normalizePropertyRow({
-      ...attrs,
-      asset_id: canonical,
-      property_key: wanted,
-      value:Object.prototype.hasOwnProperty.call(attrs,"value") ? attrs.value : state?.state,
-      _source_entity_id: state?.entity_id || "",
-      canonical_contract: "MOBILITY_PUBLIC_RUNTIME_V2"
-    });
+    const row = this._canonicalProperties.row(canonical, wanted);
+    return row ? this.normalizePropertyRow(row) : null;
   }
 
   semanticProperty(assetId = "", propertyKey = "") {
-    return this.v2SemanticProperty(assetId, propertyKey)
-      || this.propertyByCompoundKey(assetId, propertyKey);
+    return this.v2SemanticProperty(assetId, propertyKey);
   }
 
   propertyByCompoundKey(assetId = "", propertyKey = "") {
-    const canonical = this.canonicalAssetId(assetId);
-    const wanted = String(propertyKey || "").trim();
-    if (!canonical || !wanted) return null;
-    const rows = this.propertyRows(canonical).filter((r)=>String(r.property_key || "") === wanted || String(r._compound_key || "") === `${canonical}:${wanted}`);
-    if (!rows.length) return null;
-    // V2 property publication may contain duplicate transport rows; prefer the richest canonical row so complete write metadata is not shadowed.
-    const score = (row) => {
-      let value = 0;
-      if (String(row.canonical_contract || "").toUpperCase() === "MOBILITY_PUBLIC_RUNTIME_V2") value += 16;
-      if (this.contractBool(row.write_supported, false)) value += 8;
-      if (this.contractBool(row.editable, false)) value += 4;
-      if (row.write_service_domain && row.write_service_action && row.write_target_entity) value += 4;
-      if (row.value !== undefined && row.value !== null && String(row.value).trim() !== "") value += 2;
-      if (this.contractBool(row.available, false)) value += 1;
-      return value;
-    };
-    return rows.slice().sort((a,b)=>score(b)-score(a))[0] || null;
+    return this.v2SemanticProperty(assetId, propertyKey);
   }
 
   normalizePropertyRow(row = {}) {
@@ -2784,26 +2621,8 @@ class HomeBrainAssetRuntime {
   }
 
   factContractRow(assetId, field) {
-    const canonical = this.canonicalAssetId(assetId);
-    const wanted = this.factTypeAliases(field, canonical);
-    for (const key of wanted) {
-      const direct = this.propertyByCompoundKey(canonical, key);
-      if (direct) return direct;
-    }
-    const rows = this.factRows(canonical);
-    for (const factType of wanted) {
-      const wantedPlain = String(factType || "").replace(/^(vehicle|charger|person|asset)\./, "");
-      const row = rows.find((f) => {
-        const t = String(f.fact_type || f.field || "");
-        const pk = String(f.property_key || f.normalized_property || "");
-        const pkPlain = pk.replace(/^(vehicle|charger|person|asset)\./, "");
-        return t === factType || t === wantedPlain || pk === factType || pkPlain === wantedPlain || pk.endsWith(`.${wantedPlain}`);
-      });
-      if (row) return row;
-    }
-    return null;
+    return this.semanticProperty(assetId, field);
   }
-
 
 
   factEntity(assetId, field) {
