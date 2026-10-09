@@ -1,6 +1,6 @@
 {
   "product": "rhi-mobility-ux",
-  "version": "1.0.0-rc.87",
+  "version": "1.0.0-rc.88",
   "stage": "test_candidate",
   "publication_authority": "github_releases",
   "publication_status": "installable_candidate_until_qualified",
@@ -19,7 +19,7 @@
   "stable_blockers_documented": true,
   "target_runtime_proof": "pending",
   "rollback_proof": "pending",
-  "github_release_prerelease": false,
+  "github_release_prerelease": true,
   "package_manifest": "dist/PACKAGE_MANIFEST.json",
   "hacs_package_root": "dist",
   "hacs_delivery_mode": "immutable_tag_dist_tree",
@@ -33,7 +33,7 @@
     "MOBILITY_PROFILE_CATALOG_V2",
     "MOBILITY_SUPERVISION_V2",
     "MOBILITY_ENERGY_V2",
-    "MOBILITY_CANONICAL_PROPERTY_V2"
+    "RHI_MOBILITY_CANONICAL_PROPERTY_V1"
   ],
   "ux_core": {
     "package": "rhi-ux-core",
