@@ -2040,7 +2040,6 @@ class HomeBrainAssetRuntime {
     // Track explicit producer-owned authorities by entity revision only.
     // Do not serialize complete contract payloads on every HA tick.
     for (const id of [
-      "sensor.rhi_mobility_runtime_v2",
       "sensor.rhi_mobility_experience_v2",
       "sensor.rhi_mobility_policy_v2",
       "sensor.rhi_mobility_activity_v2",
