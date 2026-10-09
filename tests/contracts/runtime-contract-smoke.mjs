@@ -1,6 +1,6 @@
 import vm from 'node:vm';
 import { mobilityRuntimeSource } from '../helpers/source-fixtures.mjs';
-const ctx={console,globalThis:{}};ctx.globalThis=ctx;vm.createContext(ctx);
+const ctx={console,setTimeout,clearTimeout,globalThis:{}};ctx.globalThis=ctx;vm.createContext(ctx);
 vm.runInContext(mobilityRuntimeSource()+'\n;globalThis.HomeBrainAssetRuntime=HomeBrainAssetRuntime;',ctx);
 const Runtime=ctx.HomeBrainAssetRuntime;
 
