@@ -1,6 +1,6 @@
 ## 1.0.0-rc.85 — Canonical Runtime Performance
 
-- index canonical per-asset properties once instead of scanning all Home Assistant states for each property projection;
+- index MOBILITY_CANONICAL_PROPERTY_V2 per-asset properties once instead of scanning all Home Assistant states for each property projection;
 - stop serializing complete Runtime, Experience, Policy, Command, Activity and Supervision contract trees to detect ordinary UI changes;
 - gate dashboard, asset-detail, charger-management and routed views on relevant entity/canonical revision changes before building view models;
 - remove frontend property-name heuristics from semantic placement and consume backend-owned component, section and visibility metadata literally;
