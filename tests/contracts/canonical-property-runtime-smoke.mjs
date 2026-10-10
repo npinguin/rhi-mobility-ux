@@ -45,7 +45,7 @@ if(!index.includes("assetRevisions") || !index.includes("_globalRevision")) thro
 if(runtime.includes("legacyAliases =")) throw new Error("legacy property alias matrix remains in Mobility runtime");
 const semanticLookup=body('  semanticProperty(assetId = "", propertyKey = "") {','  propertyByCompoundKey(assetId = "", propertyKey = "") {');
 if(semanticLookup.includes("||")) throw new Error("semanticProperty still contains a secondary lookup fallback");
-const contractDiscovery=body('  contractEntity(contractId = "", preferredEntityIds = []) {','  mobilityRuntimeV2() {');
+const contractDiscovery=body('  contractEntity(contractId = "", preferredEntityIds = []) {','  propertyPublicationEvidence(assetId = "") {');
 if(contractDiscovery.includes("Object.values(this.hass?.states")) throw new Error("contract discovery still scans arbitrary HA states as fallback");
 const overviewMetrics=body('  vehicleOverviewMetricSlots(assetId = "") {','  vehicleComponentDetailSections(assetId = "") {');
 if(overviewMetrics.includes("range_intelligence") || overviewMetrics.includes("energy_intelligence")) throw new Error("vehicle overview still substitutes Experience summaries for missing canonical properties");
