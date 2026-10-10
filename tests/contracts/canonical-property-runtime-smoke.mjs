@@ -89,6 +89,23 @@ const duplicate={states:{"sensor.a":mk(),"sensor.b":mk()}};
 const conflicting=new Index(duplicate);
 if(conflicting.row("vehicle_1","battery.soc_pct")!==null) throw new Error("duplicate native property must fail closed");
 if(conflicting.contractGaps()[0]?.reason!=="duplicate_canonical_property") throw new Error("duplicate native property must be reportable");
+// A secondary publisher changing its value must never become a winner while
+// the same asset/property key remains ambiguous.
+const duplicateUpdated={states:{
+  "sensor.a":duplicate.states["sensor.a"],
+  "sensor.b":{...mk(),state:"55"}
+}};
+const duplicateRevision=conflicting.revision("vehicle_1");
+conflicting.refresh(duplicateUpdated);
+if(conflicting.row("vehicle_1","battery.soc_pct")!==null)
+  throw new Error("changed duplicate publisher must remain unresolved");
+if(conflicting.contractGaps().length!==1)
+  throw new Error("duplicate publication gap disappeared after incremental refresh");
+if(conflicting.revision("vehicle_1")<=duplicateRevision)
+  throw new Error("duplicate publisher update must invalidate asset revision");
+conflicting.refresh({states:{"sensor.b":duplicateUpdated.states["sensor.b"]}});
+if(conflicting.row("vehicle_1","battery.soc_pct")?.value!=="55")
+  throw new Error("canonical property must recover when duplicate is removed");
 const removedRevision=conflicting.revision("vehicle_1");
 conflicting.refresh({states:{"sensor.noncanonical":{state:"ok",attributes:{}}}});
 if(conflicting.revision("vehicle_1")<=removedRevision) throw new Error("removed native asset must invalidate its own revision");
