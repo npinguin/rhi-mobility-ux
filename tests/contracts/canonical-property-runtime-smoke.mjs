@@ -158,6 +158,24 @@ for (const [state,quality] of [['unavailable','CANONICAL'],['84','STALE'],['84',
   if(row.value!==null || row.availability!=='UNAVAILABLE')
     throw new Error('invalid Mobility source value leaked as available');
 }
+// Unrecognized backend availability must not be silently interpreted as healthy.
+for (const availability of ['DEGRADED','NOT_AVAILABLE','PENDING','CUSTOM_STATE']) {
+  const unknown=new Index({states:{'sensor.vehicle_soc':{
+    state:'0',attributes:{canonical_contract:'RHI_MOBILITY_CANONICAL_PROPERTY_V1',
+      asset_id:'vehicle_1',property_key:'vehicle.soc_pct',value:0,availability}
+  }}});
+  const row=unknown.row('vehicle_1','vehicle.soc_pct');
+  if(row.value!==null || row.availability!=='UNAVAILABLE')
+    throw new Error('unrecognized backend availability incorrectly accepted: '+availability);
+}
+const trueZero=new Index({states:{'sensor.vehicle_soc':{
+  state:'0',attributes:{canonical_contract:'RHI_MOBILITY_CANONICAL_PROPERTY_V1',
+    asset_id:'vehicle_1',property_key:'vehicle.soc_pct',value:0,availability:'AVAILABLE'}
+}}});
+if(trueZero.row('vehicle_1','vehicle.soc_pct')?.value!==0)
+  throw new Error('known available zero lost during fail-closed normalization');
+console.log('PASS unknown availability fails closed while known zero survives');
+
 console.log('PASS Mobility invalid or stale canonical values fail closed');
 
 console.log("PASS Mobility canonical-property indexing, membership revision and metadata-owned placement");
