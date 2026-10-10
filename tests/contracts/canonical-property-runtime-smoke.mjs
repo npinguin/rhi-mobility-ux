@@ -122,4 +122,28 @@ const assetsById=new Map(ownedRows.rows().filter(r=>r.asset_id && r.asset_type)
   .map(r=>[r.asset_id,r.asset_type]));
 if(assetsById.size!==2 || assetsById.get("vehicle_a")!=="vehicle" || assetsById.get("charger_a")!=="charger")
   throw new Error("canonical backend asset membership must survive without retired Runtime V2 aggregate");
+// Integration-scale inventory: eight backend-published assets, without any
+// retired Runtime V2 fleet aggregate, must retain correct membership.
+const fleetRows=[
+  ...Array.from({length:5},(_,i)=>({asset_id:'vehicle_'+(i+1),asset_type:'vehicle',property_key:'vehicle.soc_pct'})),
+  ...Array.from({length:2},(_,i)=>({asset_id:'charger_'+(i+1),asset_type:'charger',property_key:'charger.operating_state'})),
+  {asset_id:'person_1',asset_type:'person',property_key:'person.presence'}
+];
+const inventoryRuntime={
+  _memo:new Map(),
+  _canonicalProperties:{rows(){return fleetRows;}},
+  mobilityRuntimeV2(){throw Error('retired Runtime V2 was consulted');},
+  normalizeAssetEntry(row){return row;}
+};
+const allAssets=directInventory.call(inventoryRuntime,'all');
+if(allAssets.length!==8 || new Set(allAssets.map(row=>row.asset_id)).size!==8)
+  throw new Error('eight-asset canonical fleet inventory incomplete');
+inventoryRuntime._memo.clear();
+if(directInventory.call(inventoryRuntime,'vehicle').length!==5)
+  throw new Error('canonical fleet lost vehicles');
+inventoryRuntime._memo.clear();
+if(directInventory.call(inventoryRuntime,'charger').length!==2)
+  throw new Error('canonical fleet lost chargers');
+console.log('PASS eight-asset canonical fleet membership without legacy aggregate');
+
 console.log("PASS Mobility canonical-property indexing, membership revision and metadata-owned placement");
