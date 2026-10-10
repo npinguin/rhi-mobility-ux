@@ -22,6 +22,11 @@ class HomeBrainEnergyCanonicalProjection {
         presentation_surface:a.presentation_surface || ''})];
     });
   }
+  object(value) {
+    if (value && typeof value === 'object' && !Array.isArray(value)) return value;
+    if (typeof value !== 'string') return {};
+    try { const parsed=JSON.parse(value); return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {}; } catch (_) { return {}; }
+  }
   snapshot() {
     const rows=this.rows();
     return Object.freeze({available:rows.length>0,contractId:HomeBrainEnergyCanonicalProjection.contractId,
