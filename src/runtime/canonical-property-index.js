@@ -92,7 +92,14 @@ class MobilityCanonicalPropertyIndex {
         before.component_id!==after.component_id ||
         before.section_id!==after.section_id ||
         before.visibility!==after.visibility ||
-        before.render_as!==after.render_as) {
+        before.render_as!==after.render_as ||
+        before.presentation_role!==after.presentation_role ||
+        before.presentation_family!==after.presentation_family ||
+        before.presentation_primary!==after.presentation_primary ||
+        before.presentation_technical!==after.presentation_technical ||
+        before.asset_type!==after.asset_type ||
+        before.asset_display_name!==after.asset_display_name ||
+        before.lifecycle_status!==after.lifecycle_status) {
         metadataChanged=true;
         break;
       }
