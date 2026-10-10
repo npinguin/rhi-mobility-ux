@@ -131,6 +131,8 @@ class MobilityCanonicalPropertyIndex {
       this.discover(hass);
       return;
     }
+    // Once all metadata has been checked, update values without losing the
+    // canonical membership of any unchanged asset.
     const changedAssets=new Set();
     for(const [entityId,current] of changed) {
       const before=this.byEntity.get(entityId);
@@ -151,7 +153,10 @@ class MobilityCanonicalPropertyIndex {
   rows(assetId = '') {
     const id=String(assetId || '').trim();
     const source=id ? [...(this.byAsset.get(id)||[])] : [...this.byEntity.values()];
-    return source;
+    // Duplicate publication has no authoritative winner. Do not let an
+    // ambiguous row leak into inventory, overview, detail or diagnostics
+    // projections that consume rows() rather than row().
+    return source.filter(row=>!this.ambiguousKeys.has(`${row.asset_id}::${row.property_key}`));
   }
 
   row(assetId='',propertyKey='') {
