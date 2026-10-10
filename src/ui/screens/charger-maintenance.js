@@ -310,7 +310,7 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
     const forceRender = !!this._forceRender;
     this._forceRender = false;
     const revisionSignature = rt.productRevisionSignature("", [
-      "MOBILITY_PUBLIC_RUNTIME_V2",
+      "MOBILITY_EXPERIENCE_V2",
       "MOBILITY_EXPERIENCE_V2",
       "MOBILITY_COMMAND_V2",
       "MOBILITY_PROFILE_CATALOG_V2"
