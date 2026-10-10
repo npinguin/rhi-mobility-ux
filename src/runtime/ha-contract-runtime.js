@@ -2378,26 +2378,31 @@ class HomeBrainAssetRuntime {
   }
 
   relationshipFor(assetId) {
-    const canonical = this.canonicalAssetId(assetId);
+    const canonical=this.canonicalAssetId(assetId);
     if (canonical.startsWith("vehicle_")) return this.vehicleChargerRelationship(canonical);
     if (!canonical.startsWith("charger_")) return { assigned:"none", connected:"none", effective:"none", selected:"none", row:null };
-    const runtimeV2 = this.mobilityRuntimeV2();
-    if (!runtimeV2) return { assigned:"none", connected:"none", effective:"none", selected:"none", row:null, relationship_resolution:"contract_gap" };
-    const relations = runtimeV2.vehicle_charger_relationships || [];
-    const configured = relations.filter((row)=>String(row?.configured_charger_id || "") === canonical);
-    const effectiveRows = relations.filter((row)=>String(row?.effective_charger_id || "") === canonical);
-    const physical = relations.filter((row)=>row?.observed_identity_proven === true && String(row?.physically_connected_charger_id || "") === canonical);
-    const one = (rows) => rows.length === 1 ? String(rows[0]?.vehicle_id || rows[0]?.asset_id || "none") : "none";
-    const selected = one(configured), effective = one(effectiveRows), connected = one(physical);
+    // The backend experience publisher owns the relationship resolution.
+    // Do not infer physical connection from a configured or effective assignment.
+    const relations=(this.mobilityExperienceV2()?.vehicles || [])
+      .map((vehicle)=>({ vehicle_id:String(vehicle?.asset_id || ""), ...vehicle?.charging_relationship }))
+      .filter((row)=>row.vehicle_id && row.vehicle_id.startsWith("vehicle_"));
+    const configured=relations.filter((row)=>String(row.configured_charger_id || "")===canonical);
+    const effectiveRows=relations.filter((row)=>String(row.effective_charger_id || "")===canonical);
+    const physical=relations.filter((row)=>row.observed_identity_proven===true && String(row.physically_connected_charger_id || "")===canonical);
+    const one=(rows)=>rows.length===1 ? rows[0].vehicle_id : "none";
+    const selected=one(configured), effective=one(effectiveRows), connected=one(physical);
+    const conflict=[configured,effectiveRows,physical].some((rows)=>rows.length>1);
     return {
       assigned:selected, connected, effective, selected,
-      assigned_vehicle:selected,
-      connected_vehicle:connected, effective_vehicle:effective, selected_vehicle:selected,
-      relationship_resolution:physical.length > 1 || effectiveRows.length > 1 || configured.length > 1 ? "CONFLICT" : "V2",
-      confidence:physical.length === 1 ? "proven" : "",
+      assigned_vehicle:selected, connected_vehicle:connected,
+      effective_vehicle:effective, selected_vehicle:selected,
+      relationship_resolution:conflict ? "CONFLICT" : "MOBILITY_EXPERIENCE_V2",
+      confidence:physical.length===1 ? "proven" : "",
       row:physical[0] || effectiveRows[0] || configured[0] || null,
-      connected_row:physical[0] || null, effective_row:effectiveRows[0] || null, selected_row:configured[0] || null,
-      _authority:"MOBILITY_PUBLIC_RUNTIME_V2"
+      connected_row:physical.length===1 ? physical[0] : null,
+      effective_row:effectiveRows.length===1 ? effectiveRows[0] : null,
+      selected_row:configured.length===1 ? configured[0] : null,
+      _authority:"MOBILITY_EXPERIENCE_V2"
     };
   }
 
