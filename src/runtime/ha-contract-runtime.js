@@ -114,31 +114,24 @@ class HomeBrainAssetRuntime {
   }
 
   propertyPublicationEvidence(assetId = "") {
-    const canonical = this.canonicalAssetId(assetId);
-    if (!canonical) return null;
-    const asset = this.assetIndexRows("all").find((row) => String(row?.asset_id || "") === canonical);
-    const publication = asset?.property_publication;
-    if (!publication || typeof publication !== "object") return null;
-    return {
-      ...publication,
-      expected_property_keys: Array.isArray(publication.expected_property_keys) ? publication.expected_property_keys : [],
-      catalog_property_keys: Array.isArray(publication.catalog_property_keys) ? publication.catalog_property_keys : [],
-    };
+    // The canonical property index proves which properties were published.
+    // It does not publish an expected-property catalog; never fabricate one.
+    return null;
   }
 
   propertyPublicationGap(assetId = "") {
-    const canonical = this.canonicalAssetId(assetId);
-    const evidence = this.propertyPublicationEvidence(canonical);
-    if (!evidence) return { status:"unavailable", missing:[], unexpected:[] };
-    const actual = new Set(this.propertyRows(canonical).filter((row) => !row.missing).map((row) => String(row.property_key || "")).filter(Boolean));
-    const expected = new Set(evidence.expected_property_keys.map(String));
+    const canonical=this.canonicalAssetId(assetId);
+    const rows=this._canonicalProperties.rows(canonical);
+    if (!canonical || !rows.length) return {status:"unavailable",missing:[],unexpected:[]};
+    const keys=rows.map((row)=>String(row.property_key || "")).filter(Boolean);
+    const unique=new Set(keys);
+    const duplicates=[...unique].filter((key)=>keys.filter((candidate)=>candidate===key).length>1);
     return {
-      status:[...expected].every((key)=>actual.has(key)) ? "complete" : "incomplete",
-      missing:[...expected].filter((key)=>!actual.has(key)).sort(),
-      unexpected:[...actual].filter((key)=>!expected.has(key)).sort(),
-      expected_count:expected.size,
-      actual_count:actual.size,
-      authority:evidence.authority || "RHI_MOBILITY_CANONICAL_PROPERTY_V1"
+      status:duplicates.length ? "ambiguous" : "published",
+      missing:[], unexpected:[],
+      actual_count:unique.size,
+      ambiguous_property_keys:duplicates.sort(),
+      authority:"RHI_MOBILITY_CANONICAL_PROPERTY_V1"
     };
   }
 
@@ -405,7 +398,7 @@ class HomeBrainAssetRuntime {
   }
 
   typeIndexEntity(kind = "all") {
-    return "sensor.rhi_mobility_runtime_v2";
+    return "";
   }
 
   assetIndexRows(kind = "all") {
@@ -2029,7 +2022,7 @@ class HomeBrainAssetRuntime {
   }
 
   propertyIndexEntityForAsset(assetId = "") {
-    return "sensor.rhi_mobility_runtime_v2";
+    return "";
   }
 
   v2PropertyRows(assetId = "") {
