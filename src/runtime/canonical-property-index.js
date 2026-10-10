@@ -108,6 +108,7 @@ class MobilityCanonicalPropertyIndex {
         before.render_as!==after.render_as ||
         before.presentation_role!==after.presentation_role ||
         before.presentation_family!==after.presentation_family ||
+        before.presentation_surface!==after.presentation_surface ||
         before.presentation_primary!==after.presentation_primary ||
         before.presentation_technical!==after.presentation_technical ||
         before.asset_type!==after.asset_type ||
