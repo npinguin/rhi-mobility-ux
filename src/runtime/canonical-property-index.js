@@ -37,7 +37,10 @@ class MobilityCanonicalPropertyIndex {
     // of an available physical value. Preserve known zero; fail closed on
     // unknown backend status instead of silently presenting stale truth.
     const knownAvailability = ['', 'AVAILABLE', 'UNAVAILABLE', 'STALE', 'INVALID', 'UNKNOWN'];
-    const available = !invalidState && !invalidQuality &&
+    const publishedValue = Object.prototype.hasOwnProperty.call(attrs,'value') ? attrs.value : state?.state;
+    const invalidPublishedValue = publishedValue === null || publishedValue === undefined ||
+      (typeof publishedValue === 'string' && ['unknown','unavailable','none','null',''].includes(publishedValue.trim().toLowerCase()));
+    const available = !invalidState && !invalidQuality && !invalidPublishedValue &&
       knownAvailability.includes(explicitAvailability) &&
       (explicitAvailability === '' || explicitAvailability === 'AVAILABLE');
     return {
@@ -45,7 +48,7 @@ class MobilityCanonicalPropertyIndex {
       asset_id:String(attrs.asset_id || '').trim(),
       property_key:String(attrs.property_key || '').trim(),
       availability:available ? 'AVAILABLE' : 'UNAVAILABLE',
-      value:available ? (Object.prototype.hasOwnProperty.call(attrs,'value') ? attrs.value : state?.state) : null,
+      value:available ? publishedValue : null,
       display_name:attrs.display_name || attrs.friendly_name || '',
       _source_entity_id:String(entityId || ''),
       canonical_contract:String(attrs.canonical_contract || 'RHI_MOBILITY_CANONICAL_PROPERTY_V1').toUpperCase()
