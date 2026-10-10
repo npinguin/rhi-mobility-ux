@@ -2373,8 +2373,26 @@ class HomeBrainAssetRuntime {
 
   relationshipRows(assetId = "") {
     const canonical = assetId ? this.canonicalAssetId(assetId) : "";
-    const rows = this.mobilityRuntimeV2()?.relationships || [];
-    return rows.filter((r) => !canonical || String(r.source_asset_id || r.asset_id || "") === String(canonical) || String(r.target_asset_id || "") === String(canonical));
+    // Project only backend-published relationship truth; never infer a
+    // physical connection from assignment or a Home Assistant entity name.
+    const rows=(this.mobilityExperienceV2()?.vehicles || []).flatMap((vehicle)=>{
+      const vehicleId=String(vehicle?.asset_id || "");
+      const relation=vehicle?.charging_relationship;
+      if (!vehicleId || !relation || typeof relation !== "object") return [];
+      return [
+        ["configured",relation.configured_charger_id],
+        ["effective",relation.effective_charger_id],
+        ["physical",relation.observed_identity_proven === true ? relation.physically_connected_charger_id : null]
+      ].filter(([,chargerId])=>typeof chargerId === "string" && chargerId.trim())
+        .map(([kind,chargerId])=>({
+          source_asset_id:vehicleId, target_asset_id:chargerId,
+          relationship_type:kind === "physical" ? "physically_connected" : kind,
+          observed_identity_proven:kind === "physical",
+          relationship_status:relation.relationship_status || "UNKNOWN",
+          authority:"MOBILITY_EXPERIENCE_V2"
+        }));
+    });
+    return rows.filter((row)=>!canonical || row.source_asset_id===canonical || row.target_asset_id===canonical);
   }
 
   relationshipFor(assetId) {
