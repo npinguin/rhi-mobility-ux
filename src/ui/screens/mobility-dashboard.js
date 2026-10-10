@@ -923,7 +923,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
           const rt = new HomeBrainAssetRuntime(hass, this.config);
           this.rt = rt;
           const revisionSignature = rt.productRevisionSignature("", [
-            "MOBILITY_PUBLIC_RUNTIME_V2",
+            "MOBILITY_EXPERIENCE_V2",
             "MOBILITY_EXPERIENCE_V2",
             "MOBILITY_COMMAND_V2",
             "MOBILITY_ACTIVITY_V2",
@@ -973,7 +973,9 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
           const pageContent = navActive === "overview"
             ? this.renderOverviewPage(rt, activeVehicles, chargers, activityRows, reco)
             : this.renderVehiclesPage(rt, activeVehicles, inactiveVehicles, chargers, reco, plan, trust, activity, intelligenceSummary);
-          this.shadowRoot.innerHTML = `<ha-card><div class="page rhiUxDomainBody rhi-ux-root">${this.versionBlock(rt)}
+          {
+      const template = document.createElement("template");
+      template.innerHTML = `<ha-card><div class="page rhiUxDomainBody rhi-ux-root">${this.versionBlock(rt)}
             ${hbMobilityNav(navActive)}
             ${pageContent}
           </div>${hbMobilityReleaseFooter(rt)}<style>${this.styles()}${typeof rhiUxVisualPickerStyles === "function" ? rhiUxVisualPickerStyles() : ""}${navActive === "overview" ? this.overviewStyles() : ""}
@@ -982,6 +984,8 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
             .action.enum-action ha-icon,.cmd.enum-command ha-icon{flex:0 0 auto}
             .action.enum-action select,.cmd.enum-command select{appearance:auto;min-width:0;max-width:170px;width:auto;border:0;background:transparent;color:inherit;font:inherit;font-size:12px;font-weight:600;padding:0 2px;box-shadow:none;cursor:pointer}
           </style></ha-card>`;
+      this.shadowRoot.replaceChildren(template.content.cloneNode(true));
+    }
           this.wireEvents(rt);
           this.restoreViewPositionOnce();
     } catch (err) {
@@ -991,7 +995,9 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
       if (!this.shadowRoot) this.attachShadow({ mode: "open" });
       let backendVersion = "Unknown";
       try { backendVersion = new HomeBrainAssetRuntime(this._hass || hass, this.config).backendVersion(); } catch (e) {}
-      this.shadowRoot.innerHTML = `<ha-card>
+      {
+      const template = document.createElement("template");
+      template.innerHTML = `<ha-card>
         <div class="hb-error-page">
           <div class="hi-version-block" style="position:absolute;top:18px;right:22px;text-align:right;font-size:10.5px;line-height:1.25;font-weight:400;color:var(--secondary-text-color,#6B7280);opacity:.82;background:none;border:0;box-shadow:none;padding:0;margin:0;z-index:3;pointer-events:none;"><div>UX ${String(UX_VERSION).replace(/[&<>]/g, (ch) => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[ch]))}</div><div>Backend ${String(backendVersion).replace(/[&<>]/g, (ch) => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[ch]))}</div></div>
           <h1>Mobility</h1>
@@ -1017,6 +1023,8 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
 </style>
         ${hbMobilityReleaseFooter(new HomeBrainAssetRuntime(this._hass || hass, this.config))}
       </ha-card>`;
+      this.shadowRoot.replaceChildren(template.content.cloneNode(true));
+    }
     }
   }
   wireEvents(rt) {

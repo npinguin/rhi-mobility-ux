@@ -1,5 +1,5 @@
 /**
- * Robotix Home Intelligence Mobility UX v1.0.0-rc.87
+ * Robotix Home Intelligence Mobility UX v1.0.0-rc.88
  * GENERATED FILE - DO NOT EDIT.
  * License: GPL-3.0-only
  */
@@ -952,7 +952,7 @@ function hbMobilityPresentationStyles() {
 // ---- src/app/header-and-navigation.js ----
 // Mobility presentation adapter onto the shared RHI UX Core.
 // Domain semantics remain owned by Mobility runtime/projections.
-const UX_VERSION = "1.0.0-rc.87";
+const UX_VERSION = "1.0.0-rc.88";
 const HB_MOBILITY_ROUTE_SEGMENTS = new Set([
   "overview","dashboard","vehicles","charger-maintenance","chargers",
   "planning","strategies","history","log","asset-detail","detail","charging"
@@ -1192,7 +1192,7 @@ const HI_MOBILITY_INTELLIGENCE_MODEL_ALIGNMENT = Object.freeze({
 // Persistent Mobility canonical-property index.
 //
 // Mobility canonical property entities identify themselves with
-// canonical_contract=MOBILITY_CANONICAL_PROPERTY_V2. This is the sole
+// canonical_contract=RHI_MOBILITY_CANONICAL_PROPERTY_V1. This is the sole
 // frontend property-truth contract. Aggregate Runtime V2 never backfills it.
 class MobilityCanonicalPropertyIndex {
   constructor(hass = {}) {
@@ -1200,6 +1200,7 @@ class MobilityCanonicalPropertyIndex {
     this.byAsset = new Map();
     this.byAssetAndKey = new Map();
     this.stateRefs = new Map();
+    this.ambiguousKeys = new Set();
     this.assetRevisions = new Map();
     this._globalRevision = 0;
     this._stateCount = 0;
@@ -1210,7 +1211,7 @@ class MobilityCanonicalPropertyIndex {
   isCanonicalPropertyState(state) {
     const attrs = state?.attributes || {};
     const contract=String(attrs.canonical_contract || '').toUpperCase();
-    return contract === 'MOBILITY_CANONICAL_PROPERTY_V2'
+    return contract === 'RHI_MOBILITY_CANONICAL_PROPERTY_V1'
       && !!String(attrs.asset_id || '').trim()
       && !!String(attrs.property_key || '').trim();
   }
@@ -1225,7 +1226,7 @@ class MobilityCanonicalPropertyIndex {
       value:Object.prototype.hasOwnProperty.call(attrs,'value') ? attrs.value : state?.state,
       display_name:attrs.display_name || attrs.friendly_name || '',
       _source_entity_id:String(entityId || ''),
-      canonical_contract:String(attrs.canonical_contract || 'MOBILITY_CANONICAL_PROPERTY_V2').toUpperCase()
+      canonical_contract:String(attrs.canonical_contract || 'RHI_MOBILITY_CANONICAL_PROPERTY_V1').toUpperCase()
     };
   }
 
@@ -1238,26 +1239,33 @@ class MobilityCanonicalPropertyIndex {
     const compound=`${row.asset_id}::${row.property_key}`;
     const current=this.byAssetAndKey.get(compound);
     if(!current) this.byAssetAndKey.set(compound,row);
+    else this.ambiguousKeys.add(compound);
     this.stateRefs.set(entityId,state);
   }
 
   discover(hass = {}) {
+    const previousAssetIds = new Set(this.byAsset.keys());
     this.byEntity.clear();
     this.byAsset.clear();
     this.byAssetAndKey.clear();
     this.stateRefs.clear();
+    this.ambiguousKeys.clear();
     const states=hass?.states || {};
     this._hassRef=hass;
     this._stateCount=Object.keys(states).length;
     for(const [entityId,state] of Object.entries(states)) this._index(entityId,state);
     this._globalRevision += 1;
-    for(const assetId of this.byAsset.keys()) this.assetRevisions.set(assetId,(this.assetRevisions.get(assetId)||0)+1);
+    for(const assetId of new Set([...previousAssetIds,...this.byAsset.keys()]))
+      this.assetRevisions.set(assetId,(this.assetRevisions.get(assetId)||0)+1);
     return this;
   }
 
   refresh(hass = {}) {
     const states=hass?.states || {};
-    if(Object.keys(states).length !== this._stateCount) {
+    // Same-sized HA replacements can still add/remove canonical entities.
+    const membershipChanged=[...this.stateRefs.keys()].some(id=>!Object.prototype.hasOwnProperty.call(states,id)) ||
+      Object.entries(states).some(([id,state])=>!this.stateRefs.has(id) && this.isCanonicalPropertyState(state));
+    if(Object.keys(states).length !== this._stateCount || membershipChanged) {
       this.discover(hass);
       return;
     }
@@ -1308,7 +1316,12 @@ class MobilityCanonicalPropertyIndex {
   }
 
   row(assetId='',propertyKey='') {
-    return this.byAssetAndKey.get(`${String(assetId||'')}::${String(propertyKey||'')}`) || null;
+    const key=`${String(assetId||'')}::${String(propertyKey||'')}`;
+    return this.ambiguousKeys.has(key) ? null : (this.byAssetAndKey.get(key) || null);
+  }
+
+  contractGaps() {
+    return [...this.ambiguousKeys].sort().map(key=>({key,reason:'duplicate_canonical_property'}));
   }
 
   entityIds(assetId='') {
@@ -1412,7 +1425,6 @@ class HomeBrainAssetRuntime {
 
   allowedContractEntityIds() {
     return new Set([
-      "sensor.rhi_mobility_runtime_v2",
       "sensor.rhi_mobility_experience_v2",
       "sensor.rhi_mobility_policy_v2",
       "sensor.rhi_mobility_command_v2",
@@ -1755,9 +1767,26 @@ class HomeBrainAssetRuntime {
   assetIndexRows(kind = "all") {
     const cacheKey = `assetIndexRows:${kind}`;
     if (this._memo.has(cacheKey)) return this._memo.get(cacheKey);
-    const runtime = this.mobilityRuntimeV2();
-    let rows = (runtime?.assets || []).map((v, index) =>
-      this.normalizeAssetEntry({ sort_order:index, ...(v || {}) })
+    // The backend's canonical property entities, not the retired Runtime V2
+    // aggregate, own current membership. One row per backend-published asset_id.
+    // Missing property evidence is a contract gap, not a reconstructed vehicle.
+    const assets = new Map();
+    for (const property of this._canonicalProperties.rows()) {
+      const id=String(property?.asset_id || '').trim();
+      const type=String(property?.asset_type || '').trim().toLowerCase();
+      if (!id || !['vehicle','charger','person'].includes(type)) continue;
+      if (!assets.has(id)) assets.set(id,{asset_id:id,asset_type:type});
+      // Identity and lifecycle are used only when explicitly published.
+      const row=assets.get(id);
+      if (property.asset_display_name) row.display_name=String(property.asset_display_name);
+      if (property.lifecycle_status) row.lifecycle_status=String(property.lifecycle_status);
+      if (property.property_key==='asset.display_name' && property.availability==='AVAILABLE')
+        row.display_name=String(property.value ?? id);
+      if (property.property_key==='asset.lifecycle_status' && property.availability==='AVAILABLE')
+        row.lifecycle_status=String(property.value ?? 'Unknown');
+    }
+    let rows=[...assets.values()].map((v,index)=>
+      this.normalizeAssetEntry({sort_order:index,...v})
     ).filter(Boolean);
     if (kind === "vehicle") rows = rows.filter((a) => String(a.asset_type || "").toLowerCase() === "vehicle");
     if (kind === "charger") rows = rows.filter((a) => String(a.asset_type || "").toLowerCase() === "charger");
@@ -2037,7 +2066,6 @@ class HomeBrainAssetRuntime {
     // Track explicit producer-owned authorities by entity revision only.
     // Do not serialize complete contract payloads on every HA tick.
     for (const id of [
-      "sensor.rhi_mobility_runtime_v2",
       "sensor.rhi_mobility_experience_v2",
       "sensor.rhi_mobility_policy_v2",
       "sensor.rhi_mobility_activity_v2",

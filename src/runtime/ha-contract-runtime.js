@@ -58,7 +58,6 @@ class HomeBrainAssetRuntime {
   contractAuthorityRegistry() {
     return {
       canonical_property_v2: { contract_id: "MOBILITY_CANONICAL_PROPERTY_V2", role: "primary_property_authority" },
-      fleet_runtime_v2: { contract_id: "MOBILITY_PUBLIC_RUNTIME_V2", role: "asset_relationship_authority" },
       product_experience_v2: { contract_id: "MOBILITY_EXPERIENCE_V2", role: "authority" },
       product_policy_v2: { contract_id: "MOBILITY_POLICY_V2", role: "authority" },
       command_v2: { contract_id: "MOBILITY_COMMAND_V2", role: "authority" },
@@ -76,7 +75,6 @@ class HomeBrainAssetRuntime {
 
   allowedContractEntityIds() {
     return new Set([
-      "sensor.rhi_mobility_runtime_v2",
       "sensor.rhi_mobility_experience_v2",
       "sensor.rhi_mobility_policy_v2",
       "sensor.rhi_mobility_command_v2",
@@ -115,50 +113,25 @@ class HomeBrainAssetRuntime {
     return undefined;
   }
 
-  mobilityRuntimeV2() {
-    const state = this.contractEntity("MOBILITY_PUBLIC_RUNTIME_V2", [
-      "sensor.rhi_mobility_runtime_v2"
-    ]);
-    const attrs = state?.attributes || {};
-    if (String(attrs.contract_id || "") !== "MOBILITY_PUBLIC_RUNTIME_V2") return null;
-    return {
-      contract_id: attrs.contract_id,
-      canonical: attrs.canonical === true,
-      release: attrs.release && typeof attrs.release === "object" ? { ...attrs.release } : {},
-      assets: Array.isArray(attrs.assets) ? attrs.assets : [],
-      fleet: attrs.fleet && typeof attrs.fleet === "object" ? attrs.fleet : {},
-      relationships: Array.isArray(attrs.relationships) ? attrs.relationships : [],
-      vehicle_charger_relationships: Array.isArray(attrs.vehicle_charger_relationships) ? attrs.vehicle_charger_relationships : [],
-      ux_inference_forbidden: attrs.ux_inference_forbidden === true
-    };
-  }
-
   propertyPublicationEvidence(assetId = "") {
-    const canonical = this.canonicalAssetId(assetId);
-    if (!canonical) return null;
-    const asset = (this.mobilityRuntimeV2()?.assets || []).find((row) => String(row?.asset_id || "") === canonical);
-    const publication = asset?.property_publication;
-    if (!publication || typeof publication !== "object") return null;
-    return {
-      ...publication,
-      expected_property_keys: Array.isArray(publication.expected_property_keys) ? publication.expected_property_keys : [],
-      catalog_property_keys: Array.isArray(publication.catalog_property_keys) ? publication.catalog_property_keys : [],
-    };
+    // The canonical property index proves which properties were published.
+    // It does not publish an expected-property catalog; never fabricate one.
+    return null;
   }
 
   propertyPublicationGap(assetId = "") {
-    const canonical = this.canonicalAssetId(assetId);
-    const evidence = this.propertyPublicationEvidence(canonical);
-    if (!evidence) return { status:"unavailable", missing:[], unexpected:[] };
-    const actual = new Set(this.v2PropertyRows(canonical).map((row)=>String(row.property_key || "")).filter(Boolean));
-    const expected = new Set(evidence.expected_property_keys.map(String));
+    const canonical=this.canonicalAssetId(assetId);
+    const rows=this._canonicalProperties.rows(canonical);
+    if (!canonical || !rows.length) return {status:"unavailable",missing:[],unexpected:[]};
+    const keys=rows.map((row)=>String(row.property_key || "")).filter(Boolean);
+    const unique=new Set(keys);
+    const duplicates=[...unique].filter((key)=>keys.filter((candidate)=>candidate===key).length>1);
     return {
-      status:[...expected].every((key)=>actual.has(key)) ? "complete" : "incomplete",
-      missing:[...expected].filter((key)=>!actual.has(key)).sort(),
-      unexpected:[...actual].filter((key)=>!expected.has(key)).sort(),
-      expected_count:expected.size,
-      actual_count:actual.size,
-      authority:evidence.authority || "MOBILITY_PUBLIC_RUNTIME_V2"
+      status:duplicates.length ? "ambiguous" : "published",
+      missing:[], unexpected:[],
+      actual_count:unique.size,
+      ambiguous_property_keys:duplicates.sort(),
+      authority:"RHI_MOBILITY_CANONICAL_PROPERTY_V1"
     };
   }
 
@@ -290,8 +263,17 @@ class HomeBrainAssetRuntime {
   // adapters/screens consume these projection owners so one semantic family has
   // one authority and missing truth fails closed.
   mobilityFleetProjection() {
-    const fleet=this.mobilityRuntimeV2()?.fleet;
-    return fleet && typeof fleet === "object" ? { ...fleet, source:"MOBILITY_PUBLIC_RUNTIME_V2" } : {};
+    // Fleet membership is published by canonical asset properties, not by a
+    // second, independently evolving runtime aggregate.
+    const vehicles=this.assetIndexRows("vehicle");
+    const chargers=this.assetIndexRows("charger");
+    return {
+      vehicles,
+      chargers,
+      vehicle_count:vehicles.length,
+      charger_count:chargers.length,
+      source:"RHI_MOBILITY_CANONICAL_PROPERTY_V1"
+    };
   }
 
   rangePolicyProjection() {
@@ -313,10 +295,13 @@ class HomeBrainAssetRuntime {
 
   vehicleRelationshipProjection(assetId = "") {
     const canonical=this.canonicalAssetId(assetId);
-    const row=this.mobilityRuntimeV2()?.vehicle_charger_relationships?.find(
-      (item)=>String(item?.vehicle_id || item?.asset_id || "") === canonical
-    ) || null;
-    return row ? { ...row, source:"MOBILITY_PUBLIC_RUNTIME_V2" } : {};
+    const matches=(this.mobilityExperienceV2()?.vehicles || []).filter(
+      (item)=>String(item?.asset_id || "") === canonical
+    );
+    if (matches.length !== 1) return {};
+    const relationship=matches[0]?.charging_relationship;
+    return relationship && typeof relationship === "object"
+      ? { ...relationship, source:"MOBILITY_EXPERIENCE_V2" } : {};
   }
 
   // Compatibility names are runtime-internal aliases only. They must never be
@@ -413,15 +398,32 @@ class HomeBrainAssetRuntime {
   }
 
   typeIndexEntity(kind = "all") {
-    return "sensor.rhi_mobility_runtime_v2";
+    return "";
   }
 
   assetIndexRows(kind = "all") {
     const cacheKey = `assetIndexRows:${kind}`;
     if (this._memo.has(cacheKey)) return this._memo.get(cacheKey);
-    const runtime = this.mobilityRuntimeV2();
-    let rows = (runtime?.assets || []).map((v, index) =>
-      this.normalizeAssetEntry({ sort_order:index, ...(v || {}) })
+    // The backend's canonical property entities, not the retired Runtime V2
+    // aggregate, own current membership. One row per backend-published asset_id.
+    // Missing property evidence is a contract gap, not a reconstructed vehicle.
+    const assets = new Map();
+    for (const property of this._canonicalProperties.rows()) {
+      const id=String(property?.asset_id || '').trim();
+      const type=String(property?.asset_type || '').trim().toLowerCase();
+      if (!id || !['vehicle','charger','person'].includes(type)) continue;
+      if (!assets.has(id)) assets.set(id,{asset_id:id,asset_type:type});
+      // Identity and lifecycle are used only when explicitly published.
+      const row=assets.get(id);
+      if (property.asset_display_name) row.display_name=String(property.asset_display_name);
+      if (property.lifecycle_status) row.lifecycle_status=String(property.lifecycle_status);
+      if (property.property_key==='asset.display_name' && property.availability==='AVAILABLE')
+        row.display_name=String(property.value ?? id);
+      if (property.property_key==='asset.lifecycle_status' && property.availability==='AVAILABLE')
+        row.lifecycle_status=String(property.value ?? 'Unknown');
+    }
+    let rows=[...assets.values()].map((v,index)=>
+      this.normalizeAssetEntry({sort_order:index,...v})
     ).filter(Boolean);
     if (kind === "vehicle") rows = rows.filter((a) => String(a.asset_type || "").toLowerCase() === "vehicle");
     if (kind === "charger") rows = rows.filter((a) => String(a.asset_type || "").toLowerCase() === "charger");
@@ -617,41 +619,43 @@ class HomeBrainAssetRuntime {
   }
 
   vehicleChargerRelationship(assetId) {
-    const canonical = this.canonicalAssetId(assetId);
-    const runtimeV2 = this.mobilityRuntimeV2();
-    if (!runtimeV2) return { assigned:"none", effective:"none", selected:"none", connected:"none", row:null, relationship_resolution:"contract_gap" };
-    const relation = (runtimeV2.vehicle_charger_relationships || []).find((row)=>String(row?.vehicle_id || row?.asset_id || "") === canonical) || null;
-    if (!relation) return { assigned:"none", effective:"none", selected:"none", connected:"none", row:null, relationship_resolution:"not_published", _authority:"MOBILITY_PUBLIC_RUNTIME_V2" };
-    const selected = this.cleanValue(relation.configured_charger_id || "", "none") || "none";
-    const effective = this.cleanValue(relation.effective_charger_id || "", "none") || "none";
-    const connected = relation.observed_identity_proven === true ? (this.cleanValue(relation.physically_connected_charger_id || "", "none") || "none") : "none";
+    const relation=this.vehicleRelationshipProjection(assetId);
+    if (!relation.vehicle_id) return { assigned:"none", effective:"none", selected:"none", connected:"none", row:null, relationship_resolution:"not_published" };
+    const selected=this.cleanValue(relation.configured_charger_id || "", "none") || "none";
+    const effective=this.cleanValue(relation.effective_charger_id || "", "none") || "none";
+    const connected=relation.observed_identity_proven === true
+      ? (this.cleanValue(relation.physically_connected_charger_id || "", "none") || "none") : "none";
     return {
       assigned:selected, effective, selected, connected,
       assigned_display_name:this.assetDisplayName(selected),
       effective_display_name:this.assetDisplayName(effective),
       connected_display_name:this.assetDisplayName(connected),
-      relationship_resolution:relation.relationship_status || relation.resolution_status || "V2",
+      relationship_resolution:relation.relationship_status || "UNKNOWN",
       reason:relation.reason || "",
       observed_identity_proven:relation.observed_identity_proven === true,
       row:relation, physical_row:relation, effective_row:relation, selected_row:relation,
-      _authority:"MOBILITY_PUBLIC_RUNTIME_V2"
+      _authority:"MOBILITY_EXPERIENCE_V2"
     };
   }
 
-
   releaseContract() {
-    const runtime = this.mobilityRuntimeV2();
-    const release = runtime?.release && typeof runtime.release === "object" ? runtime.release : {};
-    const backend = this.cleanValue(release.backend_release || release.backend_version || release.release || release.version || "", "Unknown") || "Unknown";
+    // Release health is reported by the backend deployment gate, not inferred
+    // from the presence of a retired aggregate contract.
+    const deployment=this.entity("sensor.mobility_runtime_deployment_health");
+    const raw=String(deployment?.state || "").trim().toUpperCase();
+    const healthy=["OK","PASS","PASSED","READY","HEALTHY"].includes(raw);
+    const failed=["FAIL","FAILED","BLOCKED","ERROR","NOT_OK"].includes(raw);
+    const attrs=deployment?.attributes || {};
+    const backend=this.cleanValue(attrs.backend_release || attrs.backend_version || "", "Unknown") || "Unknown";
     return {
-      backend_release: backend,
-      backend_version: backend,
-      release_name: release.release_name || "",
-      contract_version: runtime?.contract_id ? "2" : "Unknown",
-      contract_health: runtime?.canonical === true ? "OK" : "BLOCKED",
-      physical_acceptance: release.physical_acceptance || "Unknown",
-      release_acceptance: release.release_acceptance || "Unknown",
-      authority: runtime?.canonical === true ? "MOBILITY_PUBLIC_RUNTIME_V2" : "unavailable"
+      backend_release:backend, backend_version:backend,
+      release_name:attrs.release_name || "",
+      contract_version:"Unknown",
+      contract_health:healthy ? "OK" : failed ? "BLOCKED" : "UNKNOWN",
+      physical_acceptance:attrs.physical_acceptance || "Unknown",
+      release_acceptance:attrs.release_acceptance || "Unknown",
+      runtime_health:raw || "UNKNOWN",
+      authority:"sensor.mobility_runtime_deployment_health"
     };
   }
 
@@ -669,7 +673,6 @@ class HomeBrainAssetRuntime {
 
   contractEntityIdForRevision(contractId = "") {
     const ids = {
-      MOBILITY_PUBLIC_RUNTIME_V2:"sensor.rhi_mobility_runtime_v2",
       MOBILITY_EXPERIENCE_V2:"sensor.rhi_mobility_experience_v2",
       MOBILITY_POLICY_V2:"sensor.rhi_mobility_policy_v2",
       MOBILITY_COMMAND_V2:"sensor.rhi_mobility_command_v2",
@@ -701,7 +704,6 @@ class HomeBrainAssetRuntime {
     // Track explicit producer-owned authorities by entity revision only.
     // Do not serialize complete contract payloads on every HA tick.
     for (const id of [
-      "sensor.rhi_mobility_runtime_v2",
       "sensor.rhi_mobility_experience_v2",
       "sensor.rhi_mobility_policy_v2",
       "sensor.rhi_mobility_activity_v2",
@@ -2020,7 +2022,7 @@ class HomeBrainAssetRuntime {
   }
 
   propertyIndexEntityForAsset(assetId = "") {
-    return "sensor.rhi_mobility_runtime_v2";
+    return "";
   }
 
   v2PropertyRows(assetId = "") {
@@ -2100,7 +2102,7 @@ class HomeBrainAssetRuntime {
         rows:[{ type:"readonly", icon:"mdi:alert-outline", label:"Component placement", value:"Contract gap" }],
         details:unplaced.map((prop)=>({
           label:String(prop.property_key || "Property"),
-          value:`owner=${prop._source_entity_id || "MOBILITY_PUBLIC_RUNTIME_V2"}; missing component_id/section_id`
+          value:`owner=${prop._source_entity_id || "RHI_MOBILITY_CANONICAL_PROPERTY_V1"}; missing component_id/section_id`
         }))
       });
     }
@@ -2173,20 +2175,20 @@ class HomeBrainAssetRuntime {
       }
     };
 
-    for (const attrName of ["properties", "properties_json", "property_index", "property_index_json", "rows", "rows_json", "properties_by_key", "properties_by_key_json", "properties_by_asset", "properties_by_asset_json"]) {
+    for (const attrName of ["properties", "properties_json", "property_index", "property_index_json", "rows", "rows_json"]) {
       collectPropertyContainer(attrs[attrName]);
     }
 
     // Some property-index schemas wrap the exact property rows per asset. Only
     // explicit nested property containers are consumed; top-level asset scalars are
     // not reinterpreted as properties.
-    for (const attrName of ["assets", "assets_json"]) {
+    for (const attrName of ["assets"]) {
       const assets = this.parseJsonValue(attrs[attrName], attrs[attrName] || null);
       const assetRows = Array.isArray(assets) ? assets : (assets && typeof assets === "object" ? Object.values(assets) : []);
       for (const asset of assetRows) {
         if (!asset || typeof asset !== "object") continue;
         const assetKey = String(asset.asset_id || "").trim();
-        for (const nestedName of ["properties", "properties_json", "property_index", "property_index_json", "rows", "rows_json", "source_properties", "properties_by_key", "properties_by_key_json"]) {
+        for (const nestedName of ["properties", "properties_json", "property_index", "property_index_json", "rows", "rows_json", "source_properties"]) {
           collectPropertyContainer(asset[nestedName], assetKey);
         }
       }
@@ -2349,31 +2351,54 @@ class HomeBrainAssetRuntime {
 
   relationshipRows(assetId = "") {
     const canonical = assetId ? this.canonicalAssetId(assetId) : "";
-    const rows = this.mobilityRuntimeV2()?.relationships || [];
-    return rows.filter((r) => !canonical || String(r.source_asset_id || r.asset_id || "") === String(canonical) || String(r.target_asset_id || "") === String(canonical));
+    // Project only backend-published relationship truth; never infer a
+    // physical connection from assignment or a Home Assistant entity name.
+    const rows=(this.mobilityExperienceV2()?.vehicles || []).flatMap((vehicle)=>{
+      const vehicleId=String(vehicle?.asset_id || "");
+      const relation=vehicle?.charging_relationship;
+      if (!vehicleId || !relation || typeof relation !== "object") return [];
+      return [
+        ["configured",relation.configured_charger_id],
+        ["effective",relation.effective_charger_id],
+        ["physical",relation.observed_identity_proven === true ? relation.physically_connected_charger_id : null]
+      ].filter(([,chargerId])=>typeof chargerId === "string" && chargerId.trim())
+        .map(([kind,chargerId])=>({
+          source_asset_id:vehicleId, target_asset_id:chargerId,
+          relationship_type:kind === "physical" ? "physically_connected" : kind,
+          observed_identity_proven:kind === "physical",
+          relationship_status:relation.relationship_status || "UNKNOWN",
+          authority:"MOBILITY_EXPERIENCE_V2"
+        }));
+    });
+    return rows.filter((row)=>!canonical || row.source_asset_id===canonical || row.target_asset_id===canonical);
   }
 
   relationshipFor(assetId) {
-    const canonical = this.canonicalAssetId(assetId);
+    const canonical=this.canonicalAssetId(assetId);
     if (canonical.startsWith("vehicle_")) return this.vehicleChargerRelationship(canonical);
     if (!canonical.startsWith("charger_")) return { assigned:"none", connected:"none", effective:"none", selected:"none", row:null };
-    const runtimeV2 = this.mobilityRuntimeV2();
-    if (!runtimeV2) return { assigned:"none", connected:"none", effective:"none", selected:"none", row:null, relationship_resolution:"contract_gap" };
-    const relations = runtimeV2.vehicle_charger_relationships || [];
-    const configured = relations.filter((row)=>String(row?.configured_charger_id || "") === canonical);
-    const effectiveRows = relations.filter((row)=>String(row?.effective_charger_id || "") === canonical);
-    const physical = relations.filter((row)=>row?.observed_identity_proven === true && String(row?.physically_connected_charger_id || "") === canonical);
-    const one = (rows) => rows.length === 1 ? String(rows[0]?.vehicle_id || rows[0]?.asset_id || "none") : "none";
-    const selected = one(configured), effective = one(effectiveRows), connected = one(physical);
+    // The backend experience publisher owns the relationship resolution.
+    // Do not infer physical connection from a configured or effective assignment.
+    const relations=(this.mobilityExperienceV2()?.vehicles || [])
+      .map((vehicle)=>({ vehicle_id:String(vehicle?.asset_id || ""), ...vehicle?.charging_relationship }))
+      .filter((row)=>row.vehicle_id && row.vehicle_id.startsWith("vehicle_"));
+    const configured=relations.filter((row)=>String(row.configured_charger_id || "")===canonical);
+    const effectiveRows=relations.filter((row)=>String(row.effective_charger_id || "")===canonical);
+    const physical=relations.filter((row)=>row.observed_identity_proven===true && String(row.physically_connected_charger_id || "")===canonical);
+    const one=(rows)=>rows.length===1 ? rows[0].vehicle_id : "none";
+    const selected=one(configured), effective=one(effectiveRows), connected=one(physical);
+    const conflict=[configured,effectiveRows,physical].some((rows)=>rows.length>1);
     return {
       assigned:selected, connected, effective, selected,
-      assigned_vehicle:selected,
-      connected_vehicle:connected, effective_vehicle:effective, selected_vehicle:selected,
-      relationship_resolution:physical.length > 1 || effectiveRows.length > 1 || configured.length > 1 ? "CONFLICT" : "V2",
-      confidence:physical.length === 1 ? "proven" : "",
+      assigned_vehicle:selected, connected_vehicle:connected,
+      effective_vehicle:effective, selected_vehicle:selected,
+      relationship_resolution:conflict ? "CONFLICT" : "MOBILITY_EXPERIENCE_V2",
+      confidence:physical.length===1 ? "proven" : "",
       row:physical[0] || effectiveRows[0] || configured[0] || null,
-      connected_row:physical[0] || null, effective_row:effectiveRows[0] || null, selected_row:configured[0] || null,
-      _authority:"MOBILITY_PUBLIC_RUNTIME_V2"
+      connected_row:physical.length===1 ? physical[0] : null,
+      effective_row:effectiveRows.length===1 ? effectiveRows[0] : null,
+      selected_row:configured.length===1 ? configured[0] : null,
+      _authority:"MOBILITY_EXPERIENCE_V2"
     };
   }
 

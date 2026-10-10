@@ -8,7 +8,7 @@ const v2PropertyState=(entityId,assetId,propertyKey,value,unit='')=>({
   entity_id:entityId,
   state:String(value),
   attributes:{
-    canonical_contract:'MOBILITY_CANONICAL_PROPERTY_V2',
+    canonical_contract:'RHI_MOBILITY_CANONICAL_PROPERTY_V1',
     asset_id:assetId,
     asset_type:'charger',
     property_key:propertyKey,
@@ -135,13 +135,13 @@ const v2Hass={states:{
   ]}}
 },callService:(domain,service,data)=>{v2Hass.lastCall={domain,service,data};}};
 const v2rt=new Runtime(v2Hass,{});
-if(v2rt.mobilityRuntimeV2()?.fleet?.connected_charger_count!==2) throw new Error('Runtime V2 fleet contract not consumed');
-if(v2rt.backendVersion()!=='M0.10.21') throw new Error(`canonical Runtime V2 release did not beat stale legacy release sensor: ${v2rt.backendVersion()}`);
-if(v2rt.releaseContract().authority!=='MOBILITY_PUBLIC_RUNTIME_V2') throw new Error('Runtime V2 is not release identity authority');
+if(v2rt.mobilityFleetProjection()?.vehicle_count!==0) throw new Error('Legacy aggregate must not create canonical fleet assets');
+if(v2rt.releaseContract().authority!=='sensor.mobility_runtime_deployment_health') throw new Error('Deployment gate must own runtime release health');
+if(v2rt.releaseContract().contract_health!=='UNKNOWN') throw new Error('Missing deployment health must fail closed');
 if(v2rt.vehicleExperienceV2('vehicle_id4')?.security_intelligence?.state!=='secure') throw new Error('Experience V2 vehicle contract not consumed');
 if(v2rt.chargerExperienceV2('charger_peb')?.fault?.state!=='none') throw new Error('Experience V2 charger contract not consumed');
 if(v2rt.mobilityPolicyV2()?.policy?.maintenance?.due_soon_days!==90) throw new Error('Policy V2 contract not consumed');
-if(v2rt.vehicleRelationshipV2('vehicle_id4')?.observed_identity_proven!==false) throw new Error('Runtime V2 relationship identity proof not preserved');
+if(v2rt.vehicleChargerRelationship('vehicle_id4')?.observed_identity_proven!==false) throw new Error('Experience relationship identity proof not preserved');
 if(v2Hass.lastCall) throw new Error('Policy V2 read contract must not imply an optimistic write path');
 console.log('PASS Mobility Runtime/Experience/Policy V2 direct contract consumption with no optimistic policy write API');
 
@@ -156,7 +156,7 @@ const v2PropertyHass={states:{
     entity_id:'sensor.rhi_mobility_vehicle_id4_image_key',
     state:'volkswagen.id4.2024-2026.ev.scale-silver',
     attributes:{
-      canonical_contract:'MOBILITY_CANONICAL_PROPERTY_V2',
+      canonical_contract:'RHI_MOBILITY_CANONICAL_PROPERTY_V1',
       asset_id:'vehicle_id4',
       asset_type:'vehicle',
       property_key:'vehicle.image_key',
@@ -172,7 +172,7 @@ const v2PropertyHass={states:{
     entity_id:'sensor.rhi_mobility_vehicle_id4_profile_id',
     state:'volkswagen_id4_pro_my2026',
     attributes:{
-      canonical_contract:'MOBILITY_CANONICAL_PROPERTY_V2',
+      canonical_contract:'RHI_MOBILITY_CANONICAL_PROPERTY_V1',
       asset_id:'vehicle_id4',
       asset_type:'vehicle',
       property_key:'asset.profile_id',

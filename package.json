@@ -1,6 +1,6 @@
 {
   "name": "rhi-mobility-ux",
-  "version": "1.0.0-rc.87",
+  "version": "1.0.0-rc.88",
   "private": false,
   "description": "Robotix Home Intelligence Mobility UX for Home Assistant",
   "license": "GPL-3.0-only",
@@ -27,7 +27,7 @@
     "check:asset-policy": "node tools/check-asset-policy.mjs",
     "test:hacs-install": "node tests/package/hacs-install-simulation.mjs",
     "check:documentation-drift": "node tools/check-documentation-drift.mjs",
-    "preflight": "npm test",
+    "preflight": "npm test && node tools/check-committed-dist.mjs",
     "check:ux-core": "node tools/check-ux-core.mjs",
     "check:shared-visual-ownership": "node tools/check-shared-visual-ownership.mjs",
     "check:presentation-debt": "node tools/check-presentation-debt.mjs",

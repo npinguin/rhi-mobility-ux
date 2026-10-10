@@ -310,7 +310,7 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
     const forceRender = !!this._forceRender;
     this._forceRender = false;
     const revisionSignature = rt.productRevisionSignature("", [
-      "MOBILITY_PUBLIC_RUNTIME_V2",
+      "MOBILITY_EXPERIENCE_V2",
       "MOBILITY_EXPERIENCE_V2",
       "MOBILITY_COMMAND_V2",
       "MOBILITY_PROFILE_CATALOG_V2"
@@ -386,7 +386,9 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
     this._lastSignature = signature;
     this._lastRenderOk = true;
 
-    this.shadowRoot.innerHTML = `<ha-card>
+    {
+      const template = document.createElement("template");
+      template.innerHTML = `<ha-card>
       <div class="page">
         <div class="hi-version-block" style="position:absolute;top:18px;right:22px;text-align:right;font-size:10.5px;line-height:1.25;font-weight:400;color:var(--secondary-text-color,#6B7280);opacity:.82;background:none;border:0;box-shadow:none;padding:0;margin:0;z-index:3;pointer-events:none;"><div>UX ${rt.escape(UX_VERSION)}</div><div>Backend ${rt.escape(rt.backendVersion())}</div></div>
         ${hbMobilityNav(this.config?.nav_active || "chargers")}
@@ -415,6 +417,8 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
 </style>
       ${hbMobilityReleaseFooter(rt)}
     </ha-card>`;
+      this.shadowRoot.replaceChildren(template.content.cloneNode(true));
+    }
     this._forceRender = false;
 
     this.shadowRoot.querySelectorAll("button[data-command-id]").forEach((btn) => {

@@ -1,0 +1,7 @@
+{
+  "kind": "EXPERIMENTAL_HACS_TEST_CANDIDATE",
+  "tag": "v1.0.0-rc.88",
+  "validated_parent_sha": "fb7ba0b895253f934b6cee45100886c6a9b76fa4",
+  "qualification": "STATIC_ONLY",
+  "stable_promotion": "BLOCKED"
+}

@@ -78,7 +78,7 @@ class HomeBrainChargerAdapter {
     const imageProperty = this.rt.semanticProperty(assetId, "charger.image_key");
     const profileId = String(profileProperty?.value ?? "").trim();
     const imageKey = String(imageProperty?.value ?? "").trim();
-    const field = (row, source = "MOBILITY_PUBLIC_RUNTIME_V2") => ({
+    const field = (row, source = "MOBILITY_EXPERIENCE_V2") => ({
       resolved: !!row?.resolved,
       value: row?.value ?? null,
       display: String(row?.display ?? (row?.resolved ? row?.value ?? "—" : "—")),
@@ -111,11 +111,11 @@ class HomeBrainChargerAdapter {
         profile: this.profile(),
         profile_id: profileId,
         image_key: imageKey,
-        source: "MOBILITY_PUBLIC_RUNTIME_V2"
+        source: "MOBILITY_EXPERIENCE_V2"
       },
       lifecycle: {
         state: this.rt.lifecycleStatus(reg),
-        source: "MOBILITY_PUBLIC_RUNTIME_V2"
+        source: "MOBILITY_EXPERIENCE_V2"
       },
       facts: {
         operating: field(snapshot.operating),
@@ -141,12 +141,12 @@ class HomeBrainChargerAdapter {
         connected_vehicle_id: vehicleAssetId,
         connected_vehicle_display_name: String(snapshot.connected_vehicle?.display || vehicleEntry?.display_name || ""),
         vehicle_detail_route: vehicleAssetId ? this.rt.assetDetailRoute(vehicleEntry || vehicleAssetId) : "",
-        source: "MOBILITY_PUBLIC_RUNTIME_V2"
+        source: "MOBILITY_EXPERIENCE_V2"
       },
       availability: this.overviewAvailability(),
       commands,
       experience,
-      source_contracts: ["MOBILITY_PUBLIC_RUNTIME_V2", "MOBILITY_EXPERIENCE_V2", "MOBILITY_COMMAND_V2"]
+      source_contracts: ["MOBILITY_EXPERIENCE_V2", "MOBILITY_EXPERIENCE_V2", "MOBILITY_COMMAND_V2"]
     };
   }
 
@@ -168,7 +168,7 @@ class HomeBrainChargerAdapter {
     const sessionEnergy = projection.facts.session_energy.display;
     const currentLimit = projection.facts.current_limit.display;
     const connector = connectionState;
-    const limitSource = "MOBILITY_PUBLIC_RUNTIME_V2";
+    const limitSource = "MOBILITY_EXPERIENCE_V2";
     const phases = "—";
     const voltage = "—";
     const current = projection.facts.actual_current.display;

@@ -15,18 +15,21 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
     this._hass = hass;
     const rt = new HomeBrainAssetRuntime(hass, this.config);
     const view = this.config.view || this.viewFromPath();
+    // Canonical property revisions are authoritative for planning, strategies and insights.
+    // Retain activity/command revisions only for their supported domain contracts.
     const revisionIds = view === "log"
       ? ["sensor.rhi_mobility_activity_v2"]
       : view === "planning"
-        ? ["sensor.rhi_energy_public_contract_v2","sensor.rhi_mobility_runtime_v2","sensor.rhi_mobility_command_v2"]
-        : view === "strategies"
-          ? ["sensor.rhi_energy_public_contract_v2","sensor.rhi_mobility_runtime_v2"]
-          : ["sensor.rhi_energy_public_contract_v2","sensor.rhi_mobility_runtime_v2","sensor.rhi_mobility_activity_v2"];
-    const revisionSignature = `${view}|${rt.entityRevisionSignature(revisionIds)}`;
+        ? ["sensor.rhi_mobility_command_v2"]
+        : ["sensor.rhi_mobility_activity_v2"];
+    const canonicalRevision = rt._canonicalProperties?.revision() ?? 0;
+    const revisionSignature = `${view}|${canonicalRevision}|${rt.entityRevisionSignature(revisionIds)}`;
     if (revisionSignature === this._lastRevisionSignature) return;
     this._lastRevisionSignature = revisionSignature;
     const data = this.viewModel(view);
-    this.shadowRoot.innerHTML = `<ha-card><div class="page">
+    this.shadowRoot.replaceChildren();
+      const fragment = document.createElement("template");
+      fragment.innerHTML = `<ha-card><div class="page">
       ${hbMobilityNav(view)}
       ${hbMobilityPageHero(rt, view)}
       ${this.renderTopStatus(rt, view)}
@@ -34,6 +37,7 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
       ${view === "planning" ? this.renderPlanning(rt) : view === "strategies" ? this.renderStrategies(rt) : view === "history" ? this.renderInsights(rt) : view === "log" ? this.renderLog(rt) : this.renderContextCards(rt, data)}
       ${hbMobilityReleaseFooter(rt)}
     </div><style>${this.styles()}</style></ha-card>`;
+      this.shadowRoot.append(fragment.content.cloneNode(true));
     this.shadowRoot.querySelectorAll("button[data-nav]").forEach((btn)=>btn.addEventListener("click",()=>rt.navigate(btn.getAttribute("data-nav"))));
   }
 
@@ -470,7 +474,9 @@ class HomeBrainMobilityAssetDetailCard extends HTMLElement {
     }
 
     if (!entry) {
-      this.shadowRoot.innerHTML = `
+      this.shadowRoot.replaceChildren();
+      const fragment = document.createElement("template");
+      fragment.innerHTML = `
         <ha-card>
           <div class="missing">
             <h2>${rt.escape((rt?.t?.("asset.not_registered",{},"Asset not registered") || "Asset not registered"))}</h2>
@@ -711,6 +717,7 @@ ${hbMobilitySharedShellStyles()}
 </style>
         ${hbMobilityReleaseFooter(rt)}
         </ha-card>`;
+      this.shadowRoot.append(fragment.content.cloneNode(true));
       this.shadowRoot.querySelectorAll("button[data-nav]").forEach((btn)=>btn.addEventListener("click",()=>rt.navigate(btn.getAttribute("data-nav"))));
 
       return;
@@ -719,7 +726,10 @@ ${hbMobilitySharedShellStyles()}
     const factory = new HomeBrainAssetFactory(rt);
     const adapter = factory.adapterFor(entry, this.config);
     if (!adapter) {
-      this.shadowRoot.innerHTML = `<ha-card><div style="padding:24px">No adapter available for ${rt.escape(entry.asset_type)}</div></ha-card>`;
+      this.shadowRoot.replaceChildren();
+      const fragment = document.createElement("template");
+      fragment.innerHTML = `<ha-card><div style="padding:24px">No adapter available for ${rt.escape(entry.asset_type)}</div></ha-card>`;
+      this.shadowRoot.append(fragment.content.cloneNode(true));
       return;
     }
 
@@ -746,7 +756,10 @@ ${hbMobilitySharedShellStyles()}
       console.error("HomeBrain Mobility asset detail render failed", err);
       if (!this.shadowRoot) this.attachShadow({ mode: "open" });
       const msg = String((err && (err.stack || err.message)) || err || "Unknown detail render error").replace(/[&<>]/g, (ch) => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[ch]));
-      this.shadowRoot.innerHTML = `<ha-card><div style="margin:24px auto;width:min(100%,1100px);padding:28px;border:1px solid #F3B7B7;border-radius:22px;background:#FFF7F7;color:#061226;box-shadow:0 18px 48px rgba(80,15,15,.08)"><h2>Asset detail temporarily unavailable</h2><p>The selected Mobility asset could not render safely.</p><pre style="white-space:pre-wrap;font-size:12px">${msg}</pre><button data-back style="border:1px solid #DDE6F2;background:#fff;border-radius:12px;padding:10px 14px;font-weight:600">← Back to Dashboard</button></div></ha-card>`;
+      this.shadowRoot.replaceChildren();
+      const fragment = document.createElement("template");
+      fragment.innerHTML = `<ha-card><div style="margin:24px auto;width:min(100%,1100px);padding:28px;border:1px solid #F3B7B7;border-radius:22px;background:#FFF7F7;color:#061226;box-shadow:0 18px 48px rgba(80,15,15,.08)"><h2>Asset detail temporarily unavailable</h2><p>The selected Mobility asset could not render safely.</p><pre style="white-space:pre-wrap;font-size:12px">${msg}</pre><button data-back style="border:1px solid #DDE6F2;background:#fff;border-radius:12px;padding:10px 14px;font-weight:600">← Back to Dashboard</button></div></ha-card>`;
+      this.shadowRoot.append(fragment.content.cloneNode(true));
       this.shadowRoot.querySelector('[data-back]')?.addEventListener('click', () => { try { history.pushState(null, '', (this.config && this.config.dashboard_path) || '/mobility-supervisor/dashboard'); window.dispatchEvent(new Event('location-changed')); } catch(e) {} });
     }
   }

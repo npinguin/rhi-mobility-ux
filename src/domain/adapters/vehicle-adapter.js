@@ -180,11 +180,11 @@ class HomeBrainVehicleAdapter {
         profile: this.profile(),
         profile_id: profileId,
         image_key: imageKey,
-        source: "MOBILITY_PUBLIC_RUNTIME_V2"
+        source: "MOBILITY_EXPERIENCE_V2"
       },
       lifecycle: {
         state: this.rt.lifecycleStatus(reg),
-        source: "MOBILITY_PUBLIC_RUNTIME_V2"
+        source: "MOBILITY_EXPERIENCE_V2"
       },
       facts: {
         overview_metrics: this.rt.vehicleOverviewMetricSlots(assetId),
@@ -206,12 +206,12 @@ class HomeBrainVehicleAdapter {
         charger_id: relationshipId,
         charger_display_name: chargerDisplay,
         identity_proven: !!physicalId,
-        source: "MOBILITY_PUBLIC_RUNTIME_V2"
+        source: "MOBILITY_EXPERIENCE_V2"
       },
       commands,
       attention_required: attentionRequired,
       experience,
-      source_contracts: ["MOBILITY_PUBLIC_RUNTIME_V2", "MOBILITY_EXPERIENCE_V2", "MOBILITY_COMMAND_V2"]
+      source_contracts: ["MOBILITY_EXPERIENCE_V2", "MOBILITY_EXPERIENCE_V2", "MOBILITY_COMMAND_V2"]
     };
   }
 

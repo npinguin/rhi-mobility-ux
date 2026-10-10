@@ -10,35 +10,29 @@ class HomeBrainEnergyMobilityStrategyProjection {
     catch (_) { return new Map(); }
   }
   _assetId(row={}) { return String(row.asset_id || row.target_asset_id || row.flexible_asset_id || ""); }
-  _strategy() { return this.energy.object(this.energy.section("configuration").strategy); }
-  _configuredRows() {
-    const strategy=this._strategy();
-    const configured=this.energy.object(strategy.configured);
+  _strategyRows(kind) {
     const mobility=this._mobilityAssets();
-    return this.energy.rows(configured.properties).filter(row=>{ const id=this._assetId(row); return !id || mobility.has(id); });
+    return this.energy.canonicalRows().filter(row=>
+      row.availability==='AVAILABLE' &&
+      String(row.presentation_surface).toLowerCase()==='configuration' &&
+      String(row.property_key).toLowerCase().includes('strategy') &&
+      String(row.property_key).toLowerCase().includes(kind) &&
+      (!row.asset_id || mobility.has(row.asset_id)));
   }
-  _effectiveRows() {
-    const strategy=this._strategy();
-    const effective=this.energy.object(strategy.effective);
-    const mobility=this._mobilityAssets();
-    return this.energy.rows(effective.properties).filter(row=>{ const id=this._assetId(row); return !id || mobility.has(id); });
-  }
+  _configuredRows() { return this._strategyRows('configured'); }
+  _effectiveRows() { return this._strategyRows('effective'); }
   viewModel() {
-    const snapshot=this.energy.snapshot();
-    const strategy=this._strategy();
-    const configured=this.energy.object(strategy.configured);
-    const effective=this.energy.object(strategy.effective);
+    const configured=this._configuredRows();
+    const effective=this._effectiveRows();
     return Object.freeze({
       profilesAvailable:false,
-      effectiveAvailable:snapshot.available && Object.keys(effective).length>0,
-      profileContractVersion:snapshot.contractVersion,
-      effectiveContractVersion:snapshot.contractVersion,
-      profiles:[],
-      configured:this._configuredRows(),
-      effective:this._effectiveRows(),
-      configuredState:String(configured.status || "UNAVAILABLE"),
-      effectiveState:String(effective.status || "UNAVAILABLE"),
-      source:"RHI_ENERGY_PUBLIC_CONTRACT_V2.configuration.strategy"
+      effectiveAvailable:effective.length>0,
+      profileContractVersion:'RHI_ENERGY_CANONICAL_PROPERTY_V2',
+      effectiveContractVersion:'RHI_ENERGY_CANONICAL_PROPERTY_V2',
+      profiles:[],configured,effective,
+      configuredState:configured.length?'AVAILABLE':'UNAVAILABLE',
+      effectiveState:effective.length?'AVAILABLE':'UNAVAILABLE',
+      source:'RHI_ENERGY_CANONICAL_PROPERTY_V2.configuration.strategy'
     });
   }
 }
