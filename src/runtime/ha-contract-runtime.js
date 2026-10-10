@@ -2188,20 +2188,20 @@ class HomeBrainAssetRuntime {
       }
     };
 
-    for (const attrName of ["properties", "properties_json", "property_index", "property_index_json", "rows", "rows_json", "properties_by_key", "properties_by_key_json", "properties_by_asset", "properties_by_asset_json"]) {
+    for (const attrName of ["properties", "properties_json", "property_index", "property_index_json", "rows", "rows_json"]) {
       collectPropertyContainer(attrs[attrName]);
     }
 
     // Some property-index schemas wrap the exact property rows per asset. Only
     // explicit nested property containers are consumed; top-level asset scalars are
     // not reinterpreted as properties.
-    for (const attrName of ["assets", "assets_json"]) {
+    for (const attrName of ["assets"]) {
       const assets = this.parseJsonValue(attrs[attrName], attrs[attrName] || null);
       const assetRows = Array.isArray(assets) ? assets : (assets && typeof assets === "object" ? Object.values(assets) : []);
       for (const asset of assetRows) {
         if (!asset || typeof asset !== "object") continue;
         const assetKey = String(asset.asset_id || "").trim();
-        for (const nestedName of ["properties", "properties_json", "property_index", "property_index_json", "rows", "rows_json", "source_properties", "properties_by_key", "properties_by_key_json"]) {
+        for (const nestedName of ["properties", "properties_json", "property_index", "property_index_json", "rows", "rows_json", "source_properties"]) {
           collectPropertyContainer(asset[nestedName], assetKey);
         }
       }
