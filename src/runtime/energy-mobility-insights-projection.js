@@ -16,34 +16,29 @@ class HomeBrainEnergyMobilityInsightsProjection {
     const mobility=this._mobilityAssets().get(assetId) || {};
     return String(this._first(row.display_name,row.asset_label,row.label,mobility.display_name,mobility.name,this.mobilityRuntime?.assetDisplayName?.(assetId),assetId) || assetId);
   }
-  _meteringRows(periodId="today") {
-    const metering=this.energy.section("metering");
-    const wanted=String(periodId || "today").toLowerCase()==="day"?"today":String(periodId || "today").toLowerCase();
+  _meteringRows(periodId='today') {
     const mobility=this._mobilityAssets();
-    return this.energy.rows(metering.records).filter(row=>{
-      const period=String(this._first(row.period_id,row.period,"") || "").toLowerCase();
-      const id=this._assetId(row);
-      return period===wanted && row.ux_visible===true && String(row.record_role || "").toLowerCase()==="flexible_load_detail" && mobility.has(id);
-    }).map(row=>{
-      const assetId=this._assetId(row);
-      return Object.freeze({assetId,name:this._assetName(assetId,row),periodId:wanted,energyKwh:this._number(row.energy_kwh,row.value),unit:String(row.unit || "kWh"),measurementState:String(this._first(row.measurement_state,row.status,row.health,"UNAVAILABLE") || "UNAVAILABLE"),trustState:String(row.trust_state || ""),raw:row});
-    });
+    return this.energy.canonicalRows().filter(row=>row.availability==='AVAILABLE' &&
+      row.presentation_surface==='metering' && mobility.has(row.asset_id) &&
+      String(row.property_key).includes(String(periodId).toLowerCase())).map(row=>Object.freeze({
+        assetId:row.asset_id,name:this._assetName(row.asset_id),periodId,
+        energyKwh:this._number(row.value),unit:'kWh',measurementState:'AVAILABLE',
+        trustState:'',raw:row
+      }));
   }
-  _valueRows(periodId="today") {
-    const accounting=this.energy.section("value_accounting");
-    const wanted=String(periodId || accounting.selected_period_id || "today").toLowerCase();
-    const periods=this.energy.object(accounting.periods);
-    const period=this.energy.object(periods[wanted]);
+  _valueRows(periodId='today') {
     const mobility=this._mobilityAssets();
-    return this.energy.rows(period.consumer_allocation).filter(row=>mobility.has(this._assetId(row))).map(row=>{
-      const assetId=this._assetId(row);
-      return Object.freeze({assetId,name:this._assetName(assetId,row),periodId:wanted,attributedEur:this._number(row.attributed_eur,row.attributed_value,row.net_value_eur,row.actual_energy_cost_eur),energyKwh:this._number(row.energy_kwh,row.actual_energy_kwh,row.measured_energy_kwh),state:String(this._first(row.state,row.status,row.attribution_state,"") || ""),raw:row});
-    });
+    return this.energy.canonicalRows().filter(row=>row.availability==='AVAILABLE' &&
+      row.presentation_surface==='value_accounting' && mobility.has(row.asset_id) &&
+      String(row.property_key).includes(String(periodId).toLowerCase())).map(row=>Object.freeze({
+        assetId:row.asset_id,name:this._assetName(row.asset_id),periodId,
+        attributedEur:this._number(row.value),energyKwh:null,state:'AVAILABLE',raw:row
+      }));
   }
   viewModel(periodId="today") {
     const snapshot=this.energy.snapshot();
-    const metering=this.energy.section("metering");
-    const accounting=this.energy.section("value_accounting");
+    const metering=this.energy.canonicalRows().filter(row=>row.presentation_surface==="metering");
+    const accounting=this.energy.canonicalRows().filter(row=>row.presentation_surface==="value_accounting");
     const meteringRows=this._meteringRows(periodId);
     const valueRows=this._valueRows(periodId);
     const ids=new Set([...meteringRows.map(row=>row.assetId),...valueRows.map(row=>row.assetId)]);
@@ -54,16 +49,16 @@ class HomeBrainEnergyMobilityInsightsProjection {
     });
     return Object.freeze({
       periodId:String(periodId || "today").toLowerCase(),
-      meteringAvailable:snapshot.available && this.energy.rows(metering.records).length>0,
-      valueAvailable:snapshot.available && Object.keys(this.energy.object(accounting.periods)).length>0,
+      meteringAvailable:snapshot.available && metering.length>0,
+      valueAvailable:snapshot.available && accounting.length>0,
       meteringContractVersion:snapshot.contractVersion,
       valueContractVersion:snapshot.contractVersion,
-      valueCurrency:String(accounting.currency || "EUR"),
-      valueState:String(this._first(accounting.status,accounting.state,"UNAVAILABLE") || "UNAVAILABLE"),
+      valueCurrency:"EUR",
+      valueState:valueRows.length?"AVAILABLE":"UNAVAILABLE",
       rows,
       totalVehicleEnergyKwh:null,
       totalAttributedEur:null,
-      source:"RHI_ENERGY_PUBLIC_CONTRACT_V2.metering/value_accounting"
+      source:"RHI_ENERGY_CANONICAL_PROPERTY_V2.metering/value_accounting"
     });
   }
 }
