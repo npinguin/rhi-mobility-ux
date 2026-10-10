@@ -1767,9 +1767,26 @@ class HomeBrainAssetRuntime {
   assetIndexRows(kind = "all") {
     const cacheKey = `assetIndexRows:${kind}`;
     if (this._memo.has(cacheKey)) return this._memo.get(cacheKey);
-    const runtime = this.mobilityRuntimeV2();
-    let rows = (runtime?.assets || []).map((v, index) =>
-      this.normalizeAssetEntry({ sort_order:index, ...(v || {}) })
+    // The backend's canonical property entities, not the retired Runtime V2
+    // aggregate, own current membership. One row per backend-published asset_id.
+    // Missing property evidence is a contract gap, not a reconstructed vehicle.
+    const assets = new Map();
+    for (const property of this._canonicalProperties.rows()) {
+      const id=String(property?.asset_id || '').trim();
+      const type=String(property?.asset_type || '').trim().toLowerCase();
+      if (!id || !['vehicle','charger','person'].includes(type)) continue;
+      if (!assets.has(id)) assets.set(id,{asset_id:id,asset_type:type});
+      // Identity and lifecycle are used only when explicitly published.
+      const row=assets.get(id);
+      if (property.asset_display_name) row.display_name=String(property.asset_display_name);
+      if (property.lifecycle_status) row.lifecycle_status=String(property.lifecycle_status);
+      if (property.property_key==='asset.display_name' && property.availability==='AVAILABLE')
+        row.display_name=String(property.value ?? id);
+      if (property.property_key==='asset.lifecycle_status' && property.availability==='AVAILABLE')
+        row.lifecycle_status=String(property.value ?? 'Unknown');
+    }
+    let rows=[...assets.values()].map((v,index)=>
+      this.normalizeAssetEntry({sort_order:index,...v})
     ).filter(Boolean);
     if (kind === "vehicle") rows = rows.filter((a) => String(a.asset_type || "").toLowerCase() === "vehicle");
     if (kind === "charger") rows = rows.filter((a) => String(a.asset_type || "").toLowerCase() === "charger");
