@@ -117,6 +117,15 @@ class MobilityCanonicalPropertyIndex {
         break;
       }
     }
+    // Incremental replacement cannot safely maintain the winner of a
+    // duplicated asset/property key: a changed secondary publisher would
+    // otherwise overwrite byAssetAndKey while the ambiguity remains active.
+    // Rebuild on changes to ambiguous keys so the index and gap evidence stay
+    // consistent until the backend removes the duplicate publication.
+    if (!metadataChanged && changed.some(([entityId]) => {
+      const row=this.byEntity.get(entityId);
+      return row && this.ambiguousKeys.has(`${row.asset_id}::${row.property_key}`);
+    })) metadataChanged=true;
     if(metadataChanged) {
       this.discover(hass);
       return;
