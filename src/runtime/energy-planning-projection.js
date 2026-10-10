@@ -24,28 +24,33 @@ class HomeBrainEnergyPlanningProjection {
     });
   }
   viewModel() {
-    const snapshot=this.energy.snapshot();
-    const planning=this.energy.section("planning");
-    const horizons=this.energy.object(planning.horizons);
-    const d0=this.energy.object(horizons.D0 || horizons.d0);
-    const d1=this.energy.object(horizons.D1 || horizons.d1);
-    const planningRows=this.energy.rows(planning.assets || planning.planning_objects);
-    const experienceRows=this.energy.rows(planning.experiences || planning.asset_experiences);
+    const properties=this.energy.canonicalRows().filter(row=>row.availability==='AVAILABLE');
+    const ids=this._mobilityAssetIds();
+    const planning=properties.filter(row=>String(row.presentation_surface).toLowerCase()==='planning');
+    const field=(asset,keys)=>planning.find(row=>row.asset_id===asset && keys.includes(row.property_key))?.value ?? null;
+    const totals=(horizon)=>this._totalsView({
+      flexible_planned_kwh:field(horizon,['flexible_planned_kwh','planned_kwh']),
+      flexible_still_to_plan_kwh:field(horizon,['flexible_still_to_plan_kwh','still_to_plan_kwh']),
+      grid_import_kwh:field(horizon,['grid_import_kwh']),
+      solar_kwh:field(horizon,['solar_kwh'])
+    });
+    const today=totals('D0');
+    const tomorrow=totals('D1');
+    const mobilityPlanningRows=planning.filter(row=>ids.has(row.asset_id));
     return Object.freeze({
-      available:snapshot.available && (Object.keys(d0).length>0 || Object.keys(d1).length>0),
-      entityId:snapshot.entityId,
-      contractVersion:snapshot.contractVersion,
-      state:String(this._first(planning.status,planning.state,snapshot.state,"UNAVAILABLE") || "UNAVAILABLE"),
-      today:this._totalsView(d0),
-      tomorrow:this._totalsView(d1),
-      combined:Object.freeze({plannedKwh:null,stillToPlanKwh:null,gridImportKwh:null,solarKwh:null,state:"",raw:{}}),
-      currentIntent:this.energy.object(planning.current_action_intent),
-      planningRows,
-      experienceRows,
-      mobilityPlanningRows:this._mobilityRows(planningRows),
-      mobilityExperienceRows:this._mobilityRows(experienceRows),
-      exactIdentityJoin:this._mobilityAssetIds().size>0,
-      source:"RHI_ENERGY_PUBLIC_CONTRACT_V2.planning"
+      available:planning.length>0,
+      entityId:null,
+      contractVersion:'RHI_ENERGY_CANONICAL_PROPERTY_V2',
+      state:planning.length?'AVAILABLE':'UNAVAILABLE',
+      today,tomorrow,
+      combined:Object.freeze({plannedKwh:null,stillToPlanKwh:null,gridImportKwh:null,solarKwh:null,state:'',raw:{}}),
+      currentIntent:{},
+      planningRows:planning,
+      experienceRows:[],
+      mobilityPlanningRows,
+      mobilityExperienceRows:[],
+      exactIdentityJoin:ids.size>0,
+      source:'RHI_ENERGY_CANONICAL_PROPERTY_V2.planning'
     });
   }
 }
