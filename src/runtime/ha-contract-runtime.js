@@ -114,9 +114,23 @@ class HomeBrainAssetRuntime {
     return undefined;
   }
 
-  // The retired aggregate is deliberately unavailable. Canonical property rows
-  // and supported domain-specific contracts are the only runtime authorities.
-  mobilityRuntimeV2() { return null; }
+  mobilityRuntimeV2() {
+    const state = this.contractEntity("MOBILITY_PUBLIC_RUNTIME_V2", [
+      "sensor.rhi_mobility_runtime_v2"
+    ]);
+    const attrs = state?.attributes || {};
+    if (String(attrs.contract_id || "") !== "MOBILITY_PUBLIC_RUNTIME_V2") return null;
+    return {
+      contract_id: attrs.contract_id,
+      canonical: attrs.canonical === true,
+      release: attrs.release && typeof attrs.release === "object" ? { ...attrs.release } : {},
+      assets: Array.isArray(attrs.assets) ? attrs.assets : [],
+      fleet: attrs.fleet && typeof attrs.fleet === "object" ? attrs.fleet : {},
+      relationships: Array.isArray(attrs.relationships) ? attrs.relationships : [],
+      vehicle_charger_relationships: Array.isArray(attrs.vehicle_charger_relationships) ? attrs.vehicle_charger_relationships : [],
+      ux_inference_forbidden: attrs.ux_inference_forbidden === true
+    };
+  }
 
   propertyPublicationEvidence(assetId = "") {
     const canonical = this.canonicalAssetId(assetId);
