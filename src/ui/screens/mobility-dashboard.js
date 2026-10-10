@@ -923,7 +923,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
           const rt = new HomeBrainAssetRuntime(hass, this.config);
           this.rt = rt;
           const revisionSignature = rt.productRevisionSignature("", [
-            "MOBILITY_PUBLIC_RUNTIME_V2",
+            "MOBILITY_EXPERIENCE_V2",
             "MOBILITY_EXPERIENCE_V2",
             "MOBILITY_COMMAND_V2",
             "MOBILITY_ACTIVITY_V2",
