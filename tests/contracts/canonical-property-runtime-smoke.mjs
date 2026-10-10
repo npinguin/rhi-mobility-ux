@@ -100,6 +100,15 @@ const duplicate={states:{"sensor.a":mk(),"sensor.b":mk()}};
 const conflicting=new Index(duplicate);
 if(conflicting.row("vehicle_1","battery.soc_pct")!==null) throw new Error("duplicate native property must fail closed");
 if(conflicting.contractGaps()[0]?.reason!=="duplicate_canonical_property") throw new Error("duplicate native property must be reportable");
+if(conflicting.rows("vehicle_1").length!==0 || conflicting.rows().length!==0)
+  throw new Error("ambiguous canonical publisher leaked through rows()");
+const distinctAssets=new Index({states:{
+  "sensor.vehicle_a":mk("sensor.vehicle_a","vehicle_a"),
+  "sensor.vehicle_b":mk("sensor.vehicle_b","vehicle_b")
+}});
+if(distinctAssets.rows().length!==2 || distinctAssets.rows("vehicle_b").length!==1)
+  throw new Error("same semantic property on distinct assets must remain visible");
+
 // A secondary publisher changing its value must never become a winner while
 // the same asset/property key remains ambiguous.
 const duplicateUpdated={states:{
