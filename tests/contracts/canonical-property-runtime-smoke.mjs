@@ -146,4 +146,18 @@ if(directInventory.call(inventoryRuntime,'charger').length!==2)
   throw new Error('canonical fleet lost chargers');
 console.log('PASS eight-asset canonical fleet membership without legacy aggregate');
 
+// An unavailable or stale source must not leak a cached attribute value into UX.
+const invalidFleetState=(state,quality='CANONICAL')=>({state,attributes:{
+  canonical_contract:'RHI_MOBILITY_CANONICAL_PROPERTY_V1',
+  asset_id:'vehicle_1',asset_type:'vehicle',property_key:'vehicle.soc_pct',
+  value:84,availability:'AVAILABLE',quality
+}});
+for (const [state,quality] of [['unavailable','CANONICAL'],['84','STALE'],['84','INVALID']]) {
+  const invalidIndex=new Index({states:{'sensor.vehicle_soc':invalidFleetState(state,quality)}});
+  const row=invalidIndex.row('vehicle_1','vehicle.soc_pct');
+  if(row.value!==null || row.availability!=='UNAVAILABLE')
+    throw new Error('invalid Mobility source value leaked as available');
+}
+console.log('PASS Mobility invalid or stale canonical values fail closed');
+
 console.log("PASS Mobility canonical-property indexing, membership revision and metadata-owned placement");
