@@ -289,8 +289,17 @@ class HomeBrainAssetRuntime {
   // adapters/screens consume these projection owners so one semantic family has
   // one authority and missing truth fails closed.
   mobilityFleetProjection() {
-    const fleet=this.mobilityRuntimeV2()?.fleet;
-    return fleet && typeof fleet === "object" ? { ...fleet, source:"MOBILITY_PUBLIC_RUNTIME_V2" } : {};
+    // Fleet membership is published by canonical asset properties, not by a
+    // second, independently evolving runtime aggregate.
+    const vehicles=this.assetIndexRows("vehicle");
+    const chargers=this.assetIndexRows("charger");
+    return {
+      vehicles,
+      chargers,
+      vehicle_count:vehicles.length,
+      charger_count:chargers.length,
+      source:"RHI_MOBILITY_CANONICAL_PROPERTY_V1"
+    };
   }
 
   rangePolicyProjection() {
