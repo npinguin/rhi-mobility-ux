@@ -665,18 +665,23 @@ class HomeBrainAssetRuntime {
   }
 
   releaseContract() {
-    const runtime = this.mobilityRuntimeV2();
-    const release = runtime?.release && typeof runtime.release === "object" ? runtime.release : {};
-    const backend = this.cleanValue(release.backend_release || release.backend_version || release.release || release.version || "", "Unknown") || "Unknown";
+    // Release health is reported by the backend deployment gate, not inferred
+    // from the presence of a retired aggregate contract.
+    const deployment=this.entity("sensor.mobility_runtime_deployment_health");
+    const raw=String(deployment?.state || "").trim().toUpperCase();
+    const healthy=["OK","PASS","PASSED","READY","HEALTHY"].includes(raw);
+    const failed=["FAIL","FAILED","BLOCKED","ERROR","NOT_OK"].includes(raw);
+    const attrs=deployment?.attributes || {};
+    const backend=this.cleanValue(attrs.backend_release || attrs.backend_version || "", "Unknown") || "Unknown";
     return {
-      backend_release: backend,
-      backend_version: backend,
-      release_name: release.release_name || "",
-      contract_version: runtime?.contract_id ? "2" : "Unknown",
-      contract_health: runtime?.canonical === true ? "OK" : "BLOCKED",
-      physical_acceptance: release.physical_acceptance || "Unknown",
-      release_acceptance: release.release_acceptance || "Unknown",
-      authority: runtime?.canonical === true ? "MOBILITY_PUBLIC_RUNTIME_V2" : "unavailable"
+      backend_release:backend, backend_version:backend,
+      release_name:attrs.release_name || "",
+      contract_version:"Unknown",
+      contract_health:healthy ? "OK" : failed ? "BLOCKED" : "UNKNOWN",
+      physical_acceptance:attrs.physical_acceptance || "Unknown",
+      release_acceptance:attrs.release_acceptance || "Unknown",
+      runtime_health:raw || "UNKNOWN",
+      authority:"sensor.mobility_runtime_deployment_health"
     };
   }
 
