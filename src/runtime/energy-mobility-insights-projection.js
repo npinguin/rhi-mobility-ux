@@ -1,5 +1,5 @@
 // Read-only Energy metering/value projection for Mobility Insights.
-// Only RHI_ENERGY_PUBLIC_CONTRACT_V2 is authoritative; missing V2 evidence fails closed.
+// Only Energy canonical property rows are authoritative; missing evidence fails closed.
 class HomeBrainEnergyMobilityInsightsProjection {
   constructor(hass, mobilityRuntime = null) {
     this.energy = new HomeBrainEnergyPublicV2Projection(hass);
