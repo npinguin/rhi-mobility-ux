@@ -59,6 +59,20 @@ const mk=(entity,asset="vehicle_1")=>({state:"42",attributes:{
   asset_id:asset,property_key:"battery.soc_pct",
   presentation_role:"key",component_id:"status",section_id:"overview"
 }});
+// HA may report a healthy entity while the backend-owned semantic value
+// is explicitly absent. The semantic value must win, including valid zero.
+for(const invalid of [null,undefined,"unknown","unavailable",""]){
+  const state=mk();
+  state.attributes.value=invalid;
+  const result=new Index({states:{"sensor.value":state}}).row("vehicle_1","battery.soc_pct");
+  if(result?.availability!=="UNAVAILABLE" || result.value!==null)
+    throw new Error("invalid backend-owned property value was presented as available");
+}
+const zeroState=mk();
+zeroState.attributes.value=0;
+const zeroRow=new Index({states:{"sensor.zero":zeroState}}).row("vehicle_1","battery.soc_pct");
+if(zeroRow?.availability!=="AVAILABLE" || zeroRow.value!==0)
+  throw new Error("valid backend-owned zero must remain available");
 const initial={states:{"sensor.vehicle_soc":mk(),"sensor.noncanonical":{state:"x",attributes:{}}}};
 const propertyIndex=new Index(initial);
 const beforeRevision=propertyIndex.revision("vehicle_1");
