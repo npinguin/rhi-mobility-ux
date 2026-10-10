@@ -1,12 +1,12 @@
 // Cross-domain Energy canonical-property projection for Mobility UX.
 // Never read the retired aggregate publication or infer missing semantics.
-class HomeBrainEnergyPublicV2Projection {
+class HomeBrainEnergyCanonicalProjection {
   constructor(hass = {}) { this.hass = hass || {}; }
   static get contractId() { return 'RHI_ENERGY_CANONICAL_PROPERTY_V2'; }
   rows() {
     return Object.entries(this.hass?.states || {}).flatMap(([entityId, state]) => {
       const a=state?.attributes || {};
-      if(a.canonical_contract !== HomeBrainEnergyPublicV2Projection.contractId ||
+      if(a.canonical_contract !== HomeBrainEnergyCanonicalProjection.contractId ||
          !a.asset_id || !a.property_key) return [];
       const raw=String(state?.state ?? '').trim().toLowerCase();
       const availability=String(a.availability || '').toUpperCase();
@@ -24,7 +24,7 @@ class HomeBrainEnergyPublicV2Projection {
   }
   snapshot() {
     const rows=this.rows();
-    return Object.freeze({available:rows.length>0,contractId:HomeBrainEnergyPublicV2Projection.contractId,
+    return Object.freeze({available:rows.length>0,contractId:HomeBrainEnergyCanonicalProjection.contractId,
       attributes:Object.freeze({properties:rows})});
   }
   section(name) {
@@ -32,3 +32,6 @@ class HomeBrainEnergyPublicV2Projection {
     return {properties:this.rows().filter(row=>row.presentation_surface===wanted)};
   }
 }
+
+// Transitional class alias for existing consumers; the retired transport is not read.
+const HomeBrainEnergyPublicV2Projection = HomeBrainEnergyCanonicalProjection;
