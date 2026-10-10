@@ -84,6 +84,17 @@ if(presentationIndex.row("vehicle_1","battery.soc_pct")?.presentation_role!=="di
   throw new Error("presentation metadata change not applied");
 if(presentationIndex.revision("vehicle_1")<=firstPresentationRevision)
   throw new Error("presentation metadata change must invalidate asset revision");
+const beforeSurfaceRevision=presentationIndex.revision("vehicle_1");
+const changedSurface=mk();
+changedSurface.attributes.presentation_role="diagnostic";
+changedSurface.attributes.asset_display_name="Vehicle A";
+changedSurface.attributes.presentation_surface="diagnostics";
+presentationIndex.refresh({states:{"sensor.presentation":changedSurface}});
+if(presentationIndex.row("vehicle_1","battery.soc_pct")?.presentation_surface!=="diagnostics")
+  throw new Error("backend presentation surface change was not applied");
+if(presentationIndex.revision("vehicle_1")<=beforeSurfaceRevision)
+  throw new Error("backend presentation surface change must invalidate asset revision");
+
 
 const duplicate={states:{"sensor.a":mk(),"sensor.b":mk()}};
 const conflicting=new Index(duplicate);
