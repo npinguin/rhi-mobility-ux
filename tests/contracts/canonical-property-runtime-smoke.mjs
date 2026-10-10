@@ -84,6 +84,23 @@ if(!assetMembership.includes('this._canonicalProperties.rows()'))
   throw new Error("Mobility inventory must derive from backend canonical property membership");
 if(assetMembership.includes('this.mobilityRuntimeV2()'))
   throw new Error("Missing Runtime V2 must never hide active canonical Mobility assets");
+const runtimeMethod=assetMembership.slice(assetMembership.indexOf('{')+1,assetMembership.lastIndexOf('}'));
+const directInventory=new Function('kind',runtimeMethod);
+const canonicalStates=[
+  {asset_id:'vehicle_a',asset_type:'vehicle',property_key:'vehicle.soc_pct'},
+  {asset_id:'charger_a',asset_type:'charger',property_key:'charger.status'}
+];
+const fakeRuntime={
+  _memo:new Map(),
+  _canonicalProperties:{rows(){return canonicalStates;}},
+  mobilityRuntimeV2(){throw Error('retired Runtime V2 accessed');},
+  normalizeAssetEntry(row){return row;}
+};
+const cars=directInventory.call(fakeRuntime,'vehicle');
+const chargers=directInventory.call(fakeRuntime,'charger');
+if(cars.length!==1 || cars[0].asset_id!=='vehicle_a' ||
+   chargers.length!==1 || chargers[0].asset_id!=='charger_a')
+  throw new Error('active vehicles and chargers lost when V2 aggregate is absent');
 const ownedRows=new Index({states:{
   "sensor.vehicle_soc":{state:"64",attributes:{canonical_contract:"RHI_MOBILITY_CANONICAL_PROPERTY_V1",asset_id:"vehicle_a",asset_type:"vehicle",property_key:"battery.soc_pct",availability:"AVAILABLE",value:64}},
   "sensor.charger_state":{state:"ready",attributes:{canonical_contract:"RHI_MOBILITY_CANONICAL_PROPERTY_V1",asset_id:"charger_a",asset_type:"charger",property_key:"charger.operating_state",availability:"AVAILABLE",value:"ready"}}
