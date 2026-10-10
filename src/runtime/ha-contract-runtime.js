@@ -321,10 +321,13 @@ class HomeBrainAssetRuntime {
 
   vehicleRelationshipProjection(assetId = "") {
     const canonical=this.canonicalAssetId(assetId);
-    const row=this.mobilityRuntimeV2()?.vehicle_charger_relationships?.find(
-      (item)=>String(item?.vehicle_id || item?.asset_id || "") === canonical
-    ) || null;
-    return row ? { ...row, source:"MOBILITY_PUBLIC_RUNTIME_V2" } : {};
+    const matches=(this.mobilityExperienceV2()?.vehicles || []).filter(
+      (item)=>String(item?.asset_id || "") === canonical
+    );
+    if (matches.length !== 1) return {};
+    const relationship=matches[0]?.charging_relationship;
+    return relationship && typeof relationship === "object"
+      ? { ...relationship, source:"MOBILITY_EXPERIENCE_V2" } : {};
   }
 
   // Compatibility names are runtime-internal aliases only. They must never be
@@ -642,27 +645,24 @@ class HomeBrainAssetRuntime {
   }
 
   vehicleChargerRelationship(assetId) {
-    const canonical = this.canonicalAssetId(assetId);
-    const runtimeV2 = this.mobilityRuntimeV2();
-    if (!runtimeV2) return { assigned:"none", effective:"none", selected:"none", connected:"none", row:null, relationship_resolution:"contract_gap" };
-    const relation = (runtimeV2.vehicle_charger_relationships || []).find((row)=>String(row?.vehicle_id || row?.asset_id || "") === canonical) || null;
-    if (!relation) return { assigned:"none", effective:"none", selected:"none", connected:"none", row:null, relationship_resolution:"not_published", _authority:"MOBILITY_PUBLIC_RUNTIME_V2" };
-    const selected = this.cleanValue(relation.configured_charger_id || "", "none") || "none";
-    const effective = this.cleanValue(relation.effective_charger_id || "", "none") || "none";
-    const connected = relation.observed_identity_proven === true ? (this.cleanValue(relation.physically_connected_charger_id || "", "none") || "none") : "none";
+    const relation=this.vehicleRelationshipProjection(assetId);
+    if (!relation.vehicle_id) return { assigned:"none", effective:"none", selected:"none", connected:"none", row:null, relationship_resolution:"not_published" };
+    const selected=this.cleanValue(relation.configured_charger_id || "", "none") || "none";
+    const effective=this.cleanValue(relation.effective_charger_id || "", "none") || "none";
+    const connected=relation.observed_identity_proven === true
+      ? (this.cleanValue(relation.physically_connected_charger_id || "", "none") || "none") : "none";
     return {
       assigned:selected, effective, selected, connected,
       assigned_display_name:this.assetDisplayName(selected),
       effective_display_name:this.assetDisplayName(effective),
       connected_display_name:this.assetDisplayName(connected),
-      relationship_resolution:relation.relationship_status || relation.resolution_status || "V2",
+      relationship_resolution:relation.relationship_status || "UNKNOWN",
       reason:relation.reason || "",
       observed_identity_proven:relation.observed_identity_proven === true,
       row:relation, physical_row:relation, effective_row:relation, selected_row:relation,
-      _authority:"MOBILITY_PUBLIC_RUNTIME_V2"
+      _authority:"MOBILITY_EXPERIENCE_V2"
     };
   }
-
 
   releaseContract() {
     const runtime = this.mobilityRuntimeV2();
