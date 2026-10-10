@@ -33,8 +33,13 @@ class MobilityCanonicalPropertyIndex {
     const quality = String(attrs.quality || '').trim().toUpperCase();
     const invalidState = ['unknown','unavailable','none','null',''].includes(nativeState);
     const invalidQuality = ['STALE','INVALID','UNKNOWN'].includes(quality);
+    // A published availability outside the recognized states is not evidence
+    // of an available physical value. Preserve known zero; fail closed on
+    // unknown backend status instead of silently presenting stale truth.
+    const knownAvailability = ['', 'AVAILABLE', 'UNAVAILABLE', 'STALE', 'INVALID', 'UNKNOWN'];
     const available = !invalidState && !invalidQuality &&
-      !['UNAVAILABLE','STALE','INVALID','UNKNOWN'].includes(explicitAvailability);
+      knownAvailability.includes(explicitAvailability) &&
+      (explicitAvailability === '' || explicitAvailability === 'AVAILABLE');
     return {
       ...attrs,
       asset_id:String(attrs.asset_id || '').trim(),
