@@ -58,7 +58,6 @@ class HomeBrainAssetRuntime {
   contractAuthorityRegistry() {
     return {
       canonical_property_v2: { contract_id: "MOBILITY_CANONICAL_PROPERTY_V2", role: "primary_property_authority" },
-      fleet_runtime_v2: { contract_id: "MOBILITY_PUBLIC_RUNTIME_V2", role: "asset_relationship_authority" },
       product_experience_v2: { contract_id: "MOBILITY_EXPERIENCE_V2", role: "authority" },
       product_policy_v2: { contract_id: "MOBILITY_POLICY_V2", role: "authority" },
       command_v2: { contract_id: "MOBILITY_COMMAND_V2", role: "authority" },
@@ -114,28 +113,10 @@ class HomeBrainAssetRuntime {
     return undefined;
   }
 
-  mobilityRuntimeV2() {
-    const state = this.contractEntity("MOBILITY_PUBLIC_RUNTIME_V2", [
-      "sensor.rhi_mobility_runtime_v2"
-    ]);
-    const attrs = state?.attributes || {};
-    if (String(attrs.contract_id || "") !== "MOBILITY_PUBLIC_RUNTIME_V2") return null;
-    return {
-      contract_id: attrs.contract_id,
-      canonical: attrs.canonical === true,
-      release: attrs.release && typeof attrs.release === "object" ? { ...attrs.release } : {},
-      assets: Array.isArray(attrs.assets) ? attrs.assets : [],
-      fleet: attrs.fleet && typeof attrs.fleet === "object" ? attrs.fleet : {},
-      relationships: Array.isArray(attrs.relationships) ? attrs.relationships : [],
-      vehicle_charger_relationships: Array.isArray(attrs.vehicle_charger_relationships) ? attrs.vehicle_charger_relationships : [],
-      ux_inference_forbidden: attrs.ux_inference_forbidden === true
-    };
-  }
-
   propertyPublicationEvidence(assetId = "") {
     const canonical = this.canonicalAssetId(assetId);
     if (!canonical) return null;
-    const asset = (this.mobilityRuntimeV2()?.assets || []).find((row) => String(row?.asset_id || "") === canonical);
+    const asset = this.assetIndexRows("all").find((row) => String(row?.asset_id || "") === canonical);
     const publication = asset?.property_publication;
     if (!publication || typeof publication !== "object") return null;
     return {
@@ -157,7 +138,7 @@ class HomeBrainAssetRuntime {
       unexpected:[...actual].filter((key)=>!expected.has(key)).sort(),
       expected_count:expected.size,
       actual_count:actual.size,
-      authority:evidence.authority || "MOBILITY_PUBLIC_RUNTIME_V2"
+      authority:evidence.authority || "RHI_MOBILITY_CANONICAL_PROPERTY_V1"
     };
   }
 
@@ -699,7 +680,6 @@ class HomeBrainAssetRuntime {
 
   contractEntityIdForRevision(contractId = "") {
     const ids = {
-      MOBILITY_PUBLIC_RUNTIME_V2:"sensor.rhi_mobility_runtime_v2",
       MOBILITY_EXPERIENCE_V2:"sensor.rhi_mobility_experience_v2",
       MOBILITY_POLICY_V2:"sensor.rhi_mobility_policy_v2",
       MOBILITY_COMMAND_V2:"sensor.rhi_mobility_command_v2",
@@ -2129,7 +2109,7 @@ class HomeBrainAssetRuntime {
         rows:[{ type:"readonly", icon:"mdi:alert-outline", label:"Component placement", value:"Contract gap" }],
         details:unplaced.map((prop)=>({
           label:String(prop.property_key || "Property"),
-          value:`owner=${prop._source_entity_id || "MOBILITY_PUBLIC_RUNTIME_V2"}; missing component_id/section_id`
+          value:`owner=${prop._source_entity_id || "RHI_MOBILITY_CANONICAL_PROPERTY_V1"}; missing component_id/section_id`
         }))
       });
     }
