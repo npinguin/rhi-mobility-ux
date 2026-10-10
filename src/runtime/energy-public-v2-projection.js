@@ -3,7 +3,7 @@
 class HomeBrainEnergyCanonicalProjection {
   constructor(hass = {}) { this.hass = hass || {}; }
   static get contractId() { return 'RHI_ENERGY_CANONICAL_PROPERTY_V2'; }
-  rows() {
+  canonicalRows() {
     return Object.entries(this.hass?.states || {}).flatMap(([entityId, state]) => {
       const a=state?.attributes || {};
       if(a.canonical_contract !== HomeBrainEnergyCanonicalProjection.contractId ||
@@ -28,18 +28,19 @@ class HomeBrainEnergyCanonicalProjection {
     try { const parsed=JSON.parse(value); return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {}; } catch (_) { return {}; }
   }
   rows(value) {
+    if (value === undefined) return this.canonicalRows();
     if (Array.isArray(value)) return value.filter(row=>row && typeof row==='object');
     const parsed=this.object(value);
     return Object.values(parsed).filter(row=>row && typeof row==='object');
   }
   snapshot() {
-    const rows=this.rows();
+    const rows=this.canonicalRows();
     return Object.freeze({available:rows.length>0,contractId:HomeBrainEnergyCanonicalProjection.contractId,
       attributes:Object.freeze({properties:rows})});
   }
   section(name) {
     const wanted=String(name || '');
-    return {properties:this.rows().filter(row=>row.presentation_surface===wanted)};
+    return {properties:this.canonicalRows().filter(row=>row.presentation_surface===wanted)};
   }
 }
 
