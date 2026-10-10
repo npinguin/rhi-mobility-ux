@@ -79,4 +79,17 @@ if(conflicting.contractGaps()[0]?.reason!=="duplicate_canonical_property") throw
 const removedRevision=conflicting.revision("vehicle_1");
 conflicting.refresh({states:{"sensor.noncanonical":{state:"ok",attributes:{}}}});
 if(conflicting.revision("vehicle_1")<=removedRevision) throw new Error("removed native asset must invalidate its own revision");
+const assetMembership=body('  assetIndexRows(kind = "all") {','  consumerAssetIds(kind = "all") {');
+if(!assetMembership.includes('this._canonicalProperties.rows()'))
+  throw new Error("Mobility inventory must derive from backend canonical property membership");
+if(assetMembership.includes('this.mobilityRuntimeV2()'))
+  throw new Error("Missing Runtime V2 must never hide active canonical Mobility assets");
+const ownedRows=new Index({states:{
+  "sensor.vehicle_soc":{state:"64",attributes:{canonical_contract:"RHI_MOBILITY_CANONICAL_PROPERTY_V1",asset_id:"vehicle_a",asset_type:"vehicle",property_key:"battery.soc_pct",availability:"AVAILABLE",value:64}},
+  "sensor.charger_state":{state:"ready",attributes:{canonical_contract:"RHI_MOBILITY_CANONICAL_PROPERTY_V1",asset_id:"charger_a",asset_type:"charger",property_key:"charger.operating_state",availability:"AVAILABLE",value:"ready"}}
+}});
+const assetsById=new Map(ownedRows.rows().filter(r=>r.asset_id && r.asset_type)
+  .map(r=>[r.asset_id,r.asset_type]));
+if(assetsById.size!==2 || assetsById.get("vehicle_a")!=="vehicle" || assetsById.get("charger_a")!=="charger")
+  throw new Error("canonical backend asset membership must survive without retired Runtime V2 aggregate");
 console.log("PASS Mobility canonical-property indexing, membership revision and metadata-owned placement");
