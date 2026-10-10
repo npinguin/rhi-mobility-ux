@@ -15,14 +15,15 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
     this._hass = hass;
     const rt = new HomeBrainAssetRuntime(hass, this.config);
     const view = this.config.view || this.viewFromPath();
+    // Canonical property revisions are authoritative for planning, strategies and insights.
+    // Retain activity/command revisions only for their supported domain contracts.
     const revisionIds = view === "log"
       ? ["sensor.rhi_mobility_activity_v2"]
       : view === "planning"
-        ? ["sensor.rhi_energy_public_contract_v2","sensor.rhi_mobility_runtime_v2","sensor.rhi_mobility_command_v2"]
-        : view === "strategies"
-          ? ["sensor.rhi_energy_public_contract_v2","sensor.rhi_mobility_runtime_v2"]
-          : ["sensor.rhi_energy_public_contract_v2","sensor.rhi_mobility_runtime_v2","sensor.rhi_mobility_activity_v2"];
-    const revisionSignature = `${view}|${rt.entityRevisionSignature(revisionIds)}`;
+        ? ["sensor.rhi_mobility_command_v2"]
+        : ["sensor.rhi_mobility_activity_v2"];
+    const canonicalRevision = rt._canonicalProperties?.revision() ?? 0;
+    const revisionSignature = `${view}|${canonicalRevision}|${rt.entityRevisionSignature(revisionIds)}`;
     if (revisionSignature === this._lastRevisionSignature) return;
     this._lastRevisionSignature = revisionSignature;
     const data = this.viewModel(view);
