@@ -27,6 +27,11 @@ class HomeBrainEnergyCanonicalProjection {
     if (typeof value !== 'string') return {};
     try { const parsed=JSON.parse(value); return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {}; } catch (_) { return {}; }
   }
+  rows(value) {
+    if (Array.isArray(value)) return value.filter(row=>row && typeof row==='object');
+    const parsed=this.object(value);
+    return Object.values(parsed).filter(row=>row && typeof row==='object');
+  }
   snapshot() {
     const rows=this.rows();
     return Object.freeze({available:rows.length>0,contractId:HomeBrainEnergyCanonicalProjection.contractId,
