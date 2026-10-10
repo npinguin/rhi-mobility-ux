@@ -28,11 +28,19 @@ class MobilityCanonicalPropertyIndex {
   rawRow(entityId, state) {
     if (!this.isCanonicalPropertyState(state)) return null;
     const attrs = state.attributes || {};
+    const nativeState = String(state?.state ?? '').trim().toLowerCase();
+    const explicitAvailability = String(attrs.availability || '').trim().toUpperCase();
+    const quality = String(attrs.quality || '').trim().toUpperCase();
+    const invalidState = ['unknown','unavailable','none','null',''].includes(nativeState);
+    const invalidQuality = ['STALE','INVALID','UNKNOWN'].includes(quality);
+    const available = !invalidState && !invalidQuality &&
+      !['UNAVAILABLE','STALE','INVALID','UNKNOWN'].includes(explicitAvailability);
     return {
       ...attrs,
       asset_id:String(attrs.asset_id || '').trim(),
       property_key:String(attrs.property_key || '').trim(),
-      value:Object.prototype.hasOwnProperty.call(attrs,'value') ? attrs.value : state?.state,
+      availability:available ? 'AVAILABLE' : 'UNAVAILABLE',
+      value:available ? (Object.prototype.hasOwnProperty.call(attrs,'value') ? attrs.value : state?.state) : null,
       display_name:attrs.display_name || attrs.friendly_name || '',
       _source_entity_id:String(entityId || ''),
       canonical_contract:String(attrs.canonical_contract || 'RHI_MOBILITY_CANONICAL_PROPERTY_V1').toUpperCase()
