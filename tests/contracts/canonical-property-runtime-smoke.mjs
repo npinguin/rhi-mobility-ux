@@ -72,6 +72,19 @@ const vanished={states:{"sensor.noncanonical":replacement.states["sensor.noncano
 propertyIndex.refresh(vanished);
 if(propertyIndex.rows("vehicle_1").length!==0 || propertyIndex.revision()<=beforeRemoval) throw new Error("canonical removal must invalidate without shrinking HA state count");
 
+// A backend-owned placement or identity update must invalidate the published
+// asset view even when state/entity membership and property value stay unchanged.
+const presentationIndex=new Index({states:{"sensor.presentation":mk()}});
+const firstPresentationRevision=presentationIndex.revision("vehicle_1");
+const revisedPresentation=mk();
+revisedPresentation.attributes.presentation_role="diagnostic";
+revisedPresentation.attributes.asset_display_name="Vehicle A";
+presentationIndex.refresh({states:{"sensor.presentation":revisedPresentation}});
+if(presentationIndex.row("vehicle_1","battery.soc_pct")?.presentation_role!=="diagnostic")
+  throw new Error("presentation metadata change not applied");
+if(presentationIndex.revision("vehicle_1")<=firstPresentationRevision)
+  throw new Error("presentation metadata change must invalidate asset revision");
+
 const duplicate={states:{"sensor.a":mk(),"sensor.b":mk()}};
 const conflicting=new Index(duplicate);
 if(conflicting.row("vehicle_1","battery.soc_pct")!==null) throw new Error("duplicate native property must fail closed");
