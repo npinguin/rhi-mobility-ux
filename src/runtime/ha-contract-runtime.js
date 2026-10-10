@@ -149,7 +149,7 @@ class HomeBrainAssetRuntime {
     const canonical = this.canonicalAssetId(assetId);
     const evidence = this.propertyPublicationEvidence(canonical);
     if (!evidence) return { status:"unavailable", missing:[], unexpected:[] };
-    const actual = new Set(this.v2PropertyRows(canonical).map((row)=>String(row.property_key || "")).filter(Boolean));
+    const actual = new Set(this.propertyRows(canonical).filter((row) => !row.missing).map((row) => String(row.property_key || "")).filter(Boolean));
     const expected = new Set(evidence.expected_property_keys.map(String));
     return {
       status:[...expected].every((key)=>actual.has(key)) ? "complete" : "incomplete",
