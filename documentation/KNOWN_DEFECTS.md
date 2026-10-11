@@ -2,6 +2,10 @@
 
 This file is the authoritative list of unresolved Mobility UX product/runtime issues. These are **not accepted technical or feature debt**. They stay open until the owning contract/test plus target Home Assistant evidence proves closure.
 
+## Cross-domain native Energy acceptance update (2026-10-11)
+
+Mobility's recovery branch replaces synthetic D0/D1 asset-key planning with producer-owned native Energy metrics and blocks period/strategy inference. This is source-level behavior, not evidence that the current Energy backend publishes complete per-asset metering/financial attribution or effective strategy semantics. Verify the exact Energy producer publications and record runtime evidence before closing Planning/Intelligence or Insights.
+
 ## Open issues
 
 1. **Vehicle/charger picker runtime qualification is not closed.**

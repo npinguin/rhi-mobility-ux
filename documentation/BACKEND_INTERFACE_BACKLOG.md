@@ -19,6 +19,19 @@ This backlog captures product capabilities required by Mobility UX that are not 
 
 Rule: **do not mock these in UX**. Until the backend publishes the contract, the relevant V2 surface remains empty, unavailable, N/A or an explicit contract gap.
 
+## P0 cross-domain Energy contracts — native truth required
+
+Current Energy backend publishes native D0/D1 planning totals as sensors with `canonical_source=rhi_energy.runtime` and exact `metric_key`. These are not per-asset canonical properties whose `asset_id` is `D0` or `D1`.
+
+For reliable Mobility Intelligence and Insights, Energy must also publish:
+
+- complete D0/D1 planning detail, per-asset allocations and exact identity joins (Energy backend #249 / #242);
+- per-asset metering and financial attribution with **explicit period identity, units, availability and quality**. A property key containing `today` is not proof of a period;
+- configured versus effective strategy truth through an explicit semantic contract. An editable strategy property only proves a configurable setting, not its effective runtime interpretation;
+- requested/actual/readback distinction and persistence across changes and reloads.
+
+Until published, the affected cards must show unavailable/N/A. No property-name substring classifiers, sum-of-known-partials, fake totals or shadow Strategy owner are allowed in Mobility UX.
+
 ## Priority — Overview completion
 
 ### HA-native user → vehicle relationship

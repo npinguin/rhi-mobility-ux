@@ -1,5 +1,11 @@
 # RHI Mobility UX — Product Vision and UX Guidance
 
+## Implementation / acceptance status (2026-10-11)
+
+The canonical-only Mobility source and rc.89 immutable HACS test candidate are available, but target Home Assistant acceptance is pending. Source CI does **not** prove physical charger attribution, saved configuration, vehicle readiness, planning totals or mobile interaction quality. The structural recovery branch extends the existing design language without a new competing navigation or semantic model.
+
+Cross-domain Energy Planning reads backend-owned native D0/D1 metric keys, **not** fictitious D0/D1 asset rows. Energy Insights accepts period-owned per-asset metering/value only when exact `period_id` and unit are published. Energy effective Strategy cannot be inferred from configured property names. Until the backend supplies it, show an explicit unavailable state. See `documentation/CANONICAL_ONLY_MIGRATION_AUDIT.md`.
+
 ## Product vision
 
 RHI Mobility gives each Home Assistant user a calm, recognizable and actionable view of personal mobility while allowing the household to manage vehicles, chargers, profiles and charging as one connected system.
