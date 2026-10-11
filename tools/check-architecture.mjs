@@ -54,7 +54,10 @@ for(const relDir of ['src/ui','src/app','src/domain/models']){
 
 for (const [rel, rules] of Object.entries(screenSemanticBypasses)) {
   const full=path.join(root,rel);
-  if(!fs.existsSync(full)) continue;
+  if(!fs.existsSync(full)) {
+    failures.push(`${rel}: required screen missing; projector ownership check cannot be skipped`);
+    continue;
+  }
   const source=fs.readFileSync(full,'utf8');
   for(const [rx,label] of rules){
     const count=[...source.matchAll(rx)].length;
