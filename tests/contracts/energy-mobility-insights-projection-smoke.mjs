@@ -20,6 +20,8 @@ const hass={states:{
 const mobilityRuntime={mobilityRegistry:()=>[{asset_id:'vehicle_audi_q8',display_name:'Audi Q8'}]};
 const model=new Projection(hass,mobilityRuntime).viewModel('today');
 assert.equal(model.meteringAvailable,true);
+assert.equal(model.meteringContractVersion,'RHI_ENERGY_CANONICAL_PROPERTY_V2');
+assert.equal(model.valueContractVersion,'RHI_ENERGY_CANONICAL_PROPERTY_V2');
 assert.equal(model.valueAvailable,true);
 assert.equal(model.rows.length,1);
 assert.equal(model.rows[0].energyKwh,8.5);
