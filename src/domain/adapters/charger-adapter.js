@@ -68,6 +68,28 @@ class HomeBrainChargerAdapter {
     return { bucket:"unknown", resolved:false, label:"N/A" };
   }
 
+  chargingPowerEvidence() {
+    const snapshot = this.rt.chargerProductSnapshot(this.assetId());
+    const operating = snapshot?.operating?.resolved === true
+      ? String(snapshot.operating.value || "").trim().toLowerCase() : "";
+    const power = snapshot?.power;
+    if (power?.resolved !== true || power.value === null || power.value === undefined || power.value === "") {
+      return { state:"unknown", label:"Actual power unavailable", reason:"No canonical charger.power_kw measurement" };
+    }
+    const measuredKw = Number(power.value);
+    if (!Number.isFinite(measuredKw) || measuredKw < 0) {
+      return { state:"unknown", label:"Actual power unavailable", reason:"Invalid canonical charger.power_kw measurement" };
+    }
+    if (operating === "charging" || operating === "running") {
+      if (measuredKw === 0) return {
+        state:"no_measured_power", label:"Charging state · 0 kW measured",
+        reason:"Charger reports charging, but actual power is zero. Current limit and session energy do not prove live power."
+      };
+      return { state:"measured", label:"Charging power measured", reason:"Canonical charger.power_kw" };
+    }
+    return { state:"measured", label:"Actual power measured", reason:"Canonical charger.power_kw" };
+  }
+
   latestActivityRows(assetId) {
     const activities = this.rt.activityRowsFor(assetId).slice(0, 3);
     const valueFor = (a) => String(a.result || a.result_code || a.activity_state || a.status || a.message || a.activity_type || a.command_key || a.command_id || "Unavailable");

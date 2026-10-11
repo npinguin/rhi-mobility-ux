@@ -686,9 +686,9 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
       low,
       unknown:unknown.length,
       total,
-      headline:!total ? "Range unavailable" : Number.isFinite(threshold) ? `${ok.length}/${total} ≥${threshold} km` : `${ok.length}/${total} range OK`,
-      line1:!total ? "No verified active vehicles" : low.length ? low.slice(0,2).map((row)=>`${row.name} ${row.summary}`).join(" · ") : "No low-range vehicle",
-      line2:unknown.length ? `${unknown.length} range unknown` : (Number.isFinite(threshold) ? `Policy threshold ${threshold} km` : "Range policy applied")
+      headline:!total ? "Range not evaluated" : Number.isFinite(threshold) ? `${ok.length}/${total} ≥${threshold} km` : `${ok.length}/${total} range OK`,
+      line1:!total ? "No active vehicles to evaluate" : low.length ? low.slice(0,2).map((row)=>`${row.name} ${row.summary}`).join(" · ") : "No low-range vehicle",
+      line2:!total ? "0 vehicles evaluated" : unknown.length ? `${unknown.length} range unknown` : (Number.isFinite(threshold) ? `Policy threshold ${threshold} km` : "Range policy applied")
     };
   }
 
@@ -783,11 +783,11 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
         </article>
         <article class="ov-status-item security ${status.security.unsafeCount ? "warn" : ""}">
           <span class="ov-status-icon"><ha-icon icon="mdi:lock-outline"></ha-icon></span>
-          <div><small>Security</small><b>${rt.escape(activeVehicles.length ? `${status.security.unsafeCount} unsafe` : "Not assessed")}</b><em>${rt.escape(`${status.security.secure} secure · ${status.security.incomplete} incomplete`)}</em><em>${rt.escape(securityNames)}</em></div>
+          <div><small>Security</small><b>${rt.escape(activeVehicles.length ? `${status.security.unsafeCount} unsafe` : "Not evaluated")}</b><em>${rt.escape(`${status.security.secure} secure · ${status.security.incomplete} incomplete`)}</em><em>${rt.escape(securityNames)}</em></div>
         </article>
         <article class="ov-status-item maintenance ${status.maintenance.actionableCount ? "warn" : ""}">
           <span class="ov-status-icon"><ha-icon icon="mdi:wrench-outline"></ha-icon></span>
-          <div><small>Maintenance</small><b>${rt.escape(activeVehicles.length ? `${status.maintenance.overdue.length} overdue · ${status.maintenance.dueSoon.length} due soon` : "Not assessed")}</b><em>${rt.escape(maintenanceAction)}</em><em>${rt.escape(nextMaintenance)}</em></div>
+          <div><small>Maintenance</small><b>${rt.escape(activeVehicles.length ? `${status.maintenance.overdue.length} overdue · ${status.maintenance.dueSoon.length} due soon` : "Not evaluated")}</b><em>${rt.escape(maintenanceAction)}</em><em>${rt.escape(nextMaintenance)}</em></div>
         </article>
       </section>
 

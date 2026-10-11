@@ -69,3 +69,22 @@ if(projection.relationships.assigned_vehicle_id!=='vehicle_a' ||
 if(new Adapter(rt,'charger_a',{registry_entry:charger}).profile()!=='Wallbox Commander 2')
   throw new Error('charger display profile must use its canonical backend catalog');
 console.log('PASS charger assignment and profile keep producer identity separate from physical connection');
+
+function powerEvidence({operating, power, powerResolved = true}) {
+  const rt = { chargerProductSnapshot:()=>({
+    operating:{resolved:true,value:operating},
+    power:{resolved:powerResolved,value:power}
+  }) };
+  return new Adapter(rt,'charger_test',{registry_entry:{asset_id:'charger_test'}}).chargingPowerEvidence();
+}
+if (powerEvidence({operating:'charging',power:0}).state !== 'no_measured_power')
+  throw new Error('charging with canonical zero must not be presented as live power');
+if (powerEvidence({operating:'running',power:0}).state !== 'no_measured_power')
+  throw new Error('running with canonical zero must disclose a measured zero');
+if (powerEvidence({operating:'charging',power:null,powerResolved:false}).state !== 'unknown')
+  throw new Error('missing charger power must not be presented as measured zero');
+if (powerEvidence({operating:'charging',power:3.2}).state !== 'measured')
+  throw new Error('measured positive power must remain distinct from charging state');
+if (powerEvidence({operating:'idle',power:0}).state !== 'measured')
+  throw new Error('idle with real measured zero is not a charging contradiction');
+console.log('PASS charging state, measured zero and unknown actual power are distinct');
