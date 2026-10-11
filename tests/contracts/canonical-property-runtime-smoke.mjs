@@ -229,4 +229,18 @@ console.log('PASS unknown availability fails closed while known zero survives');
 
 console.log('PASS Mobility invalid or stale canonical values fail closed');
 
+// Property-publication diagnostics must surface ambiguous publishers even
+// though the canonical row selector correctly hides their conflicting values.
+const gapStart=runtime.indexOf('  propertyPublicationGap(assetId = "") {');
+const gapEnd=runtime.indexOf('  mobilityExperienceV2() {',gapStart);
+if(gapStart<0 || gapEnd<0) throw new Error('publication gap owner missing');
+const gapFn=new Function('assetId',runtime.slice(gapStart,gapEnd)
+  .replace('  propertyPublicationGap(assetId = "") {','').replace(/}\s*$/, ''));
+const gapRuntime={canonicalAssetId:id=>id,_canonicalProperties:conflicting};
+// Reintroduce duplicate publication for a stable negative canary.
+const duplicateDiagnosticIndex=new Index(duplicate);
+gapRuntime._canonicalProperties=duplicateDiagnosticIndex;
+const gap=gapFn.call(gapRuntime,'vehicle_1');
+if(gap.status!=='ambiguous' || gap.ambiguous_property_keys[0]!=='battery.soc_pct')
+  throw new Error('duplicate canonical property gap hidden by filtered inventory');
 console.log("PASS Mobility canonical-property indexing, membership revision and metadata-owned placement");

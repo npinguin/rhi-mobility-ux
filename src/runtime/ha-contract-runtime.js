@@ -122,10 +122,14 @@ class HomeBrainAssetRuntime {
   propertyPublicationGap(assetId = "") {
     const canonical=this.canonicalAssetId(assetId);
     const rows=this._canonicalProperties.rows(canonical);
-    if (!canonical || !rows.length) return {status:"unavailable",missing:[],unexpected:[]};
-    const keys=rows.map((row)=>String(row.property_key || "")).filter(Boolean);
+    const gaps=(this._canonicalProperties.contractGaps?.() || [])
+      .filter(gap=>String(gap.key||'').startsWith(`${canonical}::`));
+    if (!canonical || (!rows.length && !gaps.length)) return {status:"unavailable",missing:[],unexpected:[]};
+    const keys=rows.map(row=>String(row.property_key||'')).filter(Boolean);
     const unique=new Set(keys);
-    const duplicates=[...unique].filter((key)=>keys.filter((candidate)=>candidate===key).length>1);
+    // rows() deliberately excludes duplicate publishers. Query the gap
+    // authority, not the filtered rows, or diagnostics would hide conflicts.
+    const duplicates=gaps.map(gap=>String(gap.key).slice(canonical.length+2));
     return {
       status:duplicates.length ? "ambiguous" : "published",
       missing:[], unexpected:[],

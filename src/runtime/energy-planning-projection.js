@@ -27,21 +27,24 @@ class HomeBrainEnergyPlanningProjection {
     const properties=this.energy.canonicalRows().filter(row=>row.availability==='AVAILABLE');
     const ids=this._mobilityAssetIds();
     const planning=properties.filter(row=>String(row.presentation_surface).toLowerCase()==='planning');
-    const field=(asset,keys)=>planning.find(row=>row.asset_id===asset && keys.includes(row.property_key))?.value ?? null;
+    // No fabricated D0/D1 asset identities: use the exact native metric
+    // publications from Energy's canonical runtime, preserving unknown != 0.
+    const metric=(horizon,suffix)=>this.energy.nativeMetric(
+      (horizon==='D0'?'planning_today_':'planning_tomorrow_')+suffix);
     const totals=(horizon)=>this._totalsView({
-      flexible_planned_kwh:field(horizon,['flexible_planned_kwh','planned_kwh']),
-      flexible_still_to_plan_kwh:field(horizon,['flexible_still_to_plan_kwh','still_to_plan_kwh']),
-      grid_import_kwh:field(horizon,['grid_import_kwh']),
-      solar_kwh:field(horizon,['solar_kwh'])
+      flexible_planned_kwh:metric(horizon,'flexible_planned_kwh').value,
+      flexible_still_to_plan_kwh:metric(horizon,'flexible_still_to_plan_kwh').value
     });
     const today=totals('D0');
     const tomorrow=totals('D1');
+    const hasTotals=['D0','D1'].some(horizon=>
+      ['flexible_planned_kwh','flexible_still_to_plan_kwh'].some(key=>metric(horizon,key).available));
     const mobilityPlanningRows=planning.filter(row=>ids.has(row.asset_id));
     return Object.freeze({
-      available:planning.length>0,
+      available:hasTotals || planning.length>0,
       entityId:null,
       contractVersion:'RHI_ENERGY_CANONICAL_PROPERTY_V2',
-      state:planning.length?'AVAILABLE':'UNAVAILABLE',
+      state:hasTotals || planning.length?'AVAILABLE':'UNAVAILABLE',
       today,tomorrow,
       combined:Object.freeze({plannedKwh:null,stillToPlanKwh:null,gridImportKwh:null,solarKwh:null,state:'',raw:{}}),
       currentIntent:{},
@@ -50,7 +53,7 @@ class HomeBrainEnergyPlanningProjection {
       mobilityPlanningRows,
       mobilityExperienceRows:[],
       exactIdentityJoin:ids.size>0,
-      source:'RHI_ENERGY_CANONICAL_PROPERTY_V2.planning'
+      source:'rhi_energy.runtime/native_metric'
     });
   }
 }
