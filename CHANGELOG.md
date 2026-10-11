@@ -1,3 +1,9 @@
+## 1.0.0-rc.92 — Charger actual-power evidence and zero-evaluated fleet
+
+- Charging state and canonical actual measured zero kW are shown separately; missing actual power remains unknown.
+- No false-green range/security/maintenance for zero active vehicles.
+- Mobility rc91 canonical planning and lifecycle changes preserved; qualified HACS candidate requires CI and HA runtime evidence.
+
 ## 1.0.0-rc.91 — Canonical lifecycle and effective Energy planning quality
 
 - distinguish explicit disabled vehicles from missing canonical lifecycle, without guessing runtime state from diagnostics; preserve visual identity and prevent false activation;
