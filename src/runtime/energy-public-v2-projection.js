@@ -27,6 +27,9 @@ class HomeBrainEnergyCanonicalProjection {
         // or a configuration editor. Property-key substrings have no authority.
         period_id:String(a.period_id || ''),
         unit:String(a.unit || a.unit_of_measurement || ''),
+        asset_display_name:String(a.asset_display_name || ''),
+        friendly_name:String(a.friendly_name || a.presentation_label || ''),
+        display_name:String(a.display_name || ''),
         editable:a.editable === true || a.write_supported === true})];
     });
     // No arbitrary winner when the same asset/property is published twice.
@@ -121,6 +124,7 @@ class HomeBrainEnergyCanonicalProjection {
   snapshot() {
     const rows=this.canonicalRows();
     return Object.freeze({available:rows.length>0,contractId:HomeBrainEnergyCanonicalProjection.contractId,
+      contractVersion:HomeBrainEnergyCanonicalProjection.contractId,
       attributes:Object.freeze({properties:rows})});
   }
   section(name) {
