@@ -733,6 +733,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
 
   renderOverviewPage(rt, vehicles, chargers, activityRows, reco) {
     const activeVehicles = vehicles.filter((v)=>rt.lifecycleStatus(v) === "active");
+    const inactiveVehicles = vehicles.filter((v)=>["disabled","unknown"].includes(rt.lifecycleStatus(v)));
     const status = this.overviewStatusModel(rt, activeVehicles, chargers);
     const securityNames = status.security.unsafe.length
       ? status.security.unsafe.slice(0,2).map((row)=>row.name).join(" · ")
@@ -779,7 +780,8 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
           <div><h2>${rt.escape(rt.t("dashboard.vehicles",{},"Vehicles"))}</h2><p>${rt.escape(rt.t("dashboard.vehicles_description",{},"Readiness first: range and energy, security, comfort, maintenance, charger relationship and direct actions."))}</p></div>
           <button data-nav="${hbMobilityPath("/dashboard")}">${rt.escape(rt.t("charger.vehicle_management",{},"Vehicle Management"))} <ha-icon icon="mdi:chevron-right"></ha-icon></button>
         </div>
-        <div class="ov-vehicle-list">${activeVehicles.length ? activeVehicles.map((vehicle)=>this.renderOverviewVehicleRow(rt,vehicle,chargers)).join("") : `<div class="ov-empty">${rt.escape(rt.t("dashboard.no_active",{},"No active vehicles."))}</div>`}</div>
+        <div class="ov-vehicle-list">${activeVehicles.length ? activeVehicles.map((vehicle)=>this.renderOverviewVehicleRow(rt,vehicle,chargers)).join("") : `<div class="ov-empty">No active vehicles. ${inactiveVehicles.length ? `${inactiveVehicles.length} known vehicle${inactiveVehicles.length===1?"":"s"} currently inactive or unavailable.` : "No vehicle is published by the Mobility backend."}</div>`}</div>
+        ${inactiveVehicles.length ? `<div class="ov-inactive-summary"><div class="ov-inactive-title"><strong>Inactive vehicles</strong><span>${inactiveVehicles.length} registered · Activation requires published lifecycle control</span></div><div class="inactive-list">${inactiveVehicles.map(v=>this.renderInactiveVehicle(rt,v)).join("")}</div></div>` : ""}
       </section>`;
   }
 
@@ -971,7 +973,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
           this._lastRenderOk = true;
           const navActive = this.dashboardTabFromRoute();
           const pageContent = navActive === "overview"
-            ? this.renderOverviewPage(rt, activeVehicles, chargers, activityRows, reco)
+            ? this.renderOverviewPage(rt, vehicles, chargers, activityRows, reco)
             : this.renderVehiclesPage(rt, activeVehicles, inactiveVehicles, chargers, reco, plan, trust, activity, intelligenceSummary);
           {
       const template = document.createElement("template");
@@ -1280,6 +1282,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     .rhi-page-hero-overview .rhi-page-hero-art img{position:absolute;inset:0;width:100%;height:100%;min-height:0;max-height:none;object-fit:cover;object-position:center 52%;transform:none}
 
     .ov-domain-statusbar{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:0}
+    .ov-inactive-summary{margin-top:10px;padding:10px;border:1px solid #e0e8f2;border-radius:14px;background:#fcfdff}.ov-inactive-title{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px}.ov-inactive-title strong{font-size:13px;color:#132744}.ov-inactive-title span{font-size:11px;color:#66748d}.ov-inactive-summary .inactive-list{gap:5px}.ov-inactive-summary .inactive-row{min-height:52px;padding:7px 10px}
     .ov-domain-statusbar .ov-status-item{min-width:0;min-height:94px;display:grid;grid-template-columns:52px minmax(0,1fr);gap:11px;align-items:center;padding:12px 14px;border:1px solid #DBE6F3;border-radius:15px;background:rgba(255,255,255,.97);box-shadow:0 8px 22px rgba(21,61,115,.045)}
     .ov-domain-statusbar .ov-status-icon{width:46px;height:46px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:#EEF5FF;color:#1467F5}
     .ov-domain-statusbar .ov-status-icon ha-icon{--mdc-icon-size:27px}

@@ -24,13 +24,23 @@
       "model": "Commander 2",
       "variant": null,
       "supported_appearances": [
-        {"id":"white","package_key":"charger_wallbox_white"},
-        {"id":"black","package_key":"charger_wallbox_black"}
+        {
+          "id": "white",
+          "package_key": "charger_wallbox_white"
+        },
+        {
+          "id": "black",
+          "package_key": "charger_wallbox_black"
+        }
       ],
       "product_reference": {
         "source_ref": "Wallbox Commander 2 Online Installation Guide",
         "source_url": "https://support.wallbox.com/en/knowledge-base/c2-dig/",
-        "verified_product_facts": ["Commander 2", "white and black appearance", "22 kW product capability"],
+        "verified_product_facts": [
+          "Commander 2",
+          "white and black appearance",
+          "22 kW product capability"
+        ],
         "media_usage": "reference_only"
       }
     },
@@ -40,12 +50,19 @@
       "model": "Business",
       "variant": "Socket",
       "supported_appearances": [
-        {"id":"factory","package_key":"charger_peblar"}
+        {
+          "id": "factory",
+          "package_key": "charger_peblar"
+        }
       ],
       "product_reference": {
         "source_ref": "Peblar AC chargers product specification",
         "source_url": "https://peblar.com/products/ev-charging",
-        "verified_product_facts": ["Business", "Type 2 socket", "22 kW product capability"],
+        "verified_product_facts": [
+          "Business",
+          "Type 2 socket",
+          "22 kW product capability"
+        ],
         "media_usage": "reference_only"
       }
     },
@@ -55,13 +72,26 @@
       "model": "Wall Plug 2",
       "variant": "Z-Wave Plus BE/FR",
       "supported_appearances": [
-        {"id":"white","package_key":"charger_utility_plug"}
+        {
+          "id": "white",
+          "package_key": "charger_utility_plug"
+        }
       ],
       "product_reference": {
         "source_ref": "FIBARO Wall Plug FGWPEF-102 Operating Manual",
         "source_url": "https://manuals.fibaro.com/content/manuals/en/FGWPEF-102/FGWPEF-102-EN-A-v2.0.pdf",
-        "verified_product_facts": ["Z-Wave Plus", "European E/F family", "up to 2500 W resistive load"],
+        "verified_product_facts": [
+          "Z-Wave Plus",
+          "European E/F family",
+          "up to 2500 W resistive load"
+        ],
         "media_usage": "reference_only"
+      },
+      "package_visual": {
+        "path": "chargers/charger_utility_plug.svg",
+        "provenance": "Reuse of the maintained RHI Mobility backend schematic custom_components/rhi_mobility/assets/profiles/fibaro_utility_plug.svg",
+        "usage": "illustration_of_socket_family_not_product_photography",
+        "reason": "The previous WebP artwork depicted a vehicle rather than the Wall Plug, so it is retired until verified exact-model photography is available."
       }
     }
   ],

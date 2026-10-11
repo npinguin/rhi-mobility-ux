@@ -61,7 +61,11 @@ class HomeBrainVehicleVisualPicker {
     const profileChanged = !!profileId && profileId!==currentProfileId;
     const profileWritable = !!(profileProp && this.rt.isWritableProperty(profileProp));
     const imageWritable = !!(imageProp && this.rt.isWritableProperty(imageProp));
-    const writable = !!key && !!profileId && imageWritable && (!profileChanged || profileWritable);
+    // Appearance-only changes on the same backend identity need no profile write.
+    // Changing product requires an exact supported and writable profile choice.
+    const sameProduct=!!(vehicle && currentVehicle?.id===vehicle.id);
+    const writable=!!key && imageWritable && (!profileChanged || profileWritable)
+      && (sameProduct || (!!profileId && profileWritable));
 
     return {
       asset_id:assetId,
@@ -103,9 +107,9 @@ class HomeBrainVehicleVisualPicker {
       return rhiUxVisualChoice({id:row.id,image:src ? (typeof this.rt.cache==='function' ? this.rt.cache(src) : src) : "",imageAlt:row.label || row.model || "Vehicle",label:row.label || row.model || "Vehicle",detail:[row.variant,row.years].filter(Boolean).join(" · "),selected:active,imageStyle:`filter:${active ? (current.color?.filter || "none") : (color?.filter || "none")}`,attributes:{"data-vehicle-visual-choice":row.id,"data-choice-brand":row.brand || "","data-choice-model":row.model || "","data-choice-color":color?.id || ""}});
     }).join("");
 
-    const blocked = !current.profile_writable || !current.image_writable;
+    const blocked = !current.writable;
     const notice = blocked
-      ? `<div class="visual-picker-notice"><ha-icon icon="mdi:information-outline"></ha-icon><span>Appearance browsing is available. Apply requires Mobility V2 configuration controls for profile and image.</span></div>`
+      ? `<div class="visual-picker-notice"><ha-icon icon="mdi:information-outline"></ha-icon><span>Save needs a writable image binding. Changing model also needs an allowed backend profile option.</span></div>`
       : "";
 
     const refineHtml=`<label><span>Brand</span><select data-vehicle-picker-brand="${this.rt.escape(assetId)}">

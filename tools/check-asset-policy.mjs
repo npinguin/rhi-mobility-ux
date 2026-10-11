@@ -257,7 +257,7 @@ const allowedChargerFiles=new Set([
   'chargers/charger_wallbox_white.webp',
   'chargers/charger_wallbox_black.webp',
   'chargers/charger_peblar.webp',
-  'chargers/charger_utility_plug.webp'
+  'chargers/charger_utility_plug.svg'
 ]);
 for(const rel of chargerFiles){
   if(!allowedChargerFiles.has(rel)) throw new Error(`legacy/dead charger artwork still packaged: ${rel}`);

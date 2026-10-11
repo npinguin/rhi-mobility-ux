@@ -7,6 +7,9 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
     this.attachShadow({ mode: "open" });
     this.config = {};
     this._lastRevisionSignature = "";
+    this._activityType = "all";
+    this._activitySort = "newest";
+    this._activityGroup = "type";
   }
   setConfig(config = {}) { this.config = config; }
   getCardSize() { return 8; }
@@ -39,6 +42,12 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
     </div><style>${this.styles()}</style></ha-card>`;
       this.shadowRoot.append(fragment.content.cloneNode(true));
     this.shadowRoot.querySelectorAll("button[data-nav]").forEach((btn)=>btn.addEventListener("click",()=>rt.navigate(btn.getAttribute("data-nav"))));
+    for(const [attr,field] of [["data-activity-type","_activityType"],["data-activity-sort","_activitySort"],["data-activity-group","_activityGroup"]]){
+      this.shadowRoot.querySelectorAll(`select[${attr}]`).forEach(select=>select.addEventListener("change",()=>{
+        this[field]=select.value;this._lastRevisionSignature="";
+        if(this._hass)this.hass=this._hass;
+      }));
+    }
   }
 
   viewFromPath() {
@@ -328,7 +337,20 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
   }
 
   renderLog(rt) {
-    const rows = rt.activityRowsFor ? rt.activityRowsFor("") : [];
+    const published=rt.activityRowsFor ? rt.activityRowsFor("") : [];
+    const kind=row=>String(row.activity_type||"").toLowerCase()==="execution"?"execution":String(row.activity_type||"").toLowerCase()==="charging"?"charger":"vehicle";
+    const assetId=row=>String(row.asset_id||row.subject_asset_id||row.related_asset_id||"");
+    const instant=row=>{
+      if(kind(row)!=="execution")return null;
+      const raw=String(row.observed_at||row.occurred_at||row.created_at||row.timestamp||"");
+      if(!raw)return null;
+      const t=Date.parse(raw);return Number.isFinite(t)?t:null;
+    };
+    const rows=published.filter(row=>this._activityType==="all"||kind(row)===this._activityType).sort((a,b)=>{
+      if(this._activitySort==="asset")return String(rt.assetDisplayName?.(assetId(a))||assetId(a)).localeCompare(String(rt.assetDisplayName?.(assetId(b))||assetId(b)));
+      const ta=instant(a),tb=instant(b);
+      return ta===null&&tb===null?0:ta===null?1:tb===null?-1:(this._activitySort==="oldest"?ta-tb:tb-ta);
+    });
     const activityCount = Number(rt.mobilityActivityV2?.()?.activity_count ?? rows.length) || rows.length;
     const fmtTime = (row) => {
       const raw = row.observed_at || row.occurred_at || row.created_at || row.timestamp || row.started_at || "";
@@ -340,7 +362,7 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
       row.status || row.activity_state || row.result || row.result_code || row.execution_state || "Published"
     );
     const titleOf = (row) => String(
-      row.message || row.command_label || row.activity_type || row.command_key || row.family || "Mobility activity"
+      row.message || row.command_label || row.summary || row.operation_key || row.activity_type || row.command_key || row.family || "Mobility activity"
     );
     const reasonOf = (row) => String(
       row.reason || row.blocked_reason || row.execution_reason || row.detail || row.error || ""
@@ -349,20 +371,32 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
       const id = String(row.asset_id || row.subject_asset_id || row.related_asset_id || "");
       return id ? String(rt.assetDisplayName?.(id) || id) : "";
     };
+    const mediaFor=row=>{
+      const id=assetId(row),charger=rt.chargerById?.(id),vehicle=rt.vehicleById?.(id);
+      if(charger)return {url:new HomeBrainChargerAdapter(rt,id,{registry_entry:charger}).chargerImageFromId(),icon:"mdi:ev-station"};
+      if(vehicle)return {url:rt.visualImageUrl?.(vehicle,"vehicle","image","vehicle_fallback")||"",icon:"mdi:car-electric"};
+      return {url:"",icon:kind(row)==="charger"?"mdi:ev-station":"mdi:history"};
+    };
+    const groupName=row=>this._activityGroup==="type"?({vehicle:"Vehicles",charger:"Chargers",execution:"Commands"}[kind(row)]||"Activity"):
+      this._activityGroup==="asset"?(String(rt.assetDisplayName?.(assetId(row))||assetId(row)||"Unknown asset")):"";
+    let previousGroup="";
     const entries = rows.map((row) => {
       const status = statusOf(row);
       const reason = reasonOf(row);
-      const meta = [fmtTime(row), assetOf(row), status].filter(Boolean).join(" · ");
-      return `<article class="rhi-log-row">
-        <div class="rhi-log-icon"><ha-icon icon="mdi:history"></ha-icon></div>
+      const meta = [kind(row)==="execution"?(fmtTime(row)||"Time not published"):"Current status · no event timestamp",assetOf(row),status].filter(Boolean).join(" · ");
+      const media=mediaFor(row),group=groupName(row);
+      const groupHtml=group&&group!==previousGroup?`<h4 class="rhi-log-group">${rt.escape(group)}</h4>`:"";
+      previousGroup=group;
+      return `${groupHtml}<article class="rhi-log-row">
+        <div class="rhi-log-icon">${media.url ? `<img src="${rt.escape(rt.cache?.(media.url)||media.url)}" alt="${rt.escape(assetOf(row))}" loading="lazy" onerror="this.style.display='none'">` : `<ha-icon icon="${media.icon}"></ha-icon>`}</div>
         <div class="rhi-log-copy"><b>${rt.escape(titleOf(row))}</b><small>${rt.escape(meta)}</small>${reason ? `<span>${rt.escape(reason)}</span>` : ""}</div>
       </article>`;
     }).join("");
-    const exceptions = rows.filter((row) => {
+    const exceptions = published.filter((row) => {
       const state = statusOf(row).toLowerCase();
       return ["failed","rejected","blocked","error","denied"].some((token)=>state.includes(token));
     });
-    const gap = activityCount > 0 && !rows.length
+    const gap = activityCount > 0 && !published.length
       ? `<div class="rhi-context-note">Activity contract reports ${rt.escape(String(activityCount))} recent items but publishes no activity rows.</div>`
       : "";
     return `<section class="rhi-context-grid log-grid">
@@ -370,6 +404,11 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
         <div class="rhi-context-card-kicker"><ha-icon icon="mdi:text-box-search-outline"></ha-icon>${rt.escape((rt?.t?.("activity.mobility_log",{},"Mobility log") || "Mobility log"))}</div>
         <h3>${rt.escape((rt?.t?.("activity.what_happened",{},"What happened?") || "What happened?"))}</h3>
         <p>${rt.escape((rt?.t?.("activity.desc",{},"Recent vehicle, charger and command activity is shown with the asset, outcome and backend reason. Technical contract names stay out of the primary reading path.") || "Recent vehicle, charger and command activity is shown with the asset, outcome and backend reason. Technical contract names stay out of the primary reading path."))}</p>
+        <div class="rhi-log-controls" aria-label="Filter, sort and group Activity">
+          <label>Show <select data-activity-type>${[["all","All"],["vehicle","Vehicles"],["charger","Chargers"],["execution","Commands"]].map(([k,v])=>`<option value="${k}" ${this._activityType===k?"selected":""}>${v}</option>`).join("")}</select></label>
+          <label>Sort <select data-activity-sort>${[["newest","Newest first"],["oldest","Oldest first"],["asset","Asset name"]].map(([k,v])=>`<option value="${k}" ${this._activitySort===k?"selected":""}>${v}</option>`).join("")}</select></label>
+          <label>Group <select data-activity-group>${[["type","Type"],["asset","Asset"],["none","None"]].map(([k,v])=>`<option value="${k}" ${this._activityGroup===k?"selected":""}>${v}</option>`).join("")}</select></label>
+        </div>
         ${entries ? `<div class="rhi-log-list">${entries}</div>` : `<div class="rhi-context-note">${rt.escape((rt?.t?.("activity.no_rows",{},"No activity rows are currently published.") || "No activity rows are currently published."))}</div>`}
         ${gap}
       </article>
@@ -408,7 +447,8 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
       .support-facts{margin-top:8px}
       .insights-grid{grid-template-columns:minmax(0,1.45fr) minmax(280px,.55fr)}
       .log-grid{grid-template-columns:minmax(0,1.45fr) minmax(280px,.55fr)}
-      .rhi-log-list{display:grid;gap:7px;margin-top:10px}.rhi-log-row{display:grid;grid-template-columns:30px minmax(0,1fr);gap:9px;align-items:start;border:1px solid var(--rhi-color-line);border-radius:var(--rhi-radius-md);padding:9px 10px;background:#fff}.rhi-log-icon{display:grid;place-items:center;width:28px;height:28px;border-radius:9px;background:#F1F6FF;color:#1467F5}.rhi-log-icon ha-icon{--mdc-icon-size:17px}.rhi-log-copy{min-width:0}.rhi-log-copy b,.rhi-log-copy small,.rhi-log-copy span{display:block}.rhi-log-copy b{font-size:13px;overflow-wrap:anywhere}.rhi-log-copy small{margin-top:2px;color:var(--rhi-color-muted);font-size:10px}.rhi-log-copy span{margin-top:4px;color:var(--rhi-color-muted);font-size:11px;overflow-wrap:anywhere}
+      .rhi-log-controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:4px 0}.rhi-log-controls label{display:flex;align-items:center;gap:6px;font-size:12px;color:#536582;font-weight:600}.rhi-log-controls select{height:36px;border:1px solid #dbe5f0;border-radius:9px;background:#fff;color:#132744;font:inherit;padding:5px 8px}.rhi-log-group{margin:12px 0 2px;font-size:12px;font-weight:700;color:#29466f}.rhi-log-icon img{max-width:36px;max-height:36px;object-fit:contain}.rhi-log-copy b{font-size:12px}.rhi-log-copy small{font-size:11px}
+    .rhi-log-list{display:grid;gap:7px;margin-top:10px}.rhi-log-row{display:grid;grid-template-columns:30px minmax(0,1fr);gap:9px;align-items:start;border:1px solid var(--rhi-color-line);border-radius:var(--rhi-radius-md);padding:9px 10px;background:#fff}.rhi-log-icon{display:grid;place-items:center;width:28px;height:28px;border-radius:9px;background:#F1F6FF;color:#1467F5}.rhi-log-icon ha-icon{--mdc-icon-size:17px}.rhi-log-copy{min-width:0}.rhi-log-copy b,.rhi-log-copy small,.rhi-log-copy span{display:block}.rhi-log-copy b{font-size:13px;overflow-wrap:anywhere}.rhi-log-copy small{margin-top:2px;color:var(--rhi-color-muted);font-size:10px}.rhi-log-copy span{margin-top:4px;color:var(--rhi-color-muted);font-size:11px;overflow-wrap:anywhere}
       .rhiVehicleIdentity{display:flex;align-items:center;gap:10px;min-width:0}.rhiVehicleIdentity>span:last-child{min-width:0}.rhiVehicleIdentity b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.rhiVehicleIdentity small{display:block;margin-top:2px;font-size:9px;color:#718096}.rhiVehicleThumb{width:64px;height:42px;display:flex;align-items:center;justify-content:center;flex:0 0 64px;border-radius:10px;background:#f5f8fc;border:1px solid #e5ebf4;overflow:hidden}.rhiVehicleThumb img{display:block;max-width:60px;max-height:38px;object-fit:contain}.rhiVehicleThumbFallback ha-icon{--mdc-icon-size:22px;color:#5f6d84}.rhiVehicleRow{align-items:center;min-height:56px}.rhiVehicleRow>span:last-child{justify-self:end}.rhi-insight-vehicle-head .rhiVehicleIdentity{min-width:0}
       .rhi-insight-vehicle-list{display:grid;gap:7px;margin-top:10px}
       .rhi-insight-vehicle{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;border:1px solid #edf1f6;border-radius:var(--rhi-radius-md);background:var(--rhi-soft);padding:10px 12px}

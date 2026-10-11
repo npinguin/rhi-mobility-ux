@@ -59,7 +59,11 @@ class HomeBrainChargerVisualPicker {
     const profileChanged=!!profileId && profileId!==currentProfileId;
     const profileWritable=!!(profileProp && this.rt.isWritableProperty(profileProp));
     const imageWritable=!!(imageProp && this.rt.isWritableProperty(imageProp));
-    const writable=!!key && !!profileId && imageWritable && (!profileChanged || profileWritable);
+    // Appearance-only changes on the same backend identity need no profile write.
+    // Changing product requires an exact supported and writable profile choice.
+    const sameProduct=!!(charger && currentCharger?.id===charger.id);
+    const writable=!!key && imageWritable && (!profileChanged || profileWritable)
+      && (sameProduct || (!!profileId && profileWritable));
 
     return {
       asset_id:assetId,
@@ -94,9 +98,9 @@ class HomeBrainChargerVisualPicker {
       return rhiUxVisualChoice({id:`${row.id}:${appearance.id}`,image:appearance.package_file ? (typeof this.rt.cache==='function' ? this.rt.cache(appearance.package_file) : appearance.package_file) : "",imageAlt:[row.label,appearance.label].filter(Boolean).join(" "),label:row.label || row.model || "Charger",detail:appearance.label || row.variant || this.rt.t("common.standard",{},"Standard"),selected:active,attributes:{"data-charger-visual-choice":row.id,"data-choice-brand":row.brand || "","data-choice-model":row.model || "","data-choice-appearance":appearance.id || ""}});
     })).join("");
 
-    const blocked=!current.profile_writable || !current.image_writable;
+    const blocked=!current.writable;
     const notice=blocked
-      ? `<div class="visual-picker-notice"><ha-icon icon="mdi:information-outline"></ha-icon><span>Appearance browsing is available. Apply requires Mobility V2 configuration controls for profile and image.</span></div>`
+      ? `<div class="visual-picker-notice"><ha-icon icon="mdi:information-outline"></ha-icon><span>Save needs a writable image binding. Changing model also needs an allowed backend profile option.</span></div>`
       : "";
 
     const refineHtml=`<label><span>Brand</span><select data-charger-picker-brand="${this.rt.escape(assetId)}">

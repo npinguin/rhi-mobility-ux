@@ -1265,7 +1265,9 @@ class HomeBrainAssetRuntime {
 
 
   isWritableProperty(prop = {}) {
-    const editor = this.uxEditorControlKind(prop);
+    // Appearance is a dedicated visual picker, not a generic readonly field.
+    // The backend explicitly marks image_key writable while render_as is readonly_value.
+    const editor = this.isAppearanceProperty(prop) ? "appearance_picker" : this.uxEditorControlKind(prop);
     return this.contractBool(prop.editable, false) === true
       && this.contractBool(prop.write_supported, false) === true
       && !!editor
@@ -1547,12 +1549,14 @@ class HomeBrainAssetRuntime {
     const asset = typeof assetOrId === "object" ? assetOrId : this.assetById(assetOrId);
     const canonical = this.canonicalAssetId(asset?.asset_id || assetOrId || "");
     const value = String(desiredStatus || "").trim().toLowerCase();
-    const prop = canonical ? this.lifecyclePropertyRow(canonical) : null;
-    const writable = !!(prop && this.isWritableProperty(prop));
+    // Lifecycle truth is asset.lifecycle_status. The backend may publish a
+    // distinct alias only as its explicit editable transport: it is NOT truth.
+    const prop = canonical ? this.semanticProperty(canonical, "lifecycle_status") : null;
+    const writable = !!(prop && this.lifecyclePropertyRow(canonical) && this.isWritableProperty(prop));
     const current = this.lifecycleStatus(asset || canonical);
     return {
       asset_id: canonical,
-      property_key: prop?.property_key || "asset.lifecycle_status",
+      property_key: prop?.property_key || "lifecycle_status",
       prop,
       current,
       desired: value,
@@ -1631,7 +1635,7 @@ class HomeBrainAssetRuntime {
       const assetId = this.canonicalAssetId(prop.asset_id || options.asset_id || "");
       const propertyKey = String(prop.property_key || options.property_key || "").trim();
       if (!assetId || !propertyKey) return false;
-      const confirmed = await this.waitForCanonicalPropertyReadback(assetId, propertyKey, value, options);
+      const confirmed = await this.waitForCanonicalPropertyReadback(assetId, options.readback_property_key || propertyKey, value, options);
       if (!confirmed) {
         console.error("[RHI Mobility UX] canonical property readback timeout", {property_key:propertyKey,asset_id:assetId,expected:value});
       }
@@ -1654,7 +1658,7 @@ class HomeBrainAssetRuntime {
     if (model.disabled) return false;
     return this.writePropertyValueAsync(model.prop, model.desired, {
       asset_id:this.canonicalAssetId(typeof assetOrId === "string" ? assetOrId : assetOrId?.asset_id || ""),
-      property_key:model.prop?.property_key || "lifecycle_status"
+      readback_property_key:"asset.lifecycle_status"
     });
   }
 
@@ -1666,7 +1670,7 @@ class HomeBrainAssetRuntime {
       icon:"mdi:alert-outline",
       header:"Contract gap",
       rows:[{ type:"readonly", icon:"mdi:alert-outline", label:"Lifecycle", value:"Contract gap" }],
-      details:[{ label:"Required property", value:"property_key=lifecycle_status is missing; no fallback to mobility_enabled/Enabled" }]
+      details:[{ label:"Required property", value:"property_key=asset.lifecycle_status is missing; no fallback to mobility_enabled/Enabled" }]
     };
   }
 

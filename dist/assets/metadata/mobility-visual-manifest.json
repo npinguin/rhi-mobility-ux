@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "product": "rhi-mobility-ux",
-  "version": "1.0.0-rc.89",
+  "version": "1.0.0-rc.90",
   "authority": "mobility_visual_catalog",
   "refs": [
     {
@@ -12,7 +12,7 @@
       "variant": "Z-Wave Plus BE/FR",
       "appearance": "white",
       "image_key": "charger_utility_plug",
-      "package_path": "chargers/charger_utility_plug.webp",
+      "package_path": "chargers/charger_utility_plug.svg",
       "quality": "verified_model"
     },
     {
