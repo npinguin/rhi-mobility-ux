@@ -1,3 +1,14 @@
+## 1.0.0-rc.91 — Canonical lifecycle and effective Energy planning quality
+
+- distinguish explicit disabled vehicles from missing canonical lifecycle, without guessing runtime state from diagnostics; preserve visual identity and prevent false activation;
+- stop reporting zero/green range, security, maintenance and charger counts when no authoritative facts are available;
+- consume D0/D1 effective Energy horizons and requested/effective provider HOLD, distinguish incomplete planning, expose backend-only provisional numeric metrics without guessing a schedule;
+- invalidate planning, strategy and Insights pages on native Energy changes;
+- show canonical configured Strategy settings rather than suppressing them as zero profiles; report real Insights contract version;
+- remove cross-domain Public V2 alias and protect canonical boundaries with executable lifecycle and planning fixtures;
+- require a newer Mobility backend HACS distribution containing the default active lifecycle publication; M0.10.44 runtime is not sufficient;
+- keep target Home Assistant acceptance and stable promotion blocked pending proof.
+
 ## 1.0.0-rc.90 — Native Energy interoperability recovery (unpublished)
 
 - Read D0/D1 from native Energy producers; exact period/unit joins for Insights;
