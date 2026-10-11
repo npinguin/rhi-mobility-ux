@@ -1509,10 +1509,14 @@ class HomeBrainAssetRuntime {
   propertyPublicationGap(assetId = "") {
     const canonical=this.canonicalAssetId(assetId);
     const rows=this._canonicalProperties.rows(canonical);
-    if (!canonical || !rows.length) return {status:"unavailable",missing:[],unexpected:[]};
-    const keys=rows.map((row)=>String(row.property_key || "")).filter(Boolean);
+    const gaps=(this._canonicalProperties.contractGaps?.() || [])
+      .filter(gap=>String(gap.key||'').startsWith(`${canonical}::`));
+    if (!canonical || (!rows.length && !gaps.length)) return {status:"unavailable",missing:[],unexpected:[]};
+    const keys=rows.map(row=>String(row.property_key||'')).filter(Boolean);
     const unique=new Set(keys);
-    const duplicates=[...unique].filter((key)=>keys.filter((candidate)=>candidate===key).length>1);
+    // rows() deliberately excludes duplicate publishers. Query the gap
+    // authority, not the filtered rows, or diagnostics would hide conflicts.
+    const duplicates=gaps.map(gap=>String(gap.key).slice(canonical.length+2));
     return {
       status:duplicates.length ? "ambiguous" : "published",
       missing:[], unexpected:[],
@@ -4693,23 +4697,59 @@ class HomeBrainEnergyCanonicalProjection {
   constructor(hass = {}) { this.hass = hass || {}; }
   static get contractId() { return 'RHI_ENERGY_CANONICAL_PROPERTY_V2'; }
   canonicalRows() {
-    return Object.entries(this.hass?.states || {}).flatMap(([entityId, state]) => {
+    const published=Object.entries(this.hass?.states || {}).flatMap(([entityId, state]) => {
       const a=state?.attributes || {};
       if(a.canonical_contract !== HomeBrainEnergyCanonicalProjection.contractId ||
          !a.asset_id || !a.property_key) return [];
       const raw=String(state?.state ?? '').trim().toLowerCase();
       const availability=String(a.availability || '').toUpperCase();
       const quality=String(a.quality || '').toUpperCase();
-      const valid=!['unknown','unavailable','none','null',''].includes(raw) &&
+      const semantic=Object.hasOwn(a,'value')?a.value:state.state;
+      const invalidValue=semantic===undefined || semantic===null ||
+        (typeof semantic==='string' && ['unknown','unavailable','none','null',''].includes(semantic.trim().toLowerCase()));
+      const valid=!['unknown','unavailable','none','null',''].includes(raw) && !invalidValue &&
         (availability === '' || availability === 'AVAILABLE') &&
         !['STALE','INVALID','UNKNOWN'].includes(quality);
       return [Object.freeze({entity_id:entityId,asset_id:String(a.asset_id),
-        property_key:String(a.property_key),value:valid?(Object.hasOwn(a,'value')?a.value:state.state):null,
+        property_key:String(a.property_key),value:valid?semantic:null,
         availability:valid?'AVAILABLE':'UNAVAILABLE',
         presentation_family:a.presentation_family || '',
         presentation_role:a.presentation_role || '',
-        presentation_surface:a.presentation_surface || ''})];
+        presentation_surface:a.presentation_surface || '',
+        // Only explicit backend metadata may bind a reading to a time period
+        // or a configuration editor. Property-key substrings have no authority.
+        period_id:String(a.period_id || ''),
+        unit:String(a.unit || a.unit_of_measurement || ''),
+        editable:a.editable === true || a.write_supported === true})];
     });
+    // No arbitrary winner when the same asset/property is published twice.
+    const counts=new Map();
+    for(const row of published) {
+      const key=`${row.asset_id}::${row.property_key}`;
+      counts.set(key,(counts.get(key)||0)+1);
+    }
+    return published.filter(row=>counts.get(`${row.asset_id}::${row.property_key}`)===1);
+  }
+  // Energy publishes D0/D1 planning totals as native metrics rather than
+  // synthetic D0/D1 canonical assets. Only exact producer-owned keys qualify.
+  nativeMetric(metricKey='') {
+    const key=String(metricKey||'').trim();
+    const matches=Object.entries(this.hass?.states||{}).filter(([,state])=>
+      state?.attributes?.canonical_source==='rhi_energy.runtime' &&
+      String(state?.attributes?.metric_key||'')===key);
+    if(!key || matches.length!==1) return Object.freeze({available:false,value:null,
+      reason:matches.length>1?'duplicate_native_energy_metric':'native_energy_metric_not_published'});
+    const [entityId,state]=matches[0];
+    const attrs=state?.attributes||{};
+    const raw=String(state?.state??'').trim();
+    const numeric=raw && !['unknown','unavailable','none','null'].includes(raw.toLowerCase()) ? Number(raw) : NaN;
+    const quality=String(attrs.quality||'').trim().toUpperCase();
+    const valid=String(attrs.availability||'').toUpperCase()==='AVAILABLE' &&
+      Number.isFinite(numeric) && !['STALE','INVALID','UNKNOWN'].includes(quality);
+    return Object.freeze({available:valid,value:valid?numeric:null,
+      entity_id:entityId,unit:String(attrs.unit_of_measurement||''),
+      reason:valid?'':String(attrs.reason_code||'native_energy_metric_unavailable'),
+      provenance:attrs.provenance||null});
   }
   object(value) {
     if (value && typeof value === 'object' && !Array.isArray(value)) return value;
@@ -4766,21 +4806,24 @@ class HomeBrainEnergyPlanningProjection {
     const properties=this.energy.canonicalRows().filter(row=>row.availability==='AVAILABLE');
     const ids=this._mobilityAssetIds();
     const planning=properties.filter(row=>String(row.presentation_surface).toLowerCase()==='planning');
-    const field=(asset,keys)=>planning.find(row=>row.asset_id===asset && keys.includes(row.property_key))?.value ?? null;
+    // No fabricated D0/D1 asset identities: use the exact native metric
+    // publications from Energy's canonical runtime, preserving unknown != 0.
+    const metric=(horizon,suffix)=>this.energy.nativeMetric(
+      (horizon==='D0'?'planning_today_':'planning_tomorrow_')+suffix);
     const totals=(horizon)=>this._totalsView({
-      flexible_planned_kwh:field(horizon,['flexible_planned_kwh','planned_kwh']),
-      flexible_still_to_plan_kwh:field(horizon,['flexible_still_to_plan_kwh','still_to_plan_kwh']),
-      grid_import_kwh:field(horizon,['grid_import_kwh']),
-      solar_kwh:field(horizon,['solar_kwh'])
+      flexible_planned_kwh:metric(horizon,'flexible_planned_kwh').value,
+      flexible_still_to_plan_kwh:metric(horizon,'flexible_still_to_plan_kwh').value
     });
     const today=totals('D0');
     const tomorrow=totals('D1');
+    const hasTotals=['D0','D1'].some(horizon=>
+      ['flexible_planned_kwh','flexible_still_to_plan_kwh'].some(key=>metric(horizon,key).available));
     const mobilityPlanningRows=planning.filter(row=>ids.has(row.asset_id));
     return Object.freeze({
-      available:planning.length>0,
+      available:hasTotals || planning.length>0,
       entityId:null,
       contractVersion:'RHI_ENERGY_CANONICAL_PROPERTY_V2',
-      state:planning.length?'AVAILABLE':'UNAVAILABLE',
+      state:hasTotals || planning.length?'AVAILABLE':'UNAVAILABLE',
       today,tomorrow,
       combined:Object.freeze({plannedKwh:null,stillToPlanKwh:null,gridImportKwh:null,solarKwh:null,state:'',raw:{}}),
       currentIntent:{},
@@ -4789,7 +4832,7 @@ class HomeBrainEnergyPlanningProjection {
       mobilityPlanningRows,
       mobilityExperienceRows:[],
       exactIdentityJoin:ids.size>0,
-      source:'RHI_ENERGY_CANONICAL_PROPERTY_V2.planning'
+      source:'rhi_energy.runtime/native_metric'
     });
   }
 }
@@ -4815,9 +4858,10 @@ class HomeBrainEnergyMobilityInsightsProjection {
   }
   _meteringRows(periodId='today') {
     const mobility=this._mobilityAssets();
+    const selected=String(periodId||'').toLowerCase();
     return this.energy.canonicalRows().filter(row=>row.availability==='AVAILABLE' &&
-      row.presentation_surface==='metering' && mobility.has(row.asset_id) &&
-      String(row.property_key).includes(String(periodId).toLowerCase())).map(row=>Object.freeze({
+      row.presentation_surface==='metering' && row.period_id===selected &&
+      row.unit==='kWh' && mobility.has(row.asset_id)).map(row=>Object.freeze({
         assetId:row.asset_id,name:this._assetName(row.asset_id),periodId,
         energyKwh:this._number(row.value),unit:'kWh',measurementState:'AVAILABLE',
         trustState:'',raw:row
@@ -4825,9 +4869,10 @@ class HomeBrainEnergyMobilityInsightsProjection {
   }
   _valueRows(periodId='today') {
     const mobility=this._mobilityAssets();
+    const selected=String(periodId||'').toLowerCase();
     return this.energy.canonicalRows().filter(row=>row.availability==='AVAILABLE' &&
-      row.presentation_surface==='value_accounting' && mobility.has(row.asset_id) &&
-      String(row.property_key).includes(String(periodId).toLowerCase())).map(row=>Object.freeze({
+      row.presentation_surface==='value_accounting' && row.period_id===selected &&
+      row.unit==='EUR' && mobility.has(row.asset_id)).map(row=>Object.freeze({
         assetId:row.asset_id,name:this._assetName(row.asset_id),periodId,
         attributedEur:this._number(row.value),energyKwh:null,state:'AVAILABLE',raw:row
       }));
@@ -4846,8 +4891,8 @@ class HomeBrainEnergyMobilityInsightsProjection {
     });
     return Object.freeze({
       periodId:String(periodId || "today").toLowerCase(),
-      meteringAvailable:snapshot.available && metering.length>0,
-      valueAvailable:snapshot.available && accounting.length>0,
+      meteringAvailable:snapshot.available && meteringRows.length>0,
+      valueAvailable:snapshot.available && valueRows.length>0,
       meteringContractVersion:snapshot.contractVersion,
       valueContractVersion:snapshot.contractVersion,
       valueCurrency:"EUR",
@@ -4862,7 +4907,8 @@ class HomeBrainEnergyMobilityInsightsProjection {
 
 // ---- src/runtime/energy-mobility-strategy-projection.js ----
 // Read-only Energy strategy projection for Mobility Intelligence.
-// Strategy semantics stay Energy-owned and are consumed only from Public V2 configuration.strategy.
+// Strategy semantics stay Energy-owned. UX never classifies configured/effective
+// by property-key substrings or manufactures missing effective state.
 class HomeBrainEnergyMobilityStrategyProjection {
   constructor(hass, mobilityRuntime = null) {
     this.energy = new HomeBrainEnergyPublicV2Projection(hass);
@@ -4873,17 +4919,20 @@ class HomeBrainEnergyMobilityStrategyProjection {
     catch (_) { return new Map(); }
   }
   _assetId(row={}) { return String(row.asset_id || row.target_asset_id || row.flexible_asset_id || ""); }
-  _strategyRows(kind) {
+  _configuredRows() {
     const mobility=this._mobilityAssets();
+    // Editable configuration is an explicit Energy property capability.
     return this.energy.canonicalRows().filter(row=>
       row.availability==='AVAILABLE' &&
-      String(row.presentation_surface).toLowerCase()==='configuration' &&
-      String(row.property_key).toLowerCase().includes('strategy') &&
-      String(row.property_key).toLowerCase().includes(kind) &&
-      (!row.asset_id || mobility.has(row.asset_id)));
+      row.presentation_surface==='configuration' &&
+      row.presentation_family==='strategy' && row.editable === true &&
+      mobility.has(row.asset_id));
   }
-  _configuredRows() { return this._strategyRows('configured'); }
-  _effectiveRows() { return this._strategyRows('effective'); }
+  _effectiveRows() {
+    // Current native property publication has no independently authoritative
+    // configured-versus-effective strategy role. Do not infer from key names.
+    return [];
+  }
   viewModel() {
     const configured=this._configuredRows();
     const effective=this._effectiveRows();
