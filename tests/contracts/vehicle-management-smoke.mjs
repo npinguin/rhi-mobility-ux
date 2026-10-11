@@ -310,3 +310,15 @@ for(const needle of [
 ]) if(!dashboard.includes(needle)) throw new Error('rc.81 mobile no-overlap regression: missing '+needle);
 
 console.log('PASS rc.81 assigned charger charging commands and phone card flow closure');
+
+for (const evidence of [
+  'headline:total === 0 ? "Range not evaluated"',
+  'line1:total === 0 ? "No active vehicles to evaluate"',
+  'Security not evaluated — no active vehicles',
+  'Maintenance not evaluated — no active vehicles',
+  'activeVehicles.length ? \`${status.security.unsafeCount} unsafe\` : "Not evaluated"',
+  'activeVehicles.length ? \`${status.maintenance.overdue.length} overdue · ${status.maintenance.dueSoon.length} due soon\` : "Not evaluated"'
+]) {
+  if (!dashboard.includes(evidence)) throw new Error('zero-evaluated fleet must not display false-green positive evidence: '+evidence);
+}
+console.log('PASS empty active fleet does not claim secure, no maintenance due or sufficient range');
