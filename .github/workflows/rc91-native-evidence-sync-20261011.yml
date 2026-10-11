@@ -32,10 +32,12 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git rm .github/workflows/rc91-native-evidence-sync-20261011.yml
           git rm .github/workflows/ux-live-evidence-verify-20261011.yml
-          git add -A package.json package-lock.json COMPATIBILITY.json RELEASE_MANIFEST.json release/ dist/
+          git add -A package.json package-lock.json COMPATIBILITY.json RELEASE_MANIFEST.json release/ src/assets/metadata/mobility-visual-manifest.json dist/
           git diff --cached --check
           git diff --cached --stat
           git commit -m 'release: synchronize native Mobility rc91 dist and lifecycle/EMHASS evidence gates'
           node tools/verify-dist.mjs
           node tools/check-committed-dist.mjs
           git push origin HEAD:refs/heads/fix/vehicle-lifecycle-planning-20261011
+
+# Recheck versioned visual catalog metadata from the sole release owner.
