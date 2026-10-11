@@ -1,5 +1,9 @@
 # Engineer handover — RHI Mobility UX
 
+## Active engineering recovery — 2026-10-11
+
+**Read [ENGINEERING_RECOVERY_HANDOVER_2026-10-11.md](ENGINEERING_RECOVERY_HANDOVER_2026-10-11.md) first.** It documents current screenshot defects, canonical producer ownership, the unpublished rc.90 engineering branch, Mobility backend #254, draft PR #176's failing test and exact acceptance criteria. The Runtime V2 aggregate discussion later in this evergreen file describes **historical architecture** and is not license to reintroduce it. Source-level CI success alone does not qualify the deployed product.
+
 ## Start here
 
 Do not copy current release identity from this document. The authoritative sources are `package.json` for package version and `release/product.json` for contract/backend/release context. Published versions are authoritative in GitHub Releases.
@@ -63,13 +67,15 @@ Testing mirrors code ownership: **one invariant, one test owner**. Do not make a
 Target architecture:
 
 ```text
-MOBILITY_PUBLIC_RUNTIME_V2 = canonical facts
-MOBILITY_POLICY_V2         = thresholds / interpretation rules
-MOBILITY_EXPERIENCE_V2     = user-facing conclusions
-UX                         = select / aggregate / format / present
+RHI_MOBILITY_CANONICAL_PROPERTY_V1 = native per-asset facts and identities
+MOBILITY_EXPERIENCE_V2             = product conclusions and physical relationships
+MOBILITY_POLICY_V2                 = producer-owned policy and thresholds
+MOBILITY_COMMAND_V2                = exact commands and invoke/readback
+MOBILITY_ACTIVITY_V2               = current-state evidence and timestamped executions
+UX                                 = select / format / present, never infer domain truth
 ```
 
-The supported runtime path is V2-only on Mobility M0.9.44+: Runtime V2, Experience V2, Policy V2, Command V2, Activity V2, Profile Catalog V2, Supervision V2 and canonical per-asset V2 semantic configuration. Frozen V1 code may exist only for unsupported older-backend compatibility and must never execute as fallback once Runtime V2 is present. Current release/backend identity must always be read from `package.json` and `release/product.json`, never from this handover.
+Current canonical-only Mobility UX targets producer-owned native per-asset properties, Experience V2, Policy V2, Command V2, Activity V2, Profile Catalog V2 and Supervision V2. Retired Mobility Runtime V2 aggregate reads are prohibited. Exact producer versions, live availability and qualification must be verified from machine release and runtime evidence. Current release/backend identity must always be read from `package.json` and `release/product.json`, never from this handover.
 
 Configuration controls consume backend-published canonical V2 write metadata, options and write targets. `asset.profile_id`, `vehicle.image_key` and `charger.image_key` are the picker persistence surfaces. Frozen V1 may remain as old-backend compatibility code, but the current M0.9.44+ release path never uses it as fallback authority. Runtime controls remain fail-closed without published write capability.
 
