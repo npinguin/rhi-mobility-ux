@@ -243,4 +243,7 @@ gapRuntime._canonicalProperties=duplicateDiagnosticIndex;
 const gap=gapFn.call(gapRuntime,'vehicle_1');
 if(gap.status!=='ambiguous' || gap.ambiguous_property_keys[0]!=='battery.soc_pct')
   throw new Error('duplicate canonical property gap hidden by filtered inventory');
+const lifecycleBody=body('  lifecyclePropertyRow(assetId = "") {','  lifecycleStatus(assetOrId = "") {');
+if(!lifecycleBody.includes('semanticProperty(canonical, "asset.lifecycle_status")')) throw new Error("frontend lifecycle still uses alias");
+for(const k of ['asset.profile_id','vehicle.image_key','charger.image_key']) if(!assetMembership.includes(k)) throw new Error("asset catalog lost canonical config: "+k);
 console.log("PASS Mobility canonical-property indexing, membership revision and metadata-owned placement");

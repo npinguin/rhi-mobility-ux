@@ -222,24 +222,22 @@ class HomeBrainAssetRuntime {
       .filter((row) => row && (!canonical || this.canonicalAssetId(row.asset_id || "") === canonical))
       .filter((row) => !!String(row.command_key || "").trim())
       .filter((row) => !!String(row.placement || "").trim())
-      .filter((row) => !!String(row.label || "").trim())
+      // Presentation label is optional in the producer contract.
       .map((row) => this.normalizeCommandEntry({
         ...row,
         command_id:String(row.command_id || "").trim(),
         command_key:String(row.command_key || "").trim(),
-        label:String(row.label || "").trim(),
+        label:String(row.label || this.titleize(String(row.command_key).split(".").pop().replace(/_/g," "))).trim(),
         command_family:String(row.command_family || "").trim(),
         category:String(row.category || "").trim(),
-        frontend_allowed:row.supported !== false,
-        exists:row.supported !== false,
-        enabled:row.supported !== false,
+        frontend_allowed:row.supported === true,
+        exists:row.supported === true,
+        enabled:row.supported === true,
         execution_allowed:row.execution_allowed === true,
         blocked_reason:row.blocked_reason || "",
         sort_order:row.sort_order ?? 999,
-        service_domain:"rhi_mobility",
-        service_action:"execute_command",
-        service_data:{ asset_id:row.asset_id || canonical, command_key:String(row.command_key || "").trim() },
-        service_target:{},
+        // Preserve the published literal invoke and fail closed if absent.
+        invoke:row.invoke || {},
         _authority:"MOBILITY_COMMAND_V2"
       }, row.asset_id || canonical))
       .filter(Boolean);
@@ -427,6 +425,10 @@ class HomeBrainAssetRuntime {
       if (property.lifecycle_status) row.lifecycle_status=String(property.lifecycle_status);
       if (property.property_key==='asset.display_name' && property.availability==='AVAILABLE')
         row.display_name=String(property.value ?? id);
+      if (property.property_key==='asset.profile_id' && property.availability==='AVAILABLE')
+        row.profile_id=String(property.value ?? '');
+      if (['vehicle.image_key','charger.image_key'].includes(property.property_key) && property.availability==='AVAILABLE')
+        row.image_key=String(property.value ?? '');
       if (property.property_key==='asset.lifecycle_status' && property.availability==='AVAILABLE')
         row.lifecycle_status=String(property.value ?? 'Unknown');
     }
@@ -1517,7 +1519,7 @@ class HomeBrainAssetRuntime {
     const canonical = this.canonicalAssetId(assetId);
     // R43.2.54: lifecycle is a property concern. Deprecated aggregate runtime
     // publications and asset-index metadata are never product lifecycle fallbacks.
-    return (this.propertyRows(canonical) || []).find((p) => String(p.property_key || "").toLowerCase() === "lifecycle_status") || null;
+    return this.semanticProperty(canonical, "asset.lifecycle_status") || null;
   }
 
 
@@ -1550,7 +1552,7 @@ class HomeBrainAssetRuntime {
     const current = this.lifecycleStatus(asset || canonical);
     return {
       asset_id: canonical,
-      property_key: prop?.property_key || "lifecycle_status",
+      property_key: prop?.property_key || "asset.lifecycle_status",
       prop,
       current,
       desired: value,
