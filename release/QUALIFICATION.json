@@ -1,10 +1,9 @@
 {
-  "candidate_version": "1.0.0-rc.88",
-  "candidate_tag": "v1.0.0-rc.88",
+  "candidate_version": "1.0.0-rc.89",
+  "candidate_tag": "v1.0.0-rc.89",
   "candidate_sha": "pending",
   "target_home_assistant": "pending",
   "hacs_install": "pending",
-  "public_runtime_v2": "pending",
   "experience_v2": "pending",
   "policy_v2": "pending",
   "vehicles_render": "pending",
@@ -40,5 +39,6 @@
   "multilingual_en_nl_fr": "pending",
   "user_safe_copy": "pending",
   "static_validation": "pending",
-  "core_1_6_3_provenance": "pending"
+  "core_1_6_3_provenance": "pending",
+  "canonical_property_v1": "pending"
 }
