@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { buildMobilityVisualManifest } from './visual-manifest.mjs';
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const readJson=(rel)=>JSON.parse(fs.readFileSync(path.join(root,rel),'utf8'));
@@ -9,6 +10,10 @@ const writeJson=(rel,obj)=>fs.writeFileSync(path.join(root,rel),JSON.stringify(o
 const product=readJson('release/product.json');
 const version=String(product.version);
 const tag=`v${version}`;
+// Release identity also appears inside shipped visual metadata. Regenerate it
+// from the actual catalog, not by hand, before deterministic package build.
+writeJson('src/assets/metadata/mobility-visual-manifest.json',
+  buildMobilityVisualManifest(root,version));
 
 const pkg=readJson('package.json');
 pkg.version=version;

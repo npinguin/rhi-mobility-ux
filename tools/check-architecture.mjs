@@ -91,7 +91,12 @@ for (const rel of energyCrossDomainFiles) {
   const full=path.join(root,rel);
   if(!fs.existsSync(full)) { failures.push(`${rel}: missing Energy canonical boundary file`); continue; }
   const source=fs.readFileSync(full,'utf8');
-  if(!source.includes('RHI_ENERGY_CANONICAL_PROPERTY_V2') && !source.includes('HomeBrainEnergyPublicV2Projection')) failures.push(`${rel}: cross-domain Energy projection is not anchored to canonical properties`);
+  if(!source.includes('RHI_ENERGY_CANONICAL_PROPERTY_V2') &&
+     !source.includes('RHI_ENERGY_PLANNING_HORIZON_V1') &&
+     !source.includes('HomeBrainEnergyCanonicalProjection'))
+    failures.push(`${rel}: cross-domain Energy projection does not use native canonical Energy authority`);
+  if(source.includes('HomeBrainEnergyPublicV2Projection'))
+    failures.push(`${rel}: obsolete Public V2 projection alias is forbidden; use explicit Energy canonical boundary`);
   const legacy=source.match(/sensor\.energy_[a-z0-9_]+/g)||[];
   if(legacy.length) failures.push(`${rel}: legacy Energy entity dependency: ${[...new Set(legacy)].join(', ')}`);
 }

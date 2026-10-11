@@ -26,7 +26,9 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
         ? ["sensor.rhi_mobility_command_v2"]
         : ["sensor.rhi_mobility_activity_v2"];
     const canonicalRevision = rt._canonicalProperties?.revision() ?? 0;
-    const revisionSignature = `${view}|${canonicalRevision}|${rt.entityRevisionSignature(revisionIds)}`;
+    const energyRevision = ["planning","strategies","history"].includes(view)
+      ? new HomeBrainEnergyCanonicalProjection(hass).revisionSignature(view) : "";
+    const revisionSignature = `${view}|${canonicalRevision}|${rt.entityRevisionSignature(revisionIds)}|${energyRevision}`;
     if (revisionSignature === this._lastRevisionSignature) return;
     this._lastRevisionSignature = revisionSignature;
     const data = this.viewModel(view);
@@ -133,7 +135,7 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
     if (view === "strategies") {
       const strategy = this.energyStrategies(rt);
       return hbMobilityStatusGrid(rt, [
-        { icon:"mdi:tune-variant", label:"Configured", value:String(strategy.profiles.length), sub:"Mobility strategy profiles", tone:"neutral" },
+        { icon:"mdi:tune-variant", label:"Configured", value:String(strategy.configured.length), sub:"Mobility-scoped Energy settings · not invented profiles", tone:"neutral" },
         { icon:"mdi:shield-check-outline", label:"Effective", value:String(strategy.effective.length), sub:"Policies in effect for Mobility assets", tone:"neutral" }
       ], "strategies-top-status");
     }
@@ -197,7 +199,7 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
 
   planningHeroMeta(rt) {
     const plan = this.energyPlanning(rt);
-    const source = plan.available ? "Energy backend" : "Energy planning unavailable";
+    const source = plan.complete ? "Energy effective plan" : plan.published ? "Energy planning incomplete" : "Energy planning unavailable";
     const today = this.fmtKwh(plan.today.plannedKwh);
     const remaining = this.fmtKwh(plan.today.stillToPlanKwh);
     return `<strong>${rt.escape(source)}</strong><span>${rt.escape((rt?.t?.("planning.planned_today",{},"Planned today") || "Planned today"))} ${rt.escape(today)}</span><span>${rt.escape((rt?.t?.("planning.still_to_plan",{},"Still to plan") || "Still to plan"))} ${rt.escape(remaining)}</span>`;
@@ -205,8 +207,8 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
 
   strategyHeroMeta(rt) {
     const strategy = this.energyStrategies(rt);
-    const source = strategy.profilesAvailable || strategy.effectiveAvailable ? "Energy backend" : "Energy strategy unavailable";
-    return `<strong>${rt.escape(source)}</strong><span>${rt.escape(String(strategy.profiles.length))} Mobility profiles</span><span>${rt.escape(String(strategy.effective.length))} effective policies</span>`;
+    const source = strategy.configuredAvailable || strategy.effectiveAvailable ? "Energy configured settings" : "Energy strategy unavailable";
+    return `<strong>${rt.escape(source)}</strong><span>${rt.escape(String(strategy.configured.length))} configured settings</span><span>${rt.escape(String(strategy.effective.length))} effective policies</span>`;
   }
 
   insightsHeroMeta(rt) {
@@ -221,10 +223,12 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
     const plan = this.energyPlanning(rt);
     const mobilityRows = plan.mobilityPlanningRows.length ? plan.mobilityPlanningRows : plan.mobilityExperienceRows;
     const facts = [
-      ["mdi:calendar-check-outline","Planned today",this.fmtKwh(plan.today.plannedKwh),plan.today.state || "Energy planning"],
+      ["mdi:calendar-check-outline","Planned today",this.fmtKwh(plan.today.plannedKwh),plan.today.provisional ? "Provisional metric · no effective schedule" : "Published effective plan"],
       ["mdi:calendar-alert-outline","Still to plan",this.fmtKwh(plan.today.stillToPlanKwh),"Published by Energy"],
       ["mdi:weather-sunset-up","Tomorrow",this.fmtKwh(plan.tomorrow.plannedKwh),plan.tomorrow.state || "Next horizon"],
-      ["mdi:source-branch-check","Contract",plan.contractVersion || (plan.available ? (rt?.t?.("common.published",{},"Published") || "Published") : (rt?.t?.("common.unavailable",{},"Unavailable") || "Unavailable")),plan.source]
+      ["mdi:source-branch-check","Contract",plan.contractVersion || "Not published",plan.source],
+      ["mdi:shield-alert-outline","Planning quality",plan.state,
+        plan.providerHold ? `Provider HOLD: ${plan.requestedProvider} not effective` : `D0 ${plan.quality.D0} · D1 ${plan.quality.D1}`]
     ];
     const rows = mobilityRows.slice(0, 8).map((row) => {
       const id = String(row.asset_id || row.target_asset_id || row.flexible_asset_id || row.consumer_asset_id || row.participant_id || "Mobility asset");
@@ -240,9 +244,15 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
           : (usefulState || "No per-asset schedule published");
       return `<div class="rhi-data-row rhiVehicleRow">${this.vehicleIdentity(rt,id,row)}<span>${rt.escape(answer)}</span></div>`;
     }).join("");
-    const contractGap = plan.available
-      ? (plan.exactIdentityJoin && !mobilityRows.length ? "Energy planning is available, but no published planning row currently matches a canonical Mobility asset id." : "")
-      : "The Energy public planning contract is not available. Mobility does not reconstruct or estimate a plan.";
+    const contractGap = !plan.complete
+      ? (plan.providerHold
+        ? `Requested provider ${plan.requestedProvider} is not effective. Energy reports ${plan.reason || "provider HOLD"}; deterministic baseline is not automatically an executable plan. D0: ${plan.quality.D0}; D1: ${plan.quality.D1}.`
+        : plan.published
+          ? `Effective planning incomplete. D0: ${plan.quality.D0}; D1: ${plan.quality.D1}. ${plan.reason || "Awaiting canonical planning evidence"}. Published numeric metrics are provisional, not an executable schedule.`
+          : "No effective native Energy planning horizon is published. Mobility does not reconstruct or estimate a plan.")
+      : (plan.exactIdentityJoin && !mobilityRows.length
+          ? "The effective Energy plan is complete, but no published asset allocation matches a canonical Mobility asset ID. The UX must not guess the relationship."
+          : "");
 
     return `<section class="rhi-context-grid">
       <article class="rhi-context-card">
@@ -267,9 +277,14 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
 
   renderStrategies(rt) {
     const strategy = this.energyStrategies(rt);
-    const profileRows = strategy.profiles.map((row) => {
-      const objective = String(row.objective_mode || row.mode || row.energy_control_mode || row.grid_policy || row.user_summary_label || "Configured");
-      return `<div class="rhi-data-row"><b>${rt.escape(row.profile_label || row.profile_id)}</b><span>${rt.escape(objective)}</span></div>`;
+    const profileRows = strategy.configured.map((row) => {
+      // A canonical editable property is a configured value, not a full profile.
+      // Only the Energy producer may classify effective policy or a profile.
+      const assetId=String(row.asset_id||'');
+      const assetName=String(row.asset_display_name||rt.assetDisplayName?.(assetId)||assetId);
+      const label=String(row.friendly_name||row.display_name||row.property_key||'Energy setting');
+      const value=row.value===null||row.value===undefined?'Not available':String(row.value);
+      return `<div class="rhi-data-row rhiVehicleRow"><b>${rt.escape(assetName)} · ${rt.escape(label)}</b><span>${rt.escape(value)}</span></div>`;
     }).join("");
     const effectiveRows = strategy.effective.map((row) => {
       const assetId = String(row.asset_id || "");
@@ -277,14 +292,14 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
       const state = String(row.effective_state || row.configured_state || row.influence_state || row.reason_label || row.policy_id || "Published");
       return `<div class="rhi-data-row rhiVehicleRow">${this.vehicleIdentity(rt,assetId,row)}<span>${rt.escape(state)}</span></div>`;
     }).join("");
-    const unavailable = !strategy.profilesAvailable && !strategy.effectiveAvailable
+    const unavailable = !strategy.configuredAvailable && !strategy.effectiveAvailable
       ? "Energy strategy contracts are unavailable. Mobility does not invent a strategy or infer one from charging behavior."
       : "";
     return `<section class="rhi-context-grid">
       <article class="rhi-context-card">
         <div class="rhi-context-card-kicker"><ha-icon icon="mdi:tune-variant"></ha-icon>${rt.escape((rt?.t?.("strategy.configured_intent",{},"Configured intent") || "Configured intent"))}</div>
-        <h3>${rt.escape((rt?.t?.("strategy.mobility_profiles",{},"Mobility energy profiles") || "Mobility energy profiles"))}</h3>
-        <p>${rt.escape((rt?.t?.("strategy.profiles_desc",{},"Relevant Energy strategy profiles are shown read-only here. Profile meaning and editable strategy settings remain owned by Energy.") || "Relevant Energy strategy profiles are shown read-only here. Profile meaning and editable strategy settings remain owned by Energy."))}</p>
+        <h3>${rt.escape(rt.t?.("strategy.configured_values",{},"Configured Mobility energy settings") || "Configured Mobility energy settings")}</h3>
+        <p>${rt.escape("Backend-published Mobility-scoped Energy settings. Configuration editing and effective strategy selection remain Energy-owned.")}</p>
         ${profileRows ? `<div class="rhi-data-list">${profileRows}</div>` : ""}
         ${unavailable ? `<div class="rhi-context-note">${rt.escape(unavailable)}</div>` : ""}
       </article>

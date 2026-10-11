@@ -20,6 +20,7 @@ const hass={states:{
 const mobilityRuntime={mobilityRegistry:()=>[{asset_id:'vehicle_audi_q8',display_name:'Audi Q8'}]};
 const model=new Projection(hass,mobilityRuntime).viewModel();
 assert.equal(model.profilesAvailable,false);
+assert.equal(model.configuredAvailable,true,'editable Energy settings must be visible without pretending to be strategy profiles');
 assert.equal(model.effectiveAvailable,false);
 assert.equal(model.configured.length,1);
 assert.equal(model.effective.length,0);

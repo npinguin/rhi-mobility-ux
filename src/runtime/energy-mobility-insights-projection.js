@@ -2,7 +2,7 @@
 // Only Energy canonical property rows are authoritative; missing evidence fails closed.
 class HomeBrainEnergyMobilityInsightsProjection {
   constructor(hass, mobilityRuntime = null) {
-    this.energy = new HomeBrainEnergyPublicV2Projection(hass);
+    this.energy = new HomeBrainEnergyCanonicalProjection(hass);
     this.mobilityRuntime = mobilityRuntime || null;
   }
   _first(...values) { for (const value of values) if (value !== undefined && value !== null && value !== "") return value; return null; }
