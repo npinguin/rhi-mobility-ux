@@ -1,0 +1,29 @@
+name: Mobility cross-domain live evidence regression (recovery branch)
+on:
+  push:
+    branches: [fix/vehicle-lifecycle-planning-20261011]
+    paths: [.github/workflows/ux-live-evidence-verify-20261011.yml]
+permissions:
+  contents: read
+jobs:
+  source-behaviour:
+    if: github.ref == 'refs/heads/fix/vehicle-lifecycle-planning-20261011'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/vehicle-lifecycle-planning-20261011
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Execute real runtime/viewmodel contract regressions
+        run: |
+          npm ci
+          npm run test:contract
+          npm run test:ux
+      - name: Full source tree build, source and syntax checks
+        run: |
+          npm run clean
+          npm run build
+          npm run check:architecture
+          node --check dist/rhi-mobility-ux.js
