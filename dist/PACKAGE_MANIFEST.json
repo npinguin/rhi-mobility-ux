@@ -12,7 +12,7 @@
     "metadata",
     "vehicles"
   ],
-  "runtime_sha256": "53adf879e7068ba717d53f7bfa4538e25c0bf2c93a4c2e79353ad9bd82ec1985",
+  "runtime_sha256": "f2e1254c50cac1c6be326d5b01e2045c999168ba5f6e385447634b958c769a86",
   "files": [
     {
       "path": "assets/chargers/charger_fallback.png",
@@ -23,8 +23,8 @@
       "bytes": 16256
     },
     {
-      "path": "assets/chargers/charger_utility_plug.webp",
-      "bytes": 33424
+      "path": "assets/chargers/charger_utility_plug.svg",
+      "bytes": 634
     },
     {
       "path": "assets/chargers/charger_wallbox_black.webp",
@@ -72,7 +72,7 @@
     },
     {
       "path": "assets/metadata/mobility-visual-manifest.json",
-      "bytes": 14915
+      "bytes": 14914
     },
     {
       "path": "assets/vehicles/vehicle_audi_q8.webp",
@@ -104,7 +104,7 @@
     },
     {
       "path": "rhi-mobility-ux.js",
-      "bytes": 802008
+      "bytes": 810889
     },
     {
       "path": "rhi-mobility-ux.js.sha256",

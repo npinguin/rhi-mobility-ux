@@ -66,7 +66,7 @@ const RHI_MOBILITY_IMAGE_CATALOG = Object.freeze([
   { image_key:"charger_wallbox_white", package_path:"chargers/charger_wallbox_white.webp", fallback_image_key:"charger_wallbox" },
   { image_key:"charger_wallbox_black", package_path:"chargers/charger_wallbox_black.webp", fallback_image_key:"charger_wallbox" },
   { image_key:"charger_peblar", package_path:"chargers/charger_peblar.webp", fallback_image_key:"charger_fallback" },
-  { image_key:"charger_utility_plug", package_path:"chargers/charger_utility_plug.webp", fallback_image_key:"charger_fallback" },
+  { image_key:"charger_utility_plug", package_path:"chargers/charger_utility_plug.svg", fallback_image_key:"charger_fallback" },
   { image_key:"charger_fallback", package_path:"chargers/charger_fallback.png", fallback_image_key:"charger_fallback" }
 ]);
 
@@ -1609,24 +1609,22 @@ class HomeBrainAssetRuntime {
       .filter((row) => row && (!canonical || this.canonicalAssetId(row.asset_id || "") === canonical))
       .filter((row) => !!String(row.command_key || "").trim())
       .filter((row) => !!String(row.placement || "").trim())
-      .filter((row) => !!String(row.label || "").trim())
+      // Presentation label is optional in the producer contract.
       .map((row) => this.normalizeCommandEntry({
         ...row,
         command_id:String(row.command_id || "").trim(),
         command_key:String(row.command_key || "").trim(),
-        label:String(row.label || "").trim(),
+        label:String(row.label || this.titleize(String(row.command_key).split(".").pop().replace(/_/g," "))).trim(),
         command_family:String(row.command_family || "").trim(),
         category:String(row.category || "").trim(),
-        frontend_allowed:row.supported !== false,
-        exists:row.supported !== false,
-        enabled:row.supported !== false,
+        frontend_allowed:row.supported === true,
+        exists:row.supported === true,
+        enabled:row.supported === true,
         execution_allowed:row.execution_allowed === true,
         blocked_reason:row.blocked_reason || "",
         sort_order:row.sort_order ?? 999,
-        service_domain:"rhi_mobility",
-        service_action:"execute_command",
-        service_data:{ asset_id:row.asset_id || canonical, command_key:String(row.command_key || "").trim() },
-        service_target:{},
+        // Preserve the published literal invoke and fail closed if absent.
+        invoke:row.invoke || {},
         _authority:"MOBILITY_COMMAND_V2"
       }, row.asset_id || canonical))
       .filter(Boolean);
@@ -1814,6 +1812,10 @@ class HomeBrainAssetRuntime {
       if (property.lifecycle_status) row.lifecycle_status=String(property.lifecycle_status);
       if (property.property_key==='asset.display_name' && property.availability==='AVAILABLE')
         row.display_name=String(property.value ?? id);
+      if (property.property_key==='asset.profile_id' && property.availability==='AVAILABLE')
+        row.profile_id=String(property.value ?? '');
+      if (['vehicle.image_key','charger.image_key'].includes(property.property_key) && property.availability==='AVAILABLE')
+        row.image_key=String(property.value ?? '');
       if (property.property_key==='asset.lifecycle_status' && property.availability==='AVAILABLE')
         row.lifecycle_status=String(property.value ?? 'Unknown');
     }
@@ -2650,7 +2652,9 @@ class HomeBrainAssetRuntime {
 
 
   isWritableProperty(prop = {}) {
-    const editor = this.uxEditorControlKind(prop);
+    // Appearance is a dedicated visual picker, not a generic readonly field.
+    // The backend explicitly marks image_key writable while render_as is readonly_value.
+    const editor = this.isAppearanceProperty(prop) ? "appearance_picker" : this.uxEditorControlKind(prop);
     return this.contractBool(prop.editable, false) === true
       && this.contractBool(prop.write_supported, false) === true
       && !!editor
@@ -2904,7 +2908,7 @@ class HomeBrainAssetRuntime {
     const canonical = this.canonicalAssetId(assetId);
     // R43.2.54: lifecycle is a property concern. Deprecated aggregate runtime
     // publications and asset-index metadata are never product lifecycle fallbacks.
-    return (this.propertyRows(canonical) || []).find((p) => String(p.property_key || "").toLowerCase() === "lifecycle_status") || null;
+    return this.semanticProperty(canonical, "asset.lifecycle_status") || null;
   }
 
 
@@ -2932,8 +2936,10 @@ class HomeBrainAssetRuntime {
     const asset = typeof assetOrId === "object" ? assetOrId : this.assetById(assetOrId);
     const canonical = this.canonicalAssetId(asset?.asset_id || assetOrId || "");
     const value = String(desiredStatus || "").trim().toLowerCase();
-    const prop = canonical ? this.lifecyclePropertyRow(canonical) : null;
-    const writable = !!(prop && this.isWritableProperty(prop));
+    // Lifecycle truth is asset.lifecycle_status. The backend may publish a
+    // distinct alias only as its explicit editable transport: it is NOT truth.
+    const prop = canonical ? this.semanticProperty(canonical, "lifecycle_status") : null;
+    const writable = !!(prop && this.lifecyclePropertyRow(canonical) && this.isWritableProperty(prop));
     const current = this.lifecycleStatus(asset || canonical);
     return {
       asset_id: canonical,
@@ -3016,7 +3022,7 @@ class HomeBrainAssetRuntime {
       const assetId = this.canonicalAssetId(prop.asset_id || options.asset_id || "");
       const propertyKey = String(prop.property_key || options.property_key || "").trim();
       if (!assetId || !propertyKey) return false;
-      const confirmed = await this.waitForCanonicalPropertyReadback(assetId, propertyKey, value, options);
+      const confirmed = await this.waitForCanonicalPropertyReadback(assetId, options.readback_property_key || propertyKey, value, options);
       if (!confirmed) {
         console.error("[RHI Mobility UX] canonical property readback timeout", {property_key:propertyKey,asset_id:assetId,expected:value});
       }
@@ -3039,7 +3045,7 @@ class HomeBrainAssetRuntime {
     if (model.disabled) return false;
     return this.writePropertyValueAsync(model.prop, model.desired, {
       asset_id:this.canonicalAssetId(typeof assetOrId === "string" ? assetOrId : assetOrId?.asset_id || ""),
-      property_key:model.prop?.property_key || "lifecycle_status"
+      readback_property_key:"asset.lifecycle_status"
     });
   }
 
@@ -3051,7 +3057,7 @@ class HomeBrainAssetRuntime {
       icon:"mdi:alert-outline",
       header:"Contract gap",
       rows:[{ type:"readonly", icon:"mdi:alert-outline", label:"Lifecycle", value:"Contract gap" }],
-      details:[{ label:"Required property", value:"property_key=lifecycle_status is missing; no fallback to mobility_enabled/Enabled" }]
+      details:[{ label:"Required property", value:"property_key=asset.lifecycle_status is missing; no fallback to mobility_enabled/Enabled" }]
     };
   }
 
@@ -5561,7 +5567,11 @@ class HomeBrainVehicleVisualPicker {
     const profileChanged = !!profileId && profileId!==currentProfileId;
     const profileWritable = !!(profileProp && this.rt.isWritableProperty(profileProp));
     const imageWritable = !!(imageProp && this.rt.isWritableProperty(imageProp));
-    const writable = !!key && !!profileId && imageWritable && (!profileChanged || profileWritable);
+    // Appearance-only changes on the same backend identity need no profile write.
+    // Changing product requires an exact supported and writable profile choice.
+    const sameProduct=!!(vehicle && currentVehicle?.id===vehicle.id);
+    const writable=!!key && imageWritable && (!profileChanged || profileWritable)
+      && (sameProduct || (!!profileId && profileWritable));
 
     return {
       asset_id:assetId,
@@ -5603,9 +5613,9 @@ class HomeBrainVehicleVisualPicker {
       return rhiUxVisualChoice({id:row.id,image:src ? (typeof this.rt.cache==='function' ? this.rt.cache(src) : src) : "",imageAlt:row.label || row.model || "Vehicle",label:row.label || row.model || "Vehicle",detail:[row.variant,row.years].filter(Boolean).join(" · "),selected:active,imageStyle:`filter:${active ? (current.color?.filter || "none") : (color?.filter || "none")}`,attributes:{"data-vehicle-visual-choice":row.id,"data-choice-brand":row.brand || "","data-choice-model":row.model || "","data-choice-color":color?.id || ""}});
     }).join("");
 
-    const blocked = !current.profile_writable || !current.image_writable;
+    const blocked = !current.writable;
     const notice = blocked
-      ? `<div class="visual-picker-notice"><ha-icon icon="mdi:information-outline"></ha-icon><span>Appearance browsing is available. Apply requires Mobility V2 configuration controls for profile and image.</span></div>`
+      ? `<div class="visual-picker-notice"><ha-icon icon="mdi:information-outline"></ha-icon><span>Save needs a writable image binding. Changing model also needs an allowed backend profile option.</span></div>`
       : "";
 
     const refineHtml=`<label><span>Brand</span><select data-vehicle-picker-brand="${this.rt.escape(assetId)}">
@@ -5702,7 +5712,11 @@ class HomeBrainChargerVisualPicker {
     const profileChanged=!!profileId && profileId!==currentProfileId;
     const profileWritable=!!(profileProp && this.rt.isWritableProperty(profileProp));
     const imageWritable=!!(imageProp && this.rt.isWritableProperty(imageProp));
-    const writable=!!key && !!profileId && imageWritable && (!profileChanged || profileWritable);
+    // Appearance-only changes on the same backend identity need no profile write.
+    // Changing product requires an exact supported and writable profile choice.
+    const sameProduct=!!(charger && currentCharger?.id===charger.id);
+    const writable=!!key && imageWritable && (!profileChanged || profileWritable)
+      && (sameProduct || (!!profileId && profileWritable));
 
     return {
       asset_id:assetId,
@@ -5737,9 +5751,9 @@ class HomeBrainChargerVisualPicker {
       return rhiUxVisualChoice({id:`${row.id}:${appearance.id}`,image:appearance.package_file ? (typeof this.rt.cache==='function' ? this.rt.cache(appearance.package_file) : appearance.package_file) : "",imageAlt:[row.label,appearance.label].filter(Boolean).join(" "),label:row.label || row.model || "Charger",detail:appearance.label || row.variant || this.rt.t("common.standard",{},"Standard"),selected:active,attributes:{"data-charger-visual-choice":row.id,"data-choice-brand":row.brand || "","data-choice-model":row.model || "","data-choice-appearance":appearance.id || ""}});
     })).join("");
 
-    const blocked=!current.profile_writable || !current.image_writable;
+    const blocked=!current.writable;
     const notice=blocked
-      ? `<div class="visual-picker-notice"><ha-icon icon="mdi:information-outline"></ha-icon><span>Appearance browsing is available. Apply requires Mobility V2 configuration controls for profile and image.</span></div>`
+      ? `<div class="visual-picker-notice"><ha-icon icon="mdi:information-outline"></ha-icon><span>Save needs a writable image binding. Changing model also needs an allowed backend profile option.</span></div>`
       : "";
 
     const refineHtml=`<label><span>Brand</span><select data-charger-picker-brand="${this.rt.escape(assetId)}">
@@ -5915,6 +5929,9 @@ class HomeBrainAssetShell {
   renderSection(section) {
     if (!section || section.hide) return "";
     const details = (section.details || []).filter((d) => d && d.value !== undefined && d.value !== null && String(d.value).trim() !== "");
+    const productRows=section.rows || [];
+    const firstRows=productRows.length>12 ? productRows.slice(0,8) : productRows;
+    const deeperRows=productRows.length>12 ? productRows.slice(8) : [];
     return `
       <section class="section-card section-${this.rt.escape(section.key)}">
         <div class="section-head">
@@ -5924,7 +5941,8 @@ class HomeBrainAssetShell {
           </div>
           <div class="section-status">${this.rt.escape(section.header || "")}</div>
         </div>
-        <div class="section-body">${this.renderRows(section.rows || [])}</div>
+        <div class="section-body">${this.renderRows(firstRows)}</div>
+        ${deeperRows.length ? `<details class="detail-fold detail-more"><summary>More properties (${deeperRows.length})</summary><div class="detail-block">${this.renderRows(deeperRows)}</div></details>` : ""}
         ${details.length ? `<details class="detail-fold">
           <summary>Engineering details</summary>
           <div class="detail-block">
@@ -6619,7 +6637,13 @@ class HomeBrainAssetShell {
       .detail-scene-hero .hero-image{position:absolute;z-index:3;right:3.5%;top:5%;width:49%;height:90%;min-height:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
       .detail-scene-hero .hero-image img{width:100%;height:100%;max-height:none;object-fit:contain;object-position:center;filter:drop-shadow(0 24px 30px rgba(15,35,80,.15))}
       .detail-scene-hero .hero-icon{width:58%;height:75%;border-radius:30px}
-      .detail-status-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:0;padding:0;border:0;background:transparent;box-shadow:none}.detail-status-grid.status-count-1{grid-template-columns:1fr}.detail-status-grid.status-count-2{grid-template-columns:repeat(2,minmax(0,1fr))}.detail-status-grid.status-count-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+      /* Responsive detail depth: readable width and progressive disclosure. */
+       .grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,370px),1fr));gap:10px;align-items:start}
+       .section-card{min-width:0;box-shadow:0 4px 16px rgba(21,61,115,.035)}
+       .row,.edit-row{grid-template-columns:22px minmax(0,1fr) minmax(105px,auto);gap:8px;padding:8px 0}
+       .detail-more{margin-top:9px}.detail-more summary{font-size:12px;min-height:34px}
+       @media(max-width:760px){.grid{grid-template-columns:1fr}.row,.edit-row{grid-template-columns:20px minmax(0,1fr) minmax(92px,auto)}}
+       .detail-status-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:0;padding:0;border:0;background:transparent;box-shadow:none}.detail-status-grid.status-count-1{grid-template-columns:1fr}.detail-status-grid.status-count-2{grid-template-columns:repeat(2,minmax(0,1fr))}.detail-status-grid.status-count-3{grid-template-columns:repeat(3,minmax(0,1fr))}
       .detail-status-grid .metric{min-width:0;min-height:94px;height:auto;display:grid;grid-template-columns:52px minmax(0,1fr);gap:11px;align-items:center;padding:12px 14px;border:1px solid #DBE6F3;border-radius:15px;background:rgba(255,255,255,.97);box-shadow:0 8px 22px rgba(21,61,115,.045)}
       .detail-status-grid .metric ha-icon{width:46px;height:46px;display:flex;align-items:center;justify-content:center;padding:9px;box-sizing:border-box;border-radius:14px;background:#EEF5FF;color:#1467F5;--mdc-icon-size:27px}
       .detail-status-grid .metric span{display:block;margin:0 0 3px;color:#31558E;font-size:10px;font-weight:650}
@@ -8443,6 +8467,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
 
   renderOverviewPage(rt, vehicles, chargers, activityRows, reco) {
     const activeVehicles = vehicles.filter((v)=>rt.lifecycleStatus(v) === "active");
+    const inactiveVehicles = vehicles.filter((v)=>["disabled","unknown"].includes(rt.lifecycleStatus(v)));
     const status = this.overviewStatusModel(rt, activeVehicles, chargers);
     const securityNames = status.security.unsafe.length
       ? status.security.unsafe.slice(0,2).map((row)=>row.name).join(" · ")
@@ -8489,7 +8514,8 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
           <div><h2>${rt.escape(rt.t("dashboard.vehicles",{},"Vehicles"))}</h2><p>${rt.escape(rt.t("dashboard.vehicles_description",{},"Readiness first: range and energy, security, comfort, maintenance, charger relationship and direct actions."))}</p></div>
           <button data-nav="${hbMobilityPath("/dashboard")}">${rt.escape(rt.t("charger.vehicle_management",{},"Vehicle Management"))} <ha-icon icon="mdi:chevron-right"></ha-icon></button>
         </div>
-        <div class="ov-vehicle-list">${activeVehicles.length ? activeVehicles.map((vehicle)=>this.renderOverviewVehicleRow(rt,vehicle,chargers)).join("") : `<div class="ov-empty">${rt.escape(rt.t("dashboard.no_active",{},"No active vehicles."))}</div>`}</div>
+        <div class="ov-vehicle-list">${activeVehicles.length ? activeVehicles.map((vehicle)=>this.renderOverviewVehicleRow(rt,vehicle,chargers)).join("") : `<div class="ov-empty">No active vehicles. ${inactiveVehicles.length ? `${inactiveVehicles.length} known vehicle${inactiveVehicles.length===1?"":"s"} currently inactive or unavailable.` : "No vehicle is published by the Mobility backend."}</div>`}</div>
+        ${inactiveVehicles.length ? `<div class="ov-inactive-summary"><div class="ov-inactive-title"><strong>Inactive vehicles</strong><span>${inactiveVehicles.length} registered · Activation requires published lifecycle control</span></div><div class="inactive-list">${inactiveVehicles.map(v=>this.renderInactiveVehicle(rt,v)).join("")}</div></div>` : ""}
       </section>`;
   }
 
@@ -8681,7 +8707,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
           this._lastRenderOk = true;
           const navActive = this.dashboardTabFromRoute();
           const pageContent = navActive === "overview"
-            ? this.renderOverviewPage(rt, activeVehicles, chargers, activityRows, reco)
+            ? this.renderOverviewPage(rt, vehicles, chargers, activityRows, reco)
             : this.renderVehiclesPage(rt, activeVehicles, inactiveVehicles, chargers, reco, plan, trust, activity, intelligenceSummary);
           {
       const template = document.createElement("template");
@@ -8990,6 +9016,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     .rhi-page-hero-overview .rhi-page-hero-art img{position:absolute;inset:0;width:100%;height:100%;min-height:0;max-height:none;object-fit:cover;object-position:center 52%;transform:none}
 
     .ov-domain-statusbar{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:0}
+    .ov-inactive-summary{margin-top:10px;padding:10px;border:1px solid #e0e8f2;border-radius:14px;background:#fcfdff}.ov-inactive-title{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px}.ov-inactive-title strong{font-size:13px;color:#132744}.ov-inactive-title span{font-size:11px;color:#66748d}.ov-inactive-summary .inactive-list{gap:5px}.ov-inactive-summary .inactive-row{min-height:52px;padding:7px 10px}
     .ov-domain-statusbar .ov-status-item{min-width:0;min-height:94px;display:grid;grid-template-columns:52px minmax(0,1fr);gap:11px;align-items:center;padding:12px 14px;border:1px solid #DBE6F3;border-radius:15px;background:rgba(255,255,255,.97);box-shadow:0 8px 22px rgba(21,61,115,.045)}
     .ov-domain-statusbar .ov-status-icon{width:46px;height:46px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:#EEF5FF;color:#1467F5}
     .ov-domain-statusbar .ov-status-icon ha-icon{--mdc-icon-size:27px}
@@ -10083,6 +10110,9 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
     this.attachShadow({ mode: "open" });
     this.config = {};
     this._lastRevisionSignature = "";
+    this._activityType = "all";
+    this._activitySort = "newest";
+    this._activityGroup = "type";
   }
   setConfig(config = {}) { this.config = config; }
   getCardSize() { return 8; }
@@ -10115,6 +10145,12 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
     </div><style>${this.styles()}</style></ha-card>`;
       this.shadowRoot.append(fragment.content.cloneNode(true));
     this.shadowRoot.querySelectorAll("button[data-nav]").forEach((btn)=>btn.addEventListener("click",()=>rt.navigate(btn.getAttribute("data-nav"))));
+    for(const [attr,field] of [["data-activity-type","_activityType"],["data-activity-sort","_activitySort"],["data-activity-group","_activityGroup"]]){
+      this.shadowRoot.querySelectorAll(`select[${attr}]`).forEach(select=>select.addEventListener("change",()=>{
+        this[field]=select.value;this._lastRevisionSignature="";
+        if(this._hass)this.hass=this._hass;
+      }));
+    }
   }
 
   viewFromPath() {
@@ -10366,6 +10402,16 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
 
   renderInsights(rt) {
     const insights = this.energyInsights(rt);
+    // Mobility-owned command execution is useful Insight evidence even when
+    // Energy cannot yet attribute kWh/EUR to a canonical vehicle and period.
+    const executionRows=(rt.activityRowsFor?.("") || []).filter(row=>String(row.activity_type || "")==="execution");
+    const executionHtml=executionRows.slice(0,5).map(row=>{
+      const id=String(row.asset_id || ""),value=String(row.result || row.activity_state || "UNKNOWN");
+      const observed=String(row.observed_at || "").trim();
+      const parsed=observed ? new Date(observed) : null;
+      const when=parsed && Number.isFinite(parsed.getTime()) ? parsed.toLocaleString() : "Time not published";
+      return `<div class="rhi-data-row"><b>${rt.escape(rt.assetDisplayName?.(id) || id)} · ${rt.escape(String(row.operation_key || row.summary || "Command"))}</b><span>${rt.escape(value)} · ${rt.escape(when)}</span></div>`;
+    }).join("");
     const rows = insights.rows.map((row) => {
       const energy = this.fmtKwh(row.energyKwh);
       const value = row.attributedEur === null ? "N/A" : `€${Number(row.attributedEur).toFixed(2)}`;
@@ -10398,13 +10444,29 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
           <div class="rhi-data-row"><b>${rt.escape((rt?.t?.("insights.metering_contract",{},"Metering contract") || "Metering contract"))}</b><span>${rt.escape(insights.meteringContractVersion || (insights.meteringAvailable ? (rt?.t?.("common.published",{},"Published") || "Published") : (rt?.t?.("common.unavailable",{},"Unavailable") || "Unavailable")))}</span></div>
           <div class="rhi-data-row"><b>${rt.escape((rt?.t?.("insights.value_contract",{},"Value contract") || "Value contract"))}</b><span>${rt.escape(insights.valueContractVersion || (insights.valueAvailable ? (rt?.t?.("common.published",{},"Published") || "Published") : (rt?.t?.("common.unavailable",{},"Unavailable") || "Unavailable")))}</span></div>
           <div class="rhi-data-row"><b>${rt.escape((rt?.t?.("insights.value_state",{},"Value state") || "Value state"))}</b><span>${rt.escape(insights.valueState)}</span></div>
+          <h4 class="rhi-insight-events-title">Recent Mobility commands</h4>
+          ${executionHtml || `<div class="rhi-context-note">No command execution results published yet. Current asset status is available under Activity.</div>`}
+          <button class="rhi-insight-open-activity" data-nav="${hbMobilityPath("/log")}">View Activity <ha-icon icon="mdi:chevron-right"></ha-icon></button>
         </div>
       </article>
     </section>`;
   }
 
   renderLog(rt) {
-    const rows = rt.activityRowsFor ? rt.activityRowsFor("") : [];
+    const published=rt.activityRowsFor ? rt.activityRowsFor("") : [];
+    const kind=row=>String(row.activity_type||"").toLowerCase()==="execution"?"execution":String(row.activity_type||"").toLowerCase()==="charging"?"charger":"vehicle";
+    const assetId=row=>String(row.asset_id||row.subject_asset_id||row.related_asset_id||"");
+    const instant=row=>{
+      if(kind(row)!=="execution")return null;
+      const raw=String(row.observed_at||row.occurred_at||row.created_at||row.timestamp||"");
+      if(!raw)return null;
+      const t=Date.parse(raw);return Number.isFinite(t)?t:null;
+    };
+    const rows=published.filter(row=>this._activityType==="all"||kind(row)===this._activityType).sort((a,b)=>{
+      if(this._activitySort==="asset")return String(rt.assetDisplayName?.(assetId(a))||assetId(a)).localeCompare(String(rt.assetDisplayName?.(assetId(b))||assetId(b)));
+      const ta=instant(a),tb=instant(b);
+      return ta===null&&tb===null?0:ta===null?1:tb===null?-1:(this._activitySort==="oldest"?ta-tb:tb-ta);
+    });
     const activityCount = Number(rt.mobilityActivityV2?.()?.activity_count ?? rows.length) || rows.length;
     const fmtTime = (row) => {
       const raw = row.observed_at || row.occurred_at || row.created_at || row.timestamp || row.started_at || "";
@@ -10416,7 +10478,7 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
       row.status || row.activity_state || row.result || row.result_code || row.execution_state || "Published"
     );
     const titleOf = (row) => String(
-      row.message || row.command_label || row.activity_type || row.command_key || row.family || "Mobility activity"
+      row.message || row.command_label || row.summary || row.operation_key || row.activity_type || row.command_key || row.family || "Mobility activity"
     );
     const reasonOf = (row) => String(
       row.reason || row.blocked_reason || row.execution_reason || row.detail || row.error || ""
@@ -10425,20 +10487,32 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
       const id = String(row.asset_id || row.subject_asset_id || row.related_asset_id || "");
       return id ? String(rt.assetDisplayName?.(id) || id) : "";
     };
+    const mediaFor=row=>{
+      const id=assetId(row),charger=rt.chargerById?.(id),vehicle=rt.vehicleById?.(id);
+      if(charger)return {url:new HomeBrainChargerAdapter(rt,id,{registry_entry:charger}).chargerImageFromId(),icon:"mdi:ev-station"};
+      if(vehicle)return {url:rt.visualImageUrl?.(vehicle,"vehicle","image","vehicle_fallback")||"",icon:"mdi:car-electric"};
+      return {url:"",icon:kind(row)==="charger"?"mdi:ev-station":"mdi:history"};
+    };
+    const groupName=row=>this._activityGroup==="type"?({vehicle:"Vehicles",charger:"Chargers",execution:"Commands"}[kind(row)]||"Activity"):
+      this._activityGroup==="asset"?(String(rt.assetDisplayName?.(assetId(row))||assetId(row)||"Unknown asset")):"";
+    let previousGroup="";
     const entries = rows.map((row) => {
       const status = statusOf(row);
       const reason = reasonOf(row);
-      const meta = [fmtTime(row), assetOf(row), status].filter(Boolean).join(" · ");
-      return `<article class="rhi-log-row">
-        <div class="rhi-log-icon"><ha-icon icon="mdi:history"></ha-icon></div>
+      const meta = [kind(row)==="execution"?(fmtTime(row)||"Time not published"):"Current status · no event timestamp",assetOf(row),status].filter(Boolean).join(" · ");
+      const media=mediaFor(row),group=groupName(row);
+      const groupHtml=group&&group!==previousGroup?`<h4 class="rhi-log-group">${rt.escape(group)}</h4>`:"";
+      previousGroup=group;
+      return `${groupHtml}<article class="rhi-log-row">
+        <div class="rhi-log-icon">${media.url ? `<img src="${rt.escape(rt.cache?.(media.url)||media.url)}" alt="${rt.escape(assetOf(row))}" loading="lazy" onerror="this.style.display='none'">` : `<ha-icon icon="${media.icon}"></ha-icon>`}</div>
         <div class="rhi-log-copy"><b>${rt.escape(titleOf(row))}</b><small>${rt.escape(meta)}</small>${reason ? `<span>${rt.escape(reason)}</span>` : ""}</div>
       </article>`;
     }).join("");
-    const exceptions = rows.filter((row) => {
+    const exceptions = published.filter((row) => {
       const state = statusOf(row).toLowerCase();
       return ["failed","rejected","blocked","error","denied"].some((token)=>state.includes(token));
     });
-    const gap = activityCount > 0 && !rows.length
+    const gap = activityCount > 0 && !published.length
       ? `<div class="rhi-context-note">Activity contract reports ${rt.escape(String(activityCount))} recent items but publishes no activity rows.</div>`
       : "";
     return `<section class="rhi-context-grid log-grid">
@@ -10446,6 +10520,11 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
         <div class="rhi-context-card-kicker"><ha-icon icon="mdi:text-box-search-outline"></ha-icon>${rt.escape((rt?.t?.("activity.mobility_log",{},"Mobility log") || "Mobility log"))}</div>
         <h3>${rt.escape((rt?.t?.("activity.what_happened",{},"What happened?") || "What happened?"))}</h3>
         <p>${rt.escape((rt?.t?.("activity.desc",{},"Recent vehicle, charger and command activity is shown with the asset, outcome and backend reason. Technical contract names stay out of the primary reading path.") || "Recent vehicle, charger and command activity is shown with the asset, outcome and backend reason. Technical contract names stay out of the primary reading path."))}</p>
+        <div class="rhi-log-controls" aria-label="Filter, sort and group Activity">
+          <label>Show <select data-activity-type>${[["all","All"],["vehicle","Vehicles"],["charger","Chargers"],["execution","Commands"]].map(([k,v])=>`<option value="${k}" ${this._activityType===k?"selected":""}>${v}</option>`).join("")}</select></label>
+          <label>Sort <select data-activity-sort>${[["newest","Newest first"],["oldest","Oldest first"],["asset","Asset name"]].map(([k,v])=>`<option value="${k}" ${this._activitySort===k?"selected":""}>${v}</option>`).join("")}</select></label>
+          <label>Group <select data-activity-group>${[["type","Type"],["asset","Asset"],["none","None"]].map(([k,v])=>`<option value="${k}" ${this._activityGroup===k?"selected":""}>${v}</option>`).join("")}</select></label>
+        </div>
         ${entries ? `<div class="rhi-log-list">${entries}</div>` : `<div class="rhi-context-note">${rt.escape((rt?.t?.("activity.no_rows",{},"No activity rows are currently published.") || "No activity rows are currently published."))}</div>`}
         ${gap}
       </article>
@@ -10484,7 +10563,9 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
       .support-facts{margin-top:8px}
       .insights-grid{grid-template-columns:minmax(0,1.45fr) minmax(280px,.55fr)}
       .log-grid{grid-template-columns:minmax(0,1.45fr) minmax(280px,.55fr)}
-      .rhi-log-list{display:grid;gap:7px;margin-top:10px}.rhi-log-row{display:grid;grid-template-columns:30px minmax(0,1fr);gap:9px;align-items:start;border:1px solid var(--rhi-color-line);border-radius:var(--rhi-radius-md);padding:9px 10px;background:#fff}.rhi-log-icon{display:grid;place-items:center;width:28px;height:28px;border-radius:9px;background:#F1F6FF;color:#1467F5}.rhi-log-icon ha-icon{--mdc-icon-size:17px}.rhi-log-copy{min-width:0}.rhi-log-copy b,.rhi-log-copy small,.rhi-log-copy span{display:block}.rhi-log-copy b{font-size:13px;overflow-wrap:anywhere}.rhi-log-copy small{margin-top:2px;color:var(--rhi-color-muted);font-size:10px}.rhi-log-copy span{margin-top:4px;color:var(--rhi-color-muted);font-size:11px;overflow-wrap:anywhere}
+    .rhi-insight-events-title{font-size:12px;color:#29466f;margin:14px 0 8px}.rhi-insight-open-activity{display:inline-flex;align-items:center;gap:5px;border:1px solid #d6e2f0;background:#f7faff;color:#075fd8;border-radius:9px;font:600 12px inherit;padding:8px 10px;margin-top:10px;cursor:pointer}
+      .rhi-log-controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:4px 0}.rhi-log-controls label{display:flex;align-items:center;gap:6px;font-size:12px;color:#536582;font-weight:600}.rhi-log-controls select{height:36px;border:1px solid #dbe5f0;border-radius:9px;background:#fff;color:#132744;font:inherit;padding:5px 8px}.rhi-log-group{margin:12px 0 2px;font-size:12px;font-weight:700;color:#29466f}.rhi-log-icon img{max-width:36px;max-height:36px;object-fit:contain}.rhi-log-copy b{font-size:12px}.rhi-log-copy small{font-size:11px}
+    .rhi-log-list{display:grid;gap:7px;margin-top:10px}.rhi-log-row{display:grid;grid-template-columns:30px minmax(0,1fr);gap:9px;align-items:start;border:1px solid var(--rhi-color-line);border-radius:var(--rhi-radius-md);padding:9px 10px;background:#fff}.rhi-log-icon{display:grid;place-items:center;width:28px;height:28px;border-radius:9px;background:#F1F6FF;color:#1467F5}.rhi-log-icon ha-icon{--mdc-icon-size:17px}.rhi-log-copy{min-width:0}.rhi-log-copy b,.rhi-log-copy small,.rhi-log-copy span{display:block}.rhi-log-copy b{font-size:13px;overflow-wrap:anywhere}.rhi-log-copy small{margin-top:2px;color:var(--rhi-color-muted);font-size:10px}.rhi-log-copy span{margin-top:4px;color:var(--rhi-color-muted);font-size:11px;overflow-wrap:anywhere}
       .rhiVehicleIdentity{display:flex;align-items:center;gap:10px;min-width:0}.rhiVehicleIdentity>span:last-child{min-width:0}.rhiVehicleIdentity b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.rhiVehicleIdentity small{display:block;margin-top:2px;font-size:9px;color:#718096}.rhiVehicleThumb{width:64px;height:42px;display:flex;align-items:center;justify-content:center;flex:0 0 64px;border-radius:10px;background:#f5f8fc;border:1px solid #e5ebf4;overflow:hidden}.rhiVehicleThumb img{display:block;max-width:60px;max-height:38px;object-fit:contain}.rhiVehicleThumbFallback ha-icon{--mdc-icon-size:22px;color:#5f6d84}.rhiVehicleRow{align-items:center;min-height:56px}.rhiVehicleRow>span:last-child{justify-self:end}.rhi-insight-vehicle-head .rhiVehicleIdentity{min-width:0}
       .rhi-insight-vehicle-list{display:grid;gap:7px;margin-top:10px}
       .rhi-insight-vehicle{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;border:1px solid #edf1f6;border-radius:var(--rhi-radius-md);background:var(--rhi-soft);padding:10px 12px}
