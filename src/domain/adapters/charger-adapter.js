@@ -78,7 +78,7 @@ class HomeBrainChargerAdapter {
     const imageProperty = this.rt.semanticProperty(assetId, "charger.image_key");
     const profileId = String(profileProperty?.value ?? "").trim();
     const imageKey = String(imageProperty?.value ?? "").trim();
-    const field = (row, source = "MOBILITY_EXPERIENCE_V2") => ({
+    const field = (row, source = "RHI_MOBILITY_CANONICAL_PROPERTY_V1") => ({
       resolved: !!row?.resolved,
       value: row?.value ?? null,
       display: String(row?.display ?? (row?.resolved ? row?.value ?? "—" : "—")),
@@ -111,11 +111,11 @@ class HomeBrainChargerAdapter {
         profile: this.profile(),
         profile_id: profileId,
         image_key: imageKey,
-        source: "MOBILITY_EXPERIENCE_V2"
+        source: "RHI_MOBILITY_CANONICAL_PROPERTY_V1"
       },
       lifecycle: {
         state: this.rt.lifecycleStatus(reg),
-        source: "MOBILITY_EXPERIENCE_V2"
+        source: "RHI_MOBILITY_CANONICAL_PROPERTY_V1"
       },
       facts: {
         operating: field(snapshot.operating),
@@ -146,7 +146,7 @@ class HomeBrainChargerAdapter {
       availability: this.overviewAvailability(),
       commands,
       experience,
-      source_contracts: ["MOBILITY_EXPERIENCE_V2", "MOBILITY_EXPERIENCE_V2", "MOBILITY_COMMAND_V2"]
+      source_contracts: ["RHI_MOBILITY_CANONICAL_PROPERTY_V1", "MOBILITY_EXPERIENCE_V2", "MOBILITY_COMMAND_V2"]
     };
   }
 
@@ -168,7 +168,7 @@ class HomeBrainChargerAdapter {
     const sessionEnergy = projection.facts.session_energy.display;
     const currentLimit = projection.facts.current_limit.display;
     const connector = connectionState;
-    const limitSource = "MOBILITY_EXPERIENCE_V2";
+    const limitSource = "RHI_MOBILITY_CANONICAL_PROPERTY_V1";
     const phases = "—";
     const voltage = "—";
     const current = projection.facts.actual_current.display;
