@@ -29,3 +29,5 @@ jobs:
           node --check dist/rhi-mobility-ux.js
 
 # Reverify strict native-only cross-domain architecture after alias retirement.
+
+# Verify zero-vs-unknown status cards and honest runtime lifecycle UX end-to-end.
