@@ -70,7 +70,7 @@ const vision=fs.readFileSync(path.join(root,'documentation/PRODUCT_VISION.md'),'
 const backlog=fs.readFileSync(path.join(root,'documentation/BACKEND_INTERFACE_BACKLOG.md'),'utf8');
 if(!vision.includes('One model, one ownership') || !vision.includes('No charger') || !vision.includes('refresh')) failures.push('PRODUCT_VISION missing locked Mobility UX invariants');
 if(vision.includes('V1 consumes only `MOBILITY_PUBLIC_RUNTIME_V1`') || vision.includes('current release line stays on frozen `MOBILITY_PUBLIC_RUNTIME_V1`')) failures.push('PRODUCT_VISION still declares V1 as current product authority');
-for(const token of ['MOBILITY_PUBLIC_RUNTIME_V2 = canonical facts','MOBILITY_EXPERIENCE_V2','MOBILITY_POLICY_V2','MOBILITY_COMMAND_V2','Older product indexes and compatibility interfaces are fully decommissioned']){
+for(const token of ['RHI_MOBILITY_CANONICAL_PROPERTY_V1 = canonical facts','MOBILITY_EXPERIENCE_V2','MOBILITY_POLICY_V2','MOBILITY_COMMAND_V2','Older product indexes and compatibility interfaces are fully decommissioned']){
   if(!vision.includes(token)) failures.push(`PRODUCT_VISION missing V2-first authority token: ${token}`);
 }
 if(!backlog.includes('HA-native user') || !backlog.includes('do not mock') || !backlog.includes('V2.x')) failures.push('BACKEND_INTERFACE_BACKLOG missing interface governance');
@@ -101,10 +101,10 @@ for(const token of ['local draft','canonical backend readback','Reuse by Energy'
   if(!pickerBlueprint.includes(token)) failures.push(`SEMANTIC_PICKER_BLUEPRINT missing reusable invariant: ${token}`);
 }
 const runtimeOwns=ownership?.owners?.runtime?.owns || [];
-for(const token of ['MOBILITY_PUBLIC_RUNTIME_V2 access','MOBILITY_EXPERIENCE_V2 access','MOBILITY_POLICY_V2 access','V2-only product authority; missing truth fails closed']){
+for(const token of ['RHI_MOBILITY_CANONICAL_PROPERTY_V1 access','MOBILITY_EXPERIENCE_V2 access','MOBILITY_POLICY_V2 access','V2-only product authority; missing truth fails closed']){
   if(!runtimeOwns.includes(token)) failures.push(`src/OWNERSHIP runtime boundary missing: ${token}`);
 }
-if(runtimeOwns.includes('MOBILITY_PUBLIC_RUNTIME_V1 access')) failures.push('src/OWNERSHIP still declares V1 as primary runtime access');
+if(runtimeOwns.includes('MOBILITY_PUBLIC_RUNTIME_V1 access') || runtimeOwns.includes('MOBILITY_PUBLIC_RUNTIME_V2 access')) failures.push('src/OWNERSHIP still declares retired runtime aggregate access');
 if(/\brc\.\d+\b/.test(handover)) failures.push('ENGINEER_HANDOVER must not copy current candidate identity; use machine release authorities');
 if(handover.includes('Release attaches evidence only') || handover.includes('evidence assets only')) failures.push('ENGINEER_HANDOVER contains stale release-asset guidance');
 if(handover.includes('src/assets/branding/company-logo.svg\` is the canonical artwork source')) failures.push('ENGINEER_HANDOVER incorrectly makes the vendored brand copy canonical');
