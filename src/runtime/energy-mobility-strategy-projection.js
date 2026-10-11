@@ -3,7 +3,7 @@
 // by property-key substrings or manufactures missing effective state.
 class HomeBrainEnergyMobilityStrategyProjection {
   constructor(hass, mobilityRuntime = null) {
-    this.energy = new HomeBrainEnergyPublicV2Projection(hass);
+    this.energy = new HomeBrainEnergyCanonicalProjection(hass);
     this.mobilityRuntime = mobilityRuntime || null;
   }
   _mobilityAssets() {
@@ -30,6 +30,7 @@ class HomeBrainEnergyMobilityStrategyProjection {
     const effective=this._effectiveRows();
     return Object.freeze({
       profilesAvailable:false,
+      configuredAvailable:configured.length>0,
       effectiveAvailable:effective.length>0,
       profileContractVersion:'RHI_ENERGY_CANONICAL_PROPERTY_V2',
       effectiveContractVersion:'RHI_ENERGY_CANONICAL_PROPERTY_V2',
