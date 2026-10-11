@@ -27,3 +27,5 @@ jobs:
           npm run build
           npm run check:architecture
           node --check dist/rhi-mobility-ux.js
+
+# Reverify strict native-only cross-domain architecture after alias retirement.
