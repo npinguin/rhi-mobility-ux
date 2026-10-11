@@ -1,3 +1,11 @@
+## 1.0.0-rc.89 — Canonical-only Mobility candidate
+
+- remove all frontend runtime reads of the retired MOBILITY_PUBLIC_RUNTIME_V2 aggregate, without weakening the zero-debt gate;
+- use backend-owned canonical property, Experience and deployment-health authorities with fail-closed missing data;
+- protect distinct vehicles of identical models and separate charger assignment from identity-proven physical connection;
+- correct contract/provenance metadata, regression tests, immutable HACS packaging and release governance;
+- reserve stable promotion until target HA and rollback qualification is recorded.
+
 ## 1.0.0-rc.88 — Experimental Mobility HACS native-property candidate
 
 - align release compatibility declaration with actual backend canonical property marker `RHI_MOBILITY_CANONICAL_PROPERTY_V1`;
