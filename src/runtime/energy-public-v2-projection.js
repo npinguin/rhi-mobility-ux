@@ -22,7 +22,12 @@ class HomeBrainEnergyCanonicalProjection {
         availability:valid?'AVAILABLE':'UNAVAILABLE',
         presentation_family:a.presentation_family || '',
         presentation_role:a.presentation_role || '',
-        presentation_surface:a.presentation_surface || ''})];
+        presentation_surface:a.presentation_surface || '',
+        // Only explicit backend metadata may bind a reading to a time period
+        // or a configuration editor. Property-key substrings have no authority.
+        period_id:String(a.period_id || ''),
+        unit:String(a.unit || a.unit_of_measurement || ''),
+        editable:a.editable === true || a.write_supported === true})];
     });
     // No arbitrary winner when the same asset/property is published twice.
     const counts=new Map();

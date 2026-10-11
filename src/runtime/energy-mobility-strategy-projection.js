@@ -1,5 +1,6 @@
 // Read-only Energy strategy projection for Mobility Intelligence.
-// Strategy semantics stay Energy-owned and are consumed only from Public V2 configuration.strategy.
+// Strategy semantics stay Energy-owned. UX never classifies configured/effective
+// by property-key substrings or manufactures missing effective state.
 class HomeBrainEnergyMobilityStrategyProjection {
   constructor(hass, mobilityRuntime = null) {
     this.energy = new HomeBrainEnergyPublicV2Projection(hass);
@@ -10,17 +11,20 @@ class HomeBrainEnergyMobilityStrategyProjection {
     catch (_) { return new Map(); }
   }
   _assetId(row={}) { return String(row.asset_id || row.target_asset_id || row.flexible_asset_id || ""); }
-  _strategyRows(kind) {
+  _configuredRows() {
     const mobility=this._mobilityAssets();
+    // Editable configuration is an explicit Energy property capability.
     return this.energy.canonicalRows().filter(row=>
       row.availability==='AVAILABLE' &&
-      String(row.presentation_surface).toLowerCase()==='configuration' &&
-      String(row.property_key).toLowerCase().includes('strategy') &&
-      String(row.property_key).toLowerCase().includes(kind) &&
-      (!row.asset_id || mobility.has(row.asset_id)));
+      row.presentation_surface==='configuration' &&
+      row.presentation_family==='strategy' && row.editable === true &&
+      mobility.has(row.asset_id));
   }
-  _configuredRows() { return this._strategyRows('configured'); }
-  _effectiveRows() { return this._strategyRows('effective'); }
+  _effectiveRows() {
+    // Current native property publication has no independently authoritative
+    // configured-versus-effective strategy role. Do not infer from key names.
+    return [];
+  }
   viewModel() {
     const configured=this._configuredRows();
     const effective=this._effectiveRows();
