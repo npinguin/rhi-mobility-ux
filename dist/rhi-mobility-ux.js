@@ -1219,11 +1219,27 @@ class MobilityCanonicalPropertyIndex {
   rawRow(entityId, state) {
     if (!this.isCanonicalPropertyState(state)) return null;
     const attrs = state.attributes || {};
+    const nativeState = String(state?.state ?? '').trim().toLowerCase();
+    const explicitAvailability = String(attrs.availability || '').trim().toUpperCase();
+    const quality = String(attrs.quality || '').trim().toUpperCase();
+    const invalidState = ['unknown','unavailable','none','null',''].includes(nativeState);
+    const invalidQuality = ['STALE','INVALID','UNKNOWN'].includes(quality);
+    // A published availability outside the recognized states is not evidence
+    // of an available physical value. Preserve known zero; fail closed on
+    // unknown backend status instead of silently presenting stale truth.
+    const knownAvailability = ['', 'AVAILABLE', 'UNAVAILABLE', 'STALE', 'INVALID', 'UNKNOWN'];
+    const publishedValue = Object.prototype.hasOwnProperty.call(attrs,'value') ? attrs.value : state?.state;
+    const invalidPublishedValue = publishedValue === null || publishedValue === undefined ||
+      (typeof publishedValue === 'string' && ['unknown','unavailable','none','null',''].includes(publishedValue.trim().toLowerCase()));
+    const available = !invalidState && !invalidQuality && !invalidPublishedValue &&
+      knownAvailability.includes(explicitAvailability) &&
+      (explicitAvailability === '' || explicitAvailability === 'AVAILABLE');
     return {
       ...attrs,
       asset_id:String(attrs.asset_id || '').trim(),
       property_key:String(attrs.property_key || '').trim(),
-      value:Object.prototype.hasOwnProperty.call(attrs,'value') ? attrs.value : state?.state,
+      availability:available ? 'AVAILABLE' : 'UNAVAILABLE',
+      value:available ? publishedValue : null,
       display_name:attrs.display_name || attrs.friendly_name || '',
       _source_entity_id:String(entityId || ''),
       canonical_contract:String(attrs.canonical_contract || 'RHI_MOBILITY_CANONICAL_PROPERTY_V1').toUpperCase()
@@ -1283,15 +1299,34 @@ class MobilityCanonicalPropertyIndex {
         before.component_id!==after.component_id ||
         before.section_id!==after.section_id ||
         before.visibility!==after.visibility ||
-        before.render_as!==after.render_as) {
+        before.render_as!==after.render_as ||
+        before.presentation_role!==after.presentation_role ||
+        before.presentation_family!==after.presentation_family ||
+        before.presentation_surface!==after.presentation_surface ||
+        before.presentation_primary!==after.presentation_primary ||
+        before.presentation_technical!==after.presentation_technical ||
+        before.asset_type!==after.asset_type ||
+        before.asset_display_name!==after.asset_display_name ||
+        before.lifecycle_status!==after.lifecycle_status) {
         metadataChanged=true;
         break;
       }
     }
+    // Incremental replacement cannot safely maintain the winner of a
+    // duplicated asset/property key: a changed secondary publisher would
+    // otherwise overwrite byAssetAndKey while the ambiguity remains active.
+    // Rebuild on changes to ambiguous keys so the index and gap evidence stay
+    // consistent until the backend removes the duplicate publication.
+    if (!metadataChanged && changed.some(([entityId]) => {
+      const row=this.byEntity.get(entityId);
+      return row && this.ambiguousKeys.has(`${row.asset_id}::${row.property_key}`);
+    })) metadataChanged=true;
     if(metadataChanged) {
       this.discover(hass);
       return;
     }
+    // Once all metadata has been checked, update values without losing the
+    // canonical membership of any unchanged asset.
     const changedAssets=new Set();
     for(const [entityId,current] of changed) {
       const before=this.byEntity.get(entityId);
@@ -1312,7 +1347,10 @@ class MobilityCanonicalPropertyIndex {
   rows(assetId = '') {
     const id=String(assetId || '').trim();
     const source=id ? [...(this.byAsset.get(id)||[])] : [...this.byEntity.values()];
-    return source;
+    // Duplicate publication has no authoritative winner. Do not let an
+    // ambiguous row leak into inventory, overview, detail or diagnostics
+    // projections that consume rows() rather than row().
+    return source.filter(row=>!this.ambiguousKeys.has(`${row.asset_id}::${row.property_key}`));
   }
 
   row(assetId='',propertyKey='') {
@@ -4649,48 +4687,54 @@ class HomeBrainAssetRuntime {
 }
 
 // ---- src/runtime/energy-public-v2-projection.js ----
-// Sole cross-domain Energy contract reader for Mobility UX.
-// Mobility may consume Energy semantics only through RHI_ENERGY_PUBLIC_CONTRACT_V2.
-class HomeBrainEnergyPublicV2Projection {
+// Cross-domain Energy canonical-property projection for Mobility UX.
+// Never read the retired aggregate publication or infer missing semantics.
+class HomeBrainEnergyCanonicalProjection {
   constructor(hass = {}) { this.hass = hass || {}; }
-
-  static get entityId() { return "sensor.rhi_energy_public_contract_v2"; }
-  static get contractId() { return "RHI_ENERGY_PUBLIC_CONTRACT_V2"; }
-
-  _parse(value, fallback = null) {
-    if (value === undefined || value === null || value === "") return fallback;
-    if (typeof value !== "string") return value;
-    try { return JSON.parse(value); } catch (_) { return fallback; }
-  }
-  object(value) {
-    const parsed=this._parse(value,value);
-    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
-  }
-  rows(value) {
-    const parsed=this._parse(value,value);
-    if (Array.isArray(parsed)) return parsed.filter(row=>row && typeof row === "object");
-    if (parsed && typeof parsed === "object") return Object.values(parsed).filter(row=>row && typeof row === "object");
-    return [];
-  }
-  snapshot() {
-    const state=this.hass?.states?.[HomeBrainEnergyPublicV2Projection.entityId] || null;
-    const attributes=state?.attributes || {};
-    const valid=!!state && String(attributes.contract_id || "") === HomeBrainEnergyPublicV2Projection.contractId;
-    return Object.freeze({
-      available:valid,
-      entityId:HomeBrainEnergyPublicV2Projection.entityId,
-      state:String(state?.state || "UNAVAILABLE"),
-      contractId:String(attributes.contract_id || ""),
-      contractVersion:String(attributes.contract_version || ""),
-      release:String(attributes.release || ""),
-      attributes:valid ? attributes : {}
+  static get contractId() { return 'RHI_ENERGY_CANONICAL_PROPERTY_V2'; }
+  canonicalRows() {
+    return Object.entries(this.hass?.states || {}).flatMap(([entityId, state]) => {
+      const a=state?.attributes || {};
+      if(a.canonical_contract !== HomeBrainEnergyCanonicalProjection.contractId ||
+         !a.asset_id || !a.property_key) return [];
+      const raw=String(state?.state ?? '').trim().toLowerCase();
+      const availability=String(a.availability || '').toUpperCase();
+      const quality=String(a.quality || '').toUpperCase();
+      const valid=!['unknown','unavailable','none','null',''].includes(raw) &&
+        (availability === '' || availability === 'AVAILABLE') &&
+        !['STALE','INVALID','UNKNOWN'].includes(quality);
+      return [Object.freeze({entity_id:entityId,asset_id:String(a.asset_id),
+        property_key:String(a.property_key),value:valid?(Object.hasOwn(a,'value')?a.value:state.state):null,
+        availability:valid?'AVAILABLE':'UNAVAILABLE',
+        presentation_family:a.presentation_family || '',
+        presentation_role:a.presentation_role || '',
+        presentation_surface:a.presentation_surface || ''})];
     });
   }
+  object(value) {
+    if (value && typeof value === 'object' && !Array.isArray(value)) return value;
+    if (typeof value !== 'string') return {};
+    try { const parsed=JSON.parse(value); return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {}; } catch (_) { return {}; }
+  }
+  rows(value) {
+    if (value === undefined) return this.canonicalRows();
+    if (Array.isArray(value)) return value.filter(row=>row && typeof row==='object');
+    const parsed=this.object(value);
+    return Object.values(parsed).filter(row=>row && typeof row==='object');
+  }
+  snapshot() {
+    const rows=this.canonicalRows();
+    return Object.freeze({available:rows.length>0,contractId:HomeBrainEnergyCanonicalProjection.contractId,
+      attributes:Object.freeze({properties:rows})});
+  }
   section(name) {
-    const snapshot=this.snapshot();
-    return snapshot.available ? this.object(snapshot.attributes?.[name]) : {};
+    const wanted=String(name || '');
+    return {properties:this.canonicalRows().filter(row=>row.presentation_surface===wanted)};
   }
 }
+
+// Transitional class alias for existing consumers; the retired transport is not read.
+const HomeBrainEnergyPublicV2Projection = HomeBrainEnergyCanonicalProjection;
 
 // ---- src/runtime/energy-planning-projection.js ----
 // Read-only cross-domain Energy Planning projection for Mobility UX.
@@ -4719,35 +4763,40 @@ class HomeBrainEnergyPlanningProjection {
     });
   }
   viewModel() {
-    const snapshot=this.energy.snapshot();
-    const planning=this.energy.section("planning");
-    const horizons=this.energy.object(planning.horizons);
-    const d0=this.energy.object(horizons.D0 || horizons.d0);
-    const d1=this.energy.object(horizons.D1 || horizons.d1);
-    const planningRows=this.energy.rows(planning.assets || planning.planning_objects);
-    const experienceRows=this.energy.rows(planning.experiences || planning.asset_experiences);
+    const properties=this.energy.canonicalRows().filter(row=>row.availability==='AVAILABLE');
+    const ids=this._mobilityAssetIds();
+    const planning=properties.filter(row=>String(row.presentation_surface).toLowerCase()==='planning');
+    const field=(asset,keys)=>planning.find(row=>row.asset_id===asset && keys.includes(row.property_key))?.value ?? null;
+    const totals=(horizon)=>this._totalsView({
+      flexible_planned_kwh:field(horizon,['flexible_planned_kwh','planned_kwh']),
+      flexible_still_to_plan_kwh:field(horizon,['flexible_still_to_plan_kwh','still_to_plan_kwh']),
+      grid_import_kwh:field(horizon,['grid_import_kwh']),
+      solar_kwh:field(horizon,['solar_kwh'])
+    });
+    const today=totals('D0');
+    const tomorrow=totals('D1');
+    const mobilityPlanningRows=planning.filter(row=>ids.has(row.asset_id));
     return Object.freeze({
-      available:snapshot.available && (Object.keys(d0).length>0 || Object.keys(d1).length>0),
-      entityId:snapshot.entityId,
-      contractVersion:snapshot.contractVersion,
-      state:String(this._first(planning.status,planning.state,snapshot.state,"UNAVAILABLE") || "UNAVAILABLE"),
-      today:this._totalsView(d0),
-      tomorrow:this._totalsView(d1),
-      combined:Object.freeze({plannedKwh:null,stillToPlanKwh:null,gridImportKwh:null,solarKwh:null,state:"",raw:{}}),
-      currentIntent:this.energy.object(planning.current_action_intent),
-      planningRows,
-      experienceRows,
-      mobilityPlanningRows:this._mobilityRows(planningRows),
-      mobilityExperienceRows:this._mobilityRows(experienceRows),
-      exactIdentityJoin:this._mobilityAssetIds().size>0,
-      source:"RHI_ENERGY_PUBLIC_CONTRACT_V2.planning"
+      available:planning.length>0,
+      entityId:null,
+      contractVersion:'RHI_ENERGY_CANONICAL_PROPERTY_V2',
+      state:planning.length?'AVAILABLE':'UNAVAILABLE',
+      today,tomorrow,
+      combined:Object.freeze({plannedKwh:null,stillToPlanKwh:null,gridImportKwh:null,solarKwh:null,state:'',raw:{}}),
+      currentIntent:{},
+      planningRows:planning,
+      experienceRows:[],
+      mobilityPlanningRows,
+      mobilityExperienceRows:[],
+      exactIdentityJoin:ids.size>0,
+      source:'RHI_ENERGY_CANONICAL_PROPERTY_V2.planning'
     });
   }
 }
 
 // ---- src/runtime/energy-mobility-insights-projection.js ----
 // Read-only Energy metering/value projection for Mobility Insights.
-// Only RHI_ENERGY_PUBLIC_CONTRACT_V2 is authoritative; missing V2 evidence fails closed.
+// Only Energy canonical property rows are authoritative; missing evidence fails closed.
 class HomeBrainEnergyMobilityInsightsProjection {
   constructor(hass, mobilityRuntime = null) {
     this.energy = new HomeBrainEnergyPublicV2Projection(hass);
@@ -4764,34 +4813,29 @@ class HomeBrainEnergyMobilityInsightsProjection {
     const mobility=this._mobilityAssets().get(assetId) || {};
     return String(this._first(row.display_name,row.asset_label,row.label,mobility.display_name,mobility.name,this.mobilityRuntime?.assetDisplayName?.(assetId),assetId) || assetId);
   }
-  _meteringRows(periodId="today") {
-    const metering=this.energy.section("metering");
-    const wanted=String(periodId || "today").toLowerCase()==="day"?"today":String(periodId || "today").toLowerCase();
+  _meteringRows(periodId='today') {
     const mobility=this._mobilityAssets();
-    return this.energy.rows(metering.records).filter(row=>{
-      const period=String(this._first(row.period_id,row.period,"") || "").toLowerCase();
-      const id=this._assetId(row);
-      return period===wanted && row.ux_visible===true && String(row.record_role || "").toLowerCase()==="flexible_load_detail" && mobility.has(id);
-    }).map(row=>{
-      const assetId=this._assetId(row);
-      return Object.freeze({assetId,name:this._assetName(assetId,row),periodId:wanted,energyKwh:this._number(row.energy_kwh,row.value),unit:String(row.unit || "kWh"),measurementState:String(this._first(row.measurement_state,row.status,row.health,"UNAVAILABLE") || "UNAVAILABLE"),trustState:String(row.trust_state || ""),raw:row});
-    });
+    return this.energy.canonicalRows().filter(row=>row.availability==='AVAILABLE' &&
+      row.presentation_surface==='metering' && mobility.has(row.asset_id) &&
+      String(row.property_key).includes(String(periodId).toLowerCase())).map(row=>Object.freeze({
+        assetId:row.asset_id,name:this._assetName(row.asset_id),periodId,
+        energyKwh:this._number(row.value),unit:'kWh',measurementState:'AVAILABLE',
+        trustState:'',raw:row
+      }));
   }
-  _valueRows(periodId="today") {
-    const accounting=this.energy.section("value_accounting");
-    const wanted=String(periodId || accounting.selected_period_id || "today").toLowerCase();
-    const periods=this.energy.object(accounting.periods);
-    const period=this.energy.object(periods[wanted]);
+  _valueRows(periodId='today') {
     const mobility=this._mobilityAssets();
-    return this.energy.rows(period.consumer_allocation).filter(row=>mobility.has(this._assetId(row))).map(row=>{
-      const assetId=this._assetId(row);
-      return Object.freeze({assetId,name:this._assetName(assetId,row),periodId:wanted,attributedEur:this._number(row.attributed_eur,row.attributed_value,row.net_value_eur,row.actual_energy_cost_eur),energyKwh:this._number(row.energy_kwh,row.actual_energy_kwh,row.measured_energy_kwh),state:String(this._first(row.state,row.status,row.attribution_state,"") || ""),raw:row});
-    });
+    return this.energy.canonicalRows().filter(row=>row.availability==='AVAILABLE' &&
+      row.presentation_surface==='value_accounting' && mobility.has(row.asset_id) &&
+      String(row.property_key).includes(String(periodId).toLowerCase())).map(row=>Object.freeze({
+        assetId:row.asset_id,name:this._assetName(row.asset_id),periodId,
+        attributedEur:this._number(row.value),energyKwh:null,state:'AVAILABLE',raw:row
+      }));
   }
   viewModel(periodId="today") {
     const snapshot=this.energy.snapshot();
-    const metering=this.energy.section("metering");
-    const accounting=this.energy.section("value_accounting");
+    const metering=this.energy.canonicalRows().filter(row=>row.presentation_surface==="metering");
+    const accounting=this.energy.canonicalRows().filter(row=>row.presentation_surface==="value_accounting");
     const meteringRows=this._meteringRows(periodId);
     const valueRows=this._valueRows(periodId);
     const ids=new Set([...meteringRows.map(row=>row.assetId),...valueRows.map(row=>row.assetId)]);
@@ -4802,16 +4846,16 @@ class HomeBrainEnergyMobilityInsightsProjection {
     });
     return Object.freeze({
       periodId:String(periodId || "today").toLowerCase(),
-      meteringAvailable:snapshot.available && this.energy.rows(metering.records).length>0,
-      valueAvailable:snapshot.available && Object.keys(this.energy.object(accounting.periods)).length>0,
+      meteringAvailable:snapshot.available && metering.length>0,
+      valueAvailable:snapshot.available && accounting.length>0,
       meteringContractVersion:snapshot.contractVersion,
       valueContractVersion:snapshot.contractVersion,
-      valueCurrency:String(accounting.currency || "EUR"),
-      valueState:String(this._first(accounting.status,accounting.state,"UNAVAILABLE") || "UNAVAILABLE"),
+      valueCurrency:"EUR",
+      valueState:valueRows.length?"AVAILABLE":"UNAVAILABLE",
       rows,
       totalVehicleEnergyKwh:null,
       totalAttributedEur:null,
-      source:"RHI_ENERGY_PUBLIC_CONTRACT_V2.metering/value_accounting"
+      source:"RHI_ENERGY_CANONICAL_PROPERTY_V2.metering/value_accounting"
     });
   }
 }
@@ -4829,35 +4873,29 @@ class HomeBrainEnergyMobilityStrategyProjection {
     catch (_) { return new Map(); }
   }
   _assetId(row={}) { return String(row.asset_id || row.target_asset_id || row.flexible_asset_id || ""); }
-  _strategy() { return this.energy.object(this.energy.section("configuration").strategy); }
-  _configuredRows() {
-    const strategy=this._strategy();
-    const configured=this.energy.object(strategy.configured);
+  _strategyRows(kind) {
     const mobility=this._mobilityAssets();
-    return this.energy.rows(configured.properties).filter(row=>{ const id=this._assetId(row); return !id || mobility.has(id); });
+    return this.energy.canonicalRows().filter(row=>
+      row.availability==='AVAILABLE' &&
+      String(row.presentation_surface).toLowerCase()==='configuration' &&
+      String(row.property_key).toLowerCase().includes('strategy') &&
+      String(row.property_key).toLowerCase().includes(kind) &&
+      (!row.asset_id || mobility.has(row.asset_id)));
   }
-  _effectiveRows() {
-    const strategy=this._strategy();
-    const effective=this.energy.object(strategy.effective);
-    const mobility=this._mobilityAssets();
-    return this.energy.rows(effective.properties).filter(row=>{ const id=this._assetId(row); return !id || mobility.has(id); });
-  }
+  _configuredRows() { return this._strategyRows('configured'); }
+  _effectiveRows() { return this._strategyRows('effective'); }
   viewModel() {
-    const snapshot=this.energy.snapshot();
-    const strategy=this._strategy();
-    const configured=this.energy.object(strategy.configured);
-    const effective=this.energy.object(strategy.effective);
+    const configured=this._configuredRows();
+    const effective=this._effectiveRows();
     return Object.freeze({
       profilesAvailable:false,
-      effectiveAvailable:snapshot.available && Object.keys(effective).length>0,
-      profileContractVersion:snapshot.contractVersion,
-      effectiveContractVersion:snapshot.contractVersion,
-      profiles:[],
-      configured:this._configuredRows(),
-      effective:this._effectiveRows(),
-      configuredState:String(configured.status || "UNAVAILABLE"),
-      effectiveState:String(effective.status || "UNAVAILABLE"),
-      source:"RHI_ENERGY_PUBLIC_CONTRACT_V2.configuration.strategy"
+      effectiveAvailable:effective.length>0,
+      profileContractVersion:'RHI_ENERGY_CANONICAL_PROPERTY_V2',
+      effectiveContractVersion:'RHI_ENERGY_CANONICAL_PROPERTY_V2',
+      profiles:[],configured,effective,
+      configuredState:configured.length?'AVAILABLE':'UNAVAILABLE',
+      effectiveState:effective.length?'AVAILABLE':'UNAVAILABLE',
+      source:'RHI_ENERGY_CANONICAL_PROPERTY_V2.configuration.strategy'
     });
   }
 }
@@ -10004,18 +10042,21 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
     this._hass = hass;
     const rt = new HomeBrainAssetRuntime(hass, this.config);
     const view = this.config.view || this.viewFromPath();
+    // Canonical property revisions are authoritative for planning, strategies and insights.
+    // Retain activity/command revisions only for their supported domain contracts.
     const revisionIds = view === "log"
       ? ["sensor.rhi_mobility_activity_v2"]
       : view === "planning"
-        ? ["sensor.rhi_energy_public_contract_v2","sensor.rhi_mobility_runtime_v2","sensor.rhi_mobility_command_v2"]
-        : view === "strategies"
-          ? ["sensor.rhi_energy_public_contract_v2","sensor.rhi_mobility_runtime_v2"]
-          : ["sensor.rhi_energy_public_contract_v2","sensor.rhi_mobility_runtime_v2","sensor.rhi_mobility_activity_v2"];
-    const revisionSignature = `${view}|${rt.entityRevisionSignature(revisionIds)}`;
+        ? ["sensor.rhi_mobility_command_v2"]
+        : ["sensor.rhi_mobility_activity_v2"];
+    const canonicalRevision = rt._canonicalProperties?.revision() ?? 0;
+    const revisionSignature = `${view}|${canonicalRevision}|${rt.entityRevisionSignature(revisionIds)}`;
     if (revisionSignature === this._lastRevisionSignature) return;
     this._lastRevisionSignature = revisionSignature;
     const data = this.viewModel(view);
-    this.shadowRoot.innerHTML = `<ha-card><div class="page">
+    this.shadowRoot.replaceChildren();
+      const fragment = document.createElement("template");
+      fragment.innerHTML = `<ha-card><div class="page">
       ${hbMobilityNav(view)}
       ${hbMobilityPageHero(rt, view)}
       ${this.renderTopStatus(rt, view)}
@@ -10023,6 +10064,7 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
       ${view === "planning" ? this.renderPlanning(rt) : view === "strategies" ? this.renderStrategies(rt) : view === "history" ? this.renderInsights(rt) : view === "log" ? this.renderLog(rt) : this.renderContextCards(rt, data)}
       ${hbMobilityReleaseFooter(rt)}
     </div><style>${this.styles()}</style></ha-card>`;
+      this.shadowRoot.append(fragment.content.cloneNode(true));
     this.shadowRoot.querySelectorAll("button[data-nav]").forEach((btn)=>btn.addEventListener("click",()=>rt.navigate(btn.getAttribute("data-nav"))));
   }
 
@@ -10459,7 +10501,9 @@ class HomeBrainMobilityAssetDetailCard extends HTMLElement {
     }
 
     if (!entry) {
-      this.shadowRoot.innerHTML = `
+      this.shadowRoot.replaceChildren();
+      const fragment = document.createElement("template");
+      fragment.innerHTML = `
         <ha-card>
           <div class="missing">
             <h2>${rt.escape((rt?.t?.("asset.not_registered",{},"Asset not registered") || "Asset not registered"))}</h2>
@@ -10700,6 +10744,7 @@ ${hbMobilitySharedShellStyles()}
 </style>
         ${hbMobilityReleaseFooter(rt)}
         </ha-card>`;
+      this.shadowRoot.append(fragment.content.cloneNode(true));
       this.shadowRoot.querySelectorAll("button[data-nav]").forEach((btn)=>btn.addEventListener("click",()=>rt.navigate(btn.getAttribute("data-nav"))));
 
       return;
@@ -10708,7 +10753,10 @@ ${hbMobilitySharedShellStyles()}
     const factory = new HomeBrainAssetFactory(rt);
     const adapter = factory.adapterFor(entry, this.config);
     if (!adapter) {
-      this.shadowRoot.innerHTML = `<ha-card><div style="padding:24px">No adapter available for ${rt.escape(entry.asset_type)}</div></ha-card>`;
+      this.shadowRoot.replaceChildren();
+      const fragment = document.createElement("template");
+      fragment.innerHTML = `<ha-card><div style="padding:24px">No adapter available for ${rt.escape(entry.asset_type)}</div></ha-card>`;
+      this.shadowRoot.append(fragment.content.cloneNode(true));
       return;
     }
 
@@ -10735,7 +10783,10 @@ ${hbMobilitySharedShellStyles()}
       console.error("HomeBrain Mobility asset detail render failed", err);
       if (!this.shadowRoot) this.attachShadow({ mode: "open" });
       const msg = String((err && (err.stack || err.message)) || err || "Unknown detail render error").replace(/[&<>]/g, (ch) => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[ch]));
-      this.shadowRoot.innerHTML = `<ha-card><div style="margin:24px auto;width:min(100%,1100px);padding:28px;border:1px solid #F3B7B7;border-radius:22px;background:#FFF7F7;color:#061226;box-shadow:0 18px 48px rgba(80,15,15,.08)"><h2>Asset detail temporarily unavailable</h2><p>The selected Mobility asset could not render safely.</p><pre style="white-space:pre-wrap;font-size:12px">${msg}</pre><button data-back style="border:1px solid #DDE6F2;background:#fff;border-radius:12px;padding:10px 14px;font-weight:600">← Back to Dashboard</button></div></ha-card>`;
+      this.shadowRoot.replaceChildren();
+      const fragment = document.createElement("template");
+      fragment.innerHTML = `<ha-card><div style="margin:24px auto;width:min(100%,1100px);padding:28px;border:1px solid #F3B7B7;border-radius:22px;background:#FFF7F7;color:#061226;box-shadow:0 18px 48px rgba(80,15,15,.08)"><h2>Asset detail temporarily unavailable</h2><p>The selected Mobility asset could not render safely.</p><pre style="white-space:pre-wrap;font-size:12px">${msg}</pre><button data-back style="border:1px solid #DDE6F2;background:#fff;border-radius:12px;padding:10px 14px;font-weight:600">← Back to Dashboard</button></div></ha-card>`;
+      this.shadowRoot.append(fragment.content.cloneNode(true));
       this.shadowRoot.querySelector('[data-back]')?.addEventListener('click', () => { try { history.pushState(null, '', (this.config && this.config.dashboard_path) || '/mobility-supervisor/dashboard'); window.dispatchEvent(new Event('location-changed')); } catch(e) {} });
     }
   }
@@ -10842,7 +10893,11 @@ class HomeBrainMobilityCard extends HTMLElement {
 
     let mount = this.shadowRoot.getElementById("mobility-bootstrap");
     if (!mount) {
-      this.shadowRoot.innerHTML = `<div id="mobility-bootstrap"></div><style>:host{display:block}#mobility-bootstrap{display:block;min-width:0}</style>`;
+      const style = document.createElement("style");
+      style.textContent = ":host{display:block}#mobility-bootstrap{display:block;min-width:0}";
+      mount = document.createElement("div");
+      mount.id = "mobility-bootstrap";
+      this.shadowRoot.append(style, mount);
       mount = this.shadowRoot.getElementById("mobility-bootstrap");
     }
 
