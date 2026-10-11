@@ -31,3 +31,5 @@ jobs:
 # Reverify strict native-only cross-domain architecture after alias retirement.
 
 # Verify zero-vs-unknown status cards and honest runtime lifecycle UX end-to-end.
+
+# Rerun executable charger/range method grouping against production source.
