@@ -328,7 +328,9 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     const subtitle = model?.subtitle || asset.profile || "Vehicle";
     const route = rt.assetDetailRoute(asset);
     const lifecycleLabel = this.lifecycleDisplay(rt, asset);
-    const activateButton = this.lifecycleToggleButton(rt, asset, "activate-soft manage-lifecycle");
+    // Missing canonical lifecycle is a publication gap, never a disabled vehicle.
+    const activateButton = rt.lifecycleStatus(asset)==="disabled"
+      ? this.lifecycleToggleButton(rt, asset, "activate-soft manage-lifecycle") : "";
     // Identity artwork is still useful when the lifecycle is disabled: an
     // inactive fleet must remain recognizable instead of becoming a blank list.
     const image=String(model?.image || "");
@@ -737,7 +739,8 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
 
   renderOverviewPage(rt, vehicles, chargers, activityRows, reco) {
     const activeVehicles = vehicles.filter((v)=>rt.lifecycleStatus(v) === "active");
-    const inactiveVehicles = vehicles.filter((v)=>["disabled","unknown"].includes(rt.lifecycleStatus(v)));
+    const inactiveVehicles = vehicles.filter((v)=>rt.lifecycleStatus(v) === "disabled");
+    const unverifiedVehicles = vehicles.filter((v)=>rt.lifecycleStatus(v) === "unknown");
     const status = this.overviewStatusModel(rt, activeVehicles, chargers);
     const securityNames = status.security.unsafe.length
       ? status.security.unsafe.slice(0,2).map((row)=>row.name).join(" · ")
@@ -784,12 +787,13 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
           <div><h2>${rt.escape(rt.t("dashboard.vehicles",{},"Vehicles"))}</h2><p>${rt.escape(rt.t("dashboard.vehicles_description",{},"Readiness first: range and energy, security, comfort, maintenance, charger relationship and direct actions."))}</p></div>
           <button data-nav="${hbMobilityPath("/dashboard")}">${rt.escape(rt.t("charger.vehicle_management",{},"Vehicle Management"))} <ha-icon icon="mdi:chevron-right"></ha-icon></button>
         </div>
-        <div class="ov-vehicle-list">${activeVehicles.length ? activeVehicles.map((vehicle)=>this.renderOverviewVehicleRow(rt,vehicle,chargers)).join("") : `<div class="ov-empty">No active vehicles. ${inactiveVehicles.length ? `${inactiveVehicles.length} known vehicle${inactiveVehicles.length===1?"":"s"} currently inactive or unavailable.` : "No vehicle is published by the Mobility backend."}</div>`}</div>
+        <div class="ov-vehicle-list">${activeVehicles.length ? activeVehicles.map((vehicle)=>this.renderOverviewVehicleRow(rt,vehicle,chargers)).join("") : `<div class="ov-empty">No active vehicles. ${inactiveVehicles.length ? `${inactiveVehicles.length} disabled vehicle${inactiveVehicles.length===1?"":"s"}.` : ""} ${unverifiedVehicles.length ? `${unverifiedVehicles.length} vehicle lifecycle publication${unverifiedVehicles.length===1?" is":"s are"} missing or unavailable.` : ""} ${!inactiveVehicles.length && !unverifiedVehicles.length ? "No vehicle is published by the Mobility backend." : ""}</div>`}</div>
         ${inactiveVehicles.length ? `<div class="ov-inactive-summary"><div class="ov-inactive-title"><strong>${rt.escape(rt.t("dashboard.inactive_vehicles",{},"Inactive vehicles"))}</strong><span>${inactiveVehicles.length} · ${rt.escape(rt.t("dashboard.inactive_vehicles_description",{},"Disabled vehicles stay available for deliberate reactivation and detail access."))}</span></div><div class="inactive-list">${inactiveVehicles.map(v=>this.renderInactiveVehicle(rt,v)).join("")}</div></div>` : ""}
+        ${unverifiedVehicles.length ? `<div class="ov-inactive-summary"><div class="ov-inactive-title"><strong>Lifecycle status unavailable</strong><span>${unverifiedVehicles.length} vehicles · Mobility canonical asset.lifecycle_status not published or unavailable. Do not reactivate.</span></div><div class="inactive-list">${unverifiedVehicles.map(v=>this.renderInactiveVehicle(rt,v)).join("")}</div></div>` : ""}
       </section>`;
   }
 
-  renderVehiclesPage(rt, activeVehicles, inactiveVehicles, chargers, reco, plan, trust, activity, intelligenceSummary) {
+  renderVehiclesPage(rt, activeVehicles, inactiveVehicles, unverifiedVehicles, chargers, reco, plan, trust, activity, intelligenceSummary) {
     const factory = new HomeBrainAssetFactory(rt);
     const vehicleLabel = (vehicle) => {
       const model = factory.adapterFor(vehicle, this.config)?.build?.() || null;
@@ -807,14 +811,17 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
 
     const allActive = sortRows(activeVehicles);
     const allInactive = sortRows(inactiveVehicles);
+    const allUnverified = sortRows(unverifiedVehicles);
     const filter = this._vehicleFilter || "all";
     const visibleActive = filter === "disabled" ? [] : filter === "attention" ? allActive.filter(attentionRequired) : allActive;
     const visibleInactive = filter === "active" ? [] : filter === "attention" ? allInactive.filter(attentionRequired) : allInactive;
+    const visibleUnverified = ["active","disabled"].includes(filter) ? [] : filter === "attention" ? allUnverified.filter(attentionRequired) : allUnverified;
 
     const fleet = rt.mobilityFleetProjection();
     const activeCount = Number.isFinite(Number(fleet.active_vehicle_count)) ? Number(fleet.active_vehicle_count) : allActive.length;
     const inactiveCount = allInactive.length;
-    const attentionCount = [...allActive, ...allInactive].filter(attentionRequired).length;
+    const unverifiedCount = allUnverified.length;
+    const attentionCount = [...allActive, ...allInactive, ...allUnverified].filter(attentionRequired).length;
     const assignedRows = allActive.filter((vehicle)=>{
       const model = factory.adapterFor(vehicle, this.config)?.build?.() || null;
       return !!String(model?.projection?.relationships?.configured_charger_id || "").trim();
@@ -832,7 +839,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     return `
       ${hbMobilityPageHero(rt, "vehicles")}
       ${hbMobilityStatusGrid(rt, [
-        { icon:"mdi:car-multiple", label:"Fleet", value:`${activeCount} active`, sub:inactiveCount ? `${inactiveCount} disabled` : "No disabled vehicles", tone:"neutral" },
+        { icon:"mdi:car-multiple", label:"Fleet", value:`${activeCount} active`, sub:[inactiveCount ? `${inactiveCount} disabled` : "",unverifiedCount ? `${unverifiedCount} lifecycle unverified` : ""].filter(Boolean).join(" · ") || "No disabled vehicles", tone:"neutral" },
         { icon:"mdi:card-account-details-outline", label:"Profiles", value:`${profiledRows.length}/${activeCount} configured`, sub:unprofiledRows.length ? `${names(unprofiledRows)} without profile` : "All active vehicles profiled", tone:"neutral" },
         { icon:"mdi:ev-station", label:"Charging setup", value:`${configuredCount}/${activeCount} assigned`, sub:unassignedRows.length ? `${names(unassignedRows)} no charger` : "All active vehicles assigned", tone:"neutral" }
       ], "vehicles-top-status")}
@@ -846,7 +853,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
       <section class="vehicle-management-bar vehicle-filter-bar" aria-label="Vehicle filters and sorting">
         <div class="vehicle-filter-group" role="group" aria-label="Filter vehicles">
           ${[
-            ["all","All",activeCount+inactiveCount],
+            ["all","All",allActive.length+inactiveCount+unverifiedCount],
             ["active","Active",activeCount],
             ["disabled","Disabled",inactiveCount],
             ["attention","Attention",attentionCount]
@@ -864,6 +871,10 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
         <section class="vehicles vehicle-workspace-list">${visibleActive.map((v)=>this.renderVehicle(rt,v,chargers)).join("")}</section>
       ` : (filter !== "disabled" && filter !== "all" ? `<div class="vehicle-filter-empty">No active vehicles match this filter.</div>` : "")}
 
+      ${visibleUnverified.length ? `
+        <section class="vehicle-workspace-head inactive-head"><div><h2>Lifecycle status unavailable</h2><p>These registered vehicles are not confirmed disabled. The canonical lifecycle publication is missing or unavailable; activation remains blocked.</p></div><span class="vehicle-count-pill muted">${visibleUnverified.length} shown</span></section>
+        <section class="inactive-list">${visibleUnverified.map(v=>this.renderInactiveVehicle(rt,v)).join("")}</section>
+      ` : ""}
       ${visibleInactive.length ? `
         <section class="vehicle-workspace-head inactive-head">
           <div><h2>${rt.escape(rt.t("dashboard.inactive_vehicles",{},"Inactive vehicles"))}</h2><p>${rt.escape(rt.t("dashboard.inactive_vehicles_description",{},"Disabled vehicles stay available for deliberate reactivation and detail access."))}</p></div>
@@ -942,7 +953,8 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
           const vehicles = factory.vehicles().filter((a)=>a.lifecycle_state !== "Retired").sort((a,b)=>(Number(a.sort_order ?? 999)-Number(b.sort_order ?? 999)) || String(a.display_name).localeCompare(String(b.display_name)));
           const chargers = factory.chargers().filter((a)=>a.frontend_allowed !== false && rt.lifecycleStatus(a) === "active").sort((a,b)=>(Number(a.sort_order ?? 999)-Number(b.sort_order ?? 999)) || String(a.display_name).localeCompare(String(b.display_name)));
           const activeVehicles = vehicles.filter((v)=>rt.lifecycleStatus(v) === "active");
-          const inactiveVehicles = vehicles.filter((v)=>rt.lifecycleStatus(v) !== "active" && rt.lifecycleStatus(v) !== "retired");
+          const inactiveVehicles = vehicles.filter((v)=>rt.lifecycleStatus(v) === "disabled");
+          const unverifiedVehicles = vehicles.filter((v)=>rt.lifecycleStatus(v) === "unknown");
           const reco = this.recommended(rt);
           const plan = rt.supervisorOutcome("mobility", "opportunity", "Unknown") || "Unknown";
           const trust = rt.supervisorOutcome("mobility", "trust", "Unknown") || "Unknown";
@@ -978,7 +990,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
           const navActive = this.dashboardTabFromRoute();
           const pageContent = navActive === "overview"
             ? this.renderOverviewPage(rt, vehicles, chargers, activityRows, reco)
-            : this.renderVehiclesPage(rt, activeVehicles, inactiveVehicles, chargers, reco, plan, trust, activity, intelligenceSummary);
+            : this.renderVehiclesPage(rt, activeVehicles, inactiveVehicles, unverifiedVehicles, chargers, reco, plan, trust, activity, intelligenceSummary);
           {
       const template = document.createElement("template");
       template.innerHTML = `<ha-card><div class="page rhiUxDomainBody rhi-ux-root">${this.versionBlock(rt)}
