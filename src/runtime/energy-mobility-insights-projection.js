@@ -18,9 +18,10 @@ class HomeBrainEnergyMobilityInsightsProjection {
   }
   _meteringRows(periodId='today') {
     const mobility=this._mobilityAssets();
+    const selected=String(periodId||'').toLowerCase();
     return this.energy.canonicalRows().filter(row=>row.availability==='AVAILABLE' &&
-      row.presentation_surface==='metering' && mobility.has(row.asset_id) &&
-      String(row.property_key).includes(String(periodId).toLowerCase())).map(row=>Object.freeze({
+      row.presentation_surface==='metering' && row.period_id===selected &&
+      row.unit==='kWh' && mobility.has(row.asset_id)).map(row=>Object.freeze({
         assetId:row.asset_id,name:this._assetName(row.asset_id),periodId,
         energyKwh:this._number(row.value),unit:'kWh',measurementState:'AVAILABLE',
         trustState:'',raw:row
@@ -28,9 +29,10 @@ class HomeBrainEnergyMobilityInsightsProjection {
   }
   _valueRows(periodId='today') {
     const mobility=this._mobilityAssets();
+    const selected=String(periodId||'').toLowerCase();
     return this.energy.canonicalRows().filter(row=>row.availability==='AVAILABLE' &&
-      row.presentation_surface==='value_accounting' && mobility.has(row.asset_id) &&
-      String(row.property_key).includes(String(periodId).toLowerCase())).map(row=>Object.freeze({
+      row.presentation_surface==='value_accounting' && row.period_id===selected &&
+      row.unit==='EUR' && mobility.has(row.asset_id)).map(row=>Object.freeze({
         assetId:row.asset_id,name:this._assetName(row.asset_id),periodId,
         attributedEur:this._number(row.value),energyKwh:null,state:'AVAILABLE',raw:row
       }));
@@ -49,8 +51,8 @@ class HomeBrainEnergyMobilityInsightsProjection {
     });
     return Object.freeze({
       periodId:String(periodId || "today").toLowerCase(),
-      meteringAvailable:snapshot.available && metering.length>0,
-      valueAvailable:snapshot.available && accounting.length>0,
+      meteringAvailable:snapshot.available && meteringRows.length>0,
+      valueAvailable:snapshot.available && valueRows.length>0,
       meteringContractVersion:snapshot.contractVersion,
       valueContractVersion:snapshot.contractVersion,
       valueCurrency:"EUR",

@@ -27,6 +27,10 @@ Forbidden for screens/components:
 - local component/family reconstruction.
 
 
+## Cross-domain Energy authority
+
+Mobility does not become the Energy planner, accounting or meter owner. D0/D1 scalar totals use Energy's exact `canonical_source=rhi_energy.runtime` and `metric_key` publication; canonical per-asset property rows are used only when Energy actually publishes them for that asset. A shared key name, `D0` pseudo-asset or matched display label is not an authoritative join. Insights requires explicit `period_id` and unit; effective strategy requires backend-owned semantic state and cannot be inferred from key fragments. Absent metadata means N/A, not zero.
+
 ## One semantic model, multiple projections
 
 Mobility UX has one semantic ownership model. Tabs are projections, not independent interpreters.

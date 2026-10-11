@@ -122,10 +122,14 @@ class HomeBrainAssetRuntime {
   propertyPublicationGap(assetId = "") {
     const canonical=this.canonicalAssetId(assetId);
     const rows=this._canonicalProperties.rows(canonical);
-    if (!canonical || !rows.length) return {status:"unavailable",missing:[],unexpected:[]};
-    const keys=rows.map((row)=>String(row.property_key || "")).filter(Boolean);
+    const gaps=(this._canonicalProperties.contractGaps?.() || [])
+      .filter(gap=>String(gap.key||'').startsWith(`${canonical}::`));
+    if (!canonical || (!rows.length && !gaps.length)) return {status:"unavailable",missing:[],unexpected:[]};
+    const keys=rows.map(row=>String(row.property_key||'')).filter(Boolean);
     const unique=new Set(keys);
-    const duplicates=[...unique].filter((key)=>keys.filter((candidate)=>candidate===key).length>1);
+    // rows() deliberately excludes duplicate publishers. Query the gap
+    // authority, not the filtered rows, or diagnostics would hide conflicts.
+    const duplicates=gaps.map(gap=>String(gap.key).slice(canonical.length+2));
     return {
       status:duplicates.length ? "ambiguous" : "published",
       missing:[], unexpected:[],
@@ -218,24 +222,22 @@ class HomeBrainAssetRuntime {
       .filter((row) => row && (!canonical || this.canonicalAssetId(row.asset_id || "") === canonical))
       .filter((row) => !!String(row.command_key || "").trim())
       .filter((row) => !!String(row.placement || "").trim())
-      .filter((row) => !!String(row.label || "").trim())
+      // Presentation label is optional in the producer contract.
       .map((row) => this.normalizeCommandEntry({
         ...row,
         command_id:String(row.command_id || "").trim(),
         command_key:String(row.command_key || "").trim(),
-        label:String(row.label || "").trim(),
+        label:String(row.label || this.titleize(String(row.command_key).split(".").pop().replace(/_/g," "))).trim(),
         command_family:String(row.command_family || "").trim(),
         category:String(row.category || "").trim(),
-        frontend_allowed:row.supported !== false,
-        exists:row.supported !== false,
-        enabled:row.supported !== false,
+        frontend_allowed:row.supported === true,
+        exists:row.supported === true,
+        enabled:row.supported === true,
         execution_allowed:row.execution_allowed === true,
         blocked_reason:row.blocked_reason || "",
         sort_order:row.sort_order ?? 999,
-        service_domain:"rhi_mobility",
-        service_action:"execute_command",
-        service_data:{ asset_id:row.asset_id || canonical, command_key:String(row.command_key || "").trim() },
-        service_target:{},
+        // Preserve the published literal invoke and fail closed if absent.
+        invoke:row.invoke || {},
         _authority:"MOBILITY_COMMAND_V2"
       }, row.asset_id || canonical))
       .filter(Boolean);
@@ -423,6 +425,10 @@ class HomeBrainAssetRuntime {
       if (property.lifecycle_status) row.lifecycle_status=String(property.lifecycle_status);
       if (property.property_key==='asset.display_name' && property.availability==='AVAILABLE')
         row.display_name=String(property.value ?? id);
+      if (property.property_key==='asset.profile_id' && property.availability==='AVAILABLE')
+        row.profile_id=String(property.value ?? '');
+      if (['vehicle.image_key','charger.image_key'].includes(property.property_key) && property.availability==='AVAILABLE')
+        row.image_key=String(property.value ?? '');
       if (property.property_key==='asset.lifecycle_status' && property.availability==='AVAILABLE')
         row.lifecycle_status=String(property.value ?? 'Unknown');
     }
@@ -1259,7 +1265,9 @@ class HomeBrainAssetRuntime {
 
 
   isWritableProperty(prop = {}) {
-    const editor = this.uxEditorControlKind(prop);
+    // Appearance is a dedicated visual picker, not a generic readonly field.
+    // The backend explicitly marks image_key writable while render_as is readonly_value.
+    const editor = this.isAppearanceProperty(prop) ? "appearance_picker" : this.uxEditorControlKind(prop);
     return this.contractBool(prop.editable, false) === true
       && this.contractBool(prop.write_supported, false) === true
       && !!editor
@@ -1513,7 +1521,7 @@ class HomeBrainAssetRuntime {
     const canonical = this.canonicalAssetId(assetId);
     // R43.2.54: lifecycle is a property concern. Deprecated aggregate runtime
     // publications and asset-index metadata are never product lifecycle fallbacks.
-    return (this.propertyRows(canonical) || []).find((p) => String(p.property_key || "").toLowerCase() === "lifecycle_status") || null;
+    return this.semanticProperty(canonical, "asset.lifecycle_status") || null;
   }
 
 
@@ -1541,8 +1549,10 @@ class HomeBrainAssetRuntime {
     const asset = typeof assetOrId === "object" ? assetOrId : this.assetById(assetOrId);
     const canonical = this.canonicalAssetId(asset?.asset_id || assetOrId || "");
     const value = String(desiredStatus || "").trim().toLowerCase();
-    const prop = canonical ? this.lifecyclePropertyRow(canonical) : null;
-    const writable = !!(prop && this.isWritableProperty(prop));
+    // Lifecycle truth is asset.lifecycle_status. The backend may publish a
+    // distinct alias only as its explicit editable transport: it is NOT truth.
+    const prop = canonical ? this.semanticProperty(canonical, "lifecycle_status") : null;
+    const writable = !!(prop && this.lifecyclePropertyRow(canonical) && this.isWritableProperty(prop));
     const current = this.lifecycleStatus(asset || canonical);
     return {
       asset_id: canonical,
@@ -1625,7 +1635,7 @@ class HomeBrainAssetRuntime {
       const assetId = this.canonicalAssetId(prop.asset_id || options.asset_id || "");
       const propertyKey = String(prop.property_key || options.property_key || "").trim();
       if (!assetId || !propertyKey) return false;
-      const confirmed = await this.waitForCanonicalPropertyReadback(assetId, propertyKey, value, options);
+      const confirmed = await this.waitForCanonicalPropertyReadback(assetId, options.readback_property_key || propertyKey, value, options);
       if (!confirmed) {
         console.error("[RHI Mobility UX] canonical property readback timeout", {property_key:propertyKey,asset_id:assetId,expected:value});
       }
@@ -1648,7 +1658,7 @@ class HomeBrainAssetRuntime {
     if (model.disabled) return false;
     return this.writePropertyValueAsync(model.prop, model.desired, {
       asset_id:this.canonicalAssetId(typeof assetOrId === "string" ? assetOrId : assetOrId?.asset_id || ""),
-      property_key:model.prop?.property_key || "lifecycle_status"
+      readback_property_key:"asset.lifecycle_status"
     });
   }
 
@@ -1660,7 +1670,7 @@ class HomeBrainAssetRuntime {
       icon:"mdi:alert-outline",
       header:"Contract gap",
       rows:[{ type:"readonly", icon:"mdi:alert-outline", label:"Lifecycle", value:"Contract gap" }],
-      details:[{ label:"Required property", value:"property_key=lifecycle_status is missing; no fallback to mobility_enabled/Enabled" }]
+      details:[{ label:"Required property", value:"property_key=asset.lifecycle_status is missing; no fallback to mobility_enabled/Enabled" }]
     };
   }
 

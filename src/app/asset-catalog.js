@@ -39,7 +39,7 @@ const RHI_MOBILITY_IMAGE_CATALOG = Object.freeze([
   { image_key:"charger_wallbox_white", package_path:"chargers/charger_wallbox_white.webp", fallback_image_key:"charger_wallbox" },
   { image_key:"charger_wallbox_black", package_path:"chargers/charger_wallbox_black.webp", fallback_image_key:"charger_wallbox" },
   { image_key:"charger_peblar", package_path:"chargers/charger_peblar.webp", fallback_image_key:"charger_fallback" },
-  { image_key:"charger_utility_plug", package_path:"chargers/charger_utility_plug.webp", fallback_image_key:"charger_fallback" },
+  { image_key:"charger_utility_plug", package_path:"chargers/charger_utility_plug.svg", fallback_image_key:"charger_fallback" },
   { image_key:"charger_fallback", package_path:"chargers/charger_fallback.png", fallback_image_key:"charger_fallback" }
 ]);
 

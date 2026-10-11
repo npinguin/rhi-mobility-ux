@@ -1,41 +1,50 @@
-# P0 — Canonical-only frontend migration audit (2026-10-09)
+# Mobility UX canonical-only migration — current status
 
-Status: **OPEN / preparation only**. Branch is not releasable. No fabricated replacement entity IDs.
+**As built 2026-10-11:** canonical-only source migration merged to `main` in PR #175 and published as immutable, HACS-installable **test candidate** `v1.0.0-rc.89`. Source, UX, package, release, HACS and strict canonical-only scans passed. **Target Home Assistant qualification is PENDING; stable promotion is BLOCKED.** This is not a claim of product acceptance.
 
-## Architectural decision
-Domain canonical state → native HA devices/entities → Mobility gateway → scoped view models → components. No Public Runtime V2 reader, dual-contract gateway, reverse lookup, guessed relation, derived totals or semantic fallback.
+## Single product authority
 
-Backend-owned `MOBILITY_ENERGY_V2` and `COMMAND_V2` remain legitimate producer/command contracts; UX must not recreate their meaning.
+```text
+Mobility M0.10.43 canonical native property entities (V1)
+  + producer-owned Experience V2 / Policy V2 / Command V2
+  + Activity V2 / Profile Catalog V2 / Supervision V2 / Mobility Energy V2
+    → runtime identity / property / relationship / command adapters
+    → view models
+    → Overview / Vehicles / Chargers / Details / Actions / Configuration / Diagnostics
+```
 
-## Verified active dependencies (main, 2026-10-09)
-| Frontend consumer | Current source | Canonical replacement | Backend owner | Required properties | Availability | Migration status |
-|---|---|---|---|---|---|---|
-| `tests/contracts/runtime-contract-smoke.mjs` | Fixtures use `sensor.rhi_mobility_runtime_v2` and `MOBILITY_PUBLIC_RUNTIME_V2` for asset list, relationships, release/fleet and snapshots | Native canonical asset/property/relationship publication (exact IDs pending) | Mobility | Backend-owned asset identity, explicit relationship, status/reason/freshness | Await exact native contract | REWRITE REQUIRED |
-| `tests/contracts/runtime-contract-smoke.mjs` | Coexists with `MOBILITY_CANONICAL_PROPERTY_V2` scalar entities | Preserve these canonical property semantics and actual-versus-requested separation | Mobility | `charger.power_kw`, `charger.requested_charge_power_kw`, availability | Demonstrated in static fixtures, target HA unqualified | RETAIN / EXTEND |
-| `documentation/KNOWN_DEFECTS.md` | Requires target-HA proof for placement, commands, picker save/readback, relationship and cross-screen parity | Same capabilities directly through canonical native entities and producer-owned write/readback | Mobility | Per-asset placement, authoritative descriptors/readback, relationship proof | Runtime proof pending | BLOCKED |
+- Fleet identity from exact canonical `asset_id`; Audi Q8s represented by separate integrations remain different physical identities.
+- Per-asset properties from `RHI_MOBILITY_CANONICAL_PROPERTY_V1`; duplicates, stale, unknown and absent values fail closed, preserving zero.
+- Configured/effective assignment and physical connection truth from `MOBILITY_EXPERIENCE_V2` with explicit observed identity proof. Do not infer physical connection from charger assignment.
+- Commands and write/readback require backend-owned execution target, applicability and terminal readback.
+- UI owns display and interaction, not semantic relationships, lifecycle, confidence or planned energy.
 
-## Workstream A
-- [ ] Complete production dependency inventory for `MOBILITY_PUBLIC_RUNTIME_V2`, aggregate caches and legacy contract references; test fixture dependencies above are verified but do not prove exhaustive production coverage.
-- [ ] Refactor native HA entity selection without whole-domain registry reconstruction; handle new/removed/replaced entities and preserve canonical IDs.
-- [ ] Require explicit backend-owned `component_id`, `section_id`, ordering, reason/provenance/freshness. Missing placement is a visible contract gap.
-- [ ] Keep zero distinct from unknown/unavailable/absent/not-applicable and avoid UI-synthesized operational truth.
-- [ ] Add scoped invalidation/performance tests and closed-surface tests; no global HTML recreation for scalar changes.
-- [ ] Independently correct iOS widths, wrapping, hero/device images, shared responsive and visual picker hierarchy.
+## Changes in structural recovery branch
 
-## Backend dependencies
-Mobility #242 and #246 must confirm the native canonical asset/relationship/property/command interfaces and preservation or intentional change of entity and unique IDs. Do not assume compatibility solely from Foundation baseline.
+On `work/ux-structural-closure-20261011` (prospective rc.90, not yet main):
 
-## Release gate
-No frontend cutover release before a validated published backend, exact compatible version matrix, HA runtime and rollback qualification, benchmark and zero accepted debt. This document is not a completed implementation or test result.
+1. Cross-domain D0/D1 planning now reads actual Energy-native metric publications selected by `canonical_source=rhi_energy.runtime` and exact `metric_key`, not fabricated `D0` / `D1` canonical asset IDs.
+2. Insights requires explicitly published per-asset `period_id` and unit before rendering Energy energy/financial attribution; property-name matching is no longer treated as period authority.
+3. Strategy displays only backend-published, editable `presentation_family=strategy` configuration. Without a producer-owned effective strategy state, effective status remains unavailable, not derived from a property key.
+4. Duplicate canonical-property diagnostics use the canonical index's actual contract gaps even though duplicate rows are hidden from product selectors.
 
-## Coordinated P0 release gates — blocking
-Six issue program: Foundation #109/#111; Mobility #246/#247; Energy #240/#242.
+These changes are unqualified until full source/UX/package validation and target HA runtime checks pass; they do not alter published rc.89 bytes.
 
-1. Domain model first: normalized property changes must update domain model, canonical catalog, HA materialization and bidirectional Validate canaries in the same backend PR.
-2. Backend complete: exact public native entity/unique IDs, attributes, typed state/quality/freshness, placement, invoke and terminal readback; missing capability stays open at owning backend issue.
-3. Backend validated: Foundation, Mobility and Energy CI PASS, no active retired aggregate transport in UX/HA hot path, no shadow semantic authority.
-4. Backend released: immutable tested backend tags, full SHA and baseline-adoption manifests for all three domains; confirm identities rather than assuming.
-5. UX validated: all critical screens and actions use native canonical entities only; absent backend truth is visible contract gap.
-6. Joint qualified: one HA instance, install/upgrade, dynamic asset lifecycle, reload/restart, outages, write/readback, rollback, iPhone/iPad/desktop and measured event→gateway→component processing. Backend CPU ≤25% target must be assessed in same qualification.
+## Target Home Assistant acceptance — still OPEN
 
-**No premature closure:** backend CI green alone is not product acceptance. Keep WIP backend decommission PRs blocked until canonical replacement is proven. Technical debt acceptance = 0; feature debt acceptance = 0. Never substitute frontend logic for missing backend semantics.
+- Install exact immutable candidate against Foundation F1.8.43, Mobility M0.10.43 and compatible Energy backend, with SHA/contract provenance.
+- Prove all expected vehicles/chargers, both Audi Q8 integrations, add/remove and rename stability, no source device duplication.
+- Verify vehicle/charger configured vs effective vs physical relationship truth including unknown, conflict, reassignment and explicit No charger.
+- Execute Start, Stop, Unlock, Restart and Identify via producer-owned commands; test blocked/failed/timeout and terminal readback.
+- Save/reopen vehicle/charger appearance, profiles, actual vs requested power and editable configuration across refresh, restart and rollback.
+- Prove Energy cross-domain planning, metering and financial evidence with exact period/asset joins; fail closed when unavailable. Do not accept synthetic Energy fixture data as runtime qualification.
+- Inspect Overview, Vehicles, Chargers, Details, Intelligence, Insights and Diagnostics on phone, tablet and desktop for layout/state preservation.
+- Demonstrate reload, upgrade, HACS install and immutable rollback. Record evidence in `release/QUALIFICATION.json`.
+
+## CI discipline and ownership
+
+Do not spend Actions on each intermediate commit. Validate locally in a non-PR working branch; only open the qualification PR once full source, UX, package, documentation and deterministic dist are consistent. No weakening of `tools/audit-canonical-dependencies.mjs`, `npm test`, or HACS gates. `src/OWNERSHIP.json` and `tests/OWNERSHIP.json` remain normative.
+
+## Historical baseline
+
+The original 2026-10-09 audit listed `MOBILITY_PUBLIC_RUNTIME_V2` as active. That inventory is **superseded by the verified rc.89 code/CI**; it must not be interpreted as the current release state. Missing backend contract requirements remain tracked in `documentation/BACKEND_INTERFACE_BACKLOG.md`, and real runtime gaps in `documentation/KNOWN_DEFECTS.md`.

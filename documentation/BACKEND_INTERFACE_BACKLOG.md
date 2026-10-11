@@ -19,6 +19,19 @@ This backlog captures product capabilities required by Mobility UX that are not 
 
 Rule: **do not mock these in UX**. Until the backend publishes the contract, the relevant V2 surface remains empty, unavailable, N/A or an explicit contract gap.
 
+## P0 cross-domain Energy contracts — native truth required
+
+Current Energy backend publishes native D0/D1 planning totals as sensors with `canonical_source=rhi_energy.runtime` and exact `metric_key`. These are not per-asset canonical properties whose `asset_id` is `D0` or `D1`.
+
+For reliable Mobility Intelligence and Insights, Energy must also publish:
+
+- complete D0/D1 planning detail, per-asset allocations and exact identity joins (Energy backend #249 / #242);
+- per-asset metering and financial attribution with **explicit period identity, units, availability and quality**. A property key containing `today` is not proof of a period;
+- configured versus effective strategy truth through an explicit semantic contract. An editable strategy property only proves a configurable setting, not its effective runtime interpretation;
+- requested/actual/readback distinction and persistence across changes and reloads.
+
+Until published, the affected cards must show unavailable/N/A. No property-name substring classifiers, sum-of-known-partials, fake totals or shadow Strategy owner are allowed in Mobility UX.
+
 ## Priority — Overview completion
 
 ### HA-native user → vehicle relationship
@@ -114,3 +127,11 @@ No future V2.x field may be guessed, reverse-engineered from raw Home Assistant 
 Mobility M0.9.44 publishes per-asset `property_publication` evidence on Runtime V2, including expected and catalog property keys.
 
 The legacy Runtime V2 catalog was removed from UX during the canonical-only migration. UX now reports directly published canonical property keys and any ambiguity, but does not claim expected-property completeness without a replacement backend-owned expected-key catalog. Such a catalog remains a backend interface gap; no UI inference or old-contract fallback is permitted.
+
+## Target HA defect dependencies — 2026-10-11
+
+- **Lifecycle authority:** `asset.lifecycle_status` is the canonical READ contract; `lifecycle_status` is the explicitly published write-alias only. The backend must expose both with exact write authority and confirmed canonical readback to enable a disabled vehicle.
+- **Command V2:** `label` is optional display text. Producer provides `command_key`, `placement`, `supported`, `execution_allowed` and literal `invoke`. UX may localize the label, not fabricate an invocation or consent.
+- **Activity:** backend currently publishes current-state snapshots and command results together. Proposed backend Activity evidence branch adds `row_kind` and UTC `observed_at` to true execution results. Event chronology and bounded historical retention beyond last_results remain producer-owned work.
+- **Energy Insights:** exact per-asset `period_id`, units, quality and availability for metering and value attribution are still required. Do not infer period from property name or compute financial totals locally.
+- **Artwork:** former utility plug WebP was a vehicle, not a Fibaro device; replacement is an RHI-backend-owned schematic, not yet exact-model product photography. The real-image provenance/verification remains a visual-library work item.

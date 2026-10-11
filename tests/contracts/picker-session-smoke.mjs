@@ -88,4 +88,15 @@ for(const needle of [
 ]) {
   if(!uxCore.includes(needle)) throw new Error(`shared visual choice bounds regression: missing ${needle}`);
 }
+// The backend advertises image_key as writable but its generic detail row is
+// readonly_value. Only the dedicated bounded appearance picker may edit it.
+if(!runtime.includes('this.isAppearanceProperty(prop) ? "appearance_picker" : this.uxEditorControlKind(prop)'))
+  throw new Error('explicit appearance write capability was masked by readonly detail rendering');
+for(const source of [vehiclePicker,chargerPicker]){
+  if(!source.includes('const sameProduct=') || !source.includes('sameProduct || (!!profileId && profileWritable)'))
+    throw new Error('appearance-only edit incorrectly requires a profile change');
+}
+if(!runtime.includes('readback_property_key:"asset.lifecycle_status"'))
+  throw new Error('lifecycle write may not confirm itself from a deprecated read alias');
+
 console.log('PASS appearance Save bridges pending presentation to canonical readback/revert');

@@ -16,12 +16,13 @@ const commands=[
   command_id:`${aid}:${command_key}`,
   asset_id:aid,
   command_key,
-  label:command_key.split('.').pop().replace(/_/g,' '),
+  // Producer omits the optional UI label.
   supported:true,
   execution_allowed,
   blocked_reason:execution_allowed?'':'already_stopped',
   placement,
-  protective:command_key.endsWith('.stop')
+  protective:command_key.endsWith('.stop'),
+  invoke:{service:'rhi_mobility.execute_command',data:{asset_id:aid,command_key}}
 }));
 
 const staleV1={
@@ -60,6 +61,7 @@ if(rows.length!==commands.length) throw new Error(`expected ${commands.length} V
 const keys=new Set(rows.map(x=>x.command_key));
 for(const key of commands.map(row=>row.command_key)) if(!keys.has(key)) throw new Error(`missing Command V2 command ${key}`);
 if(keys.size!==rows.length) throw new Error('duplicate command rendered');
+if(rows.some(x=>!x.label || x.label.includes('undefined'))) throw new Error('missing optional producer label removed valid command');
 
 const stop=rows.find(x=>x.command_key==='charger.command.stop');
 if(stop?.execution_allowed!==false || stop?.execution_reason!=='already_stopped') throw new Error('Command V2 readiness was not preserved');
@@ -79,8 +81,8 @@ if(calls[0].data.asset_id!==aid || calls[0].data.command_key!=='charger.command.
 
 const vehicle='vehicle_test';
 hass.states['sensor.rhi_mobility_command_v2'].attributes.commands.push(
-  {command_id:`${vehicle}:vehicle.command.lock`,asset_id:vehicle,command_key:'vehicle.command.lock',label:'Lock',supported:true,execution_allowed:true,blocked_reason:'ready',placement:'vehicle.security',protective:false},
-  {command_id:`${vehicle}:vehicle.command.refresh`,asset_id:vehicle,command_key:'vehicle.command.refresh',label:'Refresh',supported:true,execution_allowed:true,blocked_reason:'ready',placement:'vehicle.engineering',protective:false}
+  {command_id:`${vehicle}:vehicle.command.lock`,asset_id:vehicle,command_key:'vehicle.command.lock',supported:true,execution_allowed:true,blocked_reason:'ready',placement:'vehicle.security',protective:false,invoke:{service:'rhi_mobility.execute_command',data:{asset_id:vehicle,command_key:'vehicle.command.lock'}}},
+  {command_id:`${vehicle}:vehicle.command.refresh`,asset_id:vehicle,command_key:'vehicle.command.refresh',supported:true,execution_allowed:true,blocked_reason:'ready',placement:'vehicle.engineering',protective:false,invoke:{service:'rhi_mobility.execute_command',data:{asset_id:vehicle,command_key:'vehicle.command.refresh'}}}
 );
 rt._memo.clear();
 const vehicleQuick=rt.commandsForSurface(vehicle,'quick_actions');
@@ -89,6 +91,9 @@ if(!vehicleQuick.some(row=>row.command_key==='vehicle.command.lock')) throw new 
 const engineering=rt.commandsForSurface(vehicle,'engineering');
 if(engineering.length!==1 || engineering[0].command_key!=='vehicle.command.refresh') throw new Error('V2 placement did not route engineering command');
 
+commands.push({command_id:'bad',asset_id:aid,command_key:'charger.command.bad',supported:true,execution_allowed:true,placement:'charger.primary'});
+const bad=rt.commandV2Rows(aid).find(x=>x.command_key==='charger.command.bad');
+if(!bad || !rt.commandState(bad).disabled) throw new Error('missing producer invoke did not fail closed');
 console.log('PASS MOBILITY_COMMAND_V2 is sole command authority when published');
 console.log('PASS Start/Stop/Unlock/Restart/Identify survive without V1 slot materialization');
 console.log('PASS command execution uses producer-owned rhi_mobility.execute_command');

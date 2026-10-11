@@ -28,7 +28,14 @@ class HomeBrainChargerAdapter {
     const packageFile = String(visual?.appearance?.package_file || "");
     return packageFile || this.rt.visualImageUrl(reg, "charger", "image", "charger_fallback");
   }
-  profile() { const reg = this.registryEntry(); return reg?.profile_display_name || reg?.profile || this.config.fallback_profile || "Charger"; }
+  profile() {
+    const reg=this.registryEntry() || {}, id=this.assetId();
+    const property=this.rt.semanticProperty(id,"asset.profile_id");
+    const profileId=String(property?.value ?? reg.profile_id ?? "").trim();
+    const published=profileId ? this.rt.profileRows().find(p=>String(p.profile_id || p.id || "")===profileId) : null;
+    return String(published?.display_name || published?.label || reg.profile_display_name || reg.profile ||
+      (profileId ? this.rt.titleize(profileId.replace(/_/g," ")) : this.config.fallback_profile || "Profile not assigned"));
+  }
   status() { return this.rt.chargerOperationalStatus(this.assetId()); }
   can(capability) { return this.commandExists(capability); }
   overviewAvailability() {
@@ -104,6 +111,17 @@ class HomeBrainChargerAdapter {
       ? String(snapshot.connected_vehicle.asset_id || snapshot.connected_vehicle.value || "")
       : "";
     const vehicleEntry = vehicleAssetId ? (this.rt.vehicleById(vehicleAssetId) || this.rt.assetById(vehicleAssetId)) : null;
+    const relation=this.rt.relationshipFor(assetId);
+    // Configured, effective and physically proven identities are separate
+    // backend publications. The source of a UI label must remain explicit.
+    const identified=(id)=>String(id || "")!=="none" && !!String(id || "").trim() ? String(id) : "";
+    const assignedId=identified(relation.assigned_vehicle);
+    const effectiveId=identified(relation.effective_vehicle);
+    const displayFor=(id)=>{
+      if(!id)return "";
+      const asset=this.rt.vehicleById(id) || this.rt.assetById(id);
+      return String(asset?.display_name || this.rt.assetDisplayName(id) || id);
+    };
     return {
       identity: {
         asset_id: assetId,
@@ -138,9 +156,15 @@ class HomeBrainChargerAdapter {
         fault
       },
       relationships: {
+        assigned_vehicle_id:assignedId,
+        assigned_vehicle_display_name:displayFor(assignedId),
+        effective_vehicle_id:effectiveId,
+        effective_vehicle_display_name:displayFor(effectiveId),
         connected_vehicle_id: vehicleAssetId,
         connected_vehicle_display_name: String(snapshot.connected_vehicle?.display || vehicleEntry?.display_name || ""),
-        vehicle_detail_route: vehicleAssetId ? this.rt.assetDetailRoute(vehicleEntry || vehicleAssetId) : "",
+        vehicle_detail_route: vehicleAssetId ? this.rt.assetDetailRoute(vehicleEntry || vehicleAssetId) :
+          assignedId ? this.rt.assetDetailRoute(this.rt.vehicleById(assignedId) || assignedId) : "",
+        relationship_resolution:String(relation.relationship_resolution || "UNAVAILABLE"),
         source: "MOBILITY_EXPERIENCE_V2"
       },
       availability: this.overviewAvailability(),
@@ -197,13 +221,14 @@ class HomeBrainChargerAdapter {
       tone:faultActive ? "attention" : "neutral"
     };
 
-    const vehicleAssetId = String(projection.relationships?.connected_vehicle_id || "");
-    const vehicleDisplay = String(projection.relationships?.connected_vehicle_display_name || "No vehicle identified");
+    const vehicleAssetId = String(projection.relationships?.connected_vehicle_id || projection.relationships?.assigned_vehicle_id || "");
+    const physicallyConnected = !!projection.relationships?.connected_vehicle_id;
+    const vehicleDisplay = String((physicallyConnected ? projection.relationships?.connected_vehicle_display_name : projection.relationships?.assigned_vehicle_display_name) || "No vehicle identified");
     const vehicleRoute = String(projection.relationships?.vehicle_detail_route || "");
     const vehicleTile = {
       label:(this.rt?.t?.("charger.fact_vehicle",{},"Vehicle") || "Vehicle"),
       value:vehicleDisplay,
-      subvalue:String(vehicleIntel.reason || "Vehicle relationship unavailable"),
+      subvalue:String(physicallyConnected ? "Physical identity proven" : vehicleAssetId ? "Configured assignment · physical identity not confirmed" : vehicleIntel.reason || "Vehicle relationship unavailable"),
       icon:"mdi:car-electric",
       tone:"neutral",
       detailRoute:vehicleRoute,

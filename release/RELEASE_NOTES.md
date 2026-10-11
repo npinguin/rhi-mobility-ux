@@ -1,13 +1,27 @@
-# v1.0.0-rc.89 — canonical-only Mobility HACS candidate
+# v1.0.0-rc.90 — Mobility structural recovery (unpublished)
 
-**HACS-installable TEST CANDIDATE; not stable or target-HA qualified.** The release is published as a normal GitHub Release so HACS can install it without a beta toggle.
+**WORK BRANCH ONLY — DO NOT PUBLISH OR MERGE BEFORE QUALIFICATION.** The immutable `v1.0.0-rc.89` release remains unchanged. This is prospective rc.90, not a retag and not yet target-HA qualified.
 
-- Removes the retired `MOBILITY_PUBLIC_RUNTIME_V2` aggregate from bundled runtime, adapters and screens. Canonical per-asset properties are supplied by `RHI_MOBILITY_CANONICAL_PROPERTY_V1`, while Experience, Policy, Commands, Activity and Supervision remain distinct backend-owned contracts.
-- Vehicle and charger relationship projections consume backend-published `MOBILITY_EXPERIENCE_V2` relationships. Configured and effective assignments are kept separate from physical connections; physical attribution requires explicit observed identity proof.
-- Strengthens fail-closed identity validation and adds regression coverage for two independently published Audi Q8 vehicles and conflicting vehicle identifiers.
-- Keeps HACS bundle, checksum, version and release metadata consistent with an immutable source candidate.
-- Target Home Assistant installation, controls/readback, responsive rendering, restart and rollback remain **pending qualification**. No stable-promotion claim is made.
+- D0/D1 planning from exact Energy-native `canonical_source` / `metric_key`, never fabricated horizon assets.
+- Energy Insights requires explicit asset identity, `period_id`, availability and kWh/EUR unit; no property-name inference.
+- Configured Energy Strategy from producer metadata; effective strategy unavailable without separate published truth.
+- Detect duplicate canonical publishers through the contract-gap authority.
+- Regression tests, product vision, backend interface backlog and engineering documentation aligned.
+- HACS dist rebuilt deterministically; full npm/HACS and target HA tests remain pending.
 
-Compatible backend baseline: Mobility M0.10.41 or later. Static evidence includes the M0.10.43 backend contract baseline. Rollback: **v1.0.0-rc.88**.
+Compatible baseline: Mobility M0.10.43 and native Energy E0.15.114. Rollback: `v1.0.0-rc.89`.
 
-GitHub Release must have no attached assets; HACS installs the exact immutable `dist/` tree from the tag.
+## 2026-10-11 screenshot-driven recovery (same unpublished work candidate)
+
+- Preserve inactive/unknown vehicles on Overview even when zero are active; never silently treat them as operational.
+- Accept Mobility producer commands without a `label` while preserving explicit `invoke`, supported and execution permissions; missing invoke stays disabled.
+- Restore dedicated appearance-picker write capability despite readonly generic image fields; only backend-authorized writes with canonical readback.
+- Replace erroneous Utility Plug car artwork with the existing producer-maintained plug schematic; pending verified model photography.
+- Add current-status versus timed-event distinction, true asset visuals and Activity filtering/sorting/grouping; a coordinated Mobility backend work branch publishes timestamps for completed commands.
+- Reduce detail density using wider responsive cards and a fold for secondary property rows; Insights includes real Mobility execution evidence when Energy period attribution is absent.
+
+Full npm/HACS gates and live HA user journeys have **not yet passed**, and neither package nor backend branch has been promoted.
+
+- Charger Management now labels the backend-configured assigned vehicle independently of physical connection; charger detail preserves the same relationship distinctions and backend profile display name.
+- Inactive vehicle cards retain identity artwork instead of only state chips.
+- Activity grouping now forms contiguous type/asset clusters before applying time/asset sorting.

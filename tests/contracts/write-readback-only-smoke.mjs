@@ -38,5 +38,8 @@ for(const token of [
 const labelIndex=transportBlock.indexOf('const label = match.label');
 const transportIndex=transportBlock.indexOf('const transport = match[transportField]');
 if(transportIndex<0 || labelIndex<0 || transportIndex>labelIndex) throw new Error('producer transport_value must take precedence over presentation label');
-if(!source.includes('waitForCanonicalPropertyReadback(assetId, propertyKey, value, options)')) throw new Error('canonical readback must remain semantic-value based after transport mapping');
+if(!source.includes('waitForCanonicalPropertyReadback(assetId, options.readback_property_key || propertyKey, value, options)'))
+  throw new Error('canonical readback must use producer semantic value, including explicit lifecycle truth key');
+if(!source.includes('readback_property_key:"asset.lifecycle_status"'))
+  throw new Error('lifecycle cannot confirm writes from the writable alias instead of canonical status');
 console.log('PASS select writes honor producer transport_value while canonical readback remains semantic');

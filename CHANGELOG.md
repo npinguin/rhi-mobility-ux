@@ -1,3 +1,10 @@
+## 1.0.0-rc.90 — Native Energy interoperability recovery (unpublished)
+
+- Read D0/D1 from native Energy producers; exact period/unit joins for Insights;
+- fail closed on unowned effective Strategy and duplicate canonical properties;
+- align tests, architecture, vision, documentation and immutable HACS packaging;
+- no stable promotion until full CI and target-HA qualification.
+
 ## 1.0.0-rc.89 — Canonical-only Mobility candidate
 
 - remove all frontend runtime reads of the retired MOBILITY_PUBLIC_RUNTIME_V2 aggregate, without weakening the zero-debt gate;

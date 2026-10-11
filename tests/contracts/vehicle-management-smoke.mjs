@@ -88,9 +88,15 @@ for(const needle of [
   'charger_wallbox_white.webp',
   'charger_wallbox_black.webp',
   'charger_peblar.webp',
-  'charger_utility_plug.webp'
+  'charger_utility_plug.svg'
 ]) if(!catalog.includes(needle)) throw new Error('charger visual catalog regression: missing '+needle);
 
+if(!dashboard.includes('const inactiveVehicles = vehicles.filter') || !dashboard.includes('ov-inactive-summary'))
+  throw new Error('overview may not hide every registered vehicle when the active count is zero');
+if(!shell.includes('More properties (') || !shell.includes('grid-template-columns:repeat(auto-fit,minmax(min(100%,370px),1fr))'))
+  throw new Error('responsive detail depth or disclosure regression');
+if(!catalog.includes('chargers/charger_utility_plug.svg') || catalog.includes('chargers/charger_utility_plug.webp'))
+  throw new Error('Utility Plug is still mapped to wrong-model raster artwork');
 if(!runtime.includes('rhiMobilityParseVehicleVisualKey')) throw new Error('runtime no longer resolves structured vehicle visual keys');
 if(runtime.includes('profileImageCompatibilityKey')) throw new Error('legacy profile-name artwork inference returned');
 if(!adapter.includes('const visualMatchesProfile = !profileVisual || visual?.vehicle?.id === profileVisual.id')) throw new Error('vehicle detail profile-family guard missing');
@@ -229,7 +235,8 @@ if(dashboard.includes('title="vehicle.selected_charger is not published"><ha-ico
 }
 
 for(const needle of [
-  'const relatedVehicleId = String(projection?.relationships?.connected_vehicle_id || "")',
+  'const assignedId = String(projection?.relationships?.assigned_vehicle_id || "")',
+  'const connectedVehicle = facts.connected_vehicle?.display || "—"',
   'rt.t("common.assigned_vehicle"',
   'rt.t("common.connected_vehicle"',
   'charger-assignment',

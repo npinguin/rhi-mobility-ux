@@ -138,6 +138,9 @@ class HomeBrainAssetShell {
   renderSection(section) {
     if (!section || section.hide) return "";
     const details = (section.details || []).filter((d) => d && d.value !== undefined && d.value !== null && String(d.value).trim() !== "");
+    const productRows=section.rows || [];
+    const firstRows=productRows.length>12 ? productRows.slice(0,8) : productRows;
+    const deeperRows=productRows.length>12 ? productRows.slice(8) : [];
     return `
       <section class="section-card section-${this.rt.escape(section.key)}">
         <div class="section-head">
@@ -147,7 +150,8 @@ class HomeBrainAssetShell {
           </div>
           <div class="section-status">${this.rt.escape(section.header || "")}</div>
         </div>
-        <div class="section-body">${this.renderRows(section.rows || [])}</div>
+        <div class="section-body">${this.renderRows(firstRows)}</div>
+        ${deeperRows.length ? `<details class="detail-fold detail-more"><summary>More properties (${deeperRows.length})</summary><div class="detail-block">${this.renderRows(deeperRows)}</div></details>` : ""}
         ${details.length ? `<details class="detail-fold">
           <summary>Engineering details</summary>
           <div class="detail-block">
@@ -842,7 +846,13 @@ class HomeBrainAssetShell {
       .detail-scene-hero .hero-image{position:absolute;z-index:3;right:3.5%;top:5%;width:49%;height:90%;min-height:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
       .detail-scene-hero .hero-image img{width:100%;height:100%;max-height:none;object-fit:contain;object-position:center;filter:drop-shadow(0 24px 30px rgba(15,35,80,.15))}
       .detail-scene-hero .hero-icon{width:58%;height:75%;border-radius:30px}
-      .detail-status-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:0;padding:0;border:0;background:transparent;box-shadow:none}.detail-status-grid.status-count-1{grid-template-columns:1fr}.detail-status-grid.status-count-2{grid-template-columns:repeat(2,minmax(0,1fr))}.detail-status-grid.status-count-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+      /* Responsive detail depth: readable width and progressive disclosure. */
+       .grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,370px),1fr));gap:10px;align-items:start}
+       .section-card{min-width:0;box-shadow:0 4px 16px rgba(21,61,115,.035)}
+       .row,.edit-row{grid-template-columns:22px minmax(0,1fr) minmax(105px,auto);gap:8px;padding:8px 0}
+       .detail-more{margin-top:9px}.detail-more summary{font-size:12px;min-height:34px}
+       @media(max-width:760px){.grid{grid-template-columns:1fr}.row,.edit-row{grid-template-columns:20px minmax(0,1fr) minmax(92px,auto)}}
+       .detail-status-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:0;padding:0;border:0;background:transparent;box-shadow:none}.detail-status-grid.status-count-1{grid-template-columns:1fr}.detail-status-grid.status-count-2{grid-template-columns:repeat(2,minmax(0,1fr))}.detail-status-grid.status-count-3{grid-template-columns:repeat(3,minmax(0,1fr))}
       .detail-status-grid .metric{min-width:0;min-height:94px;height:auto;display:grid;grid-template-columns:52px minmax(0,1fr);gap:11px;align-items:center;padding:12px 14px;border:1px solid #DBE6F3;border-radius:15px;background:rgba(255,255,255,.97);box-shadow:0 8px 22px rgba(21,61,115,.045)}
       .detail-status-grid .metric ha-icon{width:46px;height:46px;display:flex;align-items:center;justify-content:center;padding:9px;box-sizing:border-box;border-radius:14px;background:#EEF5FF;color:#1467F5;--mdc-icon-size:27px}
       .detail-status-grid .metric span{display:block;margin:0 0 3px;color:#31558E;font-size:10px;font-weight:650}

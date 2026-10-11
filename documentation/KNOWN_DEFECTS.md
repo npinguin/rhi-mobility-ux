@@ -2,6 +2,10 @@
 
 This file is the authoritative list of unresolved Mobility UX product/runtime issues. These are **not accepted technical or feature debt**. They stay open until the owning contract/test plus target Home Assistant evidence proves closure.
 
+## Cross-domain native Energy acceptance update (2026-10-11)
+
+Mobility's recovery branch replaces synthetic D0/D1 asset-key planning with producer-owned native Energy metrics and blocks period/strategy inference. This is source-level behavior, not evidence that the current Energy backend publishes complete per-asset metering/financial attribution or effective strategy semantics. Verify the exact Energy producer publications and record runtime evidence before closing Planning/Intelligence or Insights.
+
 ## Open issues
 
 1. **Vehicle/charger picker runtime qualification is not closed.**
@@ -62,3 +66,21 @@ Do not silently close issues through frontend inference, fallbacks or optimistic
 - Frontend-derived supervisory/dashboard meaning was removed in v1.0.0-rc.5. Global supervisor status, trust, attention, opportunity and recommendation consume backend-owned semantics and fail closed when unavailable.
 
 The first stable HACS release must not silently close remaining items without explicit tests and target-runtime evidence.
+
+## Observed target Home Assistant failures — screenshot recovery (2026-10-11)
+
+Captured target UX showed zero active vehicles (four registered), no useful Overview fleet, missing charger/vehicle commands, nonworking appearance Save, Utility Plug rendered with car artwork, unhelpful Activity timestamps and a largely empty Energy Insights panel. This is direct product acceptance evidence; previous source-level green checks did not detect all of it.
+
+Recovery branch `work/ux-structural-closure-20261011` implements source corrections for: backend Command V2 rows without optional `label`; exact canonical `asset.lifecycle_status` reads and backend-owned alias write with canonical readback; visible inactive fleet on Overview; explicit appearance-picker editor binding; replaced wrong Utility Plug raster with backend-maintained schematic illustration; per-subject Activity media, filter/sort/group, live-state/event distinction and deeper detail disclosure.
+
+The companion Mobility backend branch `work/ux-activity-evidence-20261011` adds actual UTC command completion timestamps and labels current status rows as `current_state`. The UX cannot show historical time for those live snapshots; the backend branch must deploy before command-event timestamps appear.
+
+**NOT CLOSED until proven on the target HA:** actual 4-vehicle lifecycle states and authorized reactivation, all physical charger matches, image choice persistence, command invocation/readback, genuine Energy per-asset period metering/financial attribution, Activity chronology, browser refresh/selection persistence, responsive desktop/tablet/phone and rollback. No fake vehicle activation, event times or kWh/EUR values should be accepted as repair.
+
+**Charger relationship correction:** charger list and detail previously showed "No vehicle assigned" whenever physical vehicle identity was not proven, despite a backend-published configured assignment. The ChargerProjection now carries configured, effective and physically proven vehicle IDs separately, preserving duplicate/conflict rejection from `MOBILITY_EXPERIENCE_V2`. The list labels the configured assignment; a physical badge still requires actual identity proof. The charger profile label now resolves via the exact canonical `asset.profile_id` and backend profile catalog.
+
+## Structural recovery verification checkpoint — 2026-10-11
+
+The recovery source now keeps inactive registered vehicles visible, distinguishes physical from configured/effective charger relations, uses optional command labels without discarding executable command metadata, and separates command-result events from current-state snapshots. The generated `dist/` was rebuilt from the same recovery branch after source changes. **These are source/build facts only**: this file does not authorize a new stable HACS release, does not mark missing target-HA evidence as complete, and does not turn static Command V2 simulation into physical execution proof.
+
+The release candidate remains blocked until the exact branch SHA passes complete Validate, package digest identity and actual target-HA lifecycle/edit/command/readback, including two distinct Audi Q8 identities, all inactive vehicles, Utility Plug artwork, refresh/reload/restart, responsive device layouts and rollback. The backend HACS mirrors are candidates with `approved_release=false`; a green backend main cannot close this UX runtime gate.
