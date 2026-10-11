@@ -26,7 +26,9 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
         ? ["sensor.rhi_mobility_command_v2"]
         : ["sensor.rhi_mobility_activity_v2"];
     const canonicalRevision = rt._canonicalProperties?.revision() ?? 0;
-    const revisionSignature = `${view}|${canonicalRevision}|${rt.entityRevisionSignature(revisionIds)}`;
+    const energyRevision = ["planning","strategies","history"].includes(view)
+      ? new HomeBrainEnergyCanonicalProjection(hass).revisionSignature(view) : "";
+    const revisionSignature = `${view}|${canonicalRevision}|${rt.entityRevisionSignature(revisionIds)}|${energyRevision}`;
     if (revisionSignature === this._lastRevisionSignature) return;
     this._lastRevisionSignature = revisionSignature;
     const data = this.viewModel(view);
@@ -197,7 +199,7 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
 
   planningHeroMeta(rt) {
     const plan = this.energyPlanning(rt);
-    const source = plan.available ? "Energy backend" : "Energy planning unavailable";
+    const source = plan.complete ? "Energy effective plan" : plan.published ? "Energy planning incomplete" : "Energy planning unavailable";
     const today = this.fmtKwh(plan.today.plannedKwh);
     const remaining = this.fmtKwh(plan.today.stillToPlanKwh);
     return `<strong>${rt.escape(source)}</strong><span>${rt.escape((rt?.t?.("planning.planned_today",{},"Planned today") || "Planned today"))} ${rt.escape(today)}</span><span>${rt.escape((rt?.t?.("planning.still_to_plan",{},"Still to plan") || "Still to plan"))} ${rt.escape(remaining)}</span>`;
@@ -221,10 +223,12 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
     const plan = this.energyPlanning(rt);
     const mobilityRows = plan.mobilityPlanningRows.length ? plan.mobilityPlanningRows : plan.mobilityExperienceRows;
     const facts = [
-      ["mdi:calendar-check-outline","Planned today",this.fmtKwh(plan.today.plannedKwh),plan.today.state || "Energy planning"],
+      ["mdi:calendar-check-outline","Planned today",this.fmtKwh(plan.today.plannedKwh),plan.today.provisional ? "Provisional metric · no effective schedule" : "Published effective plan"],
       ["mdi:calendar-alert-outline","Still to plan",this.fmtKwh(plan.today.stillToPlanKwh),"Published by Energy"],
       ["mdi:weather-sunset-up","Tomorrow",this.fmtKwh(plan.tomorrow.plannedKwh),plan.tomorrow.state || "Next horizon"],
-      ["mdi:source-branch-check","Contract",plan.contractVersion || (plan.available ? (rt?.t?.("common.published",{},"Published") || "Published") : (rt?.t?.("common.unavailable",{},"Unavailable") || "Unavailable")),plan.source]
+      ["mdi:source-branch-check","Contract",plan.contractVersion || "Not published",plan.source],
+      ["mdi:shield-alert-outline","Planning quality",plan.state,
+        plan.providerHold ? `Provider HOLD: ${plan.requestedProvider} not effective` : `D0 ${plan.quality.D0} · D1 ${plan.quality.D1}`]
     ];
     const rows = mobilityRows.slice(0, 8).map((row) => {
       const id = String(row.asset_id || row.target_asset_id || row.flexible_asset_id || row.consumer_asset_id || row.participant_id || "Mobility asset");
@@ -240,9 +244,15 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
           : (usefulState || "No per-asset schedule published");
       return `<div class="rhi-data-row rhiVehicleRow">${this.vehicleIdentity(rt,id,row)}<span>${rt.escape(answer)}</span></div>`;
     }).join("");
-    const contractGap = plan.available
-      ? (plan.exactIdentityJoin && !mobilityRows.length ? "Energy planning is available, but no published planning row currently matches a canonical Mobility asset id." : "")
-      : "The Energy public planning contract is not available. Mobility does not reconstruct or estimate a plan.";
+    const contractGap = !plan.complete
+      ? (plan.providerHold
+        ? `Requested provider ${plan.requestedProvider} is not effective. Energy reports ${plan.reason || "provider HOLD"}; deterministic baseline is not automatically an executable plan. D0: ${plan.quality.D0}; D1: ${plan.quality.D1}.`
+        : plan.published
+          ? `Effective planning incomplete. D0: ${plan.quality.D0}; D1: ${plan.quality.D1}. ${plan.reason || "Awaiting canonical planning evidence"}. Published numeric metrics are provisional, not an executable schedule.`
+          : "No effective native Energy planning horizon is published. Mobility does not reconstruct or estimate a plan.")
+      : (plan.exactIdentityJoin && !mobilityRows.length
+          ? "The effective Energy plan is complete, but no published asset allocation matches a canonical Mobility asset ID. The UX must not guess the relationship."
+          : "");
 
     return `<section class="rhi-context-grid">
       <article class="rhi-context-card">
