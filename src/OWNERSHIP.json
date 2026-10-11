@@ -18,7 +18,7 @@
       "path": "src/runtime",
       "owns": [
         "Home Assistant access",
-        "MOBILITY_PUBLIC_RUNTIME_V2 access",
+        "RHI_MOBILITY_CANONICAL_PROPERTY_V1 access",
         "MOBILITY_EXPERIENCE_V2 access",
         "MOBILITY_POLICY_V2 access",
         "canonical per-asset V2 semantic configuration read/write boundary",

@@ -1,21 +1,20 @@
 {
   "product": "rhi-mobility-ux",
-  "source_candidate_version": "1.0.0-rc.87",
+  "source_candidate_version": "1.0.0-rc.89",
   "stage": "test_candidate",
   "publication_authority": "github_releases",
   "publication_status": "derive_from_github_release",
-  "contract": "MOBILITY_PUBLIC_RUNTIME_V2",
+  "contract": "RHI_MOBILITY_CANONICAL_PROPERTY_V1",
   "minimum_backend": "M0.10.41",
-  "tested_backend": "M0.10.41",
+  "tested_backend": "M0.10.43",
   "static_validation": "required_before_publication",
   "hacs_validation": "required_before_publication",
   "target_runtime_proof": "see release/QUALIFICATION.json",
   "rollback": "immutable GitHub/HACS version selection",
   "stable_promotion": "blocked_until_qualification_pass",
   "github_release_prerelease": false,
-  "hacs_visibility": "normal_release_visible_without_beta_toggle",
+  "hacs_visibility": "normal_release",
   "required_contracts": [
-    "MOBILITY_PUBLIC_RUNTIME_V2",
     "MOBILITY_EXPERIENCE_V2",
     "MOBILITY_POLICY_V2",
     "MOBILITY_COMMAND_V2",
@@ -23,7 +22,7 @@
     "MOBILITY_PROFILE_CATALOG_V2",
     "MOBILITY_SUPERVISION_V2",
     "MOBILITY_ENERGY_V2",
-    "MOBILITY_CANONICAL_PROPERTY_V2"
+    "RHI_MOBILITY_CANONICAL_PROPERTY_V1"
   ],
   "ux_core": {
     "package": "rhi-ux-core",

@@ -8,7 +8,7 @@ const v2PropertyState=(entityId,assetId,propertyKey,value,unit='')=>({
   entity_id:entityId,
   state:String(value),
   attributes:{
-    canonical_contract:'MOBILITY_CANONICAL_PROPERTY_V2',
+    canonical_contract:'RHI_MOBILITY_CANONICAL_PROPERTY_V1',
     asset_id:assetId,
     asset_type:'charger',
     property_key:propertyKey,
@@ -135,13 +135,13 @@ const v2Hass={states:{
   ]}}
 },callService:(domain,service,data)=>{v2Hass.lastCall={domain,service,data};}};
 const v2rt=new Runtime(v2Hass,{});
-if(v2rt.mobilityRuntimeV2()?.fleet?.connected_charger_count!==2) throw new Error('Runtime V2 fleet contract not consumed');
-if(v2rt.backendVersion()!=='M0.10.21') throw new Error(`canonical Runtime V2 release did not beat stale legacy release sensor: ${v2rt.backendVersion()}`);
-if(v2rt.releaseContract().authority!=='MOBILITY_PUBLIC_RUNTIME_V2') throw new Error('Runtime V2 is not release identity authority');
+if(v2rt.mobilityFleetProjection()?.vehicle_count!==0) throw new Error('Legacy aggregate must not create canonical fleet assets');
+if(v2rt.releaseContract().authority!=='sensor.mobility_runtime_deployment_health') throw new Error('Deployment gate must own runtime release health');
+if(v2rt.releaseContract().contract_health!=='UNKNOWN') throw new Error('Missing deployment health must fail closed');
 if(v2rt.vehicleExperienceV2('vehicle_id4')?.security_intelligence?.state!=='secure') throw new Error('Experience V2 vehicle contract not consumed');
 if(v2rt.chargerExperienceV2('charger_peb')?.fault?.state!=='none') throw new Error('Experience V2 charger contract not consumed');
 if(v2rt.mobilityPolicyV2()?.policy?.maintenance?.due_soon_days!==90) throw new Error('Policy V2 contract not consumed');
-if(v2rt.vehicleRelationshipV2('vehicle_id4')?.observed_identity_proven!==false) throw new Error('Runtime V2 relationship identity proof not preserved');
+if(v2rt.vehicleChargerRelationship('vehicle_id4')?.observed_identity_proven!==false) throw new Error('Experience relationship identity proof not preserved');
 if(v2Hass.lastCall) throw new Error('Policy V2 read contract must not imply an optimistic write path');
 console.log('PASS Mobility Runtime/Experience/Policy V2 direct contract consumption with no optimistic policy write API');
 
@@ -156,7 +156,7 @@ const v2PropertyHass={states:{
     entity_id:'sensor.rhi_mobility_vehicle_id4_image_key',
     state:'volkswagen.id4.2024-2026.ev.scale-silver',
     attributes:{
-      canonical_contract:'MOBILITY_CANONICAL_PROPERTY_V2',
+      canonical_contract:'RHI_MOBILITY_CANONICAL_PROPERTY_V1',
       asset_id:'vehicle_id4',
       asset_type:'vehicle',
       property_key:'vehicle.image_key',
@@ -172,7 +172,7 @@ const v2PropertyHass={states:{
     entity_id:'sensor.rhi_mobility_vehicle_id4_profile_id',
     state:'volkswagen_id4_pro_my2026',
     attributes:{
-      canonical_contract:'MOBILITY_CANONICAL_PROPERTY_V2',
+      canonical_contract:'RHI_MOBILITY_CANONICAL_PROPERTY_V1',
       asset_id:'vehicle_id4',
       asset_type:'vehicle',
       property_key:'asset.profile_id',
@@ -212,3 +212,66 @@ if(v2PropertyCalls.at(-1)?.domain!=='select' || v2PropertyCalls.at(-1)?.service!
 if(!await v2PropertyRt.writePublishedPropertyAsync('vehicle_id4','vehicle.image_key','volkswagen.id4.2024-2026.ev.glacier-white',{attempts:2,delay_ms:25})) throw new Error('V2 image canonical readback failed');
 if(v2PropertyCalls.at(-1)?.domain!=='text' || v2PropertyCalls.at(-1)?.service!=='set_value' || v2PropertyCalls.at(-1)?.data?.entity_id!=='text.rhi_mobility_vehicle_id4_vehicle_image_key' || v2PropertyCalls.at(-1)?.data?.value!=='volkswagen.id4.2024-2026.ev.glacier-white') throw new Error('V2 semantic image write used wrong transport');
 console.log('PASS canonical per-asset V2 semantic property write + canonical readback consumption');
+
+
+// Two visually identical models from independent integrations must retain their
+// distinct canonical asset identities. Assignment is not proof of connection.
+const twinIds=['vehicle_audi_q8_oem','vehicle_audi_q8_telematics'];
+const twinChargers=['charger_peblar','charger_wallbox'];
+const twinStates={};
+for (const [index,id] of [...twinIds,...twinChargers].entries()) {
+  const type=index<2 ? 'vehicle' : 'charger';
+  twinStates['sensor.canonical_twin_'+index]={
+    state:'Audi Q8',attributes:{
+      canonical_contract:'RHI_MOBILITY_CANONICAL_PROPERTY_V1',
+      asset_id:id,asset_type:type,property_key:'asset.display_name',
+      value:index<2 ? 'Audi Q8' : id
+    }
+  };
+}
+twinStates['sensor.rhi_mobility_experience_v2']={state:'ready',attributes:{
+  contract_id:'MOBILITY_EXPERIENCE_V2',
+  vehicles:twinIds.map((id,index)=>({
+    asset_id:id, display_name:'Audi Q8',
+    charging_relationship:{
+      vehicle_id:id,
+      configured_charger_id:twinChargers[index],
+      effective_charger_id:twinChargers[index],
+      physically_connected_charger_id:index===1 ? twinChargers[index] : null,
+      observed_identity_proven:index===1,
+      relationship_status:index===1 ? 'CONNECTED' : 'CONFIGURED'
+    }
+  })),
+  chargers:twinChargers.map(asset_id=>({asset_id}))
+}};
+const twinRt=new Runtime({states:twinStates},{});
+if(twinRt.assetIndexRows('vehicle').length!==2) throw new Error('same-model vehicles were collapsed into one');
+if(twinRt.vehicleRelationshipProjection(twinIds[0])?.vehicle_id!==twinIds[0]) throw new Error('OEM Q8 relationship identity lost');
+if(twinRt.vehicleRelationshipProjection(twinIds[1])?.vehicle_id!==twinIds[1]) throw new Error('telematics Q8 relationship identity lost');
+if(twinRt.relationshipFor(twinChargers[0]).connected!=='none') throw new Error('configured charger incorrectly treated as physical connection');
+if(twinRt.relationshipFor(twinChargers[1]).connected!==twinIds[1]) throw new Error('physically proven Q8 connection not resolved');
+if(twinRt.relationshipRows(twinIds[0]).some(row=>row.relationship_type==='physically_connected')) throw new Error('unproven vehicle exported as physically connected');
+// Reject an internally contradictory Experience row rather than lending its
+// observed identity proof to the vehicle named by a nested foreign ID.
+const spoofedStates={...twinStates,
+  'sensor.rhi_mobility_experience_v2':{
+    ...twinStates['sensor.rhi_mobility_experience_v2'],
+    attributes:{
+      ...twinStates['sensor.rhi_mobility_experience_v2'].attributes,
+      vehicles:[
+        twinStates['sensor.rhi_mobility_experience_v2'].attributes.vehicles[0],
+        {
+          ...twinStates['sensor.rhi_mobility_experience_v2'].attributes.vehicles[1],
+          charging_relationship:{
+            ...twinStates['sensor.rhi_mobility_experience_v2'].attributes.vehicles[1].charging_relationship,
+            vehicle_id:twinIds[0]
+          }
+        }
+      ]
+    }
+  }
+};
+const spoofedRt=new Runtime({states:spoofedStates},{});
+if(spoofedRt.vehicleRelationshipProjection(twinIds[1]).vehicle_id) throw new Error('mismatched nested vehicle ID was accepted');
+if(spoofedRt.relationshipFor(twinChargers[1]).connected!=='none') throw new Error('mismatched identity proved a physical charger connection');
+console.log('PASS same-model dual Audi Q8 identities, assignments, physical proof and conflicting publisher identity fail closed');

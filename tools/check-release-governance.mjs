@@ -17,6 +17,15 @@ const changelog=fs.readFileSync(path.join(root,'CHANGELOG.md'),'utf8');
 
 const version=String(product.version);
 const checks={
+  // A source-of-truth descriptor must never reintroduce a retired aggregate
+  // after the canonical-only migration, even if all projections agree.
+  canonical_primary_contract:product.contract==='RHI_MOBILITY_CANONICAL_PROPERTY_V1',
+  retired_runtime_not_required:!product.required_contracts.includes('MOBILITY_PUBLIC_RUNTIME_V2'),
+  canonical_property_required:product.required_contracts.includes('RHI_MOBILITY_CANONICAL_PROPERTY_V1'),
+  experience_relationship_authority_required:product.required_contracts.includes('MOBILITY_EXPERIENCE_V2'),
+  standard_hacs_candidate:manifest.github_release_prerelease===false &&
+    status.github_release_prerelease===false &&
+    status.hacs_visibility==='normal_release',
   package_version:pkg.version===version,
   lock_version:lock.version===version && lock.packages?.['']?.version===version,
   compatibility_version:compat.ux_version===version,

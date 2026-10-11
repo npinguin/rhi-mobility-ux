@@ -9,7 +9,7 @@ const aid='charger_v2';
 const state=(entity_id,value,property_key,component_id,section_id,visibility='product',extra={})=>({
   entity_id,state:String(value),
   attributes:{
-    canonical_contract:'MOBILITY_CANONICAL_PROPERTY_V2',
+    canonical_contract:'RHI_MOBILITY_CANONICAL_PROPERTY_V1',
     asset_id:aid,asset_type:'charger',property_key,component_id,section_id,visibility,
     friendly_name:property_key.split('.').pop().replaceAll('_',' '),
     quality:'OK',...extra
@@ -48,7 +48,7 @@ if(!engineering || !JSON.stringify(engineering).includes('charger.source_health'
 const grouped=sections.filter(s=>s.key?.startsWith('v2-component-')).map(s=>s.key);
 if(!grouped.includes('v2-component-identity') || !grouped.includes('v2-component-power')) throw new Error('component_id did not drive V2 component grouping');
 
-console.log('PASS MOBILITY_CANONICAL_PROPERTY_V2 is the exclusive scalar property authority');
+console.log('PASS RHI_MOBILITY_CANONICAL_PROPERTY_V1 is the exclusive scalar property authority');
 console.log('PASS component_id + section_id drive product placement without compatibility indexes');
 console.log('PASS missing placement fails visibly instead of becoming Engineering/Unmapped');
 console.log('PASS engineering visibility stays isolated from product UX');

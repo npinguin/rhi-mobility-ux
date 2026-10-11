@@ -5,7 +5,7 @@
 Only `src/runtime/` and `src/domain/adapters/` may know Mobility public contract names; direct `hass.states` access belongs to `src/runtime/` only.
 
 ```text
-MOBILITY_PUBLIC_RUNTIME_V2 = canonical facts / fleet / physical relationships
+RHI_MOBILITY_CANONICAL_PROPERTY_V1 = canonical per-asset facts / fleet membership\nMOBILITY_EXPERIENCE_V2     = backend-owned charger relationship proof
 MOBILITY_EXPERIENCE_V2     = backend-owned user conclusions
 MOBILITY_POLICY_V2         = persistent interpretation policy
         ↓
@@ -32,7 +32,7 @@ Forbidden for screens/components:
 Mobility UX has one semantic ownership model. Tabs are projections, not independent interpreters.
 
 ```text
-MOBILITY_PUBLIC_RUNTIME_V2
+RHI_MOBILITY_CANONICAL_PROPERTY_V1 + MOBILITY_EXPERIENCE_V2
         ↓
 runtime
         ↓
@@ -41,14 +41,14 @@ domain adapters / canonical UX models
 Overview | Vehicles | Chargers | Detail
 ```
 
-No screen may independently redefine lifecycle, relationship identity, readiness, range classification, security, maintenance, charge demand, availability or fault semantics. Product conclusions come from `MOBILITY_EXPERIENCE_V2`; fleet totals and physical relationship proof come from `MOBILITY_PUBLIC_RUNTIME_V2`; thresholds come from `MOBILITY_POLICY_V2`. Missing backend truth renders unavailable/fail-closed.
+No screen may independently redefine lifecycle, relationship identity, readiness, range classification, security, maintenance, charge demand, availability or fault semantics. Product conclusions come from `MOBILITY_EXPERIENCE_V2`; fleet membership comes from the canonical property index and physical relationship proof from `MOBILITY_EXPERIENCE_V2.vehicles[].charging_relationship`; thresholds come from `MOBILITY_POLICY_V2`. Missing backend truth renders unavailable/fail-closed.
 
 `vehicle.selected_charger` unset semantics are normalized once in the vehicle adapter. **No charger** is shown only from backend-owned `allow_none` / `none_value` metadata; UX never manufactures an unset write option.
 
 ## Ownership invariants
 
-- Fleet counts / aggregate charging power / completeness: `MOBILITY_PUBLIC_RUNTIME_V2.fleet`.
-- Vehicle↔charger configured/effective/physical identity: `MOBILITY_PUBLIC_RUNTIME_V2.vehicle_charger_relationships`.
+- Fleet membership/counts: canonical asset IDs from `RHI_MOBILITY_CANONICAL_PROPERTY_V1`. Aggregate charging power or completeness must not be invented when the producer does not publish it.
+- Vehicle↔charger configured/effective/physical identity: `MOBILITY_EXPERIENCE_V2.vehicles[].charging_relationship`; physical connection requires observed identity proof.
 - Vehicle product conclusions: `MOBILITY_EXPERIENCE_V2.vehicles[]`.
 - Charger product conclusions and fault: `MOBILITY_EXPERIENCE_V2.chargers[]`.
 - Thresholds and required coverage: `MOBILITY_POLICY_V2.policy`.

@@ -9,7 +9,8 @@ const chargerScreen=read('ui/screens/charger-maintenance.js');
 
 for (const [name,source] of [['VehicleProjection',vehicle],['ChargerProjection',charger]]) {
   if(!source.includes('productProjection()')) throw new Error(`${name} authority missing productProjection()`);
-  for(const contract of ['MOBILITY_PUBLIC_RUNTIME_V2','MOBILITY_EXPERIENCE_V2','MOBILITY_COMMAND_V2']) {
+  if(source.includes('MOBILITY_PUBLIC_RUNTIME_V2')) throw new Error(`${name} retains retired aggregate authority`);
+  for(const contract of ['RHI_MOBILITY_CANONICAL_PROPERTY_V1','MOBILITY_EXPERIENCE_V2','MOBILITY_COMMAND_V2']) {
     if(!source.includes(contract)) throw new Error(`${name} does not declare ${contract} authority`);
   }
 }

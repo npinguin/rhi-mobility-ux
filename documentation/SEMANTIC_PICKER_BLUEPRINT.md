@@ -11,7 +11,7 @@ Vehicle, charger and future Energy pickers must share one editing model. The UX 
 A picker consumes a canonical public property row. The property row is semantic authority; Home Assistant editor entities/services are transport metadata only.
 
 ```text
-Domain public runtime V2
+Canonical Mobility property entities
         ↓
 canonical property row
         ↓

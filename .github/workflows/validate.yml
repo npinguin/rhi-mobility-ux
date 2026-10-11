@@ -33,6 +33,10 @@ jobs:
         run: npm ci
       - name: Full validation
         run: npm test
+      - name: Reject retired runtime aggregates (canonical-only, zero fallback)
+        run: node tools/audit-canonical-dependencies.mjs --fail-on-legacy
+      - name: Verify committed package matches first validated build
+        run: node tools/check-committed-dist.mjs
       - name: Deterministic two-build proof
         shell: bash
         run: |
@@ -42,8 +46,6 @@ jobs:
           npm run clean
           npm run build
           diff -qr /tmp/rhi-mobility-first-dist dist
-      - name: Verify committed package matches clean build
-        run: git diff --exit-code -- dist
 
   hacs:
     name: HACS

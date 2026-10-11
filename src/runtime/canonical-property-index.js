@@ -1,7 +1,7 @@
 // Persistent Mobility canonical-property index.
 //
 // Mobility canonical property entities identify themselves with
-// canonical_contract=MOBILITY_CANONICAL_PROPERTY_V2. This is the sole
+// canonical_contract=RHI_MOBILITY_CANONICAL_PROPERTY_V1. This is the sole
 // frontend property-truth contract. Aggregate Runtime V2 never backfills it.
 class MobilityCanonicalPropertyIndex {
   constructor(hass = {}) {
@@ -9,6 +9,7 @@ class MobilityCanonicalPropertyIndex {
     this.byAsset = new Map();
     this.byAssetAndKey = new Map();
     this.stateRefs = new Map();
+    this.ambiguousKeys = new Set();
     this.assetRevisions = new Map();
     this._globalRevision = 0;
     this._stateCount = 0;
@@ -19,7 +20,7 @@ class MobilityCanonicalPropertyIndex {
   isCanonicalPropertyState(state) {
     const attrs = state?.attributes || {};
     const contract=String(attrs.canonical_contract || '').toUpperCase();
-    return contract === 'MOBILITY_CANONICAL_PROPERTY_V2'
+    return contract === 'RHI_MOBILITY_CANONICAL_PROPERTY_V1'
       && !!String(attrs.asset_id || '').trim()
       && !!String(attrs.property_key || '').trim();
   }
@@ -27,14 +28,30 @@ class MobilityCanonicalPropertyIndex {
   rawRow(entityId, state) {
     if (!this.isCanonicalPropertyState(state)) return null;
     const attrs = state.attributes || {};
+    const nativeState = String(state?.state ?? '').trim().toLowerCase();
+    const explicitAvailability = String(attrs.availability || '').trim().toUpperCase();
+    const quality = String(attrs.quality || '').trim().toUpperCase();
+    const invalidState = ['unknown','unavailable','none','null',''].includes(nativeState);
+    const invalidQuality = ['STALE','INVALID','UNKNOWN'].includes(quality);
+    // A published availability outside the recognized states is not evidence
+    // of an available physical value. Preserve known zero; fail closed on
+    // unknown backend status instead of silently presenting stale truth.
+    const knownAvailability = ['', 'AVAILABLE', 'UNAVAILABLE', 'STALE', 'INVALID', 'UNKNOWN'];
+    const publishedValue = Object.prototype.hasOwnProperty.call(attrs,'value') ? attrs.value : state?.state;
+    const invalidPublishedValue = publishedValue === null || publishedValue === undefined ||
+      (typeof publishedValue === 'string' && ['unknown','unavailable','none','null',''].includes(publishedValue.trim().toLowerCase()));
+    const available = !invalidState && !invalidQuality && !invalidPublishedValue &&
+      knownAvailability.includes(explicitAvailability) &&
+      (explicitAvailability === '' || explicitAvailability === 'AVAILABLE');
     return {
       ...attrs,
       asset_id:String(attrs.asset_id || '').trim(),
       property_key:String(attrs.property_key || '').trim(),
-      value:Object.prototype.hasOwnProperty.call(attrs,'value') ? attrs.value : state?.state,
+      availability:available ? 'AVAILABLE' : 'UNAVAILABLE',
+      value:available ? publishedValue : null,
       display_name:attrs.display_name || attrs.friendly_name || '',
       _source_entity_id:String(entityId || ''),
-      canonical_contract:String(attrs.canonical_contract || 'MOBILITY_CANONICAL_PROPERTY_V2').toUpperCase()
+      canonical_contract:String(attrs.canonical_contract || 'RHI_MOBILITY_CANONICAL_PROPERTY_V1').toUpperCase()
     };
   }
 
@@ -47,26 +64,33 @@ class MobilityCanonicalPropertyIndex {
     const compound=`${row.asset_id}::${row.property_key}`;
     const current=this.byAssetAndKey.get(compound);
     if(!current) this.byAssetAndKey.set(compound,row);
+    else this.ambiguousKeys.add(compound);
     this.stateRefs.set(entityId,state);
   }
 
   discover(hass = {}) {
+    const previousAssetIds = new Set(this.byAsset.keys());
     this.byEntity.clear();
     this.byAsset.clear();
     this.byAssetAndKey.clear();
     this.stateRefs.clear();
+    this.ambiguousKeys.clear();
     const states=hass?.states || {};
     this._hassRef=hass;
     this._stateCount=Object.keys(states).length;
     for(const [entityId,state] of Object.entries(states)) this._index(entityId,state);
     this._globalRevision += 1;
-    for(const assetId of this.byAsset.keys()) this.assetRevisions.set(assetId,(this.assetRevisions.get(assetId)||0)+1);
+    for(const assetId of new Set([...previousAssetIds,...this.byAsset.keys()]))
+      this.assetRevisions.set(assetId,(this.assetRevisions.get(assetId)||0)+1);
     return this;
   }
 
   refresh(hass = {}) {
     const states=hass?.states || {};
-    if(Object.keys(states).length !== this._stateCount) {
+    // Same-sized HA replacements can still add/remove canonical entities.
+    const membershipChanged=[...this.stateRefs.keys()].some(id=>!Object.prototype.hasOwnProperty.call(states,id)) ||
+      Object.entries(states).some(([id,state])=>!this.stateRefs.has(id) && this.isCanonicalPropertyState(state));
+    if(Object.keys(states).length !== this._stateCount || membershipChanged) {
       this.discover(hass);
       return;
     }
@@ -84,15 +108,34 @@ class MobilityCanonicalPropertyIndex {
         before.component_id!==after.component_id ||
         before.section_id!==after.section_id ||
         before.visibility!==after.visibility ||
-        before.render_as!==after.render_as) {
+        before.render_as!==after.render_as ||
+        before.presentation_role!==after.presentation_role ||
+        before.presentation_family!==after.presentation_family ||
+        before.presentation_surface!==after.presentation_surface ||
+        before.presentation_primary!==after.presentation_primary ||
+        before.presentation_technical!==after.presentation_technical ||
+        before.asset_type!==after.asset_type ||
+        before.asset_display_name!==after.asset_display_name ||
+        before.lifecycle_status!==after.lifecycle_status) {
         metadataChanged=true;
         break;
       }
     }
+    // Incremental replacement cannot safely maintain the winner of a
+    // duplicated asset/property key: a changed secondary publisher would
+    // otherwise overwrite byAssetAndKey while the ambiguity remains active.
+    // Rebuild on changes to ambiguous keys so the index and gap evidence stay
+    // consistent until the backend removes the duplicate publication.
+    if (!metadataChanged && changed.some(([entityId]) => {
+      const row=this.byEntity.get(entityId);
+      return row && this.ambiguousKeys.has(`${row.asset_id}::${row.property_key}`);
+    })) metadataChanged=true;
     if(metadataChanged) {
       this.discover(hass);
       return;
     }
+    // Once all metadata has been checked, update values without losing the
+    // canonical membership of any unchanged asset.
     const changedAssets=new Set();
     for(const [entityId,current] of changed) {
       const before=this.byEntity.get(entityId);
@@ -113,11 +156,19 @@ class MobilityCanonicalPropertyIndex {
   rows(assetId = '') {
     const id=String(assetId || '').trim();
     const source=id ? [...(this.byAsset.get(id)||[])] : [...this.byEntity.values()];
-    return source;
+    // Duplicate publication has no authoritative winner. Do not let an
+    // ambiguous row leak into inventory, overview, detail or diagnostics
+    // projections that consume rows() rather than row().
+    return source.filter(row=>!this.ambiguousKeys.has(`${row.asset_id}::${row.property_key}`));
   }
 
   row(assetId='',propertyKey='') {
-    return this.byAssetAndKey.get(`${String(assetId||'')}::${String(propertyKey||'')}`) || null;
+    const key=`${String(assetId||'')}::${String(propertyKey||'')}`;
+    return this.ambiguousKeys.has(key) ? null : (this.byAssetAndKey.get(key) || null);
+  }
+
+  contractGaps() {
+    return [...this.ambiguousKeys].sort().map(key=>({key,reason:'duplicate_canonical_property'}));
   }
 
   entityIds(assetId='') {

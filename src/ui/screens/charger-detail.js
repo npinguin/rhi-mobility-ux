@@ -21,7 +21,7 @@ class HomeBrainChargerAssetDetailCard extends HTMLElement {
     const rt = new HomeBrainAssetRuntime(hass, this.config);
     const id = this.config.charger_id;
     const sig = rt.productRevisionSignature(id, [
-      "MOBILITY_PUBLIC_RUNTIME_V2",
+      "MOBILITY_EXPERIENCE_V2",
       "MOBILITY_EXPERIENCE_V2",
       "MOBILITY_POLICY_V2",
       "MOBILITY_COMMAND_V2",

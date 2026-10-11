@@ -81,8 +81,8 @@ See `documentation/HACS_INSTALLATION.md` for migration, legacy multi-view compat
 ```text
 rhi-mobility backend
         ↓
-MOBILITY_PUBLIC_RUNTIME_V2
-MOBILITY_EXPERIENCE_V2
+RHI_MOBILITY_CANONICAL_PROPERTY_V1 (per-asset facts / fleet membership)
+MOBILITY_EXPERIENCE_V2 (product conclusions / charger relationships)
 MOBILITY_POLICY_V2
 canonical per-asset V2 configuration
         ↓

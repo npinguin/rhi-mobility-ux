@@ -85,7 +85,11 @@ class HomeBrainMobilityCard extends HTMLElement {
 
     let mount = this.shadowRoot.getElementById("mobility-bootstrap");
     if (!mount) {
-      this.shadowRoot.innerHTML = `<div id="mobility-bootstrap"></div><style>:host{display:block}#mobility-bootstrap{display:block;min-width:0}</style>`;
+      const style = document.createElement("style");
+      style.textContent = ":host{display:block}#mobility-bootstrap{display:block;min-width:0}";
+      mount = document.createElement("div");
+      mount.id = "mobility-bootstrap";
+      this.shadowRoot.append(style, mount);
       mount = this.shadowRoot.getElementById("mobility-bootstrap");
     }
 

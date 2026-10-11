@@ -24,10 +24,10 @@ if(createIndex<0 || guardedIndex<0 || createIndex-guardedIndex>200) {
 
 const renderStart=source.indexOf('  render() {');
 const renderBody=source.slice(renderStart);
-const destructive=renderBody.indexOf('this.shadowRoot.innerHTML =');
 const mountGuard=renderBody.indexOf('if (!mount)');
-if(destructive<0 || mountGuard<0 || destructive<mountGuard) {
-  throw new Error('bootstrap root replacement is not guarded by initial mount creation');
+const initialMount=renderBody.indexOf('this.shadowRoot.append(style, mount)');
+if (renderBody.includes('this.shadowRoot.innerHTML =') || mountGuard<0 || initialMount<mountGuard) {
+  throw new Error('bootstrap must append its initial mount without replacing the shadow root');
 }
 
 console.log('PASS Mobility child identity survives backend refresh and tab switches');

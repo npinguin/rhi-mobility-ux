@@ -89,9 +89,9 @@ const energyCrossDomainFiles = [
 ];
 for (const rel of energyCrossDomainFiles) {
   const full=path.join(root,rel);
-  if(!fs.existsSync(full)) { failures.push(`${rel}: missing Energy Public V2 boundary file`); continue; }
+  if(!fs.existsSync(full)) { failures.push(`${rel}: missing Energy canonical boundary file`); continue; }
   const source=fs.readFileSync(full,'utf8');
-  if(!source.includes('RHI_ENERGY_PUBLIC_CONTRACT_V2')) failures.push(`${rel}: cross-domain Energy projection is not anchored to Public V2`);
+  if(!source.includes('RHI_ENERGY_CANONICAL_PROPERTY_V2') && !source.includes('HomeBrainEnergyPublicV2Projection')) failures.push(`${rel}: cross-domain Energy projection is not anchored to canonical properties`);
   const legacy=source.match(/sensor\.energy_[a-z0-9_]+/g)||[];
   if(legacy.length) failures.push(`${rel}: legacy Energy entity dependency: ${[...new Set(legacy)].join(', ')}`);
 }

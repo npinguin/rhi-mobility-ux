@@ -46,7 +46,7 @@ Permissions may differ per Home Assistant user. UX renders only backend-authoriz
 There is one Mobility semantic model behind the UX.
 
 ```text
-MOBILITY_PUBLIC_RUNTIME_V2 = canonical facts
+RHI_MOBILITY_CANONICAL_PROPERTY_V1 = canonical facts
 MOBILITY_EXPERIENCE_V2     = product conclusions
 MOBILITY_POLICY_V2         = interpretation rules
 MOBILITY_COMMAND_V2        = executable actions
@@ -201,7 +201,7 @@ The visual-library update workflow, quality gates and future cross-domain reuse 
 
 ## V2-only product boundary
 
-The Mobility product UX consumes only the V2 authorities: `MOBILITY_PUBLIC_RUNTIME_V2`, `MOBILITY_EXPERIENCE_V2`, `MOBILITY_POLICY_V2`, `MOBILITY_COMMAND_V2`, `MOBILITY_ACTIVITY_V2`, `MOBILITY_PROFILE_CATALOG_V2`, `MOBILITY_SUPERVISION_V2` and `MOBILITY_ENERGY_V2`.
+The Mobility product UX consumes canonical per-asset properties from `RHI_MOBILITY_CANONICAL_PROPERTY_V1` and backend-owned authorities: `MOBILITY_EXPERIENCE_V2`, `MOBILITY_POLICY_V2`, `MOBILITY_COMMAND_V2`, `MOBILITY_ACTIVITY_V2`, `MOBILITY_PROFILE_CATALOG_V2`, `MOBILITY_SUPERVISION_V2` and `MOBILITY_ENERGY_V2`.
 
 Older product indexes and compatibility interfaces are fully decommissioned from the active frontend. They may remain in historical documentation or archive material only; they are not read, probed or used as fallback truth by runtime product code.
 
