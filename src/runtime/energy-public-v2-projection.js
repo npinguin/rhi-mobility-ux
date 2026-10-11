@@ -69,6 +69,55 @@ class HomeBrainEnergyCanonicalProjection {
     const parsed=this.object(value);
     return Object.values(parsed).filter(row=>row && typeof row==='object');
   }
+  // Energy owns these revisions. Mobility's canonical property index cannot
+  // invalidate a cross-domain planning/insights/strategy screen.
+  revisionSignature(surface='planning') {
+    const wanted=String(surface||'').toLowerCase();
+    const rows=[];
+    for(const [entityId,state] of Object.entries(this.hass?.states||{})) {
+      const a=state?.attributes||{};
+      const native=a.canonical_source==='rhi_energy.runtime' &&
+        (wanted==='planning'
+          ? (String(a.metric_key||'').startsWith('planning_') ||
+             ['RHI_ENERGY_PLANNING_HORIZON_V1','RHI_ENERGY_BASELINE_PLANNING_HORIZON_V1'].includes(a.canonical_contract))
+          : wanted==='history' || wanted==='insights'
+            ? !!String(a.metric_key||'')
+            : false);
+      const canonical=a.canonical_contract===HomeBrainEnergyCanonicalProjection.contractId &&
+        (wanted==='planning' ? a.presentation_surface==='planning' :
+          wanted==='strategies' ? a.presentation_surface==='configuration' :
+          a.presentation_surface==='metering' || a.presentation_surface==='value');
+      if(!native && !canonical) continue;
+      rows.push(`${entityId}:${state?.last_updated||''}:${state?.state??''}:${a.availability??''}`);
+    }
+    return rows.sort().join('|');
+  }
+  // Do not interpret numeric planning metrics as evidence of a complete,
+  // effective horizon. The producer owns variant, provider and quality.
+  planningHorizon(horizonId='D0',variant='effective') {
+    const horizon=String(horizonId||'').toUpperCase();
+    if(!['D0','D1'].includes(horizon) || !['effective','baseline'].includes(variant))
+      return Object.freeze({published:false,available:false,status:'UNAVAILABLE',reason:'invalid_horizon_selector',details:null,metadata:null});
+    const contract=variant==='effective'
+      ? 'RHI_ENERGY_PLANNING_HORIZON_V1'
+      : 'RHI_ENERGY_BASELINE_PLANNING_HORIZON_V1';
+    const matches=Object.values(this.hass?.states||{}).filter(state=>{
+      const a=state?.attributes||{};
+      return a.canonical_contract===contract && a.canonical_source==='rhi_energy.runtime' &&
+        a.horizon_id===horizon && a.variant===variant;
+    });
+    if(matches.length!==1) return Object.freeze({published:false,available:false,
+      status:'UNAVAILABLE',reason:matches.length>1?'duplicate_planning_horizon':'planning_horizon_not_published',details:null,metadata:null});
+    const a=matches[0].attributes;
+    const details=a.details && typeof a.details==='object' && !Array.isArray(a.details)?a.details:null;
+    const available=a.availability==='AVAILABLE' && a.totals_complete===true &&
+      details && Array.isArray(details.buckets) &&
+      (details.horizon_id===undefined || details.horizon_id===horizon);
+    return Object.freeze({published:true,available:!!available,
+      status:available?'AVAILABLE':String(a.availability||'UNAVAILABLE'),
+      reason:available?'':String(a.reason_code||'horizon_incomplete'),
+      details:available?details:null,metadata:a});
+  }
   snapshot() {
     const rows=this.canonicalRows();
     return Object.freeze({available:rows.length>0,contractId:HomeBrainEnergyCanonicalProjection.contractId,
