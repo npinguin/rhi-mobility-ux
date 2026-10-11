@@ -671,9 +671,9 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
       low,
       unknown:unknown.length,
       total,
-      headline:Number.isFinite(threshold) ? `${ok.length}/${total} ≥${threshold} km` : `${ok.length}/${total} range OK`,
-      line1:low.length ? low.slice(0,2).map((row)=>`${row.name} ${row.summary}`).join(" · ") : "No low-range vehicle",
-      line2:unknown.length ? `${unknown.length} range unknown` : (Number.isFinite(threshold) ? `Policy threshold ${threshold} km` : "Range policy applied")
+      headline:total === 0 ? "Range not evaluated" : (Number.isFinite(threshold) ? `${ok.length}/${total} ≥${threshold} km` : `${ok.length}/${total} range OK`),
+      line1:total === 0 ? "No active vehicles to evaluate" : (low.length ? low.slice(0,2).map((row)=>`${row.name} ${row.summary}`).join(" · ") : "No low-range vehicle"),
+      line2:total === 0 ? "0 vehicles evaluated" : (unknown.length ? `${unknown.length} range unknown` : (Number.isFinite(threshold) ? `Policy threshold ${threshold} km` : "Range policy applied"))
     };
   }
 
@@ -739,13 +739,13 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     const activeVehicles = vehicles.filter((v)=>rt.lifecycleStatus(v) === "active");
     const inactiveVehicles = vehicles.filter((v)=>["disabled","unknown"].includes(rt.lifecycleStatus(v)));
     const status = this.overviewStatusModel(rt, activeVehicles, chargers);
-    const securityNames = status.security.unsafe.length
+    const securityNames = !activeVehicles.length ? "Security not evaluated — no active vehicles" : status.security.unsafe.length
       ? status.security.unsafe.slice(0,2).map((row)=>row.name).join(" · ")
       : (status.security.incomplete ? `${status.security.incomplete} incomplete` : (status.security.unknown ? `${status.security.unknown} unknown` : "All covered vehicles secure"));
-    const maintenanceAction = status.maintenance.actionable.length
+    const maintenanceAction = !activeVehicles.length ? "Maintenance not evaluated — no active vehicles" : status.maintenance.actionable.length
       ? status.maintenance.actionable.slice(0,2).map((row)=>`${row.name} ${row.summary}`).join(" · ")
       : "Nothing due < policy window";
-    const nextMaintenance = status.maintenance.scheduled.length
+    const nextMaintenance = !activeVehicles.length ? "No active vehicles to evaluate" : status.maintenance.scheduled.length
       ? `Next ${status.maintenance.scheduled[0].name} · ${status.maintenance.scheduled[0].summary}`
       : (status.maintenance.unknown.length ? `${status.maintenance.unknown.length} unknown` : "No scheduled maintenance");
 
@@ -763,11 +763,11 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
         </article>
         <article class="ov-status-item security ${status.security.unsafeCount ? "warn" : ""}">
           <span class="ov-status-icon"><ha-icon icon="mdi:lock-outline"></ha-icon></span>
-          <div><small>Security</small><b>${rt.escape(`${status.security.unsafeCount} unsafe`)}</b><em>${rt.escape(`${status.security.secure} secure · ${status.security.incomplete} incomplete`)}</em><em>${rt.escape(securityNames)}</em></div>
+          <div><small>Security</small><b>${rt.escape(activeVehicles.length ? `${status.security.unsafeCount} unsafe` : "Not evaluated")}</b><em>${rt.escape(activeVehicles.length ? `${status.security.secure} secure · ${status.security.incomplete} incomplete` : "0 vehicles evaluated")}</em><em>${rt.escape(securityNames)}</em></div>
         </article>
         <article class="ov-status-item maintenance ${status.maintenance.actionableCount ? "warn" : ""}">
           <span class="ov-status-icon"><ha-icon icon="mdi:wrench-outline"></ha-icon></span>
-          <div><small>Maintenance</small><b>${rt.escape(`${status.maintenance.overdue.length} overdue · ${status.maintenance.dueSoon.length} due soon`)}</b><em>${rt.escape(maintenanceAction)}</em><em>${rt.escape(nextMaintenance)}</em></div>
+          <div><small>Maintenance</small><b>${rt.escape(activeVehicles.length ? `${status.maintenance.overdue.length} overdue · ${status.maintenance.dueSoon.length} due soon` : "Not evaluated")}</b><em>${rt.escape(maintenanceAction)}</em><em>${rt.escape(nextMaintenance)}</em></div>
         </article>
       </section>
 
@@ -785,7 +785,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
           <button data-nav="${hbMobilityPath("/dashboard")}">${rt.escape(rt.t("charger.vehicle_management",{},"Vehicle Management"))} <ha-icon icon="mdi:chevron-right"></ha-icon></button>
         </div>
         <div class="ov-vehicle-list">${activeVehicles.length ? activeVehicles.map((vehicle)=>this.renderOverviewVehicleRow(rt,vehicle,chargers)).join("") : `<div class="ov-empty">No active vehicles. ${inactiveVehicles.length ? `${inactiveVehicles.length} known vehicle${inactiveVehicles.length===1?"":"s"} currently inactive or unavailable.` : "No vehicle is published by the Mobility backend."}</div>`}</div>
-        ${inactiveVehicles.length ? `<div class="ov-inactive-summary"><div class="ov-inactive-title"><strong>${rt.escape(rt.t("dashboard.inactive_vehicles",{},"Inactive vehicles"))}</strong><span>${inactiveVehicles.length} · ${rt.escape(rt.t("dashboard.inactive_vehicles_description",{},"Disabled vehicles stay available for deliberate reactivation and detail access."))}</span></div><div class="inactive-list">${inactiveVehicles.map(v=>this.renderInactiveVehicle(rt,v)).join("")}</div></div>` : ""}
+        ${inactiveVehicles.length ? `<div class="ov-inactive-summary"><div class="ov-inactive-title"><strong>${rt.escape(rt.t("dashboard.inactive_vehicles",{},"Inactive vehicles"))}</strong><span>${inactiveVehicles.length} · ${rt.escape(rt.t("dashboard.inactive_vehicles_description",{},"Inactive or unavailable vehicles remain available for diagnostics and deliberate reactivation."))}</span></div><div class="inactive-list">${inactiveVehicles.map(v=>this.renderInactiveVehicle(rt,v)).join("")}</div></div>` : ""}
       </section>`;
   }
 
