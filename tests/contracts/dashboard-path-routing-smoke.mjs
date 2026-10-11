@@ -60,6 +60,8 @@ for(const evidence of ['data-activity-type','data-activity-sort','data-activity-
   'Current status · no event timestamp','charger.command.start','charger_utility_plug.svg','vehicle_audi_q8.webp'])
   assert.ok(activityHtml.includes(evidence),'Activity lost meaningful evidence: '+evidence);
 assert.ok(!activityHtml.includes('undefined'));
+assert.ok(activityHtml.indexOf('class="rhi-log-group">Commands') < activityHtml.indexOf('class="rhi-log-group">Vehicles'),
+  'Activity type grouping must cluster all execution rows ahead of live status groups');
 controls._activityType='execution';
 const commandsOnly=activityRenderer.call(controls,activityRuntime);
 assert.ok(commandsOnly.includes('charger.command.start'));

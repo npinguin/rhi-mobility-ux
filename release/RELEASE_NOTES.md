@@ -21,3 +21,7 @@ Compatible baseline: Mobility M0.10.43 and native Energy E0.15.114. Rollback: `v
 - Reduce detail density using wider responsive cards and a fold for secondary property rows; Insights includes real Mobility execution evidence when Energy period attribution is absent.
 
 Full npm/HACS gates and live HA user journeys have **not yet passed**, and neither package nor backend branch has been promoted.
+
+- Charger Management now labels the backend-configured assigned vehicle independently of physical connection; charger detail preserves the same relationship distinctions and backend profile display name.
+- Inactive vehicle cards retain identity artwork instead of only state chips.
+- Activity grouping now forms contiguous type/asset clusters before applying time/asset sorting.

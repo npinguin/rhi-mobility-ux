@@ -209,9 +209,9 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
     const status = facts.operating?.display || "—";
     const connectionState = facts.connection?.display || "—";
     const connectedVehicle = facts.connected_vehicle?.display || "—";
-    const relatedVehicleId = String(projection?.relationships?.connected_vehicle_id || "");
-    const assignedVehicle = relatedVehicleId
-      ? String(projection?.relationships?.connected_vehicle_display_name || relatedVehicleId)
+    const assignedId = String(projection?.relationships?.assigned_vehicle_id || "");
+    const assignedVehicle = assignedId
+      ? String(projection?.relationships?.assigned_vehicle_display_name || assignedId)
       : rt.t("common.no_vehicle_assigned",{},"No vehicle assigned");
     const power = facts.power?.display || "—";
     const actualCurrent = facts.actual_current?.display || "—";
