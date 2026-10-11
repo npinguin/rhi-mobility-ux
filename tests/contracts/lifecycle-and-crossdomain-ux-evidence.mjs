@@ -64,9 +64,9 @@ assert.match(router,/plan\.quality\.D0/);
 assert.doesNotMatch(router,/The Energy public planning contract is not available/);
 // Behavioral guards for aggregate status tiles: a missing lifecycle and
 // missing charger facts cannot silently become reassuring numerical zeros.
-const summaryMethods=vm.runInNewContext('({'+fragment(dashboard,
+const summaryMethods=vm.runInNewContext('new (class {'+fragment(dashboard,
   '  overviewChargingStatus(rt, vehicles = [], chargers = []) {',
-  '  overviewSecurityStatus(rt, vehicles = []) {')+'})',{
+  '  overviewSecurityStatus(rt, vehicles = []) {')+'})()',{
   HomeBrainAssetFactory:class {adapterFor(){return null;}}
 });
 const emptyRuntime={
