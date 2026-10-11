@@ -628,12 +628,16 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
         return `${this.overviewShortLabel({display_name:model.display},model.display)}→${label(chargerModel || {display:rt.chargerLabel(chargerId),projection:{identity:{asset_id:chargerId}}})}`;
       });
 
-    const connected = Number(fleet.connected_charger_count);
-    const charging = Number(fleet.charging_charger_count);
-    const available = Number(fleet.available_charger_count);
+    // null/empty from a backend is unknown, not numerical zero.
+    const publishedCount=value=>value===null||value===undefined||value===''?null:
+      (Number.isFinite(Number(value))?Number(value):null);
+    const connected = publishedCount(fleet.connected_charger_count);
+    const charging = publishedCount(fleet.charging_charger_count);
+    const available = publishedCount(fleet.available_charger_count);
     const chargingFallback = chargerModels.filter((model)=>String(model?.projection?.intelligence?.charging?.state || "").toLowerCase() === "running").length;
     const powerState = String(fleet.aggregate_power_state || "unknown").toLowerCase();
-    const power = Number(fleet.aggregate_actual_charging_power_kw);
+    const power = fleet.aggregate_actual_charging_power_kw==null
+      ? NaN : Number(fleet.aggregate_actual_charging_power_kw);
     const powerDisplay = Number.isFinite(power) && powerState !== "unknown"
       ? `${power.toFixed(1)} kW${powerState === "partial" ? " · partial" : " now"}`
       : "Power unknown";
@@ -660,7 +664,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     const factory = new HomeBrainAssetFactory(rt);
     const models = vehicles.map((vehicle)=>factory.adapterFor(vehicle, this.config)?.build?.()).filter(Boolean);
     const policy = rt.rangePolicyProjection();
-    const threshold = Number(policy?.range?.low_range_km);
+    const threshold = policy?.range?.low_range_km==null ? NaN : Number(policy.range.low_range_km);
     const rows = models.map((model)=>({ model, signal:model?.projection?.signals?.range || {} }));
     const ok = rows.filter(({signal})=>String(signal.state || "").toLowerCase() === "ok");
     const low = rows.filter(({signal})=>String(signal.state || "").toLowerCase() === "low")
@@ -673,8 +677,8 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
       low,
       unknown:unknown.length,
       total,
-      headline:Number.isFinite(threshold) ? `${ok.length}/${total} ≥${threshold} km` : `${ok.length}/${total} range OK`,
-      line1:low.length ? low.slice(0,2).map((row)=>`${row.name} ${row.summary}`).join(" · ") : "No low-range vehicle",
+      headline:!total ? "Range unavailable" : Number.isFinite(threshold) ? `${ok.length}/${total} ≥${threshold} km` : `${ok.length}/${total} range OK`,
+      line1:!total ? "No verified active vehicles" : low.length ? low.slice(0,2).map((row)=>`${row.name} ${row.summary}`).join(" · ") : "No low-range vehicle",
       line2:unknown.length ? `${unknown.length} range unknown` : (Number.isFinite(threshold) ? `Policy threshold ${threshold} km` : "Range policy applied")
     };
   }
@@ -744,13 +748,17 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     const status = this.overviewStatusModel(rt, activeVehicles, chargers);
     const securityNames = status.security.unsafe.length
       ? status.security.unsafe.slice(0,2).map((row)=>row.name).join(" · ")
-      : (status.security.incomplete ? `${status.security.incomplete} incomplete` : (status.security.unknown ? `${status.security.unknown} unknown` : "All covered vehicles secure"));
+      : !activeVehicles.length
+        ? (unverifiedVehicles.length ? `${unverifiedVehicles.length} vehicle lifecycle statuses unverified` : "No verified active vehicles")
+        : (status.security.incomplete ? `${status.security.incomplete} incomplete` :
+          (status.security.unknown ? `${status.security.unknown} unknown` :
+            status.security.secure===activeVehicles.length ? "All covered vehicles secure" : "Security evidence incomplete"));
     const maintenanceAction = status.maintenance.actionable.length
       ? status.maintenance.actionable.slice(0,2).map((row)=>`${row.name} ${row.summary}`).join(" · ")
       : "Nothing due < policy window";
     const nextMaintenance = status.maintenance.scheduled.length
       ? `Next ${status.maintenance.scheduled[0].name} · ${status.maintenance.scheduled[0].summary}`
-      : (status.maintenance.unknown.length ? `${status.maintenance.unknown.length} unknown` : "No scheduled maintenance");
+      : (!activeVehicles.length ? "No verified active vehicles" : status.maintenance.unknown.length ? `${status.maintenance.unknown.length} unknown` : "No scheduled maintenance");
 
     return `
       ${hbMobilityPageHero(rt, "overview")}
@@ -766,11 +774,11 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
         </article>
         <article class="ov-status-item security ${status.security.unsafeCount ? "warn" : ""}">
           <span class="ov-status-icon"><ha-icon icon="mdi:lock-outline"></ha-icon></span>
-          <div><small>Security</small><b>${rt.escape(`${status.security.unsafeCount} unsafe`)}</b><em>${rt.escape(`${status.security.secure} secure · ${status.security.incomplete} incomplete`)}</em><em>${rt.escape(securityNames)}</em></div>
+          <div><small>Security</small><b>${rt.escape(activeVehicles.length ? `${status.security.unsafeCount} unsafe` : "Not assessed")}</b><em>${rt.escape(`${status.security.secure} secure · ${status.security.incomplete} incomplete`)}</em><em>${rt.escape(securityNames)}</em></div>
         </article>
         <article class="ov-status-item maintenance ${status.maintenance.actionableCount ? "warn" : ""}">
           <span class="ov-status-icon"><ha-icon icon="mdi:wrench-outline"></ha-icon></span>
-          <div><small>Maintenance</small><b>${rt.escape(`${status.maintenance.overdue.length} overdue · ${status.maintenance.dueSoon.length} due soon`)}</b><em>${rt.escape(maintenanceAction)}</em><em>${rt.escape(nextMaintenance)}</em></div>
+          <div><small>Maintenance</small><b>${rt.escape(activeVehicles.length ? `${status.maintenance.overdue.length} overdue · ${status.maintenance.dueSoon.length} due soon` : "Not assessed")}</b><em>${rt.escape(maintenanceAction)}</em><em>${rt.escape(nextMaintenance)}</em></div>
         </article>
       </section>
 
@@ -818,7 +826,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     const visibleUnverified = ["active","disabled"].includes(filter) ? [] : filter === "attention" ? allUnverified.filter(attentionRequired) : allUnverified;
 
     const fleet = rt.mobilityFleetProjection();
-    const activeCount = Number.isFinite(Number(fleet.active_vehicle_count)) ? Number(fleet.active_vehicle_count) : allActive.length;
+    const activeCount = fleet.active_vehicle_count==null || fleet.active_vehicle_count==="" ? allActive.length : Number.isFinite(Number(fleet.active_vehicle_count)) ? Number(fleet.active_vehicle_count) : allActive.length;
     const inactiveCount = allInactive.length;
     const unverifiedCount = allUnverified.length;
     const attentionCount = [...allActive, ...allInactive, ...allUnverified].filter(attentionRequired).length;
