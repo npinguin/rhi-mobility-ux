@@ -57,7 +57,7 @@ class HomeBrainAssetRuntime {
 
   contractAuthorityRegistry() {
     return {
-      canonical_property_v2: { contract_id: "MOBILITY_CANONICAL_PROPERTY_V2", role: "primary_property_authority" },
+      canonical_property_v2: { contract_id: "RHI_MOBILITY_CANONICAL_PROPERTY_V1", role: "primary_property_authority" },
       product_experience_v2: { contract_id: "MOBILITY_EXPERIENCE_V2", role: "authority" },
       product_policy_v2: { contract_id: "MOBILITY_POLICY_V2", role: "authority" },
       command_v2: { contract_id: "MOBILITY_COMMAND_V2", role: "authority" },
@@ -300,8 +300,12 @@ class HomeBrainAssetRuntime {
     );
     if (matches.length !== 1) return {};
     const relationship=matches[0]?.charging_relationship;
-    return relationship && typeof relationship === "object"
-      ? { ...relationship, source:"MOBILITY_EXPERIENCE_V2" } : {};
+    if (!relationship || typeof relationship !== "object") return {};
+    // The vehicle row is the identity authority. A nested mismatched ID
+    // must not be allowed to reassign the observed connection to another car.
+    const publishedId=String(relationship.vehicle_id || "");
+    if (publishedId && publishedId !== canonical) return {};
+    return { ...relationship, vehicle_id:canonical, source:"MOBILITY_EXPERIENCE_V2" };
   }
 
   // Compatibility names are runtime-internal aliases only. They must never be
@@ -1932,10 +1936,10 @@ class HomeBrainAssetRuntime {
     const energy = currentEnergy.display ? currentEnergy : batteryEnergy;
 
     const slots = [];
-    if (total.display) slots.push({ label:"Range", display:total.display, value:total.display, resolved:true, available:true, property_key:"vehicle.range_total_km", prop:total.prop, source:"MOBILITY_CANONICAL_PROPERTY_V2" });
-    if (ev.display && ev.display !== total.display) slots.push({ label:"Electric", display:ev.display, value:ev.display, resolved:true, available:true, property_key:"vehicle.ev_range_km", prop:ev.prop, source:"MOBILITY_CANONICAL_PROPERTY_V2" });
+    if (total.display) slots.push({ label:"Range", display:total.display, value:total.display, resolved:true, available:true, property_key:"vehicle.range_total_km", prop:total.prop, source:"RHI_MOBILITY_CANONICAL_PROPERTY_V1" });
+    if (ev.display && ev.display !== total.display) slots.push({ label:"Electric", display:ev.display, value:ev.display, resolved:true, available:true, property_key:"vehicle.ev_range_km", prop:ev.prop, source:"RHI_MOBILITY_CANONICAL_PROPERTY_V1" });
     const batteryDisplay = [soc.display, energy.display].filter(Boolean).join(" · ");
-    if (batteryDisplay) slots.push({ label:"Battery", display:batteryDisplay, value:batteryDisplay, resolved:true, available:true, property_key:"vehicle.soc_pct", prop:soc.prop || energy.prop, source:"MOBILITY_CANONICAL_PROPERTY_V2" });
+    if (batteryDisplay) slots.push({ label:"Battery", display:batteryDisplay, value:batteryDisplay, resolved:true, available:true, property_key:"vehicle.soc_pct", prop:soc.prop || energy.prop, source:"RHI_MOBILITY_CANONICAL_PROPERTY_V1" });
     return slots;
   }
 
@@ -2380,8 +2384,13 @@ class HomeBrainAssetRuntime {
     // The backend experience publisher owns the relationship resolution.
     // Do not infer physical connection from a configured or effective assignment.
     const relations=(this.mobilityExperienceV2()?.vehicles || [])
-      .map((vehicle)=>({ vehicle_id:String(vehicle?.asset_id || ""), ...vehicle?.charging_relationship }))
-      .filter((row)=>row.vehicle_id && row.vehicle_id.startsWith("vehicle_"));
+      .flatMap((vehicle)=>{
+        const vehicleId=String(vehicle?.asset_id || "");
+        const relation=vehicle?.charging_relationship;
+        if (!vehicleId.startsWith("vehicle_") || !relation || typeof relation !== "object") return [];
+        if (relation.vehicle_id && String(relation.vehicle_id)!==vehicleId) return [];
+        return [{...relation,vehicle_id:vehicleId}];
+      });
     const configured=relations.filter((row)=>String(row.configured_charger_id || "")===canonical);
     const effectiveRows=relations.filter((row)=>String(row.effective_charger_id || "")===canonical);
     const physical=relations.filter((row)=>row.observed_identity_proven===true && String(row.physically_connected_charger_id || "")===canonical);
