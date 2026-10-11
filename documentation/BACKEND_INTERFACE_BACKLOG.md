@@ -7,7 +7,7 @@ Backend issue **rhi-mobility #107 — Mobility UX — V2 contract-gap confirmati
 New UX work follows:
 
 ```text
-Public Runtime V2 = canonical facts
+Canonical property V1 = per-asset canonical facts
 Policy V2         = thresholds and interpretation rules
 Experience V2     = user-facing conclusions
 UX                = select, aggregate, format and present
@@ -57,7 +57,7 @@ Unknown authorization fails closed.
 
 Overview needs truthful counts such as free / in use / unavailable.
 
-Runtime V2 currently exposes canonical charger operating/connection facts. UX may present only the documented product projection supported by those facts; richer availability categories require an explicit backend product semantic.
+Canonical Mobility properties expose charger operating/connection facts. UX may present only the documented product projection supported by those facts; richer availability categories require an explicit backend product semantic.
 
 Unknown/unmapped charger state renders N/A and must not be counted as free.
 
@@ -109,8 +109,8 @@ These items may become a V2.x contract only through an explicit backend contract
 No future V2.x field may be guessed, reverse-engineered from raw Home Assistant entities, or locally persisted as a second truth by UX.
 
 
-## Runtime V2 property-completeness evidence — fulfilled in Mobility M0.9.44
+## Historical Runtime V2 property-completeness evidence — retired from UX
 
 Mobility M0.9.44 publishes per-asset `property_publication` evidence on Runtime V2, including expected and catalog property keys.
 
-UX rc.49 consumes this evidence and compares expected keys with materialized direct V2 property entities. An expected-but-missing entity is now an explicit publication gap; it is never silently filled from another or older interface.
+The legacy Runtime V2 catalog was removed from UX during the canonical-only migration. UX now reports directly published canonical property keys and any ambiguity, but does not claim expected-property completeness without a replacement backend-owned expected-key catalog. Such a catalog remains a backend interface gap; no UI inference or old-contract fallback is permitted.
