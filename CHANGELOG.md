@@ -1,3 +1,9 @@
+## 1.0.0-rc.92 — Charger power evidence and lifecycle accuracy
+
+- Show charger-reported Charging versus canonical actual 0 kW as separate evidence.
+- Regression protection for zero, unknown and positive measured power.
+- Prevent false-green Overview when no active vehicles are evaluated.
+
 ## 1.0.0-rc.90 — Native Energy interoperability recovery (unpublished)
 
 - Read D0/D1 from native Energy producers; exact period/unit joins for Insights;
