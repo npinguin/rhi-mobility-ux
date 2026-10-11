@@ -62,4 +62,38 @@ assert.match(router,/Effective planning incomplete|effective Energy plan is comp
 assert.match(router,/plan\.providerHold/);
 assert.match(router,/plan\.quality\.D0/);
 assert.doesNotMatch(router,/The Energy public planning contract is not available/);
+// Behavioral guards for aggregate status tiles: a missing lifecycle and
+// missing charger facts cannot silently become reassuring numerical zeros.
+const summaryMethods=vm.runInNewContext('({'+fragment(dashboard,
+  '  overviewChargingStatus(rt, vehicles = [], chargers = []) {',
+  '  overviewSecurityStatus(rt, vehicles = []) {')+'})',{
+  HomeBrainAssetFactory:class {adapterFor(){return null;}}
+});
+const emptyRuntime={
+  mobilityFleetProjection:()=>({
+    connected_charger_count:null,charging_charger_count:null,
+    available_charger_count:null,aggregate_power_state:'unknown',
+    aggregate_actual_charging_power_kw:null
+  }),
+  rangePolicyProjection:()=>({range:{low_range_km:null}})
+};
+const noEvidence=summaryMethods.overviewChargingStatus.call({},emptyRuntime,[],[]);
+assert.equal(noEvidence.connected,null,'missing backend connection count is not zero');
+assert.equal(noEvidence.charging,null);
+assert.match(noEvidence.stateDisplay,/Unknown charging · Unknown connected/);
+assert.match(noEvidence.currentContext,/not verified/);
+const knownZeroRuntime={...emptyRuntime,mobilityFleetProjection:()=>({
+  connected_charger_count:0,charging_charger_count:0,available_charger_count:0,
+  aggregate_actual_charging_power_kw:0,aggregate_power_state:'available'
+})};
+const actualZero=summaryMethods.overviewChargingStatus.call({},knownZeroRuntime,[],[]);
+assert.equal(actualZero.connected,0);
+assert.equal(actualZero.charging,0);
+assert.equal(actualZero.powerDisplay,'0.0 kW now');
+const noVehicleRange=summaryMethods.overviewRangeStatus.call({},emptyRuntime,[]);
+assert.equal(noVehicleRange.headline,'Range unavailable');
+assert.equal(noVehicleRange.thresholdKm,null);
+assert.equal(noVehicleRange.line1,'No verified active vehicles');
+assert.match(dashboard,/Not assessed/);
+
 console.log('PASS lifecycle: active vs disabled vs unavailable, no false reactivation, native cross-domain navigation and planning quality');
