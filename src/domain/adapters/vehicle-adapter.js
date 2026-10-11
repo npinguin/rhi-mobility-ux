@@ -180,11 +180,11 @@ class HomeBrainVehicleAdapter {
         profile: this.profile(),
         profile_id: profileId,
         image_key: imageKey,
-        source: "MOBILITY_EXPERIENCE_V2"
+        source: "RHI_MOBILITY_CANONICAL_PROPERTY_V1"
       },
       lifecycle: {
         state: this.rt.lifecycleStatus(reg),
-        source: "MOBILITY_EXPERIENCE_V2"
+        source: "RHI_MOBILITY_CANONICAL_PROPERTY_V1"
       },
       facts: {
         overview_metrics: this.rt.vehicleOverviewMetricSlots(assetId),
@@ -211,7 +211,7 @@ class HomeBrainVehicleAdapter {
       commands,
       attention_required: attentionRequired,
       experience,
-      source_contracts: ["MOBILITY_EXPERIENCE_V2", "MOBILITY_EXPERIENCE_V2", "MOBILITY_COMMAND_V2"]
+      source_contracts: ["RHI_MOBILITY_CANONICAL_PROPERTY_V1", "MOBILITY_EXPERIENCE_V2", "MOBILITY_COMMAND_V2"]
     };
   }
 
