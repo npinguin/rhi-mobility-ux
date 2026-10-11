@@ -21,7 +21,7 @@ Mobility M0.10.43 canonical native property entities (V1)
 
 ## Changes in structural recovery branch
 
-On `work/ux-structural-closure-20261011` (not yet main):
+On `work/ux-structural-closure-20261011` (prospective rc.90, not yet main):
 
 1. Cross-domain D0/D1 planning now reads actual Energy-native metric publications selected by `canonical_source=rhi_energy.runtime` and exact `metric_key`, not fabricated `D0` / `D1` canonical asset IDs.
 2. Insights requires explicitly published per-asset `period_id` and unit before rendering Energy energy/financial attribution; property-name matching is no longer treated as period authority.

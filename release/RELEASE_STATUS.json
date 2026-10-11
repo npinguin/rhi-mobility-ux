@@ -1,9 +1,9 @@
 {
   "product": "rhi-mobility-ux",
-  "source_candidate_version": "1.0.0-rc.89",
+  "source_candidate_version": "1.0.0-rc.90",
   "stage": "test_candidate",
   "publication_authority": "github_releases",
-  "publication_status": "derive_from_github_release",
+  "publication_status": "not_published_pending_validation",
   "contract": "RHI_MOBILITY_CANONICAL_PROPERTY_V1",
   "minimum_backend": "M0.10.41",
   "tested_backend": "M0.10.43",

@@ -1,13 +1,12 @@
-# v1.0.0-rc.89 — canonical-only Mobility HACS candidate
+# v1.0.0-rc.90 — Mobility structural recovery (unpublished)
 
-**HACS-installable TEST CANDIDATE; not stable or target-HA qualified.** The release is published as a normal GitHub Release so HACS can install it without a beta toggle.
+**WORK BRANCH ONLY — DO NOT PUBLISH OR MERGE BEFORE QUALIFICATION.** The immutable `v1.0.0-rc.89` release remains unchanged. This is prospective rc.90, not a retag and not yet target-HA qualified.
 
-- Removes the retired `MOBILITY_PUBLIC_RUNTIME_V2` aggregate from bundled runtime, adapters and screens. Canonical per-asset properties are supplied by `RHI_MOBILITY_CANONICAL_PROPERTY_V1`, while Experience, Policy, Commands, Activity and Supervision remain distinct backend-owned contracts.
-- Vehicle and charger relationship projections consume backend-published `MOBILITY_EXPERIENCE_V2` relationships. Configured and effective assignments are kept separate from physical connections; physical attribution requires explicit observed identity proof.
-- Strengthens fail-closed identity validation and adds regression coverage for two independently published Audi Q8 vehicles and conflicting vehicle identifiers.
-- Keeps HACS bundle, checksum, version and release metadata consistent with an immutable source candidate.
-- Target Home Assistant installation, controls/readback, responsive rendering, restart and rollback remain **pending qualification**. No stable-promotion claim is made.
+- D0/D1 planning from exact Energy-native `canonical_source` / `metric_key`, never fabricated horizon assets.
+- Energy Insights requires explicit asset identity, `period_id`, availability and kWh/EUR unit; no property-name inference.
+- Configured Energy Strategy from producer metadata; effective strategy unavailable without separate published truth.
+- Detect duplicate canonical publishers through the contract-gap authority.
+- Regression tests, product vision, backend interface backlog and engineering documentation aligned.
+- HACS dist rebuilt deterministically; full npm/HACS and target HA tests remain pending.
 
-Compatible backend baseline: Mobility M0.10.41 or later. Static evidence includes the M0.10.43 backend contract baseline. Rollback: **v1.0.0-rc.88**.
-
-GitHub Release must have no attached assets; HACS installs the exact immutable `dist/` tree from the tag.
+Compatible baseline: Mobility M0.10.43 and native Energy E0.15.114. Rollback: `v1.0.0-rc.89`.
