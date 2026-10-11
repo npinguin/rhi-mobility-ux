@@ -235,7 +235,8 @@ if(dashboard.includes('title="vehicle.selected_charger is not published"><ha-ico
 }
 
 for(const needle of [
-  'const relatedVehicleId = String(projection?.relationships?.connected_vehicle_id || "")',
+  'const assignedId = String(projection?.relationships?.assigned_vehicle_id || "")',
+  'const connectedVehicle = facts.connected_vehicle?.display || "—"',
   'rt.t("common.assigned_vehicle"',
   'rt.t("common.connected_vehicle"',
   'charger-assignment',
