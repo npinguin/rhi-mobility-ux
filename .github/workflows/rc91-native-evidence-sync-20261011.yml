@@ -1,0 +1,41 @@
+name: Mobility rc91 native evidence package and full qualification (single use)
+on:
+  push:
+    branches: [fix/vehicle-lifecycle-planning-20261011]
+    paths: [.github/workflows/rc91-native-evidence-sync-20261011.yml]
+permissions:
+  contents: write
+jobs:
+  validate-and-package:
+    if: github.ref == 'refs/heads/fix/vehicle-lifecycle-planning-20261011'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/vehicle-lifecycle-planning-20261011
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Sync immutable rc91 identity from single release owner
+        run: |
+          node tools/sync-release-metadata.mjs
+          npm ci
+      - name: Execute complete source, UX, HACS and release checks
+        run: |
+          npm test
+      - name: Commit deterministic dist and exact release projections
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git rm .github/workflows/rc91-native-evidence-sync-20261011.yml
+          git rm .github/workflows/ux-live-evidence-verify-20261011.yml
+          git add -A package.json package-lock.json COMPATIBILITY.json RELEASE_MANIFEST.json release/ dist/
+          git diff --cached --check
+          git diff --cached --stat
+          git commit -m 'release: synchronize native Mobility rc91 dist and lifecycle/EMHASS evidence gates'
+          node tools/verify-dist.mjs
+          node tools/check-committed-dist.mjs
+          git push origin HEAD:refs/heads/fix/vehicle-lifecycle-planning-20261011
