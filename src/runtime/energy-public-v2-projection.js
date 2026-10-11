@@ -133,5 +133,4 @@ class HomeBrainEnergyCanonicalProjection {
   }
 }
 
-// Transitional class alias for existing consumers; the retired transport is not read.
-const HomeBrainEnergyPublicV2Projection = HomeBrainEnergyCanonicalProjection;
+// Single native canonical Energy runtime projection. No retired Public V2 alias.
