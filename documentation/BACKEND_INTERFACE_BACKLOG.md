@@ -127,3 +127,11 @@ No future V2.x field may be guessed, reverse-engineered from raw Home Assistant 
 Mobility M0.9.44 publishes per-asset `property_publication` evidence on Runtime V2, including expected and catalog property keys.
 
 The legacy Runtime V2 catalog was removed from UX during the canonical-only migration. UX now reports directly published canonical property keys and any ambiguity, but does not claim expected-property completeness without a replacement backend-owned expected-key catalog. Such a catalog remains a backend interface gap; no UI inference or old-contract fallback is permitted.
+
+## Target HA defect dependencies — 2026-10-11
+
+- **Lifecycle authority:** `asset.lifecycle_status` is the canonical READ contract; `lifecycle_status` is the explicitly published write-alias only. The backend must expose both with exact write authority and confirmed canonical readback to enable a disabled vehicle.
+- **Command V2:** `label` is optional display text. Producer provides `command_key`, `placement`, `supported`, `execution_allowed` and literal `invoke`. UX may localize the label, not fabricate an invocation or consent.
+- **Activity:** backend currently publishes current-state snapshots and command results together. Proposed backend Activity evidence branch adds `row_kind` and UTC `observed_at` to true execution results. Event chronology and bounded historical retention beyond last_results remain producer-owned work.
+- **Energy Insights:** exact per-asset `period_id`, units, quality and availability for metering and value attribution are still required. Do not infer period from property name or compute financial totals locally.
+- **Artwork:** former utility plug WebP was a vehicle, not a Fibaro device; replacement is an RHI-backend-owned schematic, not yet exact-model product photography. The real-image provenance/verification remains a visual-library work item.

@@ -66,3 +66,13 @@ Do not silently close issues through frontend inference, fallbacks or optimistic
 - Frontend-derived supervisory/dashboard meaning was removed in v1.0.0-rc.5. Global supervisor status, trust, attention, opportunity and recommendation consume backend-owned semantics and fail closed when unavailable.
 
 The first stable HACS release must not silently close remaining items without explicit tests and target-runtime evidence.
+
+## Observed target Home Assistant failures — screenshot recovery (2026-10-11)
+
+Captured target UX showed zero active vehicles (four registered), no useful Overview fleet, missing charger/vehicle commands, nonworking appearance Save, Utility Plug rendered with car artwork, unhelpful Activity timestamps and a largely empty Energy Insights panel. This is direct product acceptance evidence; previous source-level green checks did not detect all of it.
+
+Recovery branch `work/ux-structural-closure-20261011` implements source corrections for: backend Command V2 rows without optional `label`; exact canonical `asset.lifecycle_status` reads and backend-owned alias write with canonical readback; visible inactive fleet on Overview; explicit appearance-picker editor binding; replaced wrong Utility Plug raster with backend-maintained schematic illustration; per-subject Activity media, filter/sort/group, live-state/event distinction and deeper detail disclosure.
+
+The companion Mobility backend branch `work/ux-activity-evidence-20261011` adds actual UTC command completion timestamps and labels current status rows as `current_state`. The UX cannot show historical time for those live snapshots; the backend branch must deploy before command-event timestamps appear.
+
+**NOT CLOSED until proven on the target HA:** actual 4-vehicle lifecycle states and authorized reactivation, all physical charger matches, image choice persistence, command invocation/readback, genuine Energy per-asset period metering/financial attribution, Activity chronology, browser refresh/selection persistence, responsive desktop/tablet/phone and rollback. No fake vehicle activation, event times or kWh/EUR values should be accepted as repair.

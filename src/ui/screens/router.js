@@ -299,6 +299,16 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
 
   renderInsights(rt) {
     const insights = this.energyInsights(rt);
+    // Mobility-owned command execution is useful Insight evidence even when
+    // Energy cannot yet attribute kWh/EUR to a canonical vehicle and period.
+    const executionRows=(rt.activityRowsFor?.("") || []).filter(row=>String(row.activity_type || "")==="execution");
+    const executionHtml=executionRows.slice(0,5).map(row=>{
+      const id=String(row.asset_id || ""),value=String(row.result || row.activity_state || "UNKNOWN");
+      const observed=String(row.observed_at || "").trim();
+      const parsed=observed ? new Date(observed) : null;
+      const when=parsed && Number.isFinite(parsed.getTime()) ? parsed.toLocaleString() : "Time not published";
+      return `<div class="rhi-data-row"><b>${rt.escape(rt.assetDisplayName?.(id) || id)} · ${rt.escape(String(row.operation_key || row.summary || "Command"))}</b><span>${rt.escape(value)} · ${rt.escape(when)}</span></div>`;
+    }).join("");
     const rows = insights.rows.map((row) => {
       const energy = this.fmtKwh(row.energyKwh);
       const value = row.attributedEur === null ? "N/A" : `€${Number(row.attributedEur).toFixed(2)}`;
@@ -331,6 +341,9 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
           <div class="rhi-data-row"><b>${rt.escape((rt?.t?.("insights.metering_contract",{},"Metering contract") || "Metering contract"))}</b><span>${rt.escape(insights.meteringContractVersion || (insights.meteringAvailable ? (rt?.t?.("common.published",{},"Published") || "Published") : (rt?.t?.("common.unavailable",{},"Unavailable") || "Unavailable")))}</span></div>
           <div class="rhi-data-row"><b>${rt.escape((rt?.t?.("insights.value_contract",{},"Value contract") || "Value contract"))}</b><span>${rt.escape(insights.valueContractVersion || (insights.valueAvailable ? (rt?.t?.("common.published",{},"Published") || "Published") : (rt?.t?.("common.unavailable",{},"Unavailable") || "Unavailable")))}</span></div>
           <div class="rhi-data-row"><b>${rt.escape((rt?.t?.("insights.value_state",{},"Value state") || "Value state"))}</b><span>${rt.escape(insights.valueState)}</span></div>
+          <h4 class="rhi-insight-events-title">Recent Mobility commands</h4>
+          ${executionHtml || `<div class="rhi-context-note">No command execution results published yet. Current asset status is available under Activity.</div>`}
+          <button class="rhi-insight-open-activity" data-nav="${hbMobilityPath("/log")}">View Activity <ha-icon icon="mdi:chevron-right"></ha-icon></button>
         </div>
       </article>
     </section>`;
@@ -447,6 +460,7 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
       .support-facts{margin-top:8px}
       .insights-grid{grid-template-columns:minmax(0,1.45fr) minmax(280px,.55fr)}
       .log-grid{grid-template-columns:minmax(0,1.45fr) minmax(280px,.55fr)}
+    .rhi-insight-events-title{font-size:12px;color:#29466f;margin:14px 0 8px}.rhi-insight-open-activity{display:inline-flex;align-items:center;gap:5px;border:1px solid #d6e2f0;background:#f7faff;color:#075fd8;border-radius:9px;font:600 12px inherit;padding:8px 10px;margin-top:10px;cursor:pointer}
       .rhi-log-controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:4px 0}.rhi-log-controls label{display:flex;align-items:center;gap:6px;font-size:12px;color:#536582;font-weight:600}.rhi-log-controls select{height:36px;border:1px solid #dbe5f0;border-radius:9px;background:#fff;color:#132744;font:inherit;padding:5px 8px}.rhi-log-group{margin:12px 0 2px;font-size:12px;font-weight:700;color:#29466f}.rhi-log-icon img{max-width:36px;max-height:36px;object-fit:contain}.rhi-log-copy b{font-size:12px}.rhi-log-copy small{font-size:11px}
     .rhi-log-list{display:grid;gap:7px;margin-top:10px}.rhi-log-row{display:grid;grid-template-columns:30px minmax(0,1fr);gap:9px;align-items:start;border:1px solid var(--rhi-color-line);border-radius:var(--rhi-radius-md);padding:9px 10px;background:#fff}.rhi-log-icon{display:grid;place-items:center;width:28px;height:28px;border-radius:9px;background:#F1F6FF;color:#1467F5}.rhi-log-icon ha-icon{--mdc-icon-size:17px}.rhi-log-copy{min-width:0}.rhi-log-copy b,.rhi-log-copy small,.rhi-log-copy span{display:block}.rhi-log-copy b{font-size:13px;overflow-wrap:anywhere}.rhi-log-copy small{margin-top:2px;color:var(--rhi-color-muted);font-size:10px}.rhi-log-copy span{margin-top:4px;color:var(--rhi-color-muted);font-size:11px;overflow-wrap:anywhere}
       .rhiVehicleIdentity{display:flex;align-items:center;gap:10px;min-width:0}.rhiVehicleIdentity>span:last-child{min-width:0}.rhiVehicleIdentity b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.rhiVehicleIdentity small{display:block;margin-top:2px;font-size:9px;color:#718096}.rhiVehicleThumb{width:64px;height:42px;display:flex;align-items:center;justify-content:center;flex:0 0 64px;border-radius:10px;background:#f5f8fc;border:1px solid #e5ebf4;overflow:hidden}.rhiVehicleThumb img{display:block;max-width:60px;max-height:38px;object-fit:contain}.rhiVehicleThumbFallback ha-icon{--mdc-icon-size:22px;color:#5f6d84}.rhiVehicleRow{align-items:center;min-height:56px}.rhiVehicleRow>span:last-child{justify-self:end}.rhi-insight-vehicle-head .rhiVehicleIdentity{min-width:0}

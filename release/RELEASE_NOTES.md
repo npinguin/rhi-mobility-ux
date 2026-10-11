@@ -10,3 +10,14 @@
 - HACS dist rebuilt deterministically; full npm/HACS and target HA tests remain pending.
 
 Compatible baseline: Mobility M0.10.43 and native Energy E0.15.114. Rollback: `v1.0.0-rc.89`.
+
+## 2026-10-11 screenshot-driven recovery (same unpublished work candidate)
+
+- Preserve inactive/unknown vehicles on Overview even when zero are active; never silently treat them as operational.
+- Accept Mobility producer commands without a `label` while preserving explicit `invoke`, supported and execution permissions; missing invoke stays disabled.
+- Restore dedicated appearance-picker write capability despite readonly generic image fields; only backend-authorized writes with canonical readback.
+- Replace erroneous Utility Plug car artwork with the existing producer-maintained plug schematic; pending verified model photography.
+- Add current-status versus timed-event distinction, true asset visuals and Activity filtering/sorting/grouping; a coordinated Mobility backend work branch publishes timestamps for completed commands.
+- Reduce detail density using wider responsive cards and a fold for secondary property rows; Insights includes real Mobility execution evidence when Energy period attribution is absent.
+
+Full npm/HACS gates and live HA user journeys have **not yet passed**, and neither package nor backend branch has been promoted.

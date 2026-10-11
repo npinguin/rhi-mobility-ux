@@ -330,3 +330,11 @@ A mature/stable Mobility release requires:
 - no visible orphan pilot feature;
 - upgrade and rollback proof;
 - exact immutable candidate evidence recorded in release qualification.
+
+## Product acceptance correction — observed fleet and Activity
+
+A product surface must never appear empty merely because the backend reports every known vehicle disabled or unavailable. Overview shows registered inactive vehicles separately with their true canonical lifecycle status and allows reactivation only when the backend publishes an exact writable lifecycle route. The correct screenshot acceptance fixture is four registered vehicles and zero active, **not** a fabricated active fleet.
+
+Activity distinguishes (a) current published vehicle/charger snapshots from (b) actual command-execution events. Time belongs only to events with a backend-published UTC timestamp; the rest is labelled as current status. Asset photos/illustrations come from the canonical visual package. Filter, sort, group and mobile density are presentation, not a second history engine. Insights includes real Mobility command outcomes when Energy period attribution is not yet available, without fabricating financial results.
+
+The appearance picker is a dedicated editor: backend `render_as=readonly_value` keeps raw image keys out of generic detail panels, while an explicit `editable/write_supported/write_service_*` contract authorizes the picker. Selecting a different model requires a supported backend profile option; choosing another appearance of the *same* known model requires only the image binding. Every Save awaits canonical backend readback.
