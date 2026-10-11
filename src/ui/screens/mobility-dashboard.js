@@ -641,19 +641,28 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     const powerDisplay = Number.isFinite(power) && powerState !== "unknown"
       ? `${power.toFixed(1)} kW${powerState === "partial" ? " · partial" : " now"}`
       : "Power unknown";
+    const chargerBuckets=chargerModels.map(model=>String(model?.projection?.availability?.bucket||'').toLowerCase());
+    const fullyObserved=chargerBuckets.length>0 &&
+      chargerBuckets.every(bucket=>['free','in_use','unavailable','disabled'].includes(bucket));
+    const definitelyFree=fullyObserved && chargerBuckets.every(bucket=>bucket==='free');
     const currentContext = provenMappings.length
       ? provenMappings.slice(0,2).join(" · ")
-      : (connectedRows.length ? connectedRows.slice(0,3).map(label).join(" · ") : "No charger connected");
+      : connectedRows.length ? connectedRows.slice(0,3).map(label).join(" · ")
+        : definitelyFree ? "No charger connected"
+          : "Charger connection or vehicle identity not verified";
     const availabilityDisplay = availableRows.length
       ? `${availableRows.slice(0,3).map(label).join(" · ")} available`
       : (Number.isFinite(available) ? `${available} available` : "Availability unknown");
 
+    const knownConnected=Number.isFinite(connected)?connected:fullyObserved?connectedRows.length:null;
+    const knownCharging=Number.isFinite(charging)?charging:fullyObserved?chargingFallback:null;
+    const knownAvailable=Number.isFinite(available)?available:fullyObserved?availableRows.length:null;
     return {
-      connected:Number.isFinite(connected) ? connected : connectedRows.length,
-      charging:Number.isFinite(charging) ? charging : chargingFallback,
-      available:Number.isFinite(available) ? available : availableRows.length,
+      connected:knownConnected,
+      charging:knownCharging,
+      available:knownAvailable,
       powerDisplay,
-      stateDisplay:`${Number.isFinite(charging) ? charging : chargingFallback} charging · ${Number.isFinite(connected) ? connected : connectedRows.length} connected`,
+      stateDisplay:`${knownCharging===null?"Unknown":knownCharging} charging · ${knownConnected===null?"Unknown":knownConnected} connected`,
       currentContext,
       availabilityDisplay,
       powerState
@@ -755,7 +764,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
             status.security.secure===activeVehicles.length ? "All covered vehicles secure" : "Security evidence incomplete"));
     const maintenanceAction = status.maintenance.actionable.length
       ? status.maintenance.actionable.slice(0,2).map((row)=>`${row.name} ${row.summary}`).join(" · ")
-      : "Nothing due < policy window";
+      : (activeVehicles.length ? "Nothing due < policy window" : "Not assessed · no verified active vehicles");
     const nextMaintenance = status.maintenance.scheduled.length
       ? `Next ${status.maintenance.scheduled[0].name} · ${status.maintenance.scheduled[0].summary}`
       : (!activeVehicles.length ? "No verified active vehicles" : status.maintenance.unknown.length ? `${status.maintenance.unknown.length} unknown` : "No scheduled maintenance");
