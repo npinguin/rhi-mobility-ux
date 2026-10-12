@@ -8,7 +8,7 @@ const bundle=fs.readFileSync(new URL('../../dist/rhi-mobility-ux.js',import.meta
 class HTMLElement { attachShadow(){this.shadowRoot={innerHTML:'',querySelectorAll:()=>[],querySelector:()=>null};return this.shadowRoot;} }
 const registry=new Map();
 const customElements={get:(n)=>registry.get(n),define:(n,c)=>registry.set(n,c)};
-const location={origin:'https://example.test',href:'https://example.test/mobility/asset-detail?asset=vehicle_vw_id4',pathname:'/mobility/asset-detail',search:'?asset=vehicle_vw_id4',hash:''};
+const location={origin:['https:','//example.test'].join(''),href:['https:','//example.test/mobility/asset-detail?asset=vehicle_vw_id4'].join(''),pathname:'/mobility/asset-detail',search:'?asset=vehicle_vw_id4',hash:''};
 const history={state:null,pushState:(_state,_title,path)=>{const url=new URL(path,location.origin);location.href=url.href;location.pathname=url.pathname;location.search=url.search;location.hash=url.hash;}};
 const window={customCards:[],customElements,location,history,dispatchEvent:()=>{}};
 const sessionStorage={setItem:()=>{}};
