@@ -2,6 +2,12 @@
 
 This file is the authoritative list of unresolved Mobility UX product/runtime issues. These are **not accepted technical or feature debt**. They stay open until the owning contract/test plus target Home Assistant evidence proves closure.
 
+## rc.93 responsive presentation recovery (2026-10-12)
+
+Observed iPhone screenshots of Overview, Vehicles and Chargers show severe narrow-column status wrapping, vehicle identity pushed below secondary facts, some overlapping asset imagery/text, duplicated/misplaced detail navigation, excessive boxed facts/whitespace and inconsistent top-level action presentation. The rc.93 source branch centralizes a final responsive authority, moves vehicle identity before the status strip, adds labelled contextual details, unifies factual rows and reduces vertical density across all screens.
+
+**Still open until target Home Assistant proof:** 320/375/430 CSS-pixel phones, portrait/landscape tablets, desktop; Overview, Vehicles, Chargers, Intelligence/Planning, Strategies, Insights/History, Activity, both asset details, appearance selectors, command/readback, active/inactive/unavailable and same-model distinct assets. See `documentation/RESPONSIVE_UX_ACCEPTANCE.md`. Source green is not visual qualification. No new feature or tech debt is accepted as a workaround.
+
 ## Cross-domain native Energy acceptance update (2026-10-11)
 
 Mobility's recovery branch replaces synthetic D0/D1 asset-key planning with producer-owned native Energy metrics and blocks period/strategy inference. This is source-level behavior, not evidence that the current Energy backend publishes complete per-asset metering/financial attribution or effective strategy semantics. Verify the exact Energy producer publications and record runtime evidence before closing Planning/Intelligence or Insights.
