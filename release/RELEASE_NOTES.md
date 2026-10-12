@@ -1,3 +1,9 @@
+# v1.0.0-rc.93 — Mobile layout recovery (TEST CANDIDATE)
+
+- Restore readable vehicle facts and bound vehicle artwork on narrow phones.
+- Preserve canonical V2 commands and backend-owned semantics.
+- Target HA qualification remains pending; Overview and Chargers require further visual acceptance.
+
 # v1.0.0-rc.92 — Charger actual-power evidence and lifecycle UX (HACS TEST CANDIDATE)
 
 - Charging state and actual measured power are independent facts. Charging/Running with canonical 0 kW is now explicitly disclosed instead of treating current limit or session energy as real-time power.
