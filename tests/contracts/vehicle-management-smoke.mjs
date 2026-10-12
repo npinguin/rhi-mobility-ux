@@ -308,3 +308,13 @@ for(const evidence of ["headline:!total ? \"Range not evaluated\"","line1:!total
   if(!dashboard.includes(evidence)) throw new Error('zero-evaluated fleet must not look healthy: '+evidence);
 }
 console.log('PASS zero-evaluated fleet status does not imply healthy assessments');
+
+// Test: Vehicle Detail consumes canonical properties; Overview retains Intelligence.
+const vehicleDetailSource=adapter.slice(adapter.indexOf('  build() {'));
+for (const token of ['this.productProjection({ includeIntelligence:false })','canonicalPropertyValue(assetId, key)','vehicle.charging_state','vehicle.security_state','vehicle.climate_state','vehicle.maintenance_state','vehicle.range_total_km']) {
+  if (!vehicleDetailSource.includes(token)) throw new Error('Vehicle Detail source missing '+token);
+}
+for (const token of ['projection.signals.range','projection.signals.charging','projection.signals.security','projection.signals.comfort','projection.signals.maintenance']) {
+  if (vehicleDetailSource.includes(token)) throw new Error('Intelligence summary leaked into Vehicle Detail: '+token);
+}
+console.log('PASS Vehicle Detail uses canonical fields, not Intelligence headlines');
