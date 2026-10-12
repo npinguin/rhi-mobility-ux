@@ -1,4 +1,4 @@
-# Mobility responsive UX acceptance — rc.94
+# Mobility responsive UX acceptance — rc.95
 
 ## Purpose and authority
 
@@ -33,6 +33,16 @@ and charger detail consume it. Keep domain-specific semantic projections unchang
 9. One data-presentation and responsive rule set covers all seven main screens plus
    asset details; no screen-specific competing mini-design system.
 
+## Consistent Mobility object/detail navigation (rc.95)
+
+- Lists: one explicit **Details →** action per asset, placed in the card action row.
+- Detail status: always label + value (+ explanatory subtext). A published related-asset value is the **link**, indicated by blue text and chevron; no second column, circular plus control or redundant action row.
+- Detail property rows: use the identical linked-value treatment for published related assets. No link if the backend has not identified a real related asset.
+- Back: every detail view exposes **Back to Vehicles/Chargers** or **Back to [parent asset]** if reached by a published object relationship. Parent context is encoded as `from_asset` in the URL so refresh does not lose it. Cross-domain navigation never guesses identity.
+- Vehicle desktop details: all five published status facts form one row; charger uses the same grammar with three facts. Narrower viewports reflow without changing semantics.
+- Lifecycle: **Disable/Activate** are action verbs; **Disabled/Active** are statuses. Vehicle and Charger lifecycle controls have the same visual semantics, and canonical readback still owns confirmation.
+- Acceptance: clicking a vehicle's Charging value opens that exact charger, whose Back link returns to the vehicle; a charger Vehicle link works symmetrically. Navigation from list shows Back to that list. Check direct URL, browser Back, reload and bootstrap and legacy multi-view routes on target Home Assistant.
+
 ## Viewport acceptance matrix
 
 | Device class | CSS viewport sample | Required visual checks |
@@ -66,7 +76,7 @@ picker and configuration/write/readback interactions.
 
 ## Known open qualification
 
-The rc.94 branch corrects source structure and responsive presentation but is
+The rc.95 branch corrects source structure and responsive presentation but is
 not target-HA runtime-qualified until the exact immutable candidate has been
 installed and exercised. Known V2 backend gaps in Planning, strategy and Energy
 insights remain backend-owned and cannot be concealed by UI layout changes.

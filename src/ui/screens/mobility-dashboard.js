@@ -243,9 +243,9 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     const status = rt.lifecycleStatus(asset);
     const desired = status === "disabled" ? "active" : "disabled";
     const model = rt.lifecycleWriteModel(asset, desired);
-    const label = desired === "active" ? rt.t("state.active",{},"Activate") : rt.t("state.disabled",{},"Disable");
+    const label = desired === "active" ? rt.t("action.activate",{},"Activate") : rt.t("action.disable",{},"Disable");
     const title = model.disabled ? rt.t("state.status_change_unavailable",{},"Status cannot be changed right now") : label;
-    const button = `<button class="action ${extraClass}" data-lifecycle-asset="${rt.escape(this.assetId(asset))}" data-lifecycle-value="${rt.escape(desired)}" ${model.disabled ? "disabled" : ""} title="${rt.escape(title)}"><ha-icon icon="mdi:power"></ha-icon><span>${rt.escape(label)}</span></button>`;
+    const button = `<button class="action mobility-lifecycle-action ${extraClass}" data-lifecycle-asset="${rt.escape(this.assetId(asset))}" data-lifecycle-value="${rt.escape(desired)}" ${model.disabled ? "disabled" : ""} title="${rt.escape(title)}"><ha-icon icon="mdi:power"></ha-icon><span>${rt.escape(label)}</span></button>`;
     return model.disabled && extraClass.includes("manage-lifecycle") ? `<span class="lifecycle-control-wrap">${button}<small class="lifecycle-disabled-reason">${rt.escape(title)}</small></span>` : button;
   }
 
@@ -403,7 +403,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
         ${vehicleCommands.map((cmd, index)=>this.renderCommand(rt, cmd, cmd?.label || "Action", this.commandIcon(cmd), index === 0 ? "primary-charge" : "")).join("")}
         ${Array.from({length: Math.max(0, 3 - vehicleCommands.length)}).map(()=>`<span class="action-spacer"></span>`).join("")}
         ${notPresentButton || ""}
-        <button class="vehicle-card-details" data-nav="${rt.escape(route)}" aria-label="Open details for ${rt.escape(display)}">Details <ha-icon icon="mdi:chevron-right"></ha-icon></button>
+        <button class="vehicle-card-details mobility-detail-action" data-nav="${rt.escape(route)}" aria-label="Open details for ${rt.escape(display)}">Details <ha-icon icon="mdi:chevron-right"></ha-icon></button>
       </div>
     </article>`;
   }

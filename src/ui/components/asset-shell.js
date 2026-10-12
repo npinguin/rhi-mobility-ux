@@ -120,6 +120,35 @@ class HomeBrainAssetShell {
     return out.join("");
   }
 
+  relatedAssetRoute(route) {
+    // A related object opens in the same detail shell and carries only its
+    // immediate parent asset as return context. Never infer the relationship.
+    const from = String(this._activeAssetId || "").trim();
+    if (!route || !/^(vehicle_|charger_)/.test(from)) return route;
+    const [base, fragment = ""] = String(route).split("#", 2);
+    const clean = base.replace(/([?&])from_asset=[^&#]*&?/g, "$1").replace(/[?&]$/, "");
+    const sep = clean.includes("?") ? "&" : "?";
+    return clean + sep + "from_asset=" + encodeURIComponent(from) + (fragment ? "#" + fragment : "");
+  }
+
+  returnContext(model) {
+    const listLabel = model.type === "charger" ? "Chargers" : "Vehicles";
+    const listRoute = hbMobilityPath(model.type === "charger" ? "/charger-maintenance" : "/dashboard");
+    // from_asset is deliberately a public URL parameter, so refresh/bookmarks
+    // keep context, including inside the single-card bootstrap.
+    let from = "";
+    try {
+      const search = String(window.location?.search || "");
+      from = decodeURIComponent((search.match(/[?&]from_asset=([^&#]+)/) || [])[1] || "");
+    } catch (_) { from = ""; }
+    const currentId = String(model.registryEntry?.asset_id || model.id || "");
+    const asset = /^(vehicle_|charger_)/.test(from) && from !== currentId
+      ? (this.rt.assetById?.(from) || null) : null;
+    if (!asset) return { path:listRoute, label:"Back to " + listLabel };
+    const name = String(asset.display_name || this.rt.assetDisplayName?.(from) || from);
+    return { path:this.rt.assetDetailRoute(asset), label:"Back to " + name };
+  }
+
   renderRow(row) {
     if (!row || row.hide) return "";
     if (row.type === "control") return this.renderControl(row);
@@ -131,7 +160,9 @@ class HomeBrainAssetShell {
       <div class="row ${row.detailRoute ? "has-detail-link" : ""}">
         <ha-icon icon="${row.icon}"></ha-icon>
         <div class="label">${this.rt.escape(row.label)}</div>
-        <div class="value row-value-with-link"><span>${this.rt.escape(row.value ?? "—")}</span>${row.detailRoute ? `<button class="row-detail-link" data-nav="${this.rt.escape(row.detailRoute)}" title="${this.rt.escape(row.detailTitle || "Open related asset details")}"><ha-icon icon="mdi:plus"></ha-icon></button>` : ""}</div>
+        <div class="value row-value-with-link">${row.detailRoute
+          ? `<button type="button" class="row-related-value" data-nav="${this.rt.escape(this.relatedAssetRoute(row.detailRoute))}" aria-label="${this.rt.escape(row.detailTitle || "Open related asset details")}"><span>${this.rt.escape(row.value ?? "—")}</span><ha-icon icon="mdi:chevron-right"></ha-icon></button>`
+          : `<span>${this.rt.escape(row.value ?? "—")}</span>`}</div>
       </div>`;
   }
 
@@ -221,13 +252,18 @@ class HomeBrainAssetShell {
   }
 
   render(model) {
+    this._activeAssetId = String(model.registryEntry?.asset_id || model.id || "");
+    const backContext = this.returnContext(model);
     const actions = (model.actions || []).map((a) => this.renderAction(a)).join("");
     const statusItems = model.status || [];
     const status = statusItems.map((m) => `
       <div class="metric tone-${this.rt.escape(m.tone || "neutral")} ${m.detailRoute ? "has-detail-link" : ""}">
         <ha-icon icon="${m.icon}"></ha-icon>
-        <div class="metric-copy"><span>${this.rt.escape(m.label)}</span><b>${this.rt.escape(m.value)}</b>${m.subvalue ? `<small class="metric-sub">${m.subIcon ? `<ha-icon class="metric-sub-icon" icon="${this.rt.escape(m.subIcon)}"></ha-icon>` : ""}${this.rt.escape(m.subvalue)}</small>` : ""}</div>
-        ${m.detailRoute ? `<button class="metric-detail-link" data-nav="${this.rt.escape(m.detailRoute)}" title="${this.rt.escape(m.detailTitle || "Open related asset details")}"><ha-icon icon="mdi:plus"></ha-icon></button>` : ""}
+        <div class="metric-copy"><span>${this.rt.escape(m.label)}</span>
+          ${m.detailRoute
+            ? `<button type="button" class="metric-related-value" data-nav="${this.rt.escape(this.relatedAssetRoute(m.detailRoute))}" aria-label="${this.rt.escape(m.detailTitle || "Open related asset details")}"><b>${this.rt.escape(m.value)}</b><ha-icon icon="mdi:chevron-right"></ha-icon></button>`
+            : `<b>${this.rt.escape(m.value)}</b>`}
+          ${m.subvalue ? `<small class="metric-sub">${m.subIcon ? `<ha-icon class="metric-sub-icon" icon="${this.rt.escape(m.subIcon)}"></ha-icon>` : ""}${this.rt.escape(m.subvalue)}</small>` : ""}</div>
       </div>`).join("");
     const mainSections = (model.sections || []).filter((s) => s && s.key !== "activity");
     const appearanceAsset = model.registryEntry || { asset_id:model.id || "", asset_type:model.type || "", image_key:model.visualKey || "" };
@@ -244,6 +280,7 @@ class HomeBrainAssetShell {
         <div class="page">
           <div class="hi-version-block" style="position:absolute;top:18px;right:22px;text-align:right;font-size:10.5px;line-height:1.25;font-weight:400;color:var(--secondary-text-color,#6B7280);opacity:.82;background:none;border:0;box-shadow:none;padding:0;margin:0;z-index:3;pointer-events:none;"><div>UX ${this.rt.escape(UX_VERSION)}</div><div>Backend ${this.rt.escape(this.rt.backendVersion())}</div></div>
           ${hbMobilityNav(model.type === "charger" ? "chargers" : "vehicles")}
+          <nav class="detail-context-nav" aria-label="Return navigation"><button type="button" data-nav="${this.rt.escape(backContext.path)}"><ha-icon icon="mdi:arrow-left"></ha-icon><span>${this.rt.escape(backContext.label)}</span></button></nav>
           <section class="hero detail-scene-hero">
             <img class="detail-hero-scene" src="${this.rt.escape(detailHeroScene)}" alt="" aria-hidden="true" loading="eager" decoding="sync" fetchpriority="high" />
             <div class="hero-left">
@@ -259,7 +296,7 @@ class HomeBrainAssetShell {
           </section>
 
           ${appearancePicker ? `<section class="detail-appearance-panel" data-detail-appearance-panel hidden><div class="detail-appearance-panel-head"><div><small>Appearance</small><b>${this.rt.escape(model.display)}</b></div><button type="button" data-detail-appearance-close title="Close appearance selector"><ha-icon icon="mdi:close"></ha-icon></button></div>${appearancePicker}</section>` : ""}
-          <section class="detail-status-grid status-count-${Math.min(4,statusItems.length)}" aria-label="Asset status">${status}</section>
+          <section class="detail-status-grid status-count-${Math.min(5,statusItems.length)}" aria-label="Asset status">${status}</section>
           <section class="actions"><div class="actions-title">${this.rt.escape(this.rt.t("common.quick_actions",{},"Quick actions"))}</div>${actions || `<div class="no-actions">No actions available for this asset.</div>`}</section>
           <section class="grid">${mainSections.map((s) => this.renderSection(s)).join("")}</section>
           ${this.renderFooter(model)}
@@ -870,6 +907,45 @@ class HomeBrainAssetShell {
       @media(max-width:1024px){.detail-scene-hero{min-height:188px}.detail-scene-hero .hero-left{width:50%;padding:26px 16px 22px 18px}.detail-scene-hero .hero-image{right:2%;width:48%}.detail-status-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.detail-status-grid .metric{grid-template-columns:42px minmax(0,1fr);padding:10px;min-height:88px}.detail-status-grid .metric ha-icon{width:40px;height:40px;--mdc-icon-size:22px}}
       @media(max-width:760px){.detail-scene-hero{min-height:168px}.detail-scene-hero .hero-left{width:58%;padding:20px 10px 18px 14px}.detail-scene-hero h1{font-size:29px}.detail-purpose{font-size:12px}.detail-scene-hero .hero-image{right:0;width:44%}.detail-status-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.actions{overflow-x:auto;flex-wrap:nowrap}.actions-title,.actions .action{flex:0 0 auto}}
       @media(max-width:430px){.detail-scene-hero{min-height:154px}.detail-scene-hero .hero-left{width:64%;padding:17px 8px 15px 12px}.detail-scene-hero h1{font-size:25px}.detail-purpose{font-size:10px;line-height:1.3}.detail-scene-hero .hero-image{width:41%}.detail-status-grid{grid-template-columns:1fr 1fr}.detail-status-grid .metric{grid-template-columns:34px minmax(0,1fr);min-height:76px;padding:8px;gap:7px}.detail-status-grid .metric ha-icon{width:32px;height:32px;border-radius:10px;--mdc-icon-size:18px;padding:6px}}
+      /* Canonical object navigation grammar: values are links, not 'add' actions. */
+      .detail-context-nav{display:flex;align-items:center;min-width:0;margin:0 0 -2px;padding:2px 1px}
+      .detail-context-nav button{display:inline-flex;align-items:center;gap:5px;min-height:36px;
+        padding:4px 6px;border:0;border-radius:8px;background:transparent;color:#075fd8;
+        font-size:12px;font-weight:650;cursor:pointer;text-align:left;max-width:100%}
+      .detail-context-nav button:hover,.detail-context-nav button:focus-visible{background:#eef5ff}
+      .detail-context-nav ha-icon{--mdc-icon-size:16px;flex:none}
+      .detail-context-nav span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+      .detail-status-grid.status-count-5{grid-template-columns:repeat(5,minmax(0,1fr))}
+      .detail-status-grid .metric.has-detail-link{grid-template-columns:52px minmax(0,1fr);align-items:center}
+      .detail-status-grid .metric{overflow:hidden}
+      .detail-status-grid .metric-copy{min-width:0}
+      .metric-related-value,.row-related-value{border:0;background:transparent;box-shadow:none;color:#075fd8;
+        font:inherit;font-weight:650;padding:0;margin:0;min-width:0;max-width:100%;
+        display:inline-flex;align-items:center;justify-content:flex-start;gap:4px;cursor:pointer;
+        text-align:left;vertical-align:middle}
+      .metric-related-value{font-size:clamp(13px,1.15vw,18px);line-height:1.14}
+      .metric-related-value b{display:block;min-width:0;font-size:inherit;line-height:inherit;
+        overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:inherit}
+      .metric-related-value ha-icon,.row-related-value ha-icon{--mdc-icon-size:16px;flex:none;color:inherit}
+      .row-related-value{justify-content:flex-end;font-size:12px;min-height:32px}
+      .row-related-value span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+      .metric-related-value:focus-visible,.row-related-value:focus-visible{
+        outline:2px solid #1467f5;outline-offset:3px;border-radius:3px}
+      .row-value-with-link{overflow:hidden}
+      .detail-status-grid .metric-sub{white-space:normal;overflow-wrap:break-word}
+      @media(max-width:1024px){
+        .detail-status-grid.status-count-5{grid-template-columns:repeat(3,minmax(0,1fr))}
+        .detail-status-grid .metric.has-detail-link{grid-template-columns:42px minmax(0,1fr)}
+      }
+      @media(max-width:760px){
+        .detail-status-grid.status-count-5{grid-template-columns:repeat(2,minmax(0,1fr))}
+        .metric-related-value{font-size:14px}
+      }
+      @media(max-width:430px){
+        .detail-status-grid.status-count-5{grid-template-columns:repeat(2,minmax(0,1fr))}
+        .detail-status-grid .metric.has-detail-link{grid-template-columns:34px minmax(0,1fr)}
+        .metric-related-value{font-size:13px}
+      }
     `;
   }
 }

@@ -122,7 +122,7 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
   }
 
   field(rt, label, value, icon = "mdi:information-outline") {
-    return `<div class="field"><ha-icon icon="${icon}"></ha-icon><span>${rt.escape(label)}</span><b>${rt.escape(value || "—")}</b></div>`;
+    return `<div class="field mobility-fact"><ha-icon icon="${icon}"></ha-icon><span>${rt.escape(label)}</span><b>${rt.escape(value || "—")}</b></div>`;
   }
 
   detailField(rt, label, value) {
@@ -177,11 +177,11 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
     return rt.t("common.not_available",{},"Not available");
   }
 
-  lifecycleToggleButton(rt, charger, extraClass = "mini-detail-link lifecycle-toggle labeled-action") {
+  lifecycleToggleButton(rt, charger, extraClass = "mobility-lifecycle-action lifecycle-toggle labeled-action") {
     const status = rt.lifecycleStatus(charger);
     const desired = status === "disabled" ? "active" : "disabled";
     const model = rt.lifecycleWriteModel(charger, desired);
-    const label = desired === "active" ? rt.t("state.active",{},"Activate") : rt.t("state.disabled",{},"Disable");
+    const label = desired === "active" ? rt.t("action.activate",{},"Activate") : rt.t("action.disable",{},"Disable");
     const title = model.disabled ? rt.t("state.status_change_unavailable",{},"Status cannot be changed right now") : label;
     const button = `<button class="${extraClass}" data-lifecycle-asset="${rt.escape(this.assetId(charger))}" data-lifecycle-value="${rt.escape(desired)}" ${model.disabled ? "disabled" : ""} title="${rt.escape(title)}"><ha-icon icon="mdi:power"></ha-icon><span>${rt.escape(label)}</span></button>`;
     return model.disabled && extraClass.includes("labeled-action") ? `<span class="lifecycle-control-wrap">${button}<small class="lifecycle-disabled-reason">${rt.escape(title)}</small></span>` : button;
@@ -272,7 +272,6 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
               <p class="charger-profile" title="${rt.escape(projection.identity?.profile || charger.profile || rt.t("common.not_configured",{},"Not configured"))}">${rt.escape(projection.identity?.profile || charger.profile || rt.t("common.not_configured",{},"Not configured"))}</p>
             </div>
             <span class="status ${this.statusTone(status)}">${rt.escape(status)}</span>
-            <button class="mini-detail-link charger-header-details" data-nav="${rt.escape(rt.assetDetailRoute(charger))}" title="Open charger details"><span>Details</span><ha-icon icon="mdi:chevron-right"></ha-icon></button>
           </div>
           <button class="charger-appearance-action" data-charger-picker="${rt.escape(assetId)}" title="${rt.escape(rt.t("common.choose_appearance",{},"Choose appearance"))}"><ha-icon icon="mdi:palette-outline"></ha-icon><span>${rt.escape(rt.t("common.appearance",{},"Appearance"))}</span></button>
         </div>
@@ -280,21 +279,23 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
       </div>
       ${pickerOpen ? this.renderChargerPicker(rt, charger) : ""}
       ${appearanceError ? `<div class="appearance-write-error" role="status"><ha-icon icon="mdi:alert-circle-outline"></ha-icon><span>${rt.escape(appearanceError)}</span></div>` : ""}
-      <div class="charger-kpis">
+      <div class="charger-kpis mobility-fact-strip">
         ${this.field(rt, "Power", power, "mdi:flash")}
         ${this.field(rt, "Current", actualCurrent, "mdi:current-ac")}
         ${this.field(rt, "Limit", currentLimit, "mdi:speedometer")}
         ${this.field(rt, "Session", session, "mdi:lightning-bolt-circle")}
       </div>
       ${powerEvidence.state === "no_measured_power" ? `<div class="charger-power-evidence" role="status"><ha-icon icon="mdi:information-outline"></ha-icon><span>${rt.escape(powerEvidence.label)} — ${rt.escape(powerEvidence.reason)}</span></div>` : ""}
-      <div class="soft-line charger-state-actions">
-        <span><ha-icon icon="mdi:connection"></ha-icon>${rt.escape(connector)}</span>
-        <span class="charger-assignment" title="Configured/effective Mobility relationship"><ha-icon icon="mdi:car-electric"></ha-icon><small>Assigned vehicle</small><b>${rt.escape(assignedVehicle)}</b></span>
-        <span title="Canonical charger health"><ha-icon icon="mdi:shield-check-outline"></ha-icon>${rt.escape(healthSummary.value)}</span>
-        <span class="soft-line-spacer"></span>
-        ${this.lifecycleToggleButton(rt, charger)}
+      <div class="charger-status-strip" aria-label="Charger operational status">
+        <div class="charger-status-fact" title="Published charger connection state"><ha-icon icon="mdi:connection"></ha-icon><span><small>Connection</small><b>${rt.escape(connector)}</b></span></div>
+        <div class="charger-status-fact" title="Configured/effective Mobility relationship"><ha-icon icon="mdi:car-electric"></ha-icon><span><small>${rt.escape(rt.t("common.assigned_vehicle",{},"Assigned vehicle"))}</small><b>${rt.escape(assignedVehicle)}</b></span></div>
+        <div class="charger-status-fact" title="Canonical charger health"><ha-icon icon="mdi:shield-check-outline"></ha-icon><span><small>${rt.escape(rt.t("common.health",{},"Health"))}</small><b>${rt.escape(healthSummary.value)}</b></span></div>
       </div>
-      <div class="command-row">${primary.length ? primary.map((c) => this.renderCommand(rt, c)).join("") : `<div class="empty-actions">No direct actions available for this charger.</div>`}</div>
+      <div class="command-row charger-command-row">
+        ${primary.length ? primary.map((c) => this.renderCommand(rt, c)).join("") : `<div class="empty-actions">No direct actions available for this charger.</div>`}
+        ${this.lifecycleToggleButton(rt, charger)}
+        <button class="mobility-detail-action charger-card-details" data-nav="${rt.escape(rt.assetDetailRoute(charger))}" title="Open charger details">${rt.escape(rt.t("common.details",{},"Details"))}<ha-icon icon="mdi:chevron-right"></ha-icon></button>
+      </div>
       ${this.config?.show_diagnostics === true ? `<section class="fold-section ${maintenanceOpen ? "open" : ""}" data-panel-key="${rt.escape(`${assetId}:maintenance`)}">
         <button class="fold-toggle" data-toggle-panel="${rt.escape(`${assetId}:maintenance`)}" type="button"><ha-icon icon="mdi:chevron-${maintenanceOpen ? "down" : "right"}"></ha-icon><span>${rt.escape(rt.t("common.technical_diagnostics",{},"Technical diagnostics"))}</span></button>
         <div class="fold-panel"><div class="detail-grid">${diagnosticsFields}</div></div>
