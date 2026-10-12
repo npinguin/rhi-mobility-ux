@@ -1,3 +1,10 @@
+## 1.0.0-rc.93 — Cross-device presentation closure candidate
+
+- Vehicle-first management card and contextual labelled vehicle/charger detail routes; no floating plus buttons obscuring artwork.
+- Shared final responsive grammar across all seven Mobility top-level views and asset details, with clearer fact rows, less nesting and less vertical waste.
+- Explicit 320/375/430/768/1024/1280/1920 CSS-pixel acceptance matrix and render-driven regression, with target Home Assistant qualification still pending.
+- Canonical backend semantics, effective/readback truth and UX Core provenance unchanged.
+
 ## 1.0.0-rc.92 — Charger actual-power evidence and zero-evaluated fleet
 
 - Charging state and canonical actual measured zero kW are shown separately; missing actual power remains unknown.
