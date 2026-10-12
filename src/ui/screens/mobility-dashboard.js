@@ -2334,51 +2334,82 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
       .vehicle-card .vehicle-hero-panel .mini-detail-button{right:6px;bottom:6px}
     }
 
-    /* rc.81 target-HA phone closure.
-       This is the final responsive authority for Vehicle Management. Variable
-       status copy must participate in normal flow and may never overlap the hero. */
+    /* Mobile vehicle cards: a single, readable layout authority.
+       Preserve canonical projections, commands and current-state semantics.
+       At phone widths content must not be compressed into multi-column fact tiles. */
     @media(max-width:560px){
-      .vehicle-card.premium-vehicle-card{display:block;overflow:hidden}
+      .vehicle-card.premium-vehicle-card{display:block;min-width:0;overflow:hidden}
       .vehicle-card .status-top-row.vehicle-intelligence-strip{
-        position:relative;display:grid;grid-template-columns:1fr 1fr;
-        grid-auto-rows:minmax(44px,auto);height:auto;min-height:0;
-        overflow:visible;padding:7px 7px 5px;gap:5px
+        position:relative;display:grid;grid-template-columns:minmax(0,1fr);
+        grid-auto-rows:auto;height:auto;min-height:0;
+        overflow:visible;padding:8px;gap:6px;
       }
       .vehicle-card .status-top-row.vehicle-intelligence-strip .intelligence-status-row{
-        position:relative;display:grid;grid-template-columns:18px minmax(0,1fr);
-        grid-template-rows:auto auto;height:auto;min-height:44px;max-height:none;
-        align-content:center;overflow:hidden;padding:5px 6px
+        position:relative;display:grid;grid-template-columns:24px minmax(0,1fr);
+        grid-template-rows:auto auto;min-width:0;height:auto;min-height:42px;
+        max-height:none;align-content:center;overflow:visible;padding:7px 10px;
       }
       .vehicle-card .status-top-row.vehicle-intelligence-strip .intelligence-status-row span,
       .vehicle-card .status-top-row.vehicle-intelligence-strip .intelligence-status-row .pill{
         position:static;min-width:0;max-width:100%;width:auto;
-        white-space:normal;overflow-wrap:anywhere;text-overflow:clip
+        white-space:normal;overflow-wrap:normal;word-break:normal;
+        text-overflow:clip;line-height:1.35;font-size:12px;
       }
-      .vehicle-card .hero-split-row{position:relative;clear:both}
+      .vehicle-card .hero-split-row{
+        display:grid;grid-template-columns:minmax(0,1fr);
+        gap:8px;padding:8px;position:relative;clear:both;
+      }
       .vehicle-card .vehicle-hero-panel{
-        display:grid;grid-template-columns:minmax(0,.9fr) minmax(128px,1.1fr);
-        height:132px;min-height:132px;max-height:none
+        display:grid;grid-template-columns:minmax(0,1fr) minmax(100px,38%);
+        gap:8px;min-width:0;height:auto;min-height:124px;max-height:none;
+        padding:12px;align-items:center;overflow:hidden;
       }
-      .vehicle-card .vehicle-copy{position:relative;inset:auto;min-width:0;max-width:none}
-      .vehicle-card .vehicle-copy h2{white-space:normal;overflow-wrap:anywhere}
-      .vehicle-card .vehicle-image{position:relative;inset:auto}
+      .vehicle-card .vehicle-copy{
+        position:relative;inset:auto;min-width:0;width:auto;max-width:none;
+        padding:0;z-index:2;
+      }
+      .vehicle-card .vehicle-copy h2{
+        font-size:18px;line-height:1.22;white-space:normal;
+        overflow-wrap:normal;word-break:normal;
+      }
+      .vehicle-card .vehicle-copy p{
+        white-space:normal;overflow-wrap:normal;line-height:1.35;
+      }
+      .vehicle-card .vehicle-image{
+        position:relative;inset:auto;min-width:0;width:100%;
+        height:108px;overflow:hidden;
+      }
+      .vehicle-card .vehicle-image img{
+        width:100%;height:100%;max-width:100%;max-height:108px;
+        object-fit:contain;object-position:center;
+      }
+      .vehicle-card .vehicle-appearance-action{
+        position:relative;left:auto;bottom:auto;grid-column:1/-1;
+        justify-self:start;z-index:3;
+      }
+      .vehicle-card .charger-hero-panel{
+        display:grid;grid-template-columns:minmax(0,1fr) 96px;
+        height:auto;min-height:90px;gap:8px;min-width:0;
+      }
       .vehicle-card .vehicle-control-row.mock-row{
-        height:auto;min-height:0;grid-template-columns:1fr;overflow:visible
+        height:auto;min-height:0;grid-template-columns:minmax(0,1fr);
+        overflow:visible;
       }
       .vehicle-card .vehicle-metrics-strip.mock-metrics{
-        height:auto;min-height:48px;grid-template-columns:repeat(3,minmax(0,1fr))
+        height:auto;min-height:48px;grid-template-columns:minmax(0,1fr);
       }
       .vehicle-card .charge-mini-strip.mock-controls,
       .vehicle-card .charge-mini-strip.mock-controls.no-speed{
-        height:auto;grid-template-columns:1fr
+        height:auto;grid-template-columns:minmax(0,1fr);
       }
       .vehicle-card .vehicle-actions.clean-actions{
-        display:flex;flex-wrap:wrap;overflow:visible
+        display:flex;flex-wrap:wrap;overflow:visible;gap:8px;
       }
       .vehicle-card .vehicle-actions.clean-actions .action:not(.icon-only){
-        flex:1 1 calc(50% - 6px);min-width:128px
+        flex:1 1 128px;min-width:0;
       }
     }
+
 
 
   `; }

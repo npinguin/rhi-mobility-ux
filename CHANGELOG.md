@@ -1,3 +1,7 @@
+## 1.0.0-rc.93
+
+- Mobile Vehicles responsive layout and contract-test governance correction.
+
 ## 1.0.0-rc.92 — Charger actual-power evidence and zero-evaluated fleet
 
 - Charging state and canonical actual measured zero kW are shown separately; missing actual power remains unknown.
