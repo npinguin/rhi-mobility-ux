@@ -1,3 +1,9 @@
+## 1.0.0-rc.96 — Immutable HACS recovery candidate
+
+- Publish Mobility UX changes on main after rc.95 under a NEW immutable version.
+- Preserve #188 strict tag-byte protection and canonical-only source truth.
+- Backend target M0.10.49, runtime and rollback qualification pending.
+
 ## 1.0.0-rc.95 — Uniform object-detail navigation, status grammar and lifecycle actions
 
 - Replace 'plus' status buttons in Vehicle/Charger detail with a single linked value + chevron; no extra status column and five vehicle facts stay in one desktop row.
