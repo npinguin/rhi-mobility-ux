@@ -279,6 +279,16 @@ function hbMobilityResponsiveFinishStyles() {
       display:inline-flex;flex:0 1 auto;min-width:100px;width:auto;max-width:100%;
       height:40px;min-height:40px;padding:0 12px;white-space:normal
     }
+    .vehicle-card .charger-link-inline{
+      display:inline-flex;align-items:center;gap:4px;justify-self:start;
+      width:fit-content;min-height:30px;margin-top:6px;padding:2px 0;
+      border:0;border-radius:0;background:transparent;color:#075fd8;
+      box-shadow:none;font:inherit;font-size:11px;font-weight:650;cursor:pointer;
+      text-align:left
+    }
+    .vehicle-card .charger-link-inline ha-icon{--mdc-icon-size:15px}
+    .ov-overview-vehicles .ov-row-actions .ov-detail{display:inline-flex;align-items:center;gap:5px;min-width:74px;width:auto;padding:0 10px}
+    .ov-overview-vehicles .ov-row-actions .ov-detail ha-icon{--mdc-icon-size:16px}
     .vehicle-card .vehicle-actions.clean-actions .vehicle-card-details{
       margin-left:auto;display:inline-flex;align-items:center;gap:5px;
       min-width:88px;flex:0 0 auto;color:#075fd8;background:#fff;
