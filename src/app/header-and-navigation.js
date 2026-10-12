@@ -310,6 +310,7 @@ function hbMobilityResponsiveFinishStyles() {
     .charger-card .field b,.charger-card .detail-field b{white-space:normal;overflow-wrap:break-word;text-overflow:clip}
     .charger-card .charger-state-actions{gap:8px;align-items:center;padding-top:8px}
     .charger-card .soft-line span{box-shadow:none}
+    .charger-card .charger-identity-top{grid-template-columns:minmax(0,1fr) auto auto}
     .charger-card .charger-header-details{width:auto;min-width:82px;min-height:34px;padding:0 8px;gap:4px}
     .charger-card .charger-header-details span{display:inline;font-size:11px;font-weight:650}
     .charger-card .charger-header-details ha-icon{--mdc-icon-size:16px}
@@ -377,7 +378,9 @@ function hbMobilityResponsiveFinishStyles() {
       .charger-card{gap:8px;padding:10px}
       .charger-card .charger-identity-card{min-height:110px}
       .charger-card .charger-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
-      .charger-card .charger-identity-top{min-width:0}
+      .charger-card .charger-identity-top{min-width:0;display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+      .charger-card .charger-identity-top .charger-title{flex:1 1 100%}
+      .charger-card .charger-identity-top .status{justify-self:start}
       .detail-status-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
       .grid,.bottom-grid,.top-grid,.insights-grid,.log-grid{grid-template-columns:1fr}
       .row,.edit-row{grid-template-columns:20px minmax(0,1fr);gap:4px 8px}
