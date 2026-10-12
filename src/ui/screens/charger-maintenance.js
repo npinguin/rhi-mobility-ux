@@ -268,10 +268,11 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
           <div class="charger-identity-top">
             <div class="charger-title">
               <h3 title="${rt.escape(name)}">${rt.escape(name)}</h3>
-              <p class="charger-location" title="${rt.escape(charger.location || rt.t("common.not_configured",{},"Not configured"))}">${rt.escape(charger.location || rt.t("common.not_configured",{},"Not configured"))}</p>
+              ${charger.location ? `<p class="charger-location" title="${rt.escape(charger.location)}">${rt.escape(charger.location)}</p>` : ""}
               <p class="charger-profile" title="${rt.escape(projection.identity?.profile || charger.profile || rt.t("common.not_configured",{},"Not configured"))}">${rt.escape(projection.identity?.profile || charger.profile || rt.t("common.not_configured",{},"Not configured"))}</p>
             </div>
             <span class="status ${this.statusTone(status)}">${rt.escape(status)}</span>
+            <button class="mini-detail-link charger-header-details" data-nav="${rt.escape(rt.assetDetailRoute(charger))}" title="Open charger details"><span>Details</span><ha-icon icon="mdi:chevron-right"></ha-icon></button>
           </div>
           <button class="charger-appearance-action" data-charger-picker="${rt.escape(assetId)}" title="${rt.escape(rt.t("common.choose_appearance",{},"Choose appearance"))}"><ha-icon icon="mdi:palette-outline"></ha-icon><span>${rt.escape(rt.t("common.appearance",{},"Appearance"))}</span></button>
         </div>
@@ -291,10 +292,9 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
         <span class="charger-assignment" title="Configured/effective Mobility relationship"><ha-icon icon="mdi:car-electric"></ha-icon><small>Assigned vehicle</small><b>${rt.escape(assignedVehicle)}</b></span>
         <span title="Canonical charger health"><ha-icon icon="mdi:shield-check-outline"></ha-icon>${rt.escape(healthSummary.value)}</span>
         <span class="soft-line-spacer"></span>
-        <button class="mini-detail-link details-action labeled-action" data-nav="${rt.escape(rt.assetDetailRoute(charger))}" title="Open charger details"><ha-icon icon="mdi:chevron-right"></ha-icon><span>Details</span></button>
         ${this.lifecycleToggleButton(rt, charger)}
       </div>
-      <div class="command-row">${primary.length ? primary.map((c) => this.renderCommand(rt, c)).join("") : `<div class="empty-actions">No product command placement published for this charger.</div>`}</div>
+      <div class="command-row">${primary.length ? primary.map((c) => this.renderCommand(rt, c)).join("") : `<div class="empty-actions">No direct actions available for this charger.</div>`}</div>
       ${this.config?.show_diagnostics === true ? `<section class="fold-section ${maintenanceOpen ? "open" : ""}" data-panel-key="${rt.escape(`${assetId}:maintenance`)}">
         <button class="fold-toggle" data-toggle-panel="${rt.escape(`${assetId}:maintenance`)}" type="button"><ha-icon icon="mdi:chevron-${maintenanceOpen ? "down" : "right"}"></ha-icon><span>${rt.escape(rt.t("common.technical_diagnostics",{},"Technical diagnostics"))}</span></button>
         <div class="fold-panel"><div class="detail-grid">${diagnosticsFields}</div></div>
@@ -409,7 +409,7 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
         ${inactiveChargers.length ? `<section class="section-title compact-title"><h2>${rt.escape(rt.t("charger.inactive",{},"Inactive chargers"))}</h2><span>${inactiveChargers.length} inactive</span></section><section class="inactive-list">${inactiveChargers.map((c)=>this.renderCollapsedCharger(rt,c)).join("")}</section>` : `<section class="debt-strip"><ha-icon icon="mdi:information-outline"></ha-icon><b>Inactive chargers (0)</b><span>${rt.escape(rt.t("charger.disabled_hidden",{},"Disabled chargers are hidden."))}</span></section>`}
         
       </div>
-      <style>${this.styles()}
+      <style>${this.styles()}${hbMobilityResponsiveFinishStyles()}
 /* R22.12.11.24 unified quick-action sizing */
 .action.enum-action,.cmd.enum-command{height:43px;min-height:43px;max-height:43px;display:flex;flex-direction:row;align-items:center;justify-content:center;gap:8px;padding:0 11px;box-sizing:border-box;overflow:hidden}
 .action.enum-action ha-icon,.cmd.enum-command ha-icon{flex:0 0 auto;grid-row:auto}
