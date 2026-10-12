@@ -2,6 +2,10 @@
 
 This file is the authoritative list of unresolved Mobility UX product/runtime issues. These are **not accepted technical or feature debt**. They stay open until the owning contract/test plus target Home Assistant evidence proves closure.
 
+## rc.95 navigation and action/fact parity (2026-10-12)
+
+The 12 October detail screenshots identified an unlabelled giant **+** on the linked Peblar Charger status, a vehicle five-tile status strip incorrectly wrapping on desktop, and inconsistent related-asset affordances. Together with the Vehicles/Chargers overview screenshots, charger Details/Disabled placement and broad KPI/status boxing were not consistent. rc.95 source is intended to close these with one navigation grammar, a linked-value status row, a context-aware return route and consistent action/fact rows. **Runtime visual evidence remains open**, and no backend contract or write/readback truth is replaced.
+
 ## rc.94 full Mobility UX responsive and uniformity recovery (2026-10-12)
 
 The wider UX audit covers Overview, Vehicles, Chargers, Intelligence/Planning, Strategies, Insights/History, Activity and both asset details. Corrections remove floating/misplaced detail icons, make identities primary, standardize readable facts and compact whitespace, and preserve the rc.93 mobile phone fix. **Static CI passing does not close device qualification**. Test the published immutable candidate at the documented viewport matrix, including long/unavailable data, appearance editors, command readback, refresh and rollback (`documentation/RESPONSIVE_UX_ACCEPTANCE.md`).

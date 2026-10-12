@@ -34,12 +34,13 @@ card.chargingActivityDisplay=()=> 'Not charging';
 card.vehicleVisualSelection=()=>({vehicle:{package_file:'/assets/id4.webp'},color:{filter:'none'}});
 card.pendingVehicleAppearance=()=>null;
 card.renderVehicleControlRow=()=>'<section class="vehicle-control-row">Charge state</section>';
-card.lifecycleToggleButton=()=> '';
+
 card.renderChargerAssignmentSelect=()=> '';
 const rt={
   assetDetailRoute:(asset)=>'/asset-detail?asset='+asset.asset_id,
   escape:(value)=>String(value??'').replace(/[&<>"]/g,(ch)=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch])),
-  cache:(url)=>url,t:(_key,_params={},fallback='')=>fallback,
+  cache:(url)=>url,t:(key,_params={},fallback='')=>({'state.active':'Active','state.disabled':'Disabled','action.activate':'Activate','action.disable':'Disable'}[key]||fallback),
+  lifecycleStatus:()=> 'active', lifecycleWriteModel:()=>({disabled:false}),
   vehicleLabel:()=> 'VW ID.4'
 };
 const html=card.renderVehicle(rt,{asset_id:'vehicle_vw_id4',display_name:'VW ID.4'},[]);
@@ -49,6 +50,8 @@ assert.ok(html.includes('Security evidence is not fully available'),'Full reason
 assert.equal((html.match(/class="vehicle-card-details"/g)||[]).length,1,'One explicit vehicle detail destination');
 assert.ok(!html.includes('vehicle-detail-link'),'No floating icon-only vehicle detail overlay');
 assert.ok(html.includes('>Details <ha-icon'),'Text detail navigation must be visible');
+assert.ok(html.includes('mobility-detail-action'),'Vehicle Details uses same action grammar as Chargers');
+assert.ok(html.includes('>Disable</span>') && !html.includes('>Disabled</span>'),'Vehicle lifecycle uses a verb, not a status adjective');
 
 const ChargerAdapter=vm.runInContext('HomeBrainChargerAdapter',context);
 ChargerAdapter.prototype.build=()=>({
@@ -68,7 +71,7 @@ const chargerCard=new Charger();
 chargerCard._openPanels=new Set();
 chargerCard._chargerPickerAsset='';
 chargerCard._chargerAppearanceError=new Map();
-chargerCard.lifecycleToggleButton=()=> '';
+
 const chargerRt={...rt,
   titleize:(value)=>value, lifecycleStatus:()=> 'active',
   commandRegistry:()=>[],backendVersion:()=> 'test'
@@ -76,7 +79,11 @@ const chargerRt={...rt,
 const chargerHtml=chargerCard.renderCharger(chargerRt,{asset_id:'charger_wallbox_white',display_name:'wallbox garage white',profile:'Wallbox Commander2 22kw'});
 assert.ok(chargerHtml.includes('wallbox garage white'),'Charger name must render');
 assert.ok(!chargerHtml.includes('class="charger-location"'),'Unset location must not appear as an unexplained Not configured label');
-assert.equal((chargerHtml.match(/charger-header-details/g)||[]).length,1,'One explicit charger detail destination in identity');
+assert.equal((chargerHtml.match(/charger-card-details/g)||[]).length,1,'Exactly one contextual charger Details action');
+assert.ok(chargerHtml.indexOf('charger-status-strip') < chargerHtml.indexOf('charger-command-row'),'Facts precede actions');
+assert.ok(chargerHtml.indexOf('charger-command-row') < chargerHtml.indexOf('charger-card-details'),'Detail action belongs in action row');
+assert.ok(chargerHtml.includes('mobility-fact-strip') && chargerHtml.includes('charger-status-fact'),'KPI and status use compact, labelled fact grammar');
+assert.ok(chargerHtml.includes('data-lifecycle-value="disabled"') && chargerHtml.includes('>Disable</span>'),'Action is Disable verb, not Disabled status');
 assert.ok(!chargerHtml.includes('details-action labeled-action'),'No misplaced detail link in operational badges');
 assert.ok(chargerHtml.includes('No direct actions available for this charger.'),'Unavailable commands fail closed in product language');
 

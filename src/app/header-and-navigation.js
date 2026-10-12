@@ -313,6 +313,124 @@ function hbMobilityResponsiveFinishStyles() {
     .charger-card .charger-header-details{width:auto;min-width:82px;min-height:34px;padding:0 8px;gap:4px}
     .charger-card .charger-header-details span{display:inline;font-size:11px;font-weight:650}
     .charger-card .charger-header-details ha-icon{--mdc-icon-size:16px}
+
+    /* Mobility product action/fact parity: same visual grammar, not shared Core overrides.
+       Disable is an actionable verb (not lifecycle status); command buttons remain
+       owned by producer truth, even when unavailable. */
+    .mobility-detail-action{
+      display:inline-flex;align-items:center;justify-content:center;gap:5px;
+      min-height:40px;height:auto;box-sizing:border-box;padding:0 12px;
+      border:1px solid #dce7f4;border-radius:10px;background:#fff;
+      color:#075fd8;font-size:12px;font-weight:650;line-height:1.15;
+      text-decoration:none;cursor:pointer;white-space:nowrap;box-shadow:none
+    }
+    .mobility-detail-action ha-icon{--mdc-icon-size:17px;color:currentColor}
+    .mobility-lifecycle-action{
+      display:inline-flex;align-items:center;justify-content:center;gap:7px;
+      height:40px;min-height:40px;box-sizing:border-box;padding:0 12px;
+      border:1px solid #dce7f4;border-radius:10px;background:#fff;
+      color:#24364f;font-size:12px;font-weight:650;line-height:1.15;
+      cursor:pointer;box-shadow:none;white-space:nowrap
+    }
+    .mobility-lifecycle-action ha-icon{--mdc-icon-size:16px;color:#1467f5}
+    .mobility-lifecycle-action:disabled,.mobility-detail-action:disabled{
+      opacity:.55;cursor:not-allowed
+    }
+    .mobility-lifecycle-action:focus-visible,.mobility-detail-action:focus-visible,
+    .charger-command-row .cmd:focus-visible{outline:2px solid #1467f5;outline-offset:2px}
+    .vehicle-card .vehicle-actions.clean-actions .mobility-lifecycle-action{
+      flex:0 1 auto;width:auto;min-width:94px;max-width:none;padding:0 12px
+    }
+    .vehicle-card .vehicle-actions.clean-actions .vehicle-card-details.mobility-detail-action{
+      border-radius:10px;min-height:40px;max-width:none;width:auto;flex:0 0 auto;
+      font-size:12px
+    }
+    .charger-card .charger-identity-card{min-height:110px}
+    .charger-card .charger-identity-top{grid-template-columns:minmax(0,1fr) auto}
+    .charger-card .charger-status-strip{
+      display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;
+      border-top:1px solid #e6edf5;border-bottom:1px solid #e6edf5;
+      padding:0 4px;background:#fff;min-width:0
+    }
+    .charger-card .charger-status-fact{
+      display:grid;grid-template-columns:19px minmax(0,1fr);gap:6px;
+      align-items:center;min-width:0;padding:8px 11px
+    }
+    .charger-card .charger-status-fact + .charger-status-fact{border-left:1px solid #e6edf5}
+    .charger-card .charger-status-fact ha-icon{--mdc-icon-size:17px;color:#36567e}
+    .charger-card .charger-status-fact span{min-width:0;display:block}
+    .charger-card .charger-status-fact small{
+      display:block;font-size:9.5px;font-weight:600;line-height:1.2;color:#65758c
+    }
+    .charger-card .charger-status-fact b{
+      display:block;margin-top:2px;font-size:12px;font-weight:650;line-height:1.25;
+      white-space:normal;overflow-wrap:break-word;color:#1d2b45
+    }
+    .charger-card .charger-kpis.mobility-fact-strip{
+      display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;
+      border:1px solid #e5ecf4;border-radius:11px;margin:0;background:#fff;overflow:hidden
+    }
+    .charger-card .charger-kpis.mobility-fact-strip .mobility-fact{
+      display:grid;grid-template-columns:18px minmax(0,1fr);grid-template-rows:auto auto;
+      min-width:0;min-height:46px;height:auto;gap:1px 7px;align-content:center;
+      padding:6px 11px;border:0;border-radius:0;background:#fff;box-shadow:none
+    }
+    .charger-card .charger-kpis.mobility-fact-strip .mobility-fact + .mobility-fact{
+      border-left:1px solid #e5ecf4
+    }
+    .charger-card .charger-kpis.mobility-fact-strip .mobility-fact:nth-child(n+3){border-top:0}
+    .charger-card .charger-kpis .mobility-fact ha-icon{
+      grid-column:1;grid-row:1/3;--mdc-icon-size:16px;align-self:center;color:#36567e
+    }
+    .charger-card .charger-kpis .mobility-fact span{
+      grid-column:2;font-size:9.5px;line-height:1.2;font-weight:600;color:#65758c
+    }
+    .charger-card .charger-kpis .mobility-fact b{
+      grid-column:2;margin:0;font-size:13px;line-height:1.25;
+      font-weight:650;white-space:normal;overflow-wrap:break-word;color:#14243d
+    }
+    .charger-card .charger-command-row{
+      display:flex;align-items:center;gap:7px;flex-wrap:wrap;
+      min-width:0;border-top:1px solid #e6edf5;padding:8px 0 0
+    }
+    .charger-card .charger-command-row .cmd{
+      display:inline-flex;flex:0 1 auto;width:auto;min-width:106px;
+      max-width:100%;height:40px;min-height:40px;
+      padding:0 12px;border:1px solid #dce7f4;border-radius:10px;
+      background:#fff;color:#23324b;box-shadow:none;font-size:12px;font-weight:650
+    }
+    .charger-card .charger-command-row .cmd ha-icon{--mdc-icon-size:17px;color:#1467f5}
+    .charger-card .charger-command-row .cmd:disabled{opacity:.48;cursor:not-allowed}
+    .charger-card .charger-command-row .cmd.enum-command{display:grid;grid-template-columns:18px minmax(0,1fr)}
+    .charger-card .charger-command-row .cmd.enum-command select{min-width:0}
+    .charger-card .charger-command-row .empty-actions{
+      flex:1 1 160px;max-width:none;border:0;padding:4px 0;
+      font-size:11px;text-align:left;min-width:0
+    }
+    .charger-card .charger-command-row .lifecycle-control-wrap{margin-left:auto}
+    .charger-card .charger-command-row .mobility-lifecycle-action{
+      flex:0 0 auto;max-width:none;min-width:92px
+    }
+    .charger-card .charger-command-row .charger-card-details{
+      margin-left:auto;min-width:84px;flex:0 0 auto
+    }
+    .charger-card .charger-command-row .lifecycle-control-wrap + .charger-card-details{margin-left:0}
+    .charger-card .config-details{border-top:1px solid #edf1f6;padding-top:7px}
+    @media(max-width:760px){
+      .charger-card .charger-kpis.mobility-fact-strip{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .charger-card .charger-kpis.mobility-fact-strip .mobility-fact:nth-child(odd){border-left:0}
+      .charger-card .charger-kpis.mobility-fact-strip .mobility-fact:nth-child(n+3){border-top:1px solid #e5ecf4}
+      .charger-card .charger-status-strip{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .charger-card .charger-status-fact:nth-child(3){border-top:1px solid #e6edf5;border-left:0}
+      .charger-card .charger-command-row .cmd{flex:1 1 120px}
+      .charger-card .charger-command-row .charger-card-details{margin-left:auto}
+    }
+    @media(max-width:390px){
+      .charger-card .charger-status-strip{grid-template-columns:minmax(0,1fr)}
+      .charger-card .charger-status-fact{padding:7px 9px}
+      .charger-card .charger-status-fact + .charger-status-fact{border-left:0;border-top:1px solid #e6edf5}
+      .charger-card .charger-command-row .cmd{flex:1 1 calc(50% - 7px);min-width:105px}
+    }
     .charger-card .detail-grid{gap:0;border-top:1px solid #e5ecf4}
     .charger-card .detail-field{border:0;border-bottom:1px solid #e5ecf4;border-radius:0;background:transparent;padding:9px}
     .rhi-insight-vehicle,.rhi-insight-vehicle-list,.rhi-data-row{min-width:0}

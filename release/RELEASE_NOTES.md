@@ -1,10 +1,10 @@
-# v1.0.0-rc.94 — Responsive product UX and consistent asset presentation (HACS TEST CANDIDATE)
+# v1.0.0-rc.95 — Object navigation and charger/vehicle presentation parity (HACS TEST CANDIDATE)
 
-- Vehicles now lead with the actual model/photo and charging relationship before secondary status facts. Long reasons remain in technical/asset detail rather than forcing narrow text columns.
-- Replaced floating icon-only detail links with contextual labelled Details actions on vehicle and charger cards; reduced duplicate and misplaced affordances.
-- Unified responsive spacing, compact hero geometry, status presentation, quick-action wrapping and flat fact rows across Overview, Vehicles, Chargers, Planning, Strategies, History, Activity and asset details.
-- Unset charger location no longer appears as an ambiguous Not configured label; unavailable commands remain visibly unavailable without leaking internal contract jargon.
-- New rendered-journey regression, dedicated 320–1920px acceptance matrix and explicit target Home Assistant/mobile/tablet/desktop qualification gates.
-- Product semantics, canonical V2 ownership, HACS runtime artifact and UX Core pin (1.6.3) are unchanged. Backend compatibility comes from `release/product.json`.
+- One consistent linked-value and chevron navigation treatment for related Vehicle/Charger details, replacing misleading circular plus controls and the extra status column.
+- Vehicle detail five status facts are one desktop row; charger status retains the identical presentation with three facts. Device widths reflow progressively.
+- Explicit Back to source asset or list, with parent asset retained in the URL across refresh in multi-view and bootstrap flows.
+- Details actions consistently live alongside direct actions rather than beside the asset title; Charger statuses/KPIs use compact label/value fact grammar.
+- Correct localized action verbs Activate/Disable (distinct from state Active/Disabled), without changing backend lifecycle intent or canonical readback.
+- Render regression and source/contract/UX/HACS validation required; target HA device and navigation qualification still PENDING.
 
-**Qualification:** candidate only. Full CI, immutable HACS packaging, target-device screenshots, controls/readback, refresh, upgrade and rollback are required before stable promotion. Rollback: `v1.0.0-rc.93`.
+Compatibility is read from release/product.json. UX Core 1.6.3 unchanged. Rollback v1.0.0-rc.94.

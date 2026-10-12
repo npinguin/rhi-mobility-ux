@@ -3298,6 +3298,12 @@ class HomeBrainAssetRuntime {
         current.search = "";
         current.searchParams.set("mobility_view", view);
         if (asset) current.searchParams.set("asset", decodeURIComponent(asset));
+        // Related detail links preserve their explicit parent for meaningful
+        // Back navigation after reload in single-card/bootstrap mode.
+        const fromAsset = String(u.searchParams.get("from_asset") || "");
+        if (/^(vehicle_|charger_)[a-zA-Z0-9_:-]+$/.test(fromAsset) && fromAsset !== asset) {
+          current.searchParams.set("from_asset", fromAsset);
+        }
         current.hash = "";
         history.pushState(null, "", current.pathname + current.search);
         window.dispatchEvent(new Event("location-changed"));

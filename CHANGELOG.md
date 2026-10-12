@@ -1,3 +1,10 @@
+## 1.0.0-rc.95 — Uniform object-detail navigation, status grammar and lifecycle actions
+
+- Replace 'plus' status buttons in Vehicle/Charger detail with a single linked value + chevron; no extra status column and five vehicle facts stay in one desktop row.
+- Use explicit Back to asset/list paths and keep related-asset parent in the route, including bootstrap refresh.
+- Put charger Details beside the command/lifecycle actions, align charger key property/status fact presentation with Vehicles, and distinguish Disable/Activate verbs from Disabled/Active statuses.
+- Add rendered detail-navigation regression for both directions and branch-level immutable package proof; release remains candidate until target Home Assistant qualification.
+
 ## 1.0.0-rc.94 — Unified responsive Mobility UX, asset-first cards and navigation
 
 - Identity before secondary statuses for Vehicles; consistent contextual Details routes for vehicles and chargers, including Overview.
