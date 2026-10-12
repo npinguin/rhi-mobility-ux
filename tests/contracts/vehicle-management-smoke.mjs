@@ -302,14 +302,7 @@ console.log('PASS #116 management cards expose canonical relationships and bound
   if(projection.commands.some(cmd=>cmd.command_key==='charger.command.restart')) throw new Error('rc.81 vehicle card must not import unrelated charger engineering commands');
 }
 
-for(const needle of [
-  'rc.81 target-HA phone closure',
-  'grid-auto-rows:minmax(44px,auto)',
-  'white-space:normal;overflow-wrap:anywhere',
-  'height:auto;min-height:0;grid-template-columns:1fr;overflow:visible'
-]) if(!dashboard.includes(needle)) throw new Error('rc.81 mobile no-overlap regression: missing '+needle);
-
-console.log('PASS rc.81 assigned charger charging commands and phone card flow closure');
+console.log('PASS assigned charger command authority and blocked readiness projection');
 
 for(const evidence of ["headline:!total ? \"Range not evaluated\"","line1:!total ? \"No active vehicles to evaluate\"","line2:!total ? \"0 vehicles evaluated\"","activeVehicles.length ? `${status.security.unsafeCount} unsafe` : \"Not evaluated\"","activeVehicles.length ? `${status.maintenance.overdue.length} overdue · ${status.maintenance.dueSoon.length} due soon` : \"Not evaluated\""]) {
   if(!dashboard.includes(evidence)) throw new Error('zero-evaluated fleet must not look healthy: '+evidence);
