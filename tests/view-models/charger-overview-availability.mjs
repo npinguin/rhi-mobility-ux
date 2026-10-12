@@ -112,7 +112,7 @@ const canonicalModelFixture = (connection, operating, power, requested=2.771) =>
     lifecycleContractGapSection:()=>null,detailRoute:()=>'/detail',visualImageUrl:()=>'',visualImageKey:()=>'', 
     t:(_key,_params,fallback)=>fallback
   };
-  return new Adapter(modelRt,'charger_a',{registry_entry:a}).build();
+  return new Adapter(modelRt,'charger_a',{registry_entry:a,dashboard_path:'/dashboard'}).build();
 };
 const unpluggedRunning=canonicalModelFixture('no_asset_connected','running',2.771);
 if(unpluggedRunning.status[0].value!=='State conflict') throw Error('disconnected running charger must show conflict');
