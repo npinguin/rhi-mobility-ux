@@ -224,10 +224,9 @@ function hbMobilityResponsiveFinishStyles() {
     .page{width:min(100%,1480px);margin-inline:auto;padding:16px 20px 24px;gap:10px}
     .page > *{min-width:0}
     .rhiUxPageHero,.rhi-page-hero-overview,.detail-scene-hero{box-shadow:none}
-    .rhiUxQuickActionBar,.ov-quickbar{box-shadow:none;min-width:0}
-    .rhiUxQuickActions{min-width:0}
-    .rhiUxQuickAction,.ov-nav-action{box-shadow:none;min-height:40px}
-    .rhiUxStatusGrid{gap:8px}
+    .ov-quickbar{box-shadow:none;min-width:0}
+    .ov-nav-action{box-shadow:none;min-height:40px}
+    .vehicles-top-status,.chargers-top-status{gap:8px}
     .rhiUxStatusGrid > *, .ov-domain-statusbar .ov-status-item{min-width:0}
     .rhiUxStatusGrid b,.ov-domain-statusbar b{white-space:normal;overflow-wrap:normal;text-overflow:clip}
     .rhiUxStatusGrid small,.ov-domain-statusbar em{min-width:0}
@@ -341,13 +340,8 @@ function hbMobilityResponsiveFinishStyles() {
       .rhiUxPageHeroCopy h1,.rhiUxPageHeroCopy h2{font-size:clamp(23px,4vw,29px);line-height:1.05}
       .rhiUxPageHeroCopy p{font-size:11px;line-height:1.3;-webkit-line-clamp:2}
       .rhiUxPageHeroArt{inset:0 0 0 35%}
-      .rhiUxStatusGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+      .vehicles-top-status,.chargers-top-status{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
       .rhiUxStatusGrid>*{min-height:72px;padding:9px 10px}
-      .rhiUxQuickActionBar{display:grid;grid-template-columns:1fr;gap:4px;overflow:visible;flex-wrap:wrap;padding:7px}
-      .rhiUxQuickActionBar>small{display:none}
-      .rhiUxQuickActions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;width:100%;overflow:visible}
-      .rhiUxQuickAction{width:100%;min-width:0;max-width:100%;min-height:40px;padding:6px 8px}
-      .rhiUxQuickAction span{min-width:0;white-space:normal;text-align:center;line-height:1.2}
       .ov-quickbar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;padding:8px}
       .ov-quick-title{display:none}
       .ov-nav-action{min-width:0;max-width:none;min-height:40px;white-space:normal}
