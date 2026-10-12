@@ -47,7 +47,7 @@ const html=card.renderVehicle(rt,{asset_id:'vehicle_vw_id4',display_name:'VW ID.
 assert.ok(html.includes('VW ID.4') && html.includes('387 km'),'Canonical identity and range must render');
 assert.ok(html.indexOf('hero-split-row') < html.indexOf('status-top-row'),'Asset identity must precede secondary statuses');
 assert.ok(html.includes('Security evidence is not fully available'),'Full reason must remain available');
-assert.equal((html.match(/class="vehicle-card-details"/g)||[]).length,1,'One explicit vehicle detail destination');
+assert.equal((html.match(/class="vehicle-card-details mobility-detail-action"/g)||[]).length,1,'One explicit vehicle detail destination');
 assert.ok(!html.includes('vehicle-detail-link'),'No floating icon-only vehicle detail overlay');
 assert.ok(html.includes('>Details <ha-icon'),'Text detail navigation must be visible');
 assert.ok(html.includes('mobility-detail-action'),'Vehicle Details uses same action grammar as Chargers');
