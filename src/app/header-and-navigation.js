@@ -218,7 +218,7 @@ function hbMobilitySharedShellStyles() {
    Keep phone/tablet/desktop behavior centralized rather than adding RC-specific
    stylesheet overrides separately in each screen. */
 function hbMobilityResponsiveFinishStyles() {
-  return \`
+  return `
     :host{display:block;min-width:0;max-width:100%;--mobility-row-gap:8px}
     ha-card,.page,.rhiUxDomainBody,.rhiUxPage,.rhiUxPageContent{min-width:0;max-width:100%;box-sizing:border-box}
     .page{width:min(100%,1480px);margin-inline:auto;padding:16px 20px 24px;gap:10px}
@@ -447,5 +447,5 @@ function hbMobilityResponsiveFinishStyles() {
       .vehicle-card .vehicle-image img{max-height:78px}
       .ov-domain-statusbar{grid-template-columns:1fr}
     }
-  \`;
+  `;
 }
