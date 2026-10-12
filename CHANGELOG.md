@@ -1,3 +1,8 @@
+## 1.0.0-rc.97 — Canonical Vehicle Detail parity test candidate
+
+- Keep Vehicle Detail source-owned Range, Charging, Security, Climate and Maintenance distinct from Intelligence, with physical-connection proof fail closed (#190).
+- Versioned HACS package paired with F1.8.44 + M0.10.49 + E0.15.125 and Energy UX rc.18, runtime/rollback still pending.
+
 ## 1.0.0-rc.96 — Immutable HACS recovery candidate
 
 - Publish Mobility UX changes on main after rc.95 under a NEW immutable version.
