@@ -4,7 +4,6 @@ on:
   workflow_run:
     workflows: ["Validate"]
     types: [completed]
-  workflow_dispatch:
 
 permissions:
   contents: write
@@ -37,8 +36,20 @@ jobs:
           VERSION=$(node -p "require('./package.json').version")
           TAG="v${VERSION}"
           if git ls-remote --exit-code --tags "https://github.com/${GITHUB_REPOSITORY}.git" "refs/tags/${TAG}" >/dev/null 2>&1; then
+            # An existing tag may be skipped only when it contains identical HACS bytes.
+            git fetch --tags
+            git rev-parse --verify "refs/tags/${TAG}^{commit}" >/dev/null
+            rm -rf /tmp/rhi-mobility-published-candidate
+            mkdir -p /tmp/rhi-mobility-published-candidate
+            git archive "refs/tags/${TAG}" dist hacs.json package.json | tar -x -C /tmp/rhi-mobility-published-candidate
+            if ! diff -qr /tmp/rhi-mobility-published-candidate/dist dist ||
+               ! cmp /tmp/rhi-mobility-published-candidate/hacs.json hacs.json ||
+               ! cmp /tmp/rhi-mobility-published-candidate/package.json package.json; then
+              echo "::error::Immutable HACS package drift: ${TAG} already exists with DIFFERENT bytes. New package requires a NEW candidate version."
+              exit 1
+            fi
             echo "publish=false" >> "$GITHUB_OUTPUT"
-            echo "reason=version_already_published" >> "$GITHUB_OUTPUT"
+            echo "reason=identical_immutable_version_verified" >> "$GITHUB_OUTPUT"
           else
             echo "publish=true" >> "$GITHUB_OUTPUT"
             echo "reason=new_candidate_version" >> "$GITHUB_OUTPUT"
@@ -48,9 +59,9 @@ jobs:
     needs: scope
     if: >-
       needs.scope.outputs.publish == 'true' &&
-      (github.event_name == 'workflow_dispatch' ||
-       (github.event.workflow_run.conclusion == 'success' &&
-        github.event.workflow_run.head_branch == 'main'))
+      github.event_name == 'workflow_run' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'main'
     name: Verify validated HACS package
     runs-on: ubuntu-latest
     timeout-minutes: 10
