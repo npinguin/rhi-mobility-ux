@@ -4,9 +4,9 @@
   "legacy_source_release": "R22.12.11.30",
   "mobility_contract": {
     "contract": "RHI_MOBILITY_CANONICAL_PROPERTY_V1",
-    "minimum_backend": "M0.10.41",
+    "minimum_backend": "M0.10.49",
     "tested_backend_releases": [
-      "M0.10.43"
+      "M0.10.49"
     ],
     "runtime_proof": "pending",
     "required_contracts": [
