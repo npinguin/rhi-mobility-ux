@@ -21,7 +21,13 @@ if(release.includes('gh release upload')) throw new Error('stable promotion must
 console.log('PASS immutable complete-package candidate qualification lifecycle with zero release assets');
 
 if(validate.includes('Protect immutable published package')) throw new Error('engineering Validate must not force release-version churn');
-if(!publish.includes('reason=version_already_published')) throw new Error('Publish HACS must skip an already-published engineering version');
+if(!publish.includes('reason=identical_immutable_version_verified')) throw new Error('Published version may be skipped only after byte identity is proved');
+if(!publish.includes('diff -qr /tmp/rhi-mobility-published-candidate/dist dist')) throw new Error('Published dist subtree must be compared byte-for-byte');
+if(!publish.includes('cmp /tmp/rhi-mobility-published-candidate/hacs.json hacs.json') ||
+   !publish.includes('cmp /tmp/rhi-mobility-published-candidate/package.json package.json')) {
+  throw new Error('Existing tag skip must verify complete HACS metadata');
+}
+if(publish.includes('  workflow_dispatch:')) throw new Error('Candidate publication must not bypass successful main Validate');
 if(!publish.includes("needs.scope.outputs.publish == 'true'")) throw new Error('candidate publication is not gated by version scope');
 
 const verifyStart=publish.indexOf('\n  verify:');
