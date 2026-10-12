@@ -70,7 +70,8 @@ assert.ok(!linkedRow.includes('mdi:plus'));
 
 // Following the link to the charger preserves the vehicle as return target,
 // including direct refresh when the query parameters survive the navigation.
-const target=vehicleHtml.match(/class="metric-related-value" data-nav="([^"]+)"/)?.[1]||'';
+// Real browser getAttribute() decodes HTML attribute entities before routing.
+const target=(vehicleHtml.match(/class="metric-related-value" data-nav="([^"]+)"/)?.[1]||'').replaceAll('&amp;','&');
 assert.ok(target.includes('from_asset=vehicle_vw_id4'));
 history.pushState(null,'',target);
 const chargerTiles=[
