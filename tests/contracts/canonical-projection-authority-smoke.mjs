@@ -63,7 +63,15 @@ if(!chargerScreen.includes('const projection = model?.projection || {}')) throw 
 for(const token of ['vehicleExperienceProjection(assetId)','vehicleRelationshipProjection(assetId)']) {
   if(!vehicle.includes(token)) throw new Error('VehicleProjection missing canonical runtime projection '+token);
 }
-if(!charger.includes('chargerExperienceProjection(assetId)')) throw new Error('ChargerProjection missing canonical Experience projection');
+// Charger DETAILS show direct canonical operating/connection/power facts, not
+// summarized Intelligence assertions. Command and identity ownership remain
+// separate. Intelligence belongs to the dedicated Intelligence surface.
+if(charger.includes('chargerExperienceProjection(assetId)') ||
+   charger.includes('experience.charging_intelligence') ||
+   charger.includes('experience.power_intelligence'))
+  throw new Error('Charger DETAIL must not read Intelligence projections');
+for(const token of ['canonical("charger.requested_charge_power_kw")','projection.facts.operating','projection.facts.connection','projection.facts.power'])
+  if(!charger.includes(token)) throw new Error('Charger DETAIL missing canonical source '+token);
 for(const token of ['vehicleChargerRelationship(assetId)','experience?.charging_relationship ||','physicalVehicleForCharger(assetId)','relatedVehicleForCharger(assetId)']) {
   if(vehicle.includes(token)) throw new Error('VehicleProjection/build retains parallel semantic path: '+token);
 }

@@ -57,8 +57,18 @@ class HomeBrainChargerAdapter {
       || ["connected", "asset_connected"].includes(connection);
     const physicallyDisconnected = ["disconnected", "no_asset_connected"].includes(connection);
 
+    // Physical disconnection wins over an inconsistent running flag. A
+    // conflict cannot be presented as an occupied charging point.
+    if (physicallyDisconnected && ["running", "preparing", "suspended"].includes(operating)) {
+      return { bucket:"unknown", resolved:false, label:"Connection / state conflict" };
+    }
+    if (physicallyConnected && physicallyDisconnected) {
+      return { bucket:"unknown", resolved:false, label:"Physical relationship conflict" };
+    }
     if (physicallyConnected) return { bucket:"in_use", resolved:true, label:(this.rt?.t?.("charger.state_in_use",{},"In use") || "In use") };
-    if (["running", "preparing", "suspended"].includes(operating)) return { bucket:"in_use", resolved:true, label:(this.rt?.t?.("charger.state_in_use",{},"In use") || "In use") };
+    if (!physicallyDisconnected && ["running", "preparing", "suspended"].includes(operating)) {
+      return { bucket:"unknown", resolved:false, label:"Connection unverified" };
+    }
     if (physicallyDisconnected && ["idle", "stopped"].includes(operating)) {
       return { bucket:"free", resolved:true, label:(this.rt?.t?.("charger.state_free",{},"Free") || "Free") };
     }
@@ -101,7 +111,6 @@ class HomeBrainChargerAdapter {
     const assetId = this.assetId();
     const reg = this.registryEntry() || { asset_id: assetId };
     const snapshot = this.rt.chargerProductSnapshot(assetId);
-    const experience = this.rt.chargerExperienceProjection(assetId);
     const commands = this.rt.commandActionsFor(assetId, "quick_actions");
     const profileProperty = this.rt.semanticProperty(assetId, "asset.profile_id");
     const imageProperty = this.rt.semanticProperty(assetId, "charger.image_key");
@@ -123,12 +132,6 @@ class HomeBrainChargerAdapter {
         display: this.rt.canonicalChargerPropertyDisplay(assetId, key, "—")
       });
     };
-    const connectionIntel = experience.connection_intelligence || {};
-    const chargingIntel = experience.charging_intelligence || {};
-    const powerIntel = experience.power_intelligence || {};
-    const healthIntel = experience.health_intelligence || {};
-    const vehicleIntel = experience.vehicle_intelligence || {};
-    const fault = experience.fault || {};
     const vehicleAssetId = snapshot.connected_vehicle?.resolved === true
       ? String(snapshot.connected_vehicle.asset_id || snapshot.connected_vehicle.value || "")
       : "";
@@ -162,20 +165,13 @@ class HomeBrainChargerAdapter {
         connection: field(snapshot.connection),
         connected_vehicle: field(snapshot.connected_vehicle),
         power: field(snapshot.power),
+        requested_power: canonical("charger.requested_charge_power_kw"),
         actual_current: canonical("charger.actual_current_a"),
         current_limit: canonical("charger.current_limit_a"),
         offered_current: canonical("charger.offered_current_a"),
         session_energy: canonical("charger.session_energy_kwh"),
         lifetime_energy: canonical("charger.lifetime_energy_kwh"),
         health: field(snapshot.health)
-      },
-      intelligence: {
-        connection: connectionIntel,
-        charging: chargingIntel,
-        power: powerIntel,
-        health: healthIntel,
-        vehicle: vehicleIntel,
-        fault
       },
       relationships: {
         assigned_vehicle_id:assignedId,
@@ -191,8 +187,7 @@ class HomeBrainChargerAdapter {
       },
       availability: this.overviewAvailability(),
       commands,
-      experience,
-      source_contracts: ["RHI_MOBILITY_CANONICAL_PROPERTY_V1", "MOBILITY_EXPERIENCE_V2", "MOBILITY_COMMAND_V2"]
+      source_contracts: ["RHI_MOBILITY_CANONICAL_PROPERTY_V1", "MOBILITY_COMMAND_V2"]
     };
   }
 
@@ -221,26 +216,46 @@ class HomeBrainChargerAdapter {
     const dataFreshness = "—";
     const trust = projection.facts.health.display;
     const health = projection.facts.health.display;
-    const connectionIntel = projection.intelligence.connection;
-    const chargingIntel = projection.intelligence.charging;
-    const powerIntel = projection.intelligence.power;
-    const vehicleIntel = projection.intelligence.vehicle;
-    const fault = projection.intelligence.fault;
-    const faultActive = String(fault.state || "").toLowerCase() === "active";
-
+    // DETAIL is a canonical-property view, never an Intelligence summary.
+    // Preserve raw source evidence in the lower detail sections and surface
+    // any inconsistency without claiming the vehicle is charging.
+    const op = projection.facts.operating;
+    const conn = projection.facts.connection;
+    const measured = projection.facts.power;
+    const requested = projection.facts.requested_power;
+    const operatingRaw = op.resolved ? String(op.value || "").toLowerCase() : "";
+    const connectionRaw = conn.resolved ? String(conn.value || "").toLowerCase() : "";
+    const disconnected = ["no_asset_connected", "disconnected"].includes(connectionRaw);
+    const connected = ["asset_connected", "connected"].includes(connectionRaw);
+    const running = ["charging", "running"].includes(operatingRaw);
+    const activeFlag = ["charging","running","preparing","suspended"].includes(operatingRaw);
+    const powerNumber = measured.resolved && measured.value !== null && measured.value !== "" ? Number(measured.value) : NaN;
+    const validPower = Number.isFinite(powerNumber) && powerNumber >= 0;
+    const positivePower = validPower && powerNumber > 0.05;
+    const inconsistent = disconnected && (activeFlag || positivePower);
+    const unverified = !disconnected && !connected && (activeFlag || positivePower);
+    const requestedText = requested.resolved ? `Requested ${requested.display} · setpoint` : "No requested power published";
     const stateTile = {
       label:(this.rt?.t?.("charger.fact_state",{},"State") || "State"),
-      value:String(chargingIntel.summary || connectionIntel.summary || "Unavailable"),
-      subvalue:String(connectionIntel.summary || chargingIntel.reason || "State conclusion unavailable"),
+      value:inconsistent ? "State conflict" : disconnected ? "Not connected" :
+        unverified ? "Connection unverified" : (op.resolved ? op.display : "Unknown"),
+      subvalue:inconsistent ? `Connector disconnected · EVSE ${op.display}` :
+        (conn.resolved ? `Connection: ${conn.display}` : "Physical connection not available"),
       icon:"mdi:ev-station",
-      tone:faultActive ? "attention" : "neutral"
+      tone:inconsistent || unverified || operatingRaw === "fault" ? "attention" : "neutral"
     };
     const powerTile = {
       label:(this.rt?.t?.("charger.fact_power",{},"Power") || "Power"),
-      value:String(powerIntel.summary || "Unavailable"),
-      subvalue:String(powerIntel.reason || "Power conclusion unavailable"),
+      value:inconsistent || (disconnected && positivePower) ? "Power conflict" :
+        unverified ? "Power unverified" : (validPower ? measured.display : "Unavailable"),
+      subvalue:inconsistent || (disconnected && positivePower)
+        ? `Reported ${measured.display} while disconnected · ${requestedText}`
+        : !connected && !disconnected ? `Connection unknown · ${requestedText}`
+        : validPower && powerNumber === 0 && running
+          ? `0 kW reported although EVSE says running · ${requestedText}`
+          : requestedText,
       icon:"mdi:flash",
-      tone:faultActive ? "attention" : "neutral"
+      tone:inconsistent || unverified ? "attention" : "neutral"
     };
 
     const vehicleAssetId = String(projection.relationships?.connected_vehicle_id || projection.relationships?.assigned_vehicle_id || "");
@@ -250,7 +265,7 @@ class HomeBrainChargerAdapter {
     const vehicleTile = {
       label:(this.rt?.t?.("charger.fact_vehicle",{},"Vehicle") || "Vehicle"),
       value:vehicleDisplay,
-      subvalue:String(physicallyConnected ? "Physical identity proven" : vehicleAssetId ? "Configured assignment · physical identity not confirmed" : vehicleIntel.reason || "Vehicle relationship unavailable"),
+      subvalue:String(physicallyConnected ? "Physical identity proven" : vehicleAssetId ? "Configured assignment · physical identity not confirmed" : "Vehicle relationship unavailable"),
       icon:"mdi:car-electric",
       tone:"neutral",
       detailRoute:vehicleRoute,
@@ -258,13 +273,11 @@ class HomeBrainChargerAdapter {
     };
 
     const headerStatus = [stateTile, powerTile, vehicleTile];
-    if (faultActive) {
+    if (operatingRaw === "fault") {
       headerStatus.push({
         label:(this.rt?.t?.("charger.fact_issue",{},"Issue") || "Issue"),
-        value:String(fault.code || "Fault"),
-        subvalue:String(fault.reason || "Charger fault active"),
-        icon:"mdi:alert-circle-outline",
-        tone:"attention"
+        value:"Charger fault", subvalue:"Canonical charger.operating_state = fault",
+        icon:"mdi:alert-circle-outline",tone:"attention"
       });
     }
     const iconMap = { driveway_left:"mdi:ev-station", driveway_right:"mdi:ev-station", sideway:"mdi:ev-plug-type2", utility_plug:"mdi:power-socket-eu" };

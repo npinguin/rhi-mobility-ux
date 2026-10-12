@@ -29,7 +29,11 @@ const occupiedIdle = availability({ operating:'stopped', connection:'connected' 
 if (occupiedIdle.bucket !== 'in_use') throw new Error(`idle connected charger must be in_use, got ${occupiedIdle.bucket}`);
 
 const occupiedRelation = availability({ operating:'idle', connection:'disconnected', connectedVehicle:true });
-if (occupiedRelation.bucket !== 'in_use') throw new Error(`physical vehicle relation must dominate idle state, got ${occupiedRelation.bucket}`);
+if (occupiedRelation.bucket !== 'unknown') throw new Error(`source/relationship contradiction must fail closed, got ${occupiedRelation.bucket}`);
+const falseCharging = availability({ operating:'running', connection:'no_asset_connected' });
+if (falseCharging.bucket !== 'unknown') throw new Error('disconnected EVSE running flag cannot imply charging');
+const unconfirmedCharging = availability({ operating:'running', connection:'', connectionResolved:false });
+if (unconfirmedCharging.bucket !== 'unknown') throw new Error('unverified physical connection cannot imply occupancy');
 
 const unknownOccupancy = availability({ operating:'stopped', connection:'', connectionResolved:false });
 if (unknownOccupancy.bucket !== 'unknown') throw new Error(`unresolved occupancy must not be called free, got ${unknownOccupancy.bucket}`);
@@ -69,6 +73,8 @@ if(projection.relationships.assigned_vehicle_id!=='vehicle_a' ||
 if(new Adapter(rt,'charger_a',{registry_entry:charger}).profile()!=='Wallbox Commander 2')
   throw new Error('charger display profile must use its canonical backend catalog');
 console.log('PASS charger assignment and profile keep producer identity separate from physical connection');
+if (projection.intelligence !== undefined || projection.experience !== undefined)
+  throw new Error('charger DETAIL must not import Intelligence projections');
 
 function powerEvidence({operating, power, powerResolved = true}) {
   const rt = { chargerProductSnapshot:()=>({
@@ -88,3 +94,37 @@ if (powerEvidence({operating:'charging',power:3.2}).state !== 'measured')
 if (powerEvidence({operating:'idle',power:0}).state !== 'measured')
   throw new Error('idle with real measured zero is not a charging contradiction');
 console.log('PASS charging state, measured zero and unknown actual power are distinct');
+
+const canonicalModelFixture = (connection, operating, power, requested=2.771) => {
+  const a={asset_id:'charger_a',asset_type:'charger',display_name:'Wallbox black'};
+  const row=(value,unit='')=>({resolved:value !== null,value,display:value===null?'—':unit?String(value)+' '+unit:String(value),unit,state:value===null?'unknown':'ok'});
+  const modelRt={
+    ...rt,
+    chargerProductSnapshot:()=>({operating:row(operating),connection:row(connection),
+      power:row(power,'kW'),connected_vehicle:row(null),health:row('OK')}),
+    canonicalChargerPropertyValue:(_id,key)=>key==='charger.requested_charge_power_kw'?row(requested,'kW'):row(null),
+    canonicalChargerPropertyDisplay:(_id,key)=>key==='charger.requested_charge_power_kw'?String(requested)+' kW':'—',
+    lifecycleStatus:()=> 'active',
+    commandActionsFor:()=>[],
+    chargerExperienceProjection:()=>{throw Error('Intelligence must not be read by DETAIL')},
+    cache:x=>x,assetUrl:()=>'',activityRowsFor:()=>[],
+    chargerComponentDetailSections:()=>[],addRelatedAssetDetailLinks:x=>x,
+    lifecycleContractGapSection:()=>null,detailRoute:()=>'/detail',visualImageUrl:()=>'',visualImageKey:()=>'', 
+    t:(_key,_params,fallback)=>fallback
+  };
+  return new Adapter(modelRt,'charger_a',{registry_entry:a,dashboard_path:'/dashboard'}).build();
+};
+const unpluggedRunning=canonicalModelFixture('no_asset_connected','running',2.771);
+if(unpluggedRunning.status[0].value!=='State conflict') throw Error('disconnected running charger must show conflict');
+if(unpluggedRunning.status[1].value!=='Power conflict') throw Error('disconnected positive charger power is not actual charging');
+if(!unpluggedRunning.status[1].subvalue.includes('setpoint')) throw Error('requested power needs separate setpoint label');
+const unpluggedIdle=canonicalModelFixture('no_asset_connected','idle',0);
+if(unpluggedIdle.status[0].value!=='Not connected') throw Error('disconnected charger is not charging');
+if(unpluggedIdle.status[1].value!=='0 kW') throw Error('measured zero is not unavailable');
+const suspended=canonicalModelFixture('asset_connected','suspended',0,4.16);
+if(suspended.status[0].value!=='suspended') throw Error('connected suspended Peblar must preserve raw operating state');
+if(suspended.status[1].value!=='0 kW') throw Error('suspended Peblar has actual zero; requested power is setpoint');
+const unknown=canonicalModelFixture('unknown','running',2.771);
+if(unknown.status[0].value!=='Connection unverified'||unknown.status[1].value!=='Power unverified')
+  throw Error('unknown connector cannot assert charging or actual power');
+console.log('PASS DETAIL canonical status vs physical connection, 0/unknown, requested setpoint and contradiction detection');
