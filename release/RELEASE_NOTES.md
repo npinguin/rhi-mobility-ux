@@ -1,15 +1,10 @@
-# v1.0.0-rc.93 — Mobile layout recovery (TEST CANDIDATE)
+# v1.0.0-rc.94 — Responsive product UX and consistent asset presentation (HACS TEST CANDIDATE)
 
-- Restore readable vehicle facts and bound vehicle artwork on narrow phones.
-- Preserve canonical V2 commands and backend-owned semantics.
-- Target HA qualification remains pending; Overview and Chargers require further visual acceptance.
+- Vehicles now lead with the actual model/photo and charging relationship before secondary status facts. Long reasons remain in technical/asset detail rather than forcing narrow text columns.
+- Replaced floating icon-only detail links with contextual labelled Details actions on vehicle and charger cards; reduced duplicate and misplaced affordances.
+- Unified responsive spacing, compact hero geometry, status presentation, quick-action wrapping and flat fact rows across Overview, Vehicles, Chargers, Planning, Strategies, History, Activity and asset details.
+- Unset charger location no longer appears as an ambiguous Not configured label; unavailable commands remain visibly unavailable without leaking internal contract jargon.
+- New rendered-journey regression, dedicated 320–1920px acceptance matrix and explicit target Home Assistant/mobile/tablet/desktop qualification gates.
+- Product semantics, canonical V2 ownership, HACS runtime artifact and UX Core pin (1.6.3) are unchanged. Backend compatibility comes from `release/product.json`.
 
-# v1.0.0-rc.92 — Charger actual-power evidence and lifecycle UX (HACS TEST CANDIDATE)
-
-- Charging state and actual measured power are independent facts. Charging/Running with canonical 0 kW is now explicitly disclosed instead of treating current limit or session energy as real-time power.
-- Unknown charger power remains unavailable; no ampere-derived estimate or backend compensation.
-- Zero active vehicles are not falsely green on range, security or maintenance.
-- Existing canonical vehicle assignments and physical connection identities remain distinct.
-- This test candidate requires full Validate, immutable HACS package publication and Home Assistant runtime qualification before stable promotion.
-
-Compatibility: Mobility backend M0.10.45 or newer, UX Core 1.6.3. Rollback: v1.0.0-rc.91.
+**Qualification:** candidate only. Full CI, immutable HACS packaging, target-device screenshots, controls/readback, refresh, upgrade and rollback are required before stable promotion. Rollback: `v1.0.0-rc.93`.

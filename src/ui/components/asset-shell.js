@@ -264,7 +264,7 @@ class HomeBrainAssetShell {
           <section class="grid">${mainSections.map((s) => this.renderSection(s)).join("")}</section>
           ${this.renderFooter(model)}
         </div>
-        <style>${this.styles()}${typeof rhiUxVisualPickerStyles === "function" ? rhiUxVisualPickerStyles() : ""}
+        <style>${this.styles()}${typeof rhiUxVisualPickerStyles === "function" ? rhiUxVisualPickerStyles() : ""}${hbMobilityResponsiveFinishStyles()}
 /* R22.12.11.24 unified quick-action sizing */
 .action.enum-action,.cmd.enum-command{height:43px;min-height:43px;max-height:43px;display:flex;flex-direction:row;align-items:center;justify-content:center;gap:8px;padding:0 11px;box-sizing:border-box;overflow:hidden}
 .action.enum-action ha-icon,.cmd.enum-command ha-icon{flex:0 0 auto;grid-row:auto}

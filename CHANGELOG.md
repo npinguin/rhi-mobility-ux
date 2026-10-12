@@ -1,3 +1,10 @@
+## 1.0.0-rc.94 — Unified responsive Mobility UX, asset-first cards and navigation
+
+- Identity before secondary statuses for Vehicles; consistent contextual Details routes for vehicles and chargers, including Overview.
+- Shared domain-specific cross-device presentation finish for Overview, Vehicles, Chargers, Intelligence, Insights and asset details, preserving the rc.93 phone layout fix.
+- More readable fact rows, reduced whitespace and nested badges, no ambiguous unset charger location text.
+- Rendered-journey test, full governed source/package pipeline and 320–1920 CSS-pixel target-HA acceptance matrix; stable promotion blocked on physical device evidence.
+
 ## 1.0.0-rc.93
 
 - Mobile Vehicles responsive layout and contract-test governance correction.

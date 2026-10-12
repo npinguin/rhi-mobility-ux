@@ -41,7 +41,7 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
       ${this.renderTopActions(rt, view)}
       ${view === "planning" ? this.renderPlanning(rt) : view === "strategies" ? this.renderStrategies(rt) : view === "history" ? this.renderInsights(rt) : view === "log" ? this.renderLog(rt) : this.renderContextCards(rt, data)}
       ${hbMobilityReleaseFooter(rt)}
-    </div><style>${this.styles()}</style></ha-card>`;
+    </div><style>${this.styles()}${hbMobilityResponsiveFinishStyles()}</style></ha-card>`;
       this.shadowRoot.append(fragment.content.cloneNode(true));
     this.shadowRoot.querySelectorAll("button[data-nav]").forEach((btn)=>btn.addEventListener("click",()=>rt.navigate(btn.getAttribute("data-nav"))));
     for(const [attr,field] of [["data-activity-type","_activityType"],["data-activity-sort","_activitySort"],["data-activity-group","_activityGroup"]]){

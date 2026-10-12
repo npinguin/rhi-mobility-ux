@@ -2,6 +2,10 @@
 
 This file is the authoritative list of unresolved Mobility UX product/runtime issues. These are **not accepted technical or feature debt**. They stay open until the owning contract/test plus target Home Assistant evidence proves closure.
 
+## rc.94 full Mobility UX responsive and uniformity recovery (2026-10-12)
+
+The wider UX audit covers Overview, Vehicles, Chargers, Intelligence/Planning, Strategies, Insights/History, Activity and both asset details. Corrections remove floating/misplaced detail icons, make identities primary, standardize readable facts and compact whitespace, and preserve the rc.93 mobile phone fix. **Static CI passing does not close device qualification**. Test the published immutable candidate at the documented viewport matrix, including long/unavailable data, appearance editors, command readback, refresh and rollback (`documentation/RESPONSIVE_UX_ACCEPTANCE.md`).
+
 ## Cross-domain native Energy acceptance update (2026-10-11)
 
 Mobility's recovery branch replaces synthetic D0/D1 asset-key planning with producer-owned native Energy metrics and blocks period/strategy inference. This is source-level behavior, not evidence that the current Energy backend publishes complete per-asset metering/financial attribution or effective strategy semantics. Verify the exact Energy producer publications and record runtime evidence before closing Planning/Intelligence or Insights.

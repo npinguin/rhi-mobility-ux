@@ -382,21 +382,19 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     const visualImage = pendingAppearance?.image || visual?.vehicle?.package_file || image;
     const appearanceError = this._vehicleAppearanceError.get(assetId) || "";
     return `<article class="vehicle-card premium-vehicle-card">
-      <div class="status-top-row vehicle-intelligence-strip">
-        ${(Array.isArray(model?.status) ? model.status : []).slice(0, 5).map((tile) => this.intelligenceStatusRow(rt, tile)).join("")}
-      </div>
       <div class="hero-split-row">
         <div class="vehicle-hero-panel">
           <div class="vehicle-copy"><h2>${rt.escape(display)}</h2><p>${rt.escape(subtitle)}</p><p class="vehicle-activity-inline">${rt.escape(chargingActivity)}</p></div>
           <div class="vehicle-image">${visualImage ? `<img src="${rt.escape(rt.cache(visualImage))}" alt="${rt.escape(display)}" style="filter:${rt.escape(visualFilter)}">` : `<ha-icon icon="mdi:car-estate"></ha-icon>`}</div>
           <button class="vehicle-visual-edit vehicle-appearance-action" data-vehicle-picker="${rt.escape(assetId)}" title="Choose vehicle and colour"><ha-icon icon="mdi:palette-outline"></ha-icon><span>Vehicle & colour</span></button>
-          <button class="mini-detail-button vehicle-detail-link" data-nav="${rt.escape(route)}" title="Open vehicle details"><ha-icon icon="mdi:plus"></ha-icon></button>
         </div>
         <div class="charger-hero-panel">
-          <div class="charger-mini-copy"><b>${rt.escape(assignedName)}</b></div>
+          <div class="charger-mini-copy"><b>${rt.escape(assignedName)}</b>${activeChargerRoute ? `<button class="charger-link-inline" data-nav="${rt.escape(activeChargerRoute)}" title="Open assigned charger details">Charger details <ha-icon icon="mdi:chevron-right"></ha-icon></button>` : ""}</div>
           <div class="charger-mini-image"><img src="${rt.escape(rt.cache(chargerImage))}" alt="${rt.escape(assignedName)}" loading="lazy" onerror="this.style.display='none';this.closest('.charger-mini-image')?.classList.add('image-missing')"><ha-icon icon="mdi:ev-station"></ha-icon></div>
-          ${activeChargerRoute ? `<button class="mini-detail-button charger-detail-link" data-nav="${rt.escape(activeChargerRoute)}" title="Open charger details"><ha-icon icon="mdi:plus"></ha-icon></button>` : ``}
         </div>
+      </div>
+      <div class="status-top-row vehicle-intelligence-strip">
+        ${(Array.isArray(model?.status) ? model.status : []).slice(0, 5).map((tile) => this.intelligenceStatusRow(rt, tile)).join("")}
       </div>
       ${pickerOpen ? this.renderVehiclePicker(rt, asset) : ""}
       ${appearanceError ? `<div class="appearance-write-error" role="status"><ha-icon icon="mdi:alert-circle-outline"></ha-icon><span>${rt.escape(appearanceError)}</span></div>` : ""}
@@ -405,6 +403,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
         ${vehicleCommands.map((cmd, index)=>this.renderCommand(rt, cmd, cmd?.label || "Action", this.commandIcon(cmd), index === 0 ? "primary-charge" : "")).join("")}
         ${Array.from({length: Math.max(0, 3 - vehicleCommands.length)}).map(()=>`<span class="action-spacer"></span>`).join("")}
         ${notPresentButton || ""}
+        <button class="vehicle-card-details" data-nav="${rt.escape(route)}" aria-label="Open details for ${rt.escape(display)}">Details <ha-icon icon="mdi:chevron-right"></ha-icon></button>
       </div>
     </article>`;
   }
@@ -446,7 +445,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
       <div class="ov-assignment">${this.renderChargerAssignmentSelect(rt, asset)}</div>
       <div class="ov-row-actions">
         ${commands.map((cmd, index)=>this.renderCommand(rt, cmd, cmd?.label || "Action", this.commandIcon(cmd), index === 0 ? "primary-charge" : "")).join("")}
-        <button class="action icon-only ov-detail" data-nav="${rt.escape(route)}" title="Open all vehicle details"><ha-icon icon="mdi:chevron-right"></ha-icon></button>
+        <button class="action ov-detail" data-nav="${rt.escape(route)}" title="Open vehicle details">Details <ha-icon icon="mdi:chevron-right"></ha-icon></button>
       </div>
     </article>`;
   }
@@ -1013,7 +1012,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
       template.innerHTML = `<ha-card><div class="page rhiUxDomainBody rhi-ux-root">${this.versionBlock(rt)}
             ${hbMobilityNav(navActive)}
             ${pageContent}
-          </div>${hbMobilityReleaseFooter(rt)}<style>${this.styles()}${typeof rhiUxVisualPickerStyles === "function" ? rhiUxVisualPickerStyles() : ""}${navActive === "overview" ? this.overviewStyles() : ""}
+          </div>${hbMobilityReleaseFooter(rt)}<style>${this.styles()}${typeof rhiUxVisualPickerStyles === "function" ? rhiUxVisualPickerStyles() : ""}${navActive === "overview" ? this.overviewStyles() : ""}${hbMobilityResponsiveFinishStyles()}
             /* Canonical action sizing */
             .action.enum-action,.cmd.enum-command{height:40px;min-height:40px;max-height:40px;display:flex;align-items:center;justify-content:center;gap:7px;padding:0 10px;box-sizing:border-box;overflow:hidden}
             .action.enum-action ha-icon,.cmd.enum-command ha-icon{flex:0 0 auto}
