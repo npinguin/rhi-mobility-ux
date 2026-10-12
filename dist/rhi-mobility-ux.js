@@ -5516,10 +5516,12 @@ class HomeBrainVehicleAdapter {
     return activities.map((a, index)=>({ type:"readonly", icon:index === 0 ? "mdi:history" : "mdi:history-clock", label:labels[index] || `Activity ${index+1}`, value:valueFor(a) }));
   }
 
-  productProjection() {
+  productProjection({ includeIntelligence = true } = {}) {
     const assetId = this.assetId();
     const reg = this.registryEntry() || { asset_id: assetId };
-    const experience = this.rt.vehicleExperienceProjection(assetId);
+    // Overview/Intelligence may consume backend conclusions. Vehicle DETAIL
+    // must not request those conclusions and displays canonical properties only.
+    const experience = includeIntelligence ? this.rt.vehicleExperienceProjection(assetId) : {};
     const v2Relationship = this.rt.vehicleRelationshipProjection(assetId);
 
     const realId = (value) => {
@@ -5677,7 +5679,7 @@ class HomeBrainVehicleAdapter {
     const profile = this.profile();
     const display = this.displayName();
 
-    const projection = this.productProjection();
+    const projection = this.productProjection({ includeIntelligence:false });
     const relationship = projection.relationships || {};
     const chargerContextId = String(
       relationship.physically_connected_charger_id
@@ -5713,12 +5715,43 @@ class HomeBrainVehicleAdapter {
       { chargerDetailRoute, chargerDisplay }
     );
 
-    const rangeTile = projection.signals.range;
-    const chargingTile = projection.signals.charging;
-    const securityTile = projection.signals.security;
-    const comfortTile = projection.signals.comfort;
-    const maintenanceTile = projection.signals.maintenance;
-    const headerStatus = [rangeTile, chargingTile, securityTile, comfortTile, maintenanceTile];
+    // Vehicle DETAIL: five independent canonical facts. No Intelligence
+    // conclusion, silent status inference, or 'charging' based on a configured
+    // charger assignment. Unknown stays unknown, zero stays zero.
+    const detailFact = (key, label, icon, extra = {}) => {
+      const row = this.rt.canonicalPropertyValue(assetId, key);
+      const resolved = row?.resolved === true;
+      const display = resolved
+        ? this.rt.canonicalPropertyDisplay(assetId, key, "Unavailable")
+        : "Unavailable";
+      return {
+        label, icon, resolved,
+        value:display,
+        display,
+        state:resolved ? "ok" : "unknown",
+        reason:resolved ? "Canonical " + key : "No canonical " + key + " data",
+        source:"RHI_MOBILITY_CANONICAL_PROPERTY_V1",
+        tone:"neutral",
+        ...extra
+      };
+    };
+    const rangeTile=detailFact("vehicle.range_total_km","Range","mdi:road-variant");
+    const chargingTile=detailFact("vehicle.charging_state","Charging","mdi:ev-station");
+    const physicalCharger=String(relationship.physically_connected_charger_id || "");
+    const assignedCharger=String(relationship.configured_charger_id || "");
+    chargingTile.reason = physicalCharger
+      ? "Observed physical charger: " + chargerDisplay
+      : assignedCharger
+        ? "Configured charger: " + chargerDisplay + " · physical connection unverified"
+        : "No physically identified charger; vehicle charging state is source-reported only";
+    if(chargingTile.resolved && ["charging","running"].includes(String(this.rt.canonicalPropertyValue(assetId,"vehicle.charging_state").value).toLowerCase()) && !physicalCharger) {
+      chargingTile.value = chargingTile.display = "Reported charging · unverified";
+      chargingTile.tone = "attention";
+    }
+    const securityTile=detailFact("vehicle.security_state","Security","mdi:lock-outline");
+    const comfortTile=detailFact("vehicle.climate_state","Climate","mdi:fan");
+    const maintenanceTile=detailFact("vehicle.maintenance_state","Maintenance","mdi:wrench-outline");
+    const headerStatus=[rangeTile,chargingTile,securityTile,comfortTile,maintenanceTile];
 
     return {
       type:"vehicle", id, present, display, subtitle:profile, readiness:lifecycle,
