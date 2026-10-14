@@ -140,7 +140,7 @@ class HomeBrainEnergyPlanningProjection {
     const effectiveProvider=metadata?.provider_id||'';
     const providerHold=!!requestedProvider && requestedProvider!==effectiveProvider;
     const reason=conflict
-      ? (providerMismatch ? 'requested_provider_not_effective' : 'effective_horizons_inconsistent')
+      ? (providerMismatch ? String(metadata?.reason_code||'requested_provider_not_effective') : 'effective_horizons_inconsistent')
       : providerHold
         ? String(metadata?.reason_code||'requested_provider_not_effective')
         : publications.find(row=>!row.available)?.reason||'';
