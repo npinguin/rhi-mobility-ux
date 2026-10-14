@@ -1,3 +1,10 @@
+## 1.0.0-rc.98 — Shared footer and lifecycle display test candidate
+
+- Mobility UX #192: show the UX version, backend version and native runtime status on every view, even when diagnostics are off.
+- Collapse explicitly disabled vehicles and chargers to their identity, picture and Enable-only action; missing lifecycle remains unknown, not disabled.
+- Enforce locale-sensitive maximum two-decimal presentation without rounding source/command values; preserve unavailable rather than 0.
+- Publish an independent immutable HACS candidate; rollback to rc.97. Wessels Huis 1 runtime, multilingual completeness and cross-domain planning/history remain release blockers.
+
 ## 1.0.0-rc.97 — Canonical Vehicle Detail parity test candidate
 
 - Keep Vehicle Detail source-owned Range, Charging, Security, Climate and Maintenance distinct from Intelligence, with physical-connection proof fail closed (#190).
