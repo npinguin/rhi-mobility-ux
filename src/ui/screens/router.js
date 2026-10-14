@@ -254,7 +254,30 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
           ? "The effective Energy plan is complete, but no published asset allocation matches a canonical Mobility asset ID. The UX must not guess the relationship."
           : "");
 
+    const knownRows = ['D0','D1'].map(id => {
+      const known=plan.independentKnownDemand?.[id];
+      const label=rt.t(id==='D0'?'planning.today':'planning.tomorrow',{},id==='D0'?'Today':'Tomorrow');
+      if (!known?.available) return `<div class="rhi-data-row"><b>${rt.escape(label)}</b><span>${rt.escape(rt.t('common.unavailable',{},'Unavailable'))}</span></div>`;
+      const basis=known.source==='baseline'
+        ? rt.t('planning.independent_baseline_source',{},'Independent Energy baseline')
+        : rt.t('planning.effective_baseline_source',{},'Effective Energy known-load outlook');
+      const values=[
+        [rt.t('planning.home_baseload',{},'Home baseload'),known.homeKwh],
+        [rt.t('planning.solar_forecast',{},'Solar forecast'),known.solarKwh],
+        [rt.t('planning.grid_import_baseline',{},'Grid import (known loads)'),known.gridImportKwh],
+        [rt.t('planning.grid_export_baseline',{},'Grid export (known loads)'),known.gridExportKwh]
+      ].map(([name,value])=>`${name}: ${this.fmtKwh(value)}`).join(' · ');
+      const unknown=known.unknownFlexibleLoadCount
+        ? ` · ${known.unknownFlexibleLoadCount} ${rt.t('planning.unknown_loads',{},'unknown flexible loads')}` : '';
+      return `<div class="rhi-data-row rhiKnownDemandRow"><b>${rt.escape(label)}</b><span>${rt.escape(basis)} · ${rt.escape(values)}${rt.escape(unknown)}</span></div>`;
+    }).join('');
     return `<section class="rhi-context-grid">
+      <article class="rhi-context-card">
+        <div class="rhi-context-card-kicker"><ha-icon icon="mdi:home-lightning-bolt"></ha-icon>${rt.escape(rt.t('planning.known_outlook',{},'Known home and solar outlook'))}</div>
+        <h3>${rt.escape(rt.t('planning.baseline_not_schedule',{},'Independent baseline, not an executable plan'))}</h3>
+        <p>${rt.escape(rt.t('planning.baseline_scope',{},'This Energy forecast covers evidenced household baseload and solar only; unknown vehicle demand and battery dispatch are excluded. It does not approve charging.'))}</p>
+        <div class="rhi-data-list">${knownRows}</div>
+      </article>
       <article class="rhi-context-card">
         <div class="rhi-context-card-kicker"><ha-icon icon="mdi:calendar-clock"></ha-icon>${rt.escape((rt?.t?.("planning.energy_owned",{},"Energy-owned planning") || "Energy-owned planning"))}</div>
         <h3>${rt.escape((rt?.t?.("planning.what_charge_when",{},"What will charge, and when?") || "What will charge, and when?"))}</h3>

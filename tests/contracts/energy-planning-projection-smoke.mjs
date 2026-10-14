@@ -35,6 +35,13 @@ const details=horizon=>({
       {asset_id:'vehicle_audi_q8',planned_energy_kwh:2.5},
       {asset_id:'battery_1',planned_energy_kwh:3.7}]}],
   planning_assets:[{asset_id:'vehicle_vw_id4',planned_energy_kwh:4}],
+  known_demand_projection:{
+    basis:'solar_plus_home_baseload_only_no_battery_dispatch',
+    execution_authorized:false,complete:false,unknown_flexible_load_count:2,
+    home_consumption_forecast_kwh:8.5,solar_forecast_kwh:5,
+    expected_grid_import_kwh:3.5,expected_grid_export_kwh:0,
+    grid_balance_kwh:3.5
+  },
   source_lanes:{solar:4},consumer_lanes:{vehicle:6},
   execution_policy:{manual_plan_execution_allowed:false}
 });
@@ -75,6 +82,13 @@ assert.equal(model.today.provisional,false);
 assert.equal(model.baselineAvailable,true);
 assert.equal(model.effectiveProvider,'emhass');
 assert.equal(model.providerHold,false);
+assert.equal(model.independentKnownDemand.D0.available,true);
+assert.equal(model.independentKnownDemand.D0.source,'effective');
+assert.equal(model.independentKnownDemand.D0.homeKwh,8.5);
+assert.equal(model.independentKnownDemand.D0.gridImportKwh,3.5);
+assert.equal(model.independentKnownDemand.D0.unknownFlexibleLoadCount,2);
+assert.equal(model.independentKnownDemand.D0.isEffectiveSchedule,false);
+assert.equal(model.independentKnownDemand.D0.executionAuthorized,false);
 assert.equal(model.contractVersion,'RHI_ENERGY_PLANNING_HORIZON_V1');
 assert.equal(model.mobilityPlanningRows.length,4,
   'only exact matching Mobility planning assets and bucket allocations');
@@ -111,6 +125,11 @@ assert.equal(blocked.reason,'native_optimizer_not_available');
 assert.equal(blocked.today.provisional,true);
 assert.equal(blocked.mobilityPlanningRows.length,0,
   'baseline or INCOMPLETE allocations may not masquerade as effective schedule');
+assert.equal(blocked.independentKnownDemand.D0.available,true,
+  'independent known home/solar may survive a held optimizer');
+assert.equal(blocked.independentKnownDemand.D0.source,'baseline',
+  'hold must prefer baseline evidence, not an unaccepted effective plan');
+assert.equal(blocked.independentKnownDemand.D0.isEffectiveSchedule,false);
 
 const duplicate={states:{...complete.states,
   'sensor.d0_conflict':horizon('D0','effective','AVAILABLE',{plan_id:'other-plan'})}};
@@ -133,4 +152,44 @@ const replaced={states:{...complete.states,
 assert.notEqual(new Energy(replaced).revisionSignature('planning'),initialRevision,
   'Mobility planning router must respond to Energy publication revision');
 assert.equal(new Energy(complete).revisionSignature('planning'),initialRevision);
+
+const mismatchedPlans={states:{...complete.states,
+  'sensor.effective_d1':horizon('D1','effective','AVAILABLE',{plan_id:'another-run'})}};
+const mixed=new Projection(mismatchedPlans,mobility).viewModel();
+assert.equal(mixed.horizonIdentityCoherent,false);
+assert.equal(mixed.complete,false,'different D0/D1 plan IDs must never be combined');
+assert.equal(mixed.state,'INCOMPLETE');
+assert.equal(mixed.mobilityPlanningRows.length,0,'mixed runs may never publish schedule allocations');
+assert.equal(mixed.independentKnownDemand.D0.available,true,
+  'validated independent home/solar can survive quarantined effective plans');
+assert.equal(mixed.independentKnownDemand.D0.isEffectiveSchedule,false);
+
+const mixedProviders={states:{...complete.states,
+  'sensor.effective_d1':horizon('D1','effective','AVAILABLE',{provider_id:'rhi_deterministic'})}};
+assert.equal(new Projection(mixedProviders,mobility).viewModel().complete,false,
+  'D0/D1 provider mismatch must fail closed');
+const requestedMismatch={states:{...complete.states,
+  'sensor.effective_d0':horizon('D0','effective','AVAILABLE',{requested_provider:'emhass',provider_id:'rhi_deterministic'}),
+  'sensor.effective_d1':horizon('D1','effective','AVAILABLE',{requested_provider:'emhass',provider_id:'rhi_deterministic'})}};
+const heldBySelection=new Projection(requestedMismatch,mobility).viewModel();
+assert.equal(heldBySelection.providerHold,true,
+  'requested provider mismatch cannot silently become accepted effective selection');
+assert.equal(heldBySelection.complete,false,'provider mismatch cannot report complete effective plan');
+assert.equal(heldBySelection.mobilityPlanningRows.length,0,'provider mismatch cannot expose executable allocations');
+
+const contradicting=horizon('D0','baseline','AVAILABLE',{
+  details:{...details('D0'), known_demand_projection:{
+    ...details('D0').known_demand_projection,
+    expected_grid_import_kwh:0,
+    expected_grid_export_kwh:5}}
+});
+const rejected=new Projection({states:{'sensor.bad_baseline':contradicting}},mobility).viewModel();
+assert.equal(rejected.independentKnownDemand.D0.available,false,
+  'non-reconciling known demand and grid balance must not be published');
+
+const noEvidencedBaseload=new Projection({states:metricStates()},mobility).viewModel();
+assert.equal(noEvidencedBaseload.independentKnownDemand.D0.available,false);
+assert.equal(noEvidencedBaseload.independentKnownDemand.D0.homeKwh,null,
+  'standalone totals may not be relabelled as independent physical baseline');
+
 console.log('PASS Mobility native Energy planning: D0/D1 effective, provider HOLD, baseline, duplicates, identity and Energy revision');

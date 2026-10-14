@@ -1,3 +1,9 @@
+## 1.0.0-rc.99 — Energy-owned known-load planning outlook
+
+- Show source-qualified D0/D1 solar, home baseload and independently estimated import/export on Mobility Planning even with unknown flexible vehicle demand.
+- Distinguish effective schedule from informational baseline, and fail closed on mixed plan identities, conflicting provider selection or non-reconciling physical net balance.
+- EN/NL/FR labels and producer-shaped regression fixtures; canonical values are not recomputed or fabricated. Wessels live validation remains a release blocker.
+
 ## 1.0.0-rc.98 — Shared footer and lifecycle display test candidate
 
 - Mobility UX #192: show the UX version, backend version and native runtime status on every view, even when diagnostics are off.

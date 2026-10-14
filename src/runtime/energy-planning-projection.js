@@ -28,7 +28,10 @@ class HomeBrainEnergyPlanningProjection {
     const day=horizon==='D0'?'today':'tomorrow';
     const metric=key=>this.energy.nativeMetric('planning_'+day+'_'+key);
     const raw=publication.available?publication.details||{}:{};
-    const own=key=>this._number(this._first(raw[key],metric(key).value));
+    // Never mix an accepted plan's totals with a free-standing metric from
+    // another runtime revision. Metrics without a plan remain provisional.
+    const own=key=>publication.available
+      ? this._number(raw[key]) : this._number(metric(key).value);
     return Object.freeze({
       plannedKwh:own('flexible_planned_kwh'),
       stillToPlanKwh:own('flexible_still_to_plan_kwh'),
@@ -41,6 +44,43 @@ class HomeBrainEnergyPlanningProjection {
       reason:publication.reason,
       raw:publication.available?raw:{}
     });
+  }
+  _knownDemandProjection(horizonId, effective, baseline) {
+    // Energy publishes an independent, non-executable solar/home baseload view
+    // inside native horizon details even when flexible demand blocks the full plan.
+    // A baseline plan never becomes the selected/effective schedule here.
+    const ordered = effective?.available
+      ? [['effective', effective], ['baseline', baseline]]
+      : [['baseline', baseline], ['effective', effective]];
+    for (const [source, publication] of ordered) {
+      const details = publication?.metadata?.details;
+      if (!details || details.horizon_id !== horizonId) continue;
+      const known = details.known_demand_projection;
+      if (!known || known.basis !== 'solar_plus_home_baseload_only_no_battery_dispatch' ||
+          known.execution_authorized !== false) continue;
+      const keys = ['home_consumption_forecast_kwh', 'solar_forecast_kwh',
+        'expected_grid_import_kwh', 'expected_grid_export_kwh'];
+      const values = keys.map(key => known[key]);
+      if (!values.every(value => typeof value === 'number' && Number.isFinite(value) && value >= 0)) continue;
+      const [homeKwh, solarKwh, gridImportKwh, gridExportKwh] = values;
+      // Cross-check the physical net boundary. Do not show an inconsistent
+      // source projection as an independent, trustworthy baseline.
+      if (Math.abs((homeKwh - solarKwh) - (gridImportKwh - gridExportKwh)) > 0.02) continue;
+      const unknown = known.unknown_flexible_load_count;
+      if (!Number.isInteger(unknown) || unknown < 0) continue;
+      return Object.freeze({
+        available:true, source, basis:known.basis,
+        homeKwh, solarKwh, gridImportKwh, gridExportKwh,
+        unknownFlexibleLoadCount:unknown,
+        complete:known.complete === true && unknown === 0,
+        isEffectiveSchedule:false, executionAuthorized:false,
+        quality:'KNOWN_LOADS_ONLY'
+      });
+    }
+    return Object.freeze({available:false,source:'',quality:'UNAVAILABLE',
+      homeKwh:null,solarKwh:null,gridImportKwh:null,gridExportKwh:null,
+      unknownFlexibleLoadCount:null,complete:false,
+      isEffectiveSchedule:false,executionAuthorized:false});
   }
   _assetScheduleRows(publications) {
     const rows=[];
@@ -68,19 +108,46 @@ class HomeBrainEnergyPlanningProjection {
     const d1=this.energy.planningHorizon('D1','effective');
     const baselineD0=this.energy.planningHorizon('D0','baseline');
     const baselineD1=this.energy.planningHorizon('D1','baseline');
-    const publications=[d0,d1];
-    const today=this._totalsView('D0',d0);
-    const tomorrow=this._totalsView('D1',d1);
-    const bothAvailable=d0.available&&d1.available;
-    const someAvailable=d0.available||d1.available;
+    const bothReportedAvailable=d0.available&&d1.available;
+    const identityCoherent=!bothReportedAvailable || (
+      !!d0.metadata?.plan_id && d0.metadata.plan_id===d1.metadata?.plan_id &&
+      !!d0.metadata?.provider_id && d0.metadata.provider_id===d1.metadata?.provider_id &&
+      String(d0.metadata?.requested_provider||'')===String(d1.metadata?.requested_provider||'') &&
+      (!d0.metadata?.generated_at || !d1.metadata?.generated_at ||
+        d0.metadata.generated_at===d1.metadata.generated_at)
+    );
+    // A selected optimizer cannot silently be replaced by a different
+    // effective provider just because some numeric plan fields are present.
+    const selection=d0.metadata||d1.metadata||{};
+    const providerMismatch=!!selection.requested_provider &&
+      selection.requested_provider!==selection.provider_id;
+    // Both stale cross-revision horizons AND a mismatched requested provider
+    // quarantine all schedule rows. The independent known-load view survives.
+    const conflict=(bothReportedAvailable&&!identityCoherent)||providerMismatch;
+    const quarantined=publication=>conflict ? {
+      ...publication,available:false,status:'INCOMPLETE',
+      reason:'effective_horizons_inconsistent',details:null
+    } : publication;
+    const e0=quarantined(d0),e1=quarantined(d1);
+    const publications=[e0,e1];
+    const today=this._totalsView('D0',e0);
+    const tomorrow=this._totalsView('D1',e1);
+    const bothAvailable=e0.available&&e1.available;
+    const someAvailable=e0.available||e1.available;
     const anyPublished=d0.published||d1.published;
     const metadata=d0.metadata||d1.metadata||null;
     const requestedProvider=metadata?.requested_provider||'';
     const effectiveProvider=metadata?.provider_id||'';
-    const providerHold=!!requestedProvider&&!effectiveProvider;
-    const reason=providerHold
-      ? String(metadata?.reason_code||'requested_provider_not_effective')
-      : publications.find(row=>!row.available)?.reason||'';
+    const providerHold=!!requestedProvider && requestedProvider!==effectiveProvider;
+    const reason=conflict
+      ? (providerMismatch ? String(metadata?.reason_code||'requested_provider_not_effective') : 'effective_horizons_inconsistent')
+      : providerHold
+        ? String(metadata?.reason_code||'requested_provider_not_effective')
+        : publications.find(row=>!row.available)?.reason||'';
+    const independentKnownDemand=Object.freeze({
+      D0:this._knownDemandProjection('D0',d0,baselineD0),
+      D1:this._knownDemandProjection('D1',d1,baselineD1)
+    });
     const properties=this.energy.canonicalRows().filter(row=>row.availability==='AVAILABLE'&&
       row.presentation_surface==='planning');
     const scheduleRows=this._assetScheduleRows(publications);
@@ -96,7 +163,8 @@ class HomeBrainEnergyPlanningProjection {
       effectiveProvider,
       providerHold,
       reason,
-      today,tomorrow,
+      today,tomorrow,independentKnownDemand,
+      horizonIdentityCoherent:identityCoherent,
       baselineAvailable:baselineD0.available||baselineD1.available,
       baselineStatus:Object.freeze({D0:baselineD0.status,D1:baselineD1.status}),
       // Baseline evidence never becomes an effective or executable plan.

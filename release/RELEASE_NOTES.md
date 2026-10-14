@@ -1,7 +1,7 @@
-# v1.0.0-rc.98 — HACS TEST CANDIDATE
+# v1.0.0-rc.99 — HACS TEST CANDIDATE
 
-- Deliver Mobility UX #192: always-visible shared UX Core frontend/backend/status footer, two-decimal locale-sensitive display, and disabled vehicle/charger identity-photo + Enable-only collapsed view.
-- Preserve unknown lifecycle as a separate state; no unproven enable action or source/energy inference.
-- Rebuild immutable dist bundle and package SHA on a new tag because v1.0.0-rc.97 cannot be overwritten.
-- Runtime evidence targets **Wessels (Huis 1)** first, then Molas (Huawei), then Sonnen/SMA; installed readback, commands, restart and rollback **PENDING**. No claim that an updated backend was physically qualified.
-- Rollback: v1.0.0-rc.97; stable release **BLOCKED** by Foundation #129.
+- Wessels Huis 1 Energy Planning → Mobility closure cluster: a separately qualified solar/home baseload with its own estimated grid import/export remains visible during incomplete flexible-load evidence or optimizer HOLD, without being relabelled an executable schedule.
+- Reject cross-revision D0/D1 plan/provider identities and requested-vs-effective provider mismatch: no blended native totals, manufactured allocations or silent deterministic fallback.
+- Use only Energy native Horizon V1 published evidence. Grid boundary is checked against home minus solar; invalid/absent source values remain unavailable. No battery dispatch or unknown vehicle loads included in known-load outlook.
+- Uniform EN/NL/FR copy; independent baseline is explicitly **informational**, not an authorization to charge.
+- Preserves v1.0.0-rc.98 as immutable rollback; target HA Wessels readback, full planner provider acceptance, real forecast source, day rollover/DST and restart/rollback **PENDING**. Stable **BLOCKED** under Foundation #129.
