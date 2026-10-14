@@ -49,7 +49,10 @@ class HomeBrainEnergyPlanningProjection {
     // Energy publishes an independent, non-executable solar/home baseload view
     // inside native horizon details even when flexible demand blocks the full plan.
     // A baseline plan never becomes the selected/effective schedule here.
-    for (const [source, publication] of [['effective', effective], ['baseline', baseline]]) {
+    const ordered = effective?.available
+      ? [['effective', effective], ['baseline', baseline]]
+      : [['baseline', baseline], ['effective', effective]];
+    for (const [source, publication] of ordered) {
       const details = publication?.metadata?.details;
       if (!details || details.horizon_id !== horizonId) continue;
       const known = details.known_demand_projection;
