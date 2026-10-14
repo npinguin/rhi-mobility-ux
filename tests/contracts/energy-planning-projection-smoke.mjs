@@ -171,8 +171,11 @@ assert.equal(new Projection(mixedProviders,mobility).viewModel().complete,false,
 const requestedMismatch={states:{...complete.states,
   'sensor.effective_d0':horizon('D0','effective','AVAILABLE',{requested_provider:'emhass',provider_id:'rhi_deterministic'}),
   'sensor.effective_d1':horizon('D1','effective','AVAILABLE',{requested_provider:'emhass',provider_id:'rhi_deterministic'})}};
-assert.equal(new Projection(requestedMismatch,mobility).viewModel().providerHold,true,
+const heldBySelection=new Projection(requestedMismatch,mobility).viewModel();
+assert.equal(heldBySelection.providerHold,true,
   'requested provider mismatch cannot silently become accepted effective selection');
+assert.equal(heldBySelection.complete,false,'provider mismatch cannot report complete effective plan');
+assert.equal(heldBySelection.mobilityPlanningRows.length,0,'provider mismatch cannot expose executable allocations');
 
 const contradicting=horizon('D0','baseline','AVAILABLE',{
   details:{...details('D0'), known_demand_projection:{
