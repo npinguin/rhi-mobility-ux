@@ -167,7 +167,8 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
 
   fmtKw(value) {
     if (value === null || value === undefined || Number.isNaN(Number(value))) return "—";
-    return `${Number(value).toFixed(1)} kW`;
+    const locale = this._hass?.locale?.language || "en";
+    return `${rhiUxFormatNumber(value,{locale,maximumFractionDigits:2})} kW`;
   }
 
   fmtAmp(value) {
