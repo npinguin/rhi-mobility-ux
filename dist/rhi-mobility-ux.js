@@ -1030,18 +1030,18 @@ function hbMobilityTitleBlock(title = "", description = "") {
 }
 
 function hbMobilityReleaseFooter(rt) {
-  if (rt?.config?.show_diagnostics !== true) return "";
+  // Always render release provenance and runtime status, independent of engineer diagnostics.
   const rel=rt && rt.releaseContract ? rt.releaseContract() : {};
   const backend=rel.backend_release || rel.backend_version || "Unknown";
-  let issue="";
-  let severity="";
+  let issue="Status UNKNOWN";
+  let severity="warning";
   try {
     const summary=rt && rt.runtimeHealthSummary ? rt.runtimeHealthSummary() : null;
-    const state=String(summary?.status || "").toUpperCase();
-    if (backend === "Unknown") { issue="Backend unavailable"; severity="error"; }
-    else if (["BLOCKED","INVALID"].includes(state)) { issue="Runtime issue"; severity="error"; }
-    else if (["DEGRADED","STALE","UNKNOWN"].includes(state)) { issue="Runtime degraded"; severity="warning"; }
-  } catch (_) { issue="Runtime health unavailable"; severity="warning"; }
+    const state=String(summary?.status || "UNKNOWN").toUpperCase();
+    issue="Status "+state;
+    severity=["BLOCKED","INVALID","ERROR"].includes(state) || backend === "Unknown" ? "error"
+      : ["DEGRADED","STALE","UNKNOWN"].includes(state) ? "warning" : "";
+  } catch (_) { issue="Status UNKNOWN"; severity="warning"; }
   return rhiUxTechnicalFooter({ product:"RHI Mobility", uxVersion:UX_VERSION, backendVersion:backend, issue, severity });
 }
 
@@ -7585,11 +7585,11 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
 
   formatKw(rt, value) {
     const raw = String(value ?? "").trim();
-    if (!raw) return "0.0";
+    if (!raw) return "—";
     const n = Number(raw.replace(",", "."));
     if (!Number.isFinite(n)) return raw;
     const kw = Math.abs(n) > 100 ? n / 1000 : n;
-    return kw.toFixed(kw >= 10 ? 1 : 1);
+    return rhiUxFormatNumber(kw,{locale:rt?.hass?.locale?.language || "en",maximumFractionDigits:2});
   }
 
   displayVehicleName(rt, value) {
@@ -7620,12 +7620,22 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
 
   renderCollapsedCharger(rt, charger) {
     const name = charger.display_name || rt.titleize(charger.asset_id);
-    const subtitle = charger.location || charger.profile || "Charger";
+    const disabled = rt.lifecycleStatus(charger) === "disabled";
+    const image = rt.cache(this.chargerImageFromId(this.chargerId(charger)));
+    const photo = `<span class="inactive-photo"><img src="${rt.escape(image)}" alt="${rt.escape(name)}" loading="lazy" onerror="this.style.display='none'"></span>`;
+    if (disabled) {
+      // No charger commands, assignments, measurements, details or editor while disabled.
+      return `<article class="inactive-row lifecycle-collapsed-row charger-collapsed-row disabled-identity-only" style="grid-template-columns:64px minmax(0,1fr) auto">
+        ${photo}<div class="inactive-copy"><h3>${rt.escape(name)}</h3></div>
+        <div class="inactive-actions">${this.lifecycleToggleButton(rt, charger, "cmd compact lifecycle-toggle labeled-action")}</div>
+      </article>`;
+    }
+    // Missing/unknown lifecycle is NOT the customer's disabled state.
     const route = rt.assetDetailRoute(charger);
     return `<article class="inactive-row lifecycle-collapsed-row charger-collapsed-row">
       <span class="inactive-state">${rt.escape(this.lifecycleDisplay(rt, charger))}</span>
-      <div class="inactive-copy"><h3>${rt.escape(name)}</h3><p>${rt.escape(subtitle)}</p></div>
-      <div class="inactive-actions">${this.lifecycleToggleButton(rt, charger, "cmd compact icon-only lifecycle-toggle")}<button class="cmd compact icon-only" data-nav="${rt.escape(route)}" title="Open charger details"><ha-icon icon="mdi:chevron-right"></ha-icon><span>Details</span></button></div>
+      ${photo}<div class="inactive-copy"><h3>${rt.escape(name)}</h3></div>
+      <div class="inactive-actions"><button class="cmd compact icon-only" data-nav="${rt.escape(route)}" title="Open charger details"><ha-icon icon="mdi:chevron-right"></ha-icon><span>Details</span></button></div>
     </article>`;
   }
 
@@ -8553,7 +8563,8 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
 
   fmtKw(value) {
     if (value === null || value === undefined || Number.isNaN(Number(value))) return "—";
-    return `${Number(value).toFixed(1)} kW`;
+    const locale = this._hass?.locale?.language || "en";
+    return `${rhiUxFormatNumber(value,{locale,maximumFractionDigits:2})} kW`;
   }
 
   fmtAmp(value) {
@@ -8720,11 +8731,20 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     // Identity artwork is still useful when the lifecycle is disabled: an
     // inactive fleet must remain recognizable instead of becoming a blank list.
     const image=String(model?.image || "");
+    const photo=image ? `<img src="${rt.escape(rt.cache(image))}" alt="${rt.escape(display)}" loading="lazy" onerror="this.style.display='none'">` : `<ha-icon icon="mdi:car-off"></ha-icon>`;
+    if (rt.lifecycleStatus(asset) === "disabled") {
+      // Disabled is explicitly published; identity and Enable are the ONLY actions.
+      return `<article class="inactive-row compact-present-row lifecycle-collapsed-row disabled-identity-only" style="grid-template-columns:64px minmax(0,1fr) auto">
+        <span class="inactive-photo">${photo}</span><div class="inactive-copy"><h3>${rt.escape(display)}</h3></div>
+        <div class="inactive-actions">${activateButton}</div>
+      </article>`;
+    }
+    // Unknown lifecycle cannot be treated as disabled and must not offer Enable.
     return `<article class="inactive-row compact-present-row lifecycle-collapsed-row">
       <span class="inactive-state">${rt.escape(lifecycleLabel)}</span>
-      <span class="inactive-photo">${image ? `<img src="${rt.escape(image)}" alt="${rt.escape(display)}" loading="lazy" onerror="this.style.display='none'">` : `<ha-icon icon="mdi:car-off"></ha-icon>`}</span>
+      <span class="inactive-photo">${photo}</span>
       <div class="inactive-copy"><h3>${rt.escape(display)}</h3><p>${rt.escape(subtitle)}</p></div>
-      <div class="inactive-actions">${activateButton}<button class="action icon-only" data-nav="${rt.escape(route)}" title="Open details"><ha-icon icon="mdi:plus"></ha-icon><span>Details</span></button></div>
+      <div class="inactive-actions"><button class="action icon-only" data-nav="${rt.escape(route)}" title="Open details"><ha-icon icon="mdi:chevron-right"></ha-icon><span>Details</span></button></div>
     </article>`;
   }
 
