@@ -12,7 +12,7 @@
     "metadata",
     "vehicles"
   ],
-  "runtime_sha256": "e32f8821627e55231575db8cc7cd659e3b27180a139bfc3fcdd5ebbe37ef1594",
+  "runtime_sha256": "c78a83825e7e72098e1ff42ebb4a7b0e79abf1f5f2c76edcec6a4b9d51b3f570",
   "files": [
     {
       "path": "assets/chargers/charger_fallback.png",
