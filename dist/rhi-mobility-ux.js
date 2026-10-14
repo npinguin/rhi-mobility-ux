@@ -1,5 +1,5 @@
 /**
- * Robotix Home Intelligence Mobility UX v1.0.0-rc.98
+ * Robotix Home Intelligence Mobility UX v1.0.0-rc.99
  * GENERATED FILE - DO NOT EDIT.
  * License: GPL-3.0-only
  */
@@ -671,6 +671,18 @@ const RHI_MOBILITY_TRANSLATIONS = Object.freeze({
     "hero.chargers.description":"See whether your chargers are available and working as expected, then handle exceptions.",
     "hero.planning.title":"Planning",
     "hero.planning.description":"See what is planned today and tomorrow, what is already covered and what still needs attention.",
+    "planning.today":"Today",
+    "planning.tomorrow":"Tomorrow",
+    "planning.known_outlook":"Known home and solar outlook",
+    "planning.baseline_not_schedule":"Independent baseline, not an executable plan",
+    "planning.baseline_scope":"This Energy forecast covers evidenced household baseload and solar only; unknown vehicle demand and battery dispatch are excluded. It does not approve charging.",
+    "planning.independent_baseline_source":"Independent Energy baseline",
+    "planning.effective_baseline_source":"Effective Energy known-load outlook",
+    "planning.home_baseload":"Home baseload",
+    "planning.solar_forecast":"Solar forecast",
+    "planning.grid_import_baseline":"Grid import (known loads)",
+    "planning.grid_export_baseline":"Grid export (known loads)",
+    "planning.unknown_loads":"unknown flexible loads",
     "hero.strategies.title":"Strategies",
     "hero.strategies.description":"See the configured charging intent and the policy that is currently in effect.",
     "hero.history.title":"History",
@@ -709,6 +721,18 @@ const RHI_MOBILITY_TRANSLATIONS = Object.freeze({
     "hero.chargers.description":"Zie of je laadpunten beschikbaar zijn en correct werken, en behandel alleen uitzonderingen.",
     "hero.planning.title":"Planning",
     "hero.planning.description":"Zie wat vandaag en morgen gepland is, wat al afgedekt is en wat nog aandacht nodig heeft.",
+    "planning.today":"Vandaag",
+    "planning.tomorrow":"Morgen",
+    "planning.known_outlook":"Verwachting woning en zon",
+    "planning.baseline_not_schedule":"Onafhankelijke basisprognose, geen uitvoerbaar plan",
+    "planning.baseline_scope":"Deze Energy-prognose toont alleen onderbouwd basisverbruik en zonneproductie. Onbekende voertuigbehoefte en batterijaansturing zijn uitgesloten. Ze geeft geen toestemming om te laden.",
+    "planning.independent_baseline_source":"Onafhankelijke Energy-basisprognose",
+    "planning.effective_baseline_source":"Energy-prognose bekende lasten",
+    "planning.home_baseload":"Basisverbruik woning",
+    "planning.solar_forecast":"Zonneprognose",
+    "planning.grid_import_baseline":"Netafname (bekende lasten)",
+    "planning.grid_export_baseline":"Netinjectie (bekende lasten)",
+    "planning.unknown_loads":"onbekende flexibele lasten",
     "hero.strategies.title":"Strategieën",
     "hero.strategies.description":"Zie de ingestelde laadintentie en welk beleid momenteel actief is.",
     "hero.history.title":"Historiek",
@@ -747,6 +771,18 @@ const RHI_MOBILITY_TRANSLATIONS = Object.freeze({
     "hero.chargers.description":"Voyez si vos bornes sont disponibles et fonctionnent correctement, puis traitez uniquement les exceptions.",
     "hero.planning.title":"Planification",
     "hero.planning.description":"Voyez ce qui est prévu aujourd’hui et demain, ce qui est déjà couvert et ce qui demande encore votre attention.",
+    "planning.today":"Aujourd’hui",
+    "planning.tomorrow":"Demain",
+    "planning.known_outlook":"Prévisions du foyer et du solaire",
+    "planning.baseline_not_schedule":"Prévision de référence indépendante, pas un plan exécutable",
+    "planning.baseline_scope":"Cette prévision Energy couvre uniquement la consommation de base et le solaire étayés. Les besoins inconnus des véhicules et la gestion de la batterie sont exclus. Elle n’autorise pas la recharge.",
+    "planning.independent_baseline_source":"Prévision de référence Energy indépendante",
+    "planning.effective_baseline_source":"Prévision Energy des charges connues",
+    "planning.home_baseload":"Consommation de base du foyer",
+    "planning.solar_forecast":"Prévision solaire",
+    "planning.grid_import_baseline":"Import réseau (charges connues)",
+    "planning.grid_export_baseline":"Export réseau (charges connues)",
+    "planning.unknown_loads":"charges flexibles inconnues",
     "hero.strategies.title":"Stratégies",
     "hero.strategies.description":"Voyez l’intention de charge configurée et la politique actuellement appliquée.",
     "hero.history.title":"Historique",
@@ -952,7 +988,7 @@ function hbMobilityPresentationStyles() {
 // ---- src/app/header-and-navigation.js ----
 // Mobility presentation adapter onto the shared RHI UX Core.
 // Domain semantics remain owned by Mobility runtime/projections.
-const UX_VERSION = "1.0.0-rc.98";
+const UX_VERSION = "1.0.0-rc.99";
 const HB_MOBILITY_ROUTE_SEGMENTS = new Set([
   "overview","dashboard","vehicles","charger-maintenance","chargers",
   "planning","strategies","history","log","asset-detail","detail","charging"
@@ -5234,7 +5270,10 @@ class HomeBrainEnergyPlanningProjection {
     const day=horizon==='D0'?'today':'tomorrow';
     const metric=key=>this.energy.nativeMetric('planning_'+day+'_'+key);
     const raw=publication.available?publication.details||{}:{};
-    const own=key=>this._number(this._first(raw[key],metric(key).value));
+    // Never mix an accepted plan's totals with a free-standing metric from
+    // another runtime revision. Metrics without a plan remain provisional.
+    const own=key=>publication.available
+      ? this._number(raw[key]) : this._number(metric(key).value);
     return Object.freeze({
       plannedKwh:own('flexible_planned_kwh'),
       stillToPlanKwh:own('flexible_still_to_plan_kwh'),
@@ -5247,6 +5286,43 @@ class HomeBrainEnergyPlanningProjection {
       reason:publication.reason,
       raw:publication.available?raw:{}
     });
+  }
+  _knownDemandProjection(horizonId, effective, baseline) {
+    // Energy publishes an independent, non-executable solar/home baseload view
+    // inside native horizon details even when flexible demand blocks the full plan.
+    // A baseline plan never becomes the selected/effective schedule here.
+    const ordered = effective?.available
+      ? [['effective', effective], ['baseline', baseline]]
+      : [['baseline', baseline], ['effective', effective]];
+    for (const [source, publication] of ordered) {
+      const details = publication?.metadata?.details;
+      if (!details || details.horizon_id !== horizonId) continue;
+      const known = details.known_demand_projection;
+      if (!known || known.basis !== 'solar_plus_home_baseload_only_no_battery_dispatch' ||
+          known.execution_authorized !== false) continue;
+      const keys = ['home_consumption_forecast_kwh', 'solar_forecast_kwh',
+        'expected_grid_import_kwh', 'expected_grid_export_kwh'];
+      const values = keys.map(key => known[key]);
+      if (!values.every(value => typeof value === 'number' && Number.isFinite(value) && value >= 0)) continue;
+      const [homeKwh, solarKwh, gridImportKwh, gridExportKwh] = values;
+      // Cross-check the physical net boundary. Do not show an inconsistent
+      // source projection as an independent, trustworthy baseline.
+      if (Math.abs((homeKwh - solarKwh) - (gridImportKwh - gridExportKwh)) > 0.02) continue;
+      const unknown = known.unknown_flexible_load_count;
+      if (!Number.isInteger(unknown) || unknown < 0) continue;
+      return Object.freeze({
+        available:true, source, basis:known.basis,
+        homeKwh, solarKwh, gridImportKwh, gridExportKwh,
+        unknownFlexibleLoadCount:unknown,
+        complete:known.complete === true && unknown === 0,
+        isEffectiveSchedule:false, executionAuthorized:false,
+        quality:'KNOWN_LOADS_ONLY'
+      });
+    }
+    return Object.freeze({available:false,source:'',quality:'UNAVAILABLE',
+      homeKwh:null,solarKwh:null,gridImportKwh:null,gridExportKwh:null,
+      unknownFlexibleLoadCount:null,complete:false,
+      isEffectiveSchedule:false,executionAuthorized:false});
   }
   _assetScheduleRows(publications) {
     const rows=[];
@@ -5274,19 +5350,46 @@ class HomeBrainEnergyPlanningProjection {
     const d1=this.energy.planningHorizon('D1','effective');
     const baselineD0=this.energy.planningHorizon('D0','baseline');
     const baselineD1=this.energy.planningHorizon('D1','baseline');
-    const publications=[d0,d1];
-    const today=this._totalsView('D0',d0);
-    const tomorrow=this._totalsView('D1',d1);
-    const bothAvailable=d0.available&&d1.available;
-    const someAvailable=d0.available||d1.available;
+    const bothReportedAvailable=d0.available&&d1.available;
+    const identityCoherent=!bothReportedAvailable || (
+      !!d0.metadata?.plan_id && d0.metadata.plan_id===d1.metadata?.plan_id &&
+      !!d0.metadata?.provider_id && d0.metadata.provider_id===d1.metadata?.provider_id &&
+      String(d0.metadata?.requested_provider||'')===String(d1.metadata?.requested_provider||'') &&
+      (!d0.metadata?.generated_at || !d1.metadata?.generated_at ||
+        d0.metadata.generated_at===d1.metadata.generated_at)
+    );
+    // A selected optimizer cannot silently be replaced by a different
+    // effective provider just because some numeric plan fields are present.
+    const selection=d0.metadata||d1.metadata||{};
+    const providerMismatch=!!selection.requested_provider &&
+      selection.requested_provider!==selection.provider_id;
+    // Both stale cross-revision horizons AND a mismatched requested provider
+    // quarantine all schedule rows. The independent known-load view survives.
+    const conflict=(bothReportedAvailable&&!identityCoherent)||providerMismatch;
+    const quarantined=publication=>conflict ? {
+      ...publication,available:false,status:'INCOMPLETE',
+      reason:'effective_horizons_inconsistent',details:null
+    } : publication;
+    const e0=quarantined(d0),e1=quarantined(d1);
+    const publications=[e0,e1];
+    const today=this._totalsView('D0',e0);
+    const tomorrow=this._totalsView('D1',e1);
+    const bothAvailable=e0.available&&e1.available;
+    const someAvailable=e0.available||e1.available;
     const anyPublished=d0.published||d1.published;
     const metadata=d0.metadata||d1.metadata||null;
     const requestedProvider=metadata?.requested_provider||'';
     const effectiveProvider=metadata?.provider_id||'';
-    const providerHold=!!requestedProvider&&!effectiveProvider;
-    const reason=providerHold
-      ? String(metadata?.reason_code||'requested_provider_not_effective')
-      : publications.find(row=>!row.available)?.reason||'';
+    const providerHold=!!requestedProvider && requestedProvider!==effectiveProvider;
+    const reason=conflict
+      ? (providerMismatch ? 'requested_provider_not_effective' : 'effective_horizons_inconsistent')
+      : providerHold
+        ? String(metadata?.reason_code||'requested_provider_not_effective')
+        : publications.find(row=>!row.available)?.reason||'';
+    const independentKnownDemand=Object.freeze({
+      D0:this._knownDemandProjection('D0',d0,baselineD0),
+      D1:this._knownDemandProjection('D1',d1,baselineD1)
+    });
     const properties=this.energy.canonicalRows().filter(row=>row.availability==='AVAILABLE'&&
       row.presentation_surface==='planning');
     const scheduleRows=this._assetScheduleRows(publications);
@@ -5302,7 +5405,8 @@ class HomeBrainEnergyPlanningProjection {
       effectiveProvider,
       providerHold,
       reason,
-      today,tomorrow,
+      today,tomorrow,independentKnownDemand,
+      horizonIdentityCoherent:identityCoherent,
       baselineAvailable:baselineD0.available||baselineD1.available,
       baselineStatus:Object.freeze({D0:baselineD0.status,D1:baselineD1.status}),
       // Baseline evidence never becomes an effective or executable plan.
@@ -11093,7 +11197,30 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
           ? "The effective Energy plan is complete, but no published asset allocation matches a canonical Mobility asset ID. The UX must not guess the relationship."
           : "");
 
+    const knownRows = ['D0','D1'].map(id => {
+      const known=plan.independentKnownDemand?.[id];
+      const label=rt.t(id==='D0'?'planning.today':'planning.tomorrow',{},id==='D0'?'Today':'Tomorrow');
+      if (!known?.available) return `<div class="rhi-data-row"><b>${rt.escape(label)}</b><span>${rt.escape(rt.t('common.unavailable',{},'Unavailable'))}</span></div>`;
+      const basis=known.source==='baseline'
+        ? rt.t('planning.independent_baseline_source',{},'Independent Energy baseline')
+        : rt.t('planning.effective_baseline_source',{},'Effective Energy known-load outlook');
+      const values=[
+        [rt.t('planning.home_baseload',{},'Home baseload'),known.homeKwh],
+        [rt.t('planning.solar_forecast',{},'Solar forecast'),known.solarKwh],
+        [rt.t('planning.grid_import_baseline',{},'Grid import (known loads)'),known.gridImportKwh],
+        [rt.t('planning.grid_export_baseline',{},'Grid export (known loads)'),known.gridExportKwh]
+      ].map(([name,value])=>`${name}: ${this.fmtKwh(value)}`).join(' · ');
+      const unknown=known.unknownFlexibleLoadCount
+        ? ` · ${known.unknownFlexibleLoadCount} ${rt.t('planning.unknown_loads',{},'unknown flexible loads')}` : '';
+      return `<div class="rhi-data-row rhiKnownDemandRow"><b>${rt.escape(label)}</b><span>${rt.escape(basis)} · ${rt.escape(values)}${rt.escape(unknown)}</span></div>`;
+    }).join('');
     return `<section class="rhi-context-grid">
+      <article class="rhi-context-card">
+        <div class="rhi-context-card-kicker"><ha-icon icon="mdi:home-lightning-bolt"></ha-icon>${rt.escape(rt.t('planning.known_outlook',{},'Known home and solar outlook'))}</div>
+        <h3>${rt.escape(rt.t('planning.baseline_not_schedule',{},'Independent baseline, not an executable plan'))}</h3>
+        <p>${rt.escape(rt.t('planning.baseline_scope',{},'This Energy forecast covers evidenced household baseload and solar only; unknown vehicle demand and battery dispatch are excluded. It does not approve charging.'))}</p>
+        <div class="rhi-data-list">${knownRows}</div>
+      </article>
       <article class="rhi-context-card">
         <div class="rhi-context-card-kicker"><ha-icon icon="mdi:calendar-clock"></ha-icon>${rt.escape((rt?.t?.("planning.energy_owned",{},"Energy-owned planning") || "Energy-owned planning"))}</div>
         <h3>${rt.escape((rt?.t?.("planning.what_charge_when",{},"What will charge, and when?") || "What will charge, and when?"))}</h3>
