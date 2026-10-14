@@ -78,18 +78,18 @@ function hbMobilityTitleBlock(title = "", description = "") {
 }
 
 function hbMobilityReleaseFooter(rt) {
-  if (rt?.config?.show_diagnostics !== true) return "";
+  // Always render release provenance and runtime status, independent of engineer diagnostics.
   const rel=rt && rt.releaseContract ? rt.releaseContract() : {};
   const backend=rel.backend_release || rel.backend_version || "Unknown";
-  let issue="";
-  let severity="";
+  let issue="Status UNKNOWN";
+  let severity="warning";
   try {
     const summary=rt && rt.runtimeHealthSummary ? rt.runtimeHealthSummary() : null;
-    const state=String(summary?.status || "").toUpperCase();
-    if (backend === "Unknown") { issue="Backend unavailable"; severity="error"; }
-    else if (["BLOCKED","INVALID"].includes(state)) { issue="Runtime issue"; severity="error"; }
-    else if (["DEGRADED","STALE","UNKNOWN"].includes(state)) { issue="Runtime degraded"; severity="warning"; }
-  } catch (_) { issue="Runtime health unavailable"; severity="warning"; }
+    const state=String(summary?.status || "UNKNOWN").toUpperCase();
+    issue="Status "+state;
+    severity=["BLOCKED","INVALID","ERROR"].includes(state) || backend === "Unknown" ? "error"
+      : ["DEGRADED","STALE","UNKNOWN"].includes(state) ? "warning" : "";
+  } catch (_) { issue="Status UNKNOWN"; severity="warning"; }
   return rhiUxTechnicalFooter({ product:"RHI Mobility", uxVersion:UX_VERSION, backendVersion:backend, issue, severity });
 }
 

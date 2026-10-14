@@ -167,7 +167,8 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
 
   fmtKw(value) {
     if (value === null || value === undefined || Number.isNaN(Number(value))) return "—";
-    return `${Number(value).toFixed(1)} kW`;
+    const locale = this._hass?.locale?.language || "en";
+    return `${rhiUxFormatNumber(value,{locale,maximumFractionDigits:2})} kW`;
   }
 
   fmtAmp(value) {
@@ -334,11 +335,20 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
     // Identity artwork is still useful when the lifecycle is disabled: an
     // inactive fleet must remain recognizable instead of becoming a blank list.
     const image=String(model?.image || "");
+    const photo=image ? `<img src="${rt.escape(rt.cache(image))}" alt="${rt.escape(display)}" loading="lazy" onerror="this.style.display='none'">` : `<ha-icon icon="mdi:car-off"></ha-icon>`;
+    if (rt.lifecycleStatus(asset) === "disabled") {
+      // Disabled is explicitly published; identity and Enable are the ONLY actions.
+      return `<article class="inactive-row compact-present-row lifecycle-collapsed-row disabled-identity-only" style="grid-template-columns:64px minmax(0,1fr) auto">
+        <span class="inactive-photo">${photo}</span><div class="inactive-copy"><h3>${rt.escape(display)}</h3></div>
+        <div class="inactive-actions">${activateButton}</div>
+      </article>`;
+    }
+    // Unknown lifecycle cannot be treated as disabled and must not offer Enable.
     return `<article class="inactive-row compact-present-row lifecycle-collapsed-row">
       <span class="inactive-state">${rt.escape(lifecycleLabel)}</span>
-      <span class="inactive-photo">${image ? `<img src="${rt.escape(image)}" alt="${rt.escape(display)}" loading="lazy" onerror="this.style.display='none'">` : `<ha-icon icon="mdi:car-off"></ha-icon>`}</span>
+      <span class="inactive-photo">${photo}</span>
       <div class="inactive-copy"><h3>${rt.escape(display)}</h3><p>${rt.escape(subtitle)}</p></div>
-      <div class="inactive-actions">${activateButton}<button class="action icon-only" data-nav="${rt.escape(route)}" title="Open details"><ha-icon icon="mdi:plus"></ha-icon><span>Details</span></button></div>
+      <div class="inactive-actions"><button class="action icon-only" data-nav="${rt.escape(route)}" title="Open details"><ha-icon icon="mdi:chevron-right"></ha-icon><span>Details</span></button></div>
     </article>`;
   }
 
@@ -804,7 +814,7 @@ class HomeBrainMobilityDashboardCard extends HTMLElement {
           <button data-nav="${hbMobilityPath("/dashboard")}">${rt.escape(rt.t("charger.vehicle_management",{},"Vehicle Management"))} <ha-icon icon="mdi:chevron-right"></ha-icon></button>
         </div>
         <div class="ov-vehicle-list">${activeVehicles.length ? activeVehicles.map((vehicle)=>this.renderOverviewVehicleRow(rt,vehicle,chargers)).join("") : `<div class="ov-empty">No active vehicles. ${inactiveVehicles.length ? `${inactiveVehicles.length} disabled vehicle${inactiveVehicles.length===1?"":"s"}.` : ""} ${unverifiedVehicles.length ? `${unverifiedVehicles.length} vehicle lifecycle publication${unverifiedVehicles.length===1?" is":"s are"} missing or unavailable.` : ""} ${!inactiveVehicles.length && !unverifiedVehicles.length ? "No vehicle is published by the Mobility backend." : ""}</div>`}</div>
-        ${inactiveVehicles.length ? `<div class="ov-inactive-summary"><div class="ov-inactive-title"><strong>${rt.escape(rt.t("dashboard.inactive_vehicles",{},"Inactive vehicles"))}</strong><span>${inactiveVehicles.length} · ${rt.escape(rt.t("dashboard.inactive_vehicles_description",{},"Disabled vehicles stay available for deliberate reactivation and detail access."))}</span></div><div class="inactive-list">${inactiveVehicles.map(v=>this.renderInactiveVehicle(rt,v)).join("")}</div></div>` : ""}
+        ${inactiveVehicles.length ? `<div class="ov-inactive-summary"><div class="ov-inactive-title"><strong>${rt.escape(rt.t("dashboard.inactive_vehicles",{},"Inactive vehicles"))}</strong><span>${inactiveVehicles.length} · ${rt.escape(rt.t("dashboard.inactive_vehicles_description",{},"Disabled vehicles stay visible with identity and Enable only."))}</span></div><div class="inactive-list">${inactiveVehicles.map(v=>this.renderInactiveVehicle(rt,v)).join("")}</div></div>` : ""}
         ${unverifiedVehicles.length ? `<div class="ov-inactive-summary"><div class="ov-inactive-title"><strong>Lifecycle status unavailable</strong><span>${unverifiedVehicles.length} vehicles · Mobility canonical asset.lifecycle_status not published or unavailable. Do not reactivate.</span></div><div class="inactive-list">${unverifiedVehicles.map(v=>this.renderInactiveVehicle(rt,v)).join("")}</div></div>` : ""}
       </section>`;
   }
