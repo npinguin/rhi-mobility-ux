@@ -112,12 +112,18 @@ class HomeBrainEnergyPlanningProjection {
     const identityCoherent=!bothReportedAvailable || (
       !!d0.metadata?.plan_id && d0.metadata.plan_id===d1.metadata?.plan_id &&
       !!d0.metadata?.provider_id && d0.metadata.provider_id===d1.metadata?.provider_id &&
+      String(d0.metadata?.requested_provider||'')===String(d1.metadata?.requested_provider||'') &&
       (!d0.metadata?.generated_at || !d1.metadata?.generated_at ||
         d0.metadata.generated_at===d1.metadata.generated_at)
     );
-    // Two individually AVAILABLE horizons from different plan/provider
-    // revisions may not be stitched into one effective schedule.
-    const conflict=bothReportedAvailable&&!identityCoherent;
+    // A selected optimizer cannot silently be replaced by a different
+    // effective provider just because some numeric plan fields are present.
+    const selection=d0.metadata||d1.metadata||{};
+    const providerMismatch=!!selection.requested_provider &&
+      selection.requested_provider!==selection.provider_id;
+    // Both stale cross-revision horizons AND a mismatched requested provider
+    // quarantine all schedule rows. The independent known-load view survives.
+    const conflict=(bothReportedAvailable&&!identityCoherent)||providerMismatch;
     const quarantined=publication=>conflict ? {
       ...publication,available:false,status:'INCOMPLETE',
       reason:'effective_horizons_inconsistent',details:null
@@ -133,7 +139,8 @@ class HomeBrainEnergyPlanningProjection {
     const requestedProvider=metadata?.requested_provider||'';
     const effectiveProvider=metadata?.provider_id||'';
     const providerHold=!!requestedProvider && requestedProvider!==effectiveProvider;
-    const reason=conflict ? 'effective_horizons_inconsistent'
+    const reason=conflict
+      ? (providerMismatch ? 'requested_provider_not_effective' : 'effective_horizons_inconsistent')
       : providerHold
         ? String(metadata?.reason_code||'requested_provider_not_effective')
         : publications.find(row=>!row.available)?.reason||'';
