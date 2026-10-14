@@ -318,3 +318,21 @@ for (const token of ['projection.signals.range','projection.signals.charging','p
   if (vehicleDetailSource.includes(token)) throw new Error('Intelligence summary leaked into Vehicle Detail: '+token);
 }
 console.log('PASS Vehicle Detail uses canonical fields, not Intelligence headlines');
+
+// Disabled is an explicit Mobility lifecycle state, never a missing-state inference.
+// Both canonical asset types keep ONLY identity, artwork and Enable while disabled.
+const inactiveVehicleRenderer=dashboard.split('  renderInactiveVehicle(rt, asset) {')[1]?.split('  vehicleVisualSelection(rt, asset')[0] || '';
+const disabledVehicleBranch=inactiveVehicleRenderer.split('if (rt.lifecycleStatus(asset) === "disabled") {')[1]?.split('// Unknown lifecycle')[0] || '';
+if(!disabledVehicleBranch.includes('disabled-identity-only') || !disabledVehicleBranch.includes('inactive-photo') || !disabledVehicleBranch.includes('activateButton')) throw new Error('disabled vehicle must show image, identity and Enable');
+for(const forbidden of ['data-nav=', 'data-command-', 'data-charger', 'Details', 'inactive-state', 'inactive-copy"><h3>']) {
+  if(forbidden === 'inactive-copy"><h3>') continue;
+  if(disabledVehicleBranch.includes(forbidden)) throw new Error('disabled vehicle exposed extra action/detail: '+forbidden);
+}
+const disabledChargerRenderer=chargers.split('  renderCollapsedCharger(rt, charger) {')[1]?.split('  renderCharger(rt, charger)')[0] || '';
+const disabledChargerBranch=disabledChargerRenderer.split('if (disabled) {')[1]?.split('// Missing/unknown lifecycle')[0] || '';
+if(!disabledChargerBranch.includes('disabled-identity-only') || !disabledChargerBranch.includes('photo') || !disabledChargerBranch.includes('lifecycleToggleButton')) throw new Error('disabled charger must show image, identity and Enable');
+for(const forbidden of ['data-nav=', 'data-command-', 'Details', 'charger-kpis']) if(disabledChargerBranch.includes(forbidden)) throw new Error('disabled charger exposed extra action/detail: '+forbidden);
+if(!inactiveVehicleRenderer.includes('// Unknown lifecycle cannot be treated as disabled')) throw new Error('unknown vehicle lifecycle must fail closed');
+if(!disabledChargerRenderer.includes('// Missing/unknown lifecycle is NOT')) throw new Error('unknown charger lifecycle must fail closed');
+if(!dashboard.includes('rhiUxFormatNumber(value,{locale,maximumFractionDigits:2})')) throw new Error('Mobility power display must share locale-aware 2-decimal formatting');
+if(!chargers.includes('rhiUxFormatNumber(kw,{locale:rt?.hass?.locale?.language || "en",maximumFractionDigits:2})')) throw new Error('charger power display must share locale-aware 2-decimal formatting');
