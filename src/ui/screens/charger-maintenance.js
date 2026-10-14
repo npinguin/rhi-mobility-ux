@@ -158,7 +158,7 @@ class HomeBrainMobilityChargerMaintenanceCard extends HTMLElement {
     const n = Number(raw.replace(",", "."));
     if (!Number.isFinite(n)) return raw;
     const kw = Math.abs(n) > 100 ? n / 1000 : n;
-    return kw.toFixed(kw >= 10 ? 1 : 1);
+    return rhiUxFormatNumber(kw,{locale:rt?.hass?.locale?.language || "en",maximumFractionDigits:2});
   }
 
   displayVehicleName(rt, value) {
