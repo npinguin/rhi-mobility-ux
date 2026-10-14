@@ -14,6 +14,13 @@ const requiredSource=[
   'severity'
 ];
 for(const token of requiredSource) if(!source.includes(token)) throw new Error('Mobility footer adapter missing: '+token);
+const footer=source.split('function hbMobilityReleaseFooter(rt) {')[1]?.split('\\n}')[0] || '';
+if(!footer.includes('Status '+String.fromCharCode(34))) {
+  // The status is derived from Mobility's own supervisor, not frontend heuristics.
+  if(!footer.includes('issue="Status "+state')) throw new Error('Mobility runtime status not published in footer');
+}
+if(footer.includes('show_diagnostics')) throw new Error('Mobility version/status may not be hidden by show_diagnostics');
+
 
 const requiredCore=[
   'function rhiUxTechnicalFooter(',
