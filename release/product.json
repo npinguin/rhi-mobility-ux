@@ -1,10 +1,10 @@
 {
   "product": "rhi-mobility-ux",
   "contract": "RHI_MOBILITY_CANONICAL_PROPERTY_V1",
-  "minimum_backend": "M0.10.49",
-  "tested_backend": "M0.10.49",
+  "minimum_backend": "M0.10.52",
+  "tested_backend": "M0.10.52",
   "stage": "test_candidate",
-  "rollback_release": "v1.0.0-rc.98",
+  "rollback_release": "v1.0.0-rc.99",
   "runtime_artifact": "dist/rhi-mobility-ux.js",
   "runtime_checksum_artifact": "dist/rhi-mobility-ux.js.sha256",
   "hacs_repository_type": "dashboard",
@@ -23,7 +23,7 @@
     "MOBILITY_ENERGY_V2",
     "RHI_MOBILITY_CANONICAL_PROPERTY_V1"
   ],
-  "version": "1.0.0-rc.99",
+  "version": "1.0.0-rc.100",
   "ux_core": {
     "package": "rhi-ux-core",
     "version": "1.6.3",
