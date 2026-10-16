@@ -34,3 +34,11 @@ const verifyStart=publish.indexOf('\n  verify:');
 const publishStart=publish.indexOf('\n  publish:',verifyStart+1);
 const verifyBlock=publish.slice(verifyStart,publishStart);
 if((verifyBlock.match(/^    if:/gm)||[]).length!==1) throw new Error('Publish HACS verify job must have exactly one YAML if condition');
+
+const rhiGate = JSON.parse(fs.readFileSync(new URL('../../release/COORDINATED_PUBLICATION_GATE.json', import.meta.url),'utf8'));
+if(publish.includes('runtime-qa-') || publish.includes('Build isolated non-HACS TEST archive') ||
+   publish.includes('QA_SOURCE_LOCK.json')) throw new Error('Parallel non-HACS QA publication reintroduced');
+if(!publish.includes('Enforce coordinated source-closure publication freeze') ||
+   !publish.includes('needs.scope.outputs.publish')) throw new Error('Canonical HACS release gate missing');
+if(rhiGate.publication_hold !== true || rhiGate.mode !== 'MANUAL_COORDINATED_SOURCE_CLOSURE_ONLY' ||
+   Object.values(rhiGate.approval).some(v=>v!==null)) throw new Error('Unauthorised HACS test publication');
