@@ -1,12 +1,12 @@
 {
-  "ux_version": "1.0.0-rc.99",
+  "ux_version": "1.0.0-rc.100",
   "release_stage": "release_candidate",
   "legacy_source_release": "R22.12.11.30",
   "mobility_contract": {
     "contract": "RHI_MOBILITY_CANONICAL_PROPERTY_V1",
-    "minimum_backend": "M0.10.49",
+    "minimum_backend": "M0.10.52",
     "tested_backend_releases": [
-      "M0.10.49"
+      "M0.10.52"
     ],
     "runtime_proof": "pending",
     "required_contracts": [
