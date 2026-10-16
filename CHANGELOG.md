@@ -1,3 +1,9 @@
+## 1.0.0-rc.100 — Governed HACS runtime test pilot
+
+- New immutable official five-package HACS TEST identity; do not reuse rc.99 or manual C3/C4 QA ZIPs.
+- Includes merged canonical Mobility/energy planning UX changes and cross-repo source validation.
+- Physical HA install, command admission/readback, responsive UX and coherent rollback pending; Stable NO-GO.
+
 ## 1.0.0-rc.99 — Energy-owned known-load planning outlook
 
 - Show source-qualified D0/D1 solar, home baseload and independently estimated import/export on Mobility Planning even with unknown flexible vehicle demand.
