@@ -35,34 +35,16 @@ const publishStart=publish.indexOf('\n  publish:',verifyStart+1);
 const verifyBlock=publish.slice(verifyStart,publishStart);
 if((verifyBlock.match(/^    if:/gm)||[]).length!==1) throw new Error('Publish HACS verify job must have exactly one YAML if condition');
 
-const rhiGate = JSON.parse(fs.readFileSync(new URL('../../release/COORDINATED_PUBLICATION_GATE.json', import.meta.url),'utf8'));
-if(publish.includes('runtime-qa-') || publish.includes('Build isolated non-HACS TEST archive') ||
-   publish.includes('QA_SOURCE_LOCK.json')) throw new Error('Parallel non-HACS QA publication reintroduced');
-if(!publish.includes('Enforce coordinated source-closure publication freeze') ||
-   !publish.includes('needs.scope.outputs.publish')) throw new Error('Canonical HACS release gate missing');
-if(rhiGate.publication_hold !== true || rhiGate.mode !== 'MANUAL_COORDINATED_SOURCE_CLOSURE_ONLY' ||
-   Object.values(rhiGate.approval).some(v=>v!==null)) throw new Error('Unauthorised HACS test publication');
-
-// Explicit HACS TEST pilot is the ONLY permitted pre-runtime publication mode.
-const approvalPilot = rhiGate.test_pilot;
-const approvedMatrix = {
-  foundation:"v1.8.46",mobility:"v0.10.52",energy:"v0.15.138",
-  mobility_ux:"v1.0.0-rc.100",energy_ux:"v4.3.36-rc.21"
-};
-if (JSON.stringify(approvalPilot.matrix) !== JSON.stringify(approvedMatrix) ||
-    approvalPilot.status !== "APPROVED_FOR_TEST_PUBLICATION" ||
-    approvalPilot.expected_version !== "1.0.0-rc.100" ||
-    approvalPilot.expected_tag !== "v1.0.0-rc.100" ||
-    approvalPilot.stable_promotion !== "NO_GO" ||
-    approvalPilot.runtime_qualification !== "NOT_EXECUTED" ||
-    approvalPilot.channel !== "COORDINATED_HACS_TEST_ONLY" ||
-    approvalPilot.release_count_limit !== 1 ||
-    approvalPilot.immutable_candidate !== true)
-  throw new Error("HACS pilot must match exact five-package matrix; stable remains blocked");
-for (const token of [
-  "source==main==event.get(\"head_sha\")",
-  "event.get(\"conclusion\")==\"success\"",
-  "event.get(\"head_branch\")==\"main\"",
-  "pilot.get(\"matrix\")==approved_matrix",
-  "pilot.get(\"stable_promotion\")==\"NO_GO\"",
-]) if(!publish.includes(token)) throw new Error("HACS pilot gate must fail closed: "+token);
+const rhiGate=JSON.parse(fs.readFileSync(new URL('../../release/COORDINATED_PUBLICATION_GATE.json',import.meta.url),'utf8'));
+if(rhiGate.mode!=='EXPLICIT_USER_REQUEST_HACS_TEST' || rhiGate.publication_hold!==true)
+  throw new Error('HACS TEST must be default-hold, user-request mode');
+if(rhiGate.test_request?.status!=='NOT_REQUESTED' || rhiGate.stable_release?.user_approval_status!=='NOT_APPROVED')
+  throw new Error('Governance change alone may never authorize test or stable release');
+if(!publish.includes('Require explicit user-requested HACS TEST and exact-main CI') ||
+   !publish.includes('python3 tools/check_hacs_test_request.py'))
+  throw new Error('User-request HACS TEST source gate missing');
+if(!release.includes('python3 tools/check_stable_user_approval.py') ||
+   !release.includes('node tools/check-qualification.mjs --require-pass'))
+  throw new Error('Stable needs both explicit user approval and runtime evidence');
+if(!publish.includes("needs.scope.outputs.publish == 'true'"))
+  throw new Error('Candidate publication must retain source scope gate');
