@@ -5690,6 +5690,30 @@ class HomeBrainVehicleAdapter {
     return activities.map((a, index)=>({ type:"readonly", icon:index === 0 ? "mdi:history" : "mdi:history-clock", label:labels[index] || `Activity ${index+1}`, value:valueFor(a) }));
   }
 
+  chargingSessionHistoryRows(assetId) {
+    // This is Energy's observed session ledger, never the Mobility activity
+    // feed or an inferred relationship from a configured charger assignment.
+    const insights=new HomeBrainEnergyMobilityInsightsProjection(this.rt.hass,this.rt).viewModel("today");
+    if(!insights.sessionsAvailable) return [{
+      type:"readonly",icon:"mdi:history",label:this.rt.t("insights.charging_history",{},"Recent charging history"),
+      value:this.rt.t("insights.session_source_unavailable",{},"Energy session history is unavailable or ambiguous.")
+    }];
+    const sessions=(insights.recentSessions||[]).filter(row=>row.vehicleId===assetId);
+    if(!sessions.length)return [{
+      type:"readonly",icon:"mdi:history",label:this.rt.t("insights.charging_history",{},"Recent charging history"),
+      value:this.rt.t("insights.no_charging_sessions",{},"No qualified charging sessions published yet.")
+    }];
+    return sessions.slice(0,6).map(row=>{
+      const charged=row.energyKwh===null?"—":`${row.energyKwh.toFixed(2)} kWh`;
+      const cost=row.costEur===null
+        ? this.rt.t("insights.session_cost_unavailable",{},"Cost not allocated")
+        : `€${row.costEur.toFixed(2)}`;
+      const charger=this.rt.assetDisplayName?.(row.chargerId)||row.chargerId;
+      return {type:"readonly",icon:"mdi:ev-station",
+        label:`${charger} · ${row.status}`,value:`${charged} · ${cost}`};
+    });
+  }
+
   productProjection({ includeIntelligence = true } = {}) {
     const assetId = this.assetId();
     const reg = this.registryEntry() || { asset_id: assetId };
@@ -5938,6 +5962,10 @@ class HomeBrainVehicleAdapter {
       status:headerStatus,
       actions,
       sections:[this.rt.lifecycleContractGapSection(assetId)].filter(Boolean).concat(componentSections).concat([
+        { key:"charging_sessions",
+          title:this.rt.t("insights.charging_history",{},"Recent charging history"),
+          icon:"mdi:ev-station",header:"Energy · measured charging sessions",
+          rows:this.chargingSessionHistoryRows(assetId),details:[] },
         { key:"activity", title:"Recent Activity", icon:"mdi:history", header:"Activity contract", rows:this.latestActivityRows(assetId), details:[] }
       ])
     };
@@ -7517,7 +7545,7 @@ class HomeBrainVehicleAssetDetailCard extends HTMLElement {
       "MOBILITY_ACTIVITY_V2",
       "MOBILITY_PROFILE_CATALOG_V2",
       "MOBILITY_SUPERVISION_V2"
-    ]);
+    ]) + "|" + new HomeBrainEnergyCanonicalProjection(hass).revisionSignature("history");
     if (sig !== this._lastSignature) {
       this._lastSignature = sig;
       const model = new HomeBrainVehicleAdapter(rt, id, this.config).build();
