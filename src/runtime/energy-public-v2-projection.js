@@ -84,7 +84,8 @@ class HomeBrainEnergyCanonicalProjection {
           ? (String(a.metric_key||'').startsWith('planning_') ||
              ['RHI_ENERGY_PLANNING_HORIZON_V1','RHI_ENERGY_BASELINE_PLANNING_HORIZON_V1'].includes(a.canonical_contract))
           : wanted==='history' || wanted==='insights'
-            ? !!String(a.metric_key||'')
+            ? (!!String(a.metric_key||'') ||
+               (a.contract_id==='RHI_ENERGY_METERING_PERIOD_V1' && a.period_id==='today'))
             : false);
       const canonical=a.canonical_contract===HomeBrainEnergyCanonicalProjection.contractId &&
         (wanted==='planning' ? a.presentation_surface==='planning' :
