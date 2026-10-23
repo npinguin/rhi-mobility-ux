@@ -5485,6 +5485,10 @@ class HomeBrainEnergyMobilityInsightsProjection {
       if(v===null || v===undefined || v==='' || typeof v==='boolean') return null;
       const n=Number(v);return Number.isFinite(n) && n>=0?n:null;
     };
+    const signedEur=v=>{
+      if(v===null || v===undefined || v==='' || typeof v==='boolean')return null;
+      const n=Number(v);return Number.isFinite(n)?n:null;
+    };
     const instant=v=>{
       if(typeof v!=='string' || !/(Z|[+-]\d\d:\d\d)$/i.test(v))return null;
       const n=Date.parse(v);return Number.isFinite(n)?n:null;
@@ -5506,7 +5510,9 @@ class HomeBrainEnergyMobilityInsightsProjection {
         if(isActive && raw.finished_at!=null)continue;
         const vehicle=raw.attribution_quality==='PROVEN' && raw.vehicle_asset_id
           ? String(raw.vehicle_asset_id).trim():null;
-        const cost=raw.cost_quality==='ALLOCATED'?number(raw.cost_eur):null;
+        // Real import credits at negative electricity prices must survive;
+        // only physical kWh is restricted to nonnegative numeric values.
+        const cost=raw.cost_quality==='ALLOCATED'?signedEur(raw.cost_eur):null;
         rows.push(Object.freeze({
           sessionId:id,chargerId,vehicleId:vehicle||null,
           attributionQuality:vehicle?'PROVEN':'UNATTRIBUTED',
