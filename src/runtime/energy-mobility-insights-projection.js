@@ -37,12 +37,76 @@ class HomeBrainEnergyMobilityInsightsProjection {
         attributedEur:this._number(row.value),energyKwh:null,state:'AVAILABLE',raw:row
       }));
   }
+  _chargingSessions() {
+    // The existing Energy native metering period owns charging history.
+    // "today" is the single bounded HA publication of the shared persistent
+    // session ledger; selecting week/month must not create duplicate sessions.
+    const states=Object.entries(this.energy.hass?.states || {}).filter(([,state])=>{
+      const a=state?.attributes || {};
+      return a.contract_id==='RHI_ENERGY_METERING_PERIOD_V1' &&
+        a.canonical_source==='rhi_energy.runtime' && a.period_id==='today';
+    });
+    if(states.length!==1) return Object.freeze({
+      available:false,rows:[],historyCount:null,
+      reason:states.length>1?'duplicate_energy_session_publication':'energy_session_publication_unavailable'
+    });
+    const data=states[0][1]?.attributes?.charging_sessions;
+    if(!data || typeof data!=='object' || !Array.isArray(data.active) || !Array.isArray(data.recent))
+      return Object.freeze({available:false,rows:[],historyCount:null,reason:'native_session_rows_invalid'});
+    const number=v=>{
+      if(v===null || v===undefined || v==='' || typeof v==='boolean') return null;
+      const n=Number(v);return Number.isFinite(n) && n>=0?n:null;
+    };
+    const instant=v=>{
+      if(typeof v!=='string' || !/(Z|[+-]\d\d:\d\d)$/i.test(v))return null;
+      const n=Date.parse(v);return Number.isFinite(n)?n:null;
+    };
+    const seen=new Set(),excluded=new Set(),rows=[];
+    for(const [isActive,entries] of [[false,data.recent],[true,data.active]]) {
+      for(const raw of entries) {
+        if(!raw || typeof raw!=='object' || Array.isArray(raw))continue;
+        const id=String(raw.session_id||'').trim();
+        const chargerId=String(raw.charger_asset_id||'').trim();
+        const at=instant(raw.started_at);
+        if(!id || !chargerId || at===null)continue;
+        // Duplicated session IDs cannot silently win by array or entity order.
+        if(seen.has(id)){excluded.add(id);continue;}
+        seen.add(id);
+        const end=raw.finished_at==null?null:instant(raw.finished_at);
+        const latest=instant(raw.last_observed_at);
+        if(end!==null && end<at)continue;
+        if(isActive && raw.finished_at!=null)continue;
+        const vehicle=raw.attribution_quality==='PROVEN' && raw.vehicle_asset_id
+          ? String(raw.vehicle_asset_id).trim():null;
+        const cost=raw.cost_quality==='ALLOCATED'?number(raw.cost_eur):null;
+        rows.push(Object.freeze({
+          sessionId:id,chargerId,vehicleId:vehicle||null,
+          attributionQuality:vehicle?'PROVEN':'UNATTRIBUTED',
+          status:String(raw.status||'UNKNOWN'),
+          energyKwh:number(raw.energy_kwh),
+          costEur:cost,costQuality:cost===null?'UNAVAILABLE':'ALLOCATED',
+          quality:String(raw.quality||'UNKNOWN'),
+          reason:String(raw.reason||''),
+          startedAt:String(raw.started_at),finishedAt:end===null?null:String(raw.finished_at),
+          lastObservedAt:latest===null?null:String(raw.last_observed_at),
+          isActive,orderAt:end??latest??at
+        }));
+      }
+    }
+    const unique=rows.filter(row=>!excluded.has(row.sessionId))
+      .sort((a,b)=>b.orderAt-a.orderAt || a.sessionId.localeCompare(b.sessionId));
+    const count=number(data.history_count);
+    return Object.freeze({available:true,rows:Object.freeze(unique),
+      historyCount:count!==null&&Number.isInteger(count)?count:null,
+      reason:'',source:'RHI_ENERGY_METERING_PERIOD_V1.charging_sessions'});
+  }
   viewModel(periodId="today") {
     const snapshot=this.energy.snapshot();
     const metering=this.energy.canonicalRows().filter(row=>row.presentation_surface==="metering");
     const accounting=this.energy.canonicalRows().filter(row=>row.presentation_surface==="value_accounting");
     const meteringRows=this._meteringRows(periodId);
     const valueRows=this._valueRows(periodId);
+    const sessions=this._chargingSessions();
     const ids=new Set([...meteringRows.map(row=>row.assetId),...valueRows.map(row=>row.assetId)]);
     const rows=[...ids].map(assetId=>{
       const m=meteringRows.find(row=>row.assetId===assetId)||null;
@@ -58,6 +122,11 @@ class HomeBrainEnergyMobilityInsightsProjection {
       valueCurrency:"EUR",
       valueState:valueRows.length?"AVAILABLE":"UNAVAILABLE",
       rows,
+      sessionsAvailable:sessions.available,
+      recentSessions:sessions.rows,
+      sessionHistoryCount:sessions.historyCount,
+      sessionHistoryReason:sessions.reason,
+      sessionsSource:sessions.source||null,
       totalVehicleEnergyKwh:null,
       totalAttributedEur:null,
       source:"RHI_ENERGY_CANONICAL_PROPERTY_V2.metering/value_accounting"
