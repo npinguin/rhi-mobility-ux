@@ -44,4 +44,97 @@ assert.equal(guessed.rows.length,0);
 const anotherPeriod=new Projection(hass,mobilityRuntime).viewModel('week');
 assert.equal(anotherPeriod.meteringAvailable,false);
 assert.equal(anotherPeriod.valueAvailable,false);
+
+const session=(id,charger,vehicle,total,status='FINISHED',cost=null,costQuality='NOT_ALLOCATED')=>({
+  session_id:id,charger_asset_id:charger,vehicle_asset_id:vehicle,
+  attribution_quality:vehicle?'PROVEN':'UNATTRIBUTED',
+  started_at:'2026-10-23T10:00:00+02:00',
+  last_observed_at:'2026-10-23T10:30:00+02:00',
+  finished_at:status==='CHARGING'?null:'2026-10-23T10:30:00+02:00',
+  status,energy_kwh:total,cost_eur:cost,cost_quality:costQuality,
+  quality:'PARTIAL',reason:'charger_energy_counter_unavailable'
+});
+const nativeSessionState=(active,recent,historyCount=10)=>({
+  state:'OK',last_updated:'2026-10-23T10:31:00+02:00',attributes:{
+    contract_id:'RHI_ENERGY_METERING_PERIOD_V1',
+    canonical_source:'rhi_energy.runtime',period_id:'today',
+    charging_sessions:{active,recent,history_count:historyCount}
+  }
+});
+const goodNative=nativeSessionState(
+  [session('active-1','driveway_left','vehicle_audi_q8',1.23,'CHARGING')],
+  [session('old-1','driveway_right',null,0.0),
+   session('old-2','driveway_right','vehicle_audi_q8',2.50,'FINISHED',0,'ALLOCATED')]
+);
+const withSessions={states:{...hass.states,'sensor.energy_today_meter':goodNative}};
+const history=new Projection(withSessions,mobilityRuntime).viewModel('week');
+assert.equal(history.sessionsAvailable,true);
+assert.equal(history.recentSessions.length,3);
+assert.equal(history.recentSessions.find(r=>r.sessionId==='active-1').vehicleId,'vehicle_audi_q8');
+assert.equal(history.recentSessions.find(r=>r.sessionId==='old-1').vehicleId,null);
+assert.equal(history.recentSessions.find(r=>r.sessionId==='old-1').energyKwh,0);
+assert.equal(history.recentSessions.find(r=>r.sessionId==='old-1').costEur,null);
+assert.equal(history.recentSessions.find(r=>r.sessionId==='old-2').costEur,0);
+assert.equal(history.sessionHistoryCount,10);
+assert.match(history.sessionsSource,/RHI_ENERGY_METERING_PERIOD_V1/);
+assert.notEqual(new Projection(withSessions,mobilityRuntime).energy.revisionSignature('history'),
+  new Projection(hass,mobilityRuntime).energy.revisionSignature('history'),
+  'native Energy session update invalidates Mobility History');
+
+const withoutCostAllocation=nativeSessionState([],
+  [session('s','c','vehicle_audi_q8',4,'FINISHED',99,'NOT_ALLOCATED')]);
+assert.equal(new Projection({states:{a:withoutCostAllocation}},mobilityRuntime)
+  .viewModel('today').recentSessions[0].costEur,null,'bare numeric euro never establishes allocation');
+
+const duplicatedPublication=new Projection({states:{a:goodNative,b:goodNative}},mobilityRuntime)
+  .viewModel('today');
+assert.equal(duplicatedPublication.sessionsAvailable,false);
+assert.equal(duplicatedPublication.recentSessions.length,0);
+assert.equal(duplicatedPublication.sessionHistoryReason,'duplicate_energy_session_publication');
+
+const duplicateId=nativeSessionState([session('collision','white','vehicle_audi_q8',1,'CHARGING')],
+  [session('collision','black',null,4)]);
+assert.equal(new Projection({states:{a:duplicateId}},mobilityRuntime)
+  .viewModel('today').recentSessions.length,0,'duplicate session ID never chooses an arbitrary winner');
+
+const invalidTimes=nativeSessionState([],[
+  {...session('no-tz','white','vehicle_audi_q8',1),started_at:'2026-10-23T10:00:00'},
+  {...session('reversed','white','vehicle_audi_q8',1),finished_at:'2026-10-23T08:00:00+02:00'},
+]);
+assert.equal(new Projection({states:{a:invalidTimes}},mobilityRuntime)
+  .viewModel('today').recentSessions.length,0);
+
+const router=fs.readFileSync('src/ui/screens/router.js','utf8');
+const localization=fs.readFileSync('src/app/localization.js','utf8');
+assert.match(router,/insights\.charging_sessions/);
+assert.match(router,/insights\.session_cost_unavailable/);
+assert.match(router,/insights\.unassigned_vehicle/);
+for(const key of ['charging_sessions','charging_history','session_cost_unavailable','unassigned_vehicle','session_source_unavailable']){
+  assert.equal((localization.match(new RegExp('"insights\\.'+key+'"','g'))||[]).length,3,
+    'EN NL FR key '+key);
+}
+
+
+const vehicleAdapter=fs.readFileSync('src/domain/adapters/vehicle-adapter.js','utf8');
+vm.runInContext(vehicleAdapter+'\nthis.__Vehicle=HomeBrainVehicleAdapter;',context);
+const Detail=context.__Vehicle;
+const detailRuntime={
+  hass:withSessions,
+  mobilityRegistry:()=>[{asset_id:'vehicle_audi_q8',display_name:'Audi Q8'}],
+  assetDisplayName:id=>id==='driveway_left'?'Left Wallbox':id==='driveway_right'?'Right Wallbox':id,
+  t:(_key,_args,fallback)=>fallback
+};
+const rowsForQ8=new Detail(detailRuntime,'audi_q8',{}).chargingSessionHistoryRows('vehicle_audi_q8');
+assert.equal(rowsForQ8.length,2,'vehicle detail shows only Energy sessions proven for that exact vehicle');
+assert.equal(rowsForQ8[0].label.includes('Wallbox'),true);
+assert.ok(rowsForQ8.some(row=>row.value.includes('Cost not allocated')));
+assert.ok(rowsForQ8.some(row=>row.value.includes('€0.00')),'qualified zero cost remains zero');
+const unknownVehicleRows=new Detail(detailRuntime,'vehicle_guest',{})
+  .chargingSessionHistoryRows('vehicle_guest');
+assert.equal(unknownVehicleRows.length,1);
+assert.match(unknownVehicleRows[0].value,/No qualified charging sessions/);
+const vehicleDetailSource=fs.readFileSync('src/ui/screens/vehicle-detail.js','utf8');
+assert.match(vehicleDetailSource,/revisionSignature\("history"\)/);
+assert.match(vehicleAdapter,/key:"charging_sessions"/);
+
 console.log('Energy Mobility period-scoped canonical Insights smoke PASS');

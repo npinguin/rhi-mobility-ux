@@ -28,7 +28,7 @@ class HomeBrainVehicleAssetDetailCard extends HTMLElement {
       "MOBILITY_ACTIVITY_V2",
       "MOBILITY_PROFILE_CATALOG_V2",
       "MOBILITY_SUPERVISION_V2"
-    ]);
+    ]) + "|" + new HomeBrainEnergyCanonicalProjection(hass).revisionSignature("history");
     if (sig !== this._lastSignature) {
       this._lastSignature = sig;
       const model = new HomeBrainVehicleAdapter(rt, id, this.config).build();
