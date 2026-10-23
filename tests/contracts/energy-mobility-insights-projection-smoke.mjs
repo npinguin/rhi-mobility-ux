@@ -114,4 +114,27 @@ for(const key of ['charging_sessions','charging_history','session_cost_unavailab
     'EN NL FR key '+key);
 }
 
+
+const vehicleAdapter=fs.readFileSync('src/domain/adapters/vehicle-adapter.js','utf8');
+vm.runInContext(vehicleAdapter+'\nthis.__Vehicle=HomeBrainVehicleAdapter;',context);
+const Detail=context.__Vehicle;
+const detailRuntime={
+  hass:withSessions,
+  mobilityRegistry:()=>[{asset_id:'vehicle_audi_q8',display_name:'Audi Q8'}],
+  assetDisplayName:id=>id==='driveway_left'?'Left Wallbox':id==='driveway_right'?'Right Wallbox':id,
+  t:(_key,_args,fallback)=>fallback
+};
+const rowsForQ8=new Detail(detailRuntime,'audi_q8',{}).chargingSessionHistoryRows('vehicle_audi_q8');
+assert.equal(rowsForQ8.length,2,'vehicle detail shows only Energy sessions proven for that exact vehicle');
+assert.equal(rowsForQ8[0].label.includes('Wallbox'),true);
+assert.ok(rowsForQ8.some(row=>row.value.includes('Cost not allocated')));
+assert.ok(rowsForQ8.some(row=>row.value.includes('€0.00')),'qualified zero cost remains zero');
+const unknownVehicleRows=new Detail(detailRuntime,'vehicle_guest',{})
+  .chargingSessionHistoryRows('vehicle_guest');
+assert.equal(unknownVehicleRows.length,1);
+assert.match(unknownVehicleRows[0].value,/No qualified charging sessions/);
+const vehicleDetailSource=fs.readFileSync('src/ui/screens/vehicle-detail.js','utf8');
+assert.match(vehicleDetailSource,/revisionSignature\("history"\)/);
+assert.match(vehicleAdapter,/key:"charging_sessions"/);
+
 console.log('Energy Mobility period-scoped canonical Insights smoke PASS');
