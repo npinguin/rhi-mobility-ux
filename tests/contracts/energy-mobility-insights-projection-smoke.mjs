@@ -81,6 +81,13 @@ assert.notEqual(new Projection(withSessions,mobilityRuntime).energy.revisionSign
   new Projection(hass,mobilityRuntime).energy.revisionSignature('history'),
   'native Energy session update invalidates Mobility History');
 
+const negativeMoney=nativeSessionState([],[
+  session('priced-credit','driveway_left','vehicle_audi_q8',1.0,'FINISHED',-0.025,'ALLOCATED')
+]);
+const creditRow=new Projection({states:{a:negativeMoney}},mobilityRuntime).viewModel('today').recentSessions[0];
+assert.equal(creditRow.energyKwh,1);
+assert.equal(creditRow.costEur,-0.025,'negative price is a qualified site credit, not unavailable');
+
 const withoutCostAllocation=nativeSessionState([],
   [session('s','c','vehicle_audi_q8',4,'FINISHED',99,'NOT_ALLOCATED')]);
 assert.equal(new Projection({states:{a:withoutCostAllocation}},mobilityRuntime)
