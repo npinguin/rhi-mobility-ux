@@ -360,6 +360,24 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
         </div>
       </article>`;
     }).join("");
+    const sessionRows=(insights.recentSessions||[]).map(session=>{
+      const vehicleName=session.vehicleId
+        ? String(rt.assetDisplayName?.(session.vehicleId)||session.vehicleId)
+        : String(rt.t?.("insights.unassigned_vehicle",{},"Unassigned vehicle")||"Unassigned vehicle");
+      const chargerName=String(rt.assetDisplayName?.(session.chargerId)||session.chargerId);
+      const measured=session.energyKwh===null?"—":`${Number(session.energyKwh).toFixed(2)} kWh`;
+      const euros=session.costEur===null
+        ? String(rt.t?.("insights.session_cost_unavailable",{},"Cost not allocated")||"Cost not allocated")
+        : `€${Number(session.costEur).toFixed(2)}`;
+      const t=Date.parse(session.finishedAt||session.lastObservedAt||session.startedAt);
+      const when=Number.isFinite(t)?new Date(t).toLocaleString():"—";
+      return `<div class="rhi-data-row">
+        <b>${rt.escape(vehicleName)} · ${rt.escape(chargerName)}</b>
+        <span>${rt.escape(String(session.status))} · ${rt.escape(when)} · ${rt.escape(measured)} · ${rt.escape(euros)}</span>
+      </div>`;
+    }).join("");
+    const sessionWindow=insights.sessionHistoryCount===null?""
+      : `${Number(insights.sessionHistoryCount)} ${rt.escape(String(rt.t?.("insights.completed_sessions",{},"completed sessions in history")||"completed sessions in history"))}`;
     const gap = (!insights.meteringAvailable && !insights.valueAvailable)
       ? "Energy metering and value contracts are unavailable. Mobility does not estimate vehicle energy or financial value."
       : (!rows ? "Energy is available, but no published metering/value record currently matches a canonical Mobility vehicle id." : "");
@@ -383,6 +401,15 @@ class HomeBrainMobilityPlaceholderCard extends HTMLElement {
           ${executionHtml || `<div class="rhi-context-note">No command execution results published yet. Current asset status is available under Activity.</div>`}
           <button class="rhi-insight-open-activity" data-nav="${hbMobilityPath("/log")}">View Activity <ha-icon icon="mdi:chevron-right"></ha-icon></button>
         </div>
+      </article>
+      <article class="rhi-context-card rhi-insights-wide">
+        <div class="rhi-context-card-kicker"><ha-icon icon="mdi:ev-station"></ha-icon>${rt.escape(String(rt.t?.("insights.charging_sessions",{},"Charging sessions")||"Charging sessions"))}</div>
+        <h3>${rt.escape(String(rt.t?.("insights.charging_history",{},"Recent charging history")||"Recent charging history"))}</h3>
+        <p>${rt.escape(String(rt.t?.("insights.charging_history_desc",{},"Energy measures charging sessions; only physically proven vehicle identities are attributed. Costs stay unknown unless Energy allocates them.")||"Energy measures charging sessions; only physically proven vehicle identities are attributed. Costs stay unknown unless Energy allocates them."))}</p>
+        ${sessionRows ? `<div class="rhi-data-list">${sessionRows}</div>` :
+          `<div class="rhi-context-note">${rt.escape(String(rt.t?.("insights.no_charging_sessions",{},"No qualified charging sessions published yet.")||"No qualified charging sessions published yet."))}</div>`}
+        ${sessionWindow ? `<small>${sessionWindow}</small>` : ""}
+        ${!insights.sessionsAvailable ? `<div class="rhi-context-note">${rt.escape(String(rt.t?.("insights.session_source_unavailable",{},"Energy session history is unavailable or ambiguous.")||"Energy session history is unavailable or ambiguous."))}</div>` : ""}
       </article>
     </section>`;
   }
