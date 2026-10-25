@@ -1,3 +1,9 @@
+## 1.0.0-rc.101 — User-requested five-package HACS TEST 20261024
+
+- Real native Energy charging-session History and per-vehicle detail from UX #202, signed positive/negative grid-only € when Energy qualifies it from UX #203.
+- Exact TEST matrix Foundation F1.8.48, Mobility M0.10.54, Energy E0.15.141, Mobility UX rc.101, Energy UX rc.23; see Foundation #129.
+- Code-wise 3/12 source accepted, 0/12 physically runtime accepted. Full Wessels, Molas/Huawei, independent Sonnen/SMA readback, recovery, restart, rollback, EN/NL/FR are required. STABLE NO-GO.
+
 ## 1.0.0-rc.100 — Governed HACS runtime test pilot
 
 - New immutable official five-package HACS TEST identity; do not reuse rc.99 or manual C3/C4 QA ZIPs.
