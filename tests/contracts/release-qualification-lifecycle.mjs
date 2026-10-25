@@ -38,8 +38,18 @@ if((verifyBlock.match(/^    if:/gm)||[]).length!==1) throw new Error('Publish HA
 const rhiGate=JSON.parse(fs.readFileSync(new URL('../../release/COORDINATED_PUBLICATION_GATE.json',import.meta.url),'utf8'));
 if(rhiGate.mode!=='EXPLICIT_USER_REQUEST_HACS_TEST' || rhiGate.publication_hold!==true)
   throw new Error('HACS TEST must be default-hold, user-request mode');
-if(rhiGate.test_request?.status!=='NOT_REQUESTED' || rhiGate.stable_release?.user_approval_status!=='NOT_APPROVED')
-  throw new Error('Governance change alone may never authorize test or stable release');
+const requestState=rhiGate.test_request?.status;
+if(!['NOT_REQUESTED','STAGED_PENDING_FIVE_MAIN_VALIDATIONS','AUTHORIZED_FOR_TEST'].includes(requestState) ||
+   rhiGate.stable_release?.user_approval_status!=='NOT_APPROVED')
+  throw new Error('Unknown HACS TEST state or implied STABLE approval');
+if(requestState==='STAGED_PENDING_FIVE_MAIN_VALIDATIONS'){
+  const guard=fs.readFileSync(new URL('../../tools/check_hacs_test_request.py',import.meta.url),'utf8');
+  if(!guard.includes('req.get("status") == "AUTHORIZED_FOR_TEST"'))
+    throw new Error('Staged candidate must be refused by the real publisher');
+  if(rhiGate.test_request?.requested_by!=='USER' ||
+     rhiGate.test_request?.matrix?.mobility_ux!==`v${pkg.version}`)
+    throw new Error('Staged TEST needs exact user request and current immutable tag');
+}
 if(!publish.includes('Require explicit user-requested HACS TEST and exact-main CI') ||
    !publish.includes('python3 tools/check_hacs_test_request.py'))
   throw new Error('User-request HACS TEST source gate missing');
