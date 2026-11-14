@@ -105,6 +105,12 @@ for(const token of ['RHI_MOBILITY_CANONICAL_PROPERTY_V1 access','MOBILITY_EXPERI
   if(!runtimeOwns.includes(token)) failures.push(`src/OWNERSHIP runtime boundary missing: ${token}`);
 }
 if(runtimeOwns.includes('MOBILITY_PUBLIC_RUNTIME_V1 access') || runtimeOwns.includes('MOBILITY_PUBLIC_RUNTIME_V2 access')) failures.push('src/OWNERSHIP still declares retired runtime aggregate access');
+for(const token of ['RHI_MOBILITY_CANONICAL_PROPERTY_V1','release/product.json','Missing publication fails closed']){
+  if(!handover.includes(token)) failures.push('ENGINEER_HANDOVER missing current authority: '+token);
+}
+for(const token of ['MOBILITY_PUBLIC_RUNTIME_V2 = canonical facts','Frozen V1 may remain','Frozen V1 code may exist']){
+  if(handover.includes(token)) failures.push('ENGINEER_HANDOVER contains retired authority: '+token);
+}
 if(/\brc\.\d+\b/.test(handover)) failures.push('ENGINEER_HANDOVER must not copy current candidate identity; use machine release authorities');
 if(handover.includes('Release attaches evidence only') || handover.includes('evidence assets only')) failures.push('ENGINEER_HANDOVER contains stale release-asset guidance');
 if(handover.includes('src/assets/branding/company-logo.svg\` is the canonical artwork source')) failures.push('ENGINEER_HANDOVER incorrectly makes the vendored brand copy canonical');
