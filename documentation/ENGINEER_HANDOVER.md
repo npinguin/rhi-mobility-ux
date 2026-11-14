@@ -60,18 +60,18 @@ Testing mirrors code ownership: **one invariant, one test owner**. Do not make a
 
 ## Product boundary
 
-Target architecture:
+Current architecture:
 
 ```text
-MOBILITY_PUBLIC_RUNTIME_V2 = canonical facts
-MOBILITY_POLICY_V2         = thresholds / interpretation rules
-MOBILITY_EXPERIENCE_V2     = user-facing conclusions
-UX                         = select / aggregate / format / present
+RHI_MOBILITY_CANONICAL_PROPERTY_V1 = canonical per-asset facts / fleet membership
+MOBILITY_POLICY_V2                = thresholds / interpretation rules
+MOBILITY_EXPERIENCE_V2            = user-facing conclusions and physical relationships
+UX                                = select / aggregate / format / present
 ```
 
-The supported runtime path is V2-only on Mobility M0.9.44+: Runtime V2, Experience V2, Policy V2, Command V2, Activity V2, Profile Catalog V2, Supervision V2 and canonical per-asset V2 semantic configuration. Frozen V1 code may exist only for unsupported older-backend compatibility and must never execute as fallback once Runtime V2 is present. Current release/backend identity must always be read from `package.json` and `release/product.json`, never from this handover.
+Use the native canonical property boundary and the explicit domain-owned Experience, Policy, Command, Activity, Profile Catalog, Supervision and Energy contracts listed in `release/product.json`. Older aggregate product indexes and compatibility interfaces are decommissioned. Missing publication fails closed; no old product index or fallback is consulted. Current release/backend identity comes from the machine authorities above.
 
-Configuration controls consume backend-published canonical V2 write metadata, options and write targets. `asset.profile_id`, `vehicle.image_key` and `charger.image_key` are the picker persistence surfaces. Frozen V1 may remain as old-backend compatibility code, but the current M0.9.44+ release path never uses it as fallback authority. Runtime controls remain fail-closed without published write capability.
+Configuration controls consume backend-published canonical write metadata, options and write targets. `asset.profile_id`, `vehicle.image_key` and `charger.image_key` are the picker persistence surfaces. Runtime controls remain fail-closed without published write capability.
 
 Actual/readback is the normal operational truth. Requested intent is transient during editing/pending write and must not replace canonical actual state.
 
@@ -107,7 +107,7 @@ Global supervisor status, trust and attention are Mobility Supervision V2-owned.
 `documentation/KNOWN_DEFECTS.md` is authoritative for unresolved product defects. These are unresolved defects, not accepted feature debt. Do not silently close them through frontend inference or fallback logic.
 
 In particular:
-- V2 interface migration remains an explicit open issue until remaining V1 property-index/V1-shaped assumptions are removed or isolated as compatibility-only and target runtime proof exists;
+- Canonical-only source regression and target runtime proof are distinct gates; legacy product indexes are forbidden, not a compatibility option;
 - frontend-derived supervisory meaning and requested-versus-actual cleanup may only be closed when backend public contracts supply the required authority and owned regression tests prove the UX consumes it correctly;
 - picker persistence is not closed by a green service call; canonical readback plus refresh/reload/restart proof is required.
 
@@ -168,7 +168,7 @@ Before changing behavior:
 2. read `documentation/HISTORY_AND_LESSONS.md` and `documentation/KNOWN_DEFECTS.md`;
 3. inspect `release/QUALIFICATION.json` for target-runtime gates still pending;
 4. classify the requested change against source/test ownership;
-5. confirm whether the path is V2-native or still using a compatibility fallback;
+5. confirm the canonical native authority and reject any compatibility fallback;
 6. add/adjust the owned anti-drift regression before considering the issue structurally closed.
 
 Do not start premium visual work while a related identity, persistence or canonical-render defect is still open.
